@@ -1,0 +1,534 @@
+/* dev-main-product.css — PDP buy box. Desktop 45060:2105, mobile 44795:191 + 44835:5511. */
+
+.dev-main-product {
+  padding: 0 var(--section-px);
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+}
+
+.dev-main-product__inner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--col-gap);
+}
+
+/* ---- Gallery ------------------------------------------------------------ */
+
+.dev-main-product__gallery {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: flex-start;
+  gap: var(--gallery-gap);
+  padding-top: var(--pt);
+}
+
+.dev-main-product__thumbs {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: var(--thumb-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dev-main-product__thumb {
+  display: block;
+  position: relative;
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  padding: 0;
+  /* The border is always here, transparent when idle. Adding it only to the active thumb would
+     make that one 2px bigger and nudge the whole strip. */
+  border: 1px solid transparent;
+  border-radius: var(--thumb-radius);
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.dev-main-product__thumb--active {
+  border-color: var(--color);
+}
+
+/* The active thumb is dimmed, not brightened — it is the one you are already looking at. */
+.dev-main-product__thumb--active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: rgb(0 0 0 / 10%);
+}
+
+.dev-main-product__thumb-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
+
+.dev-main-product__play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--play-size);
+  height: var(--play-size);
+  border-radius: var(--arrow-radius);
+  background-color: rgb(255 255 255 / 60%);
+  backdrop-filter: blur(12.9px);
+  color: var(--color);
+  transform: translate(-50%, -50%);
+}
+
+.dev-main-product__play svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.dev-main-product__stage {
+  position: relative;
+  flex-shrink: 0;
+  width: var(--image-w);
+  max-width: 100%;
+}
+
+.dev-main-product__slides {
+  position: relative;
+  width: 100%;
+  height: var(--image-h);
+  margin: 0;
+  padding: 0;
+  border-radius: var(--image-radius);
+  list-style: none;
+  overflow: hidden;
+}
+
+/* Every slide is stacked; only the active one is visible. Kept in the DOM rather than swapped in
+   by JS so the browser can preload and so the gallery still shows the first image with no JS. */
+.dev-main-product__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition) ease;
+}
+
+.dev-main-product__slide--active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.dev-main-product__media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--image-radius);
+  object-fit: cover;
+}
+
+.dev-main-product__badge {
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  padding: var(--badge-pad);
+  border-radius: var(--badge-radius);
+  background-color: #fff;
+  color: var(--color);
+  font-size: var(--font-badge-size);
+  font-weight: var(--w-bold);
+  line-height: var(--font-body-lh);
+  white-space: nowrap;
+}
+
+.dev-main-product__seal {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.dev-main-product__seal-image {
+  display: block;
+  width: 90px;
+  height: auto;
+  border-radius: var(--thumb-radius);
+}
+
+.dev-main-product__arrows {
+  position: absolute;
+  bottom: 32px;
+  left: 32px;
+  display: flex;
+  gap: var(--variant-gap);
+}
+
+.dev-main-product__arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--arrow-pad);
+  border: 0;
+  border-radius: var(--arrow-radius);
+  background-color: var(--surface);
+  color: var(--color);
+  cursor: pointer;
+}
+
+.dev-main-product__arrow svg {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+/* ---- Buy column --------------------------------------------------------- */
+
+.dev-main-product__buy {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: var(--buy-gap);
+  width: var(--buy-w);
+  padding-top: calc(var(--pt) * 2);
+  /* Figma marks the column sticky — it holds while the gallery scrolls past. */
+  position: sticky;
+  top: 0;
+}
+
+.dev-main-product__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--title-gap);
+}
+
+.dev-main-product__rating {
+  display: flex;
+  align-items: center;
+  gap: var(--variant-gap);
+}
+
+/* A 4.9 is four stars and nine tenths, so the fill is clipped to --rating-pct rather than rounded
+   up to five. Two stacked copies: a muted row underneath, a gold row on top clipped by width. */
+.dev-main-product__stars {
+  position: relative;
+  display: inline-block;
+  font-size: var(--font-stars-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+  white-space: nowrap;
+}
+
+.dev-main-product__stars-base {
+  color: #ededed;
+}
+
+.dev-main-product__stars-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--rating-pct);
+  color: var(--star-color);
+  overflow: hidden;
+}
+
+.dev-main-product__rating-link {
+  color: var(--color);
+  font-size: var(--font-label-size);
+  font-weight: var(--w-bold);
+  line-height: var(--font-body-lh);
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+.dev-main-product__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-title-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+.dev-main-product__sub {
+  display: flex;
+  flex-direction: column;
+}
+
+.dev-main-product__tagline,
+.dev-main-product__subtitle {
+  margin: 0;
+  font-size: var(--font-sub-size);
+  line-height: var(--font-body-lh);
+}
+
+.dev-main-product__tagline {
+  font-weight: var(--w-bold);
+}
+
+.dev-main-product__subtitle {
+  font-weight: var(--w-medium);
+}
+
+/* ---- Options ------------------------------------------------------------ */
+
+.dev-main-product__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--buy-gap);
+  margin: 0;
+}
+
+.dev-main-product__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--group-gap);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* A <legend> will not lay out as a flex/grid child in every engine, so the row inside it does the
+   work and the legend itself just carries the semantics. */
+.dev-main-product__legend {
+  display: block;
+  width: 100%;
+  padding: 0;
+}
+
+.dev-main-product__legend-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--variant-gap);
+}
+
+.dev-main-product__legend-text {
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: var(--font-label-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+}
+
+.dev-main-product__legend-text strong {
+  font-weight: var(--w-bold);
+}
+
+.dev-main-product__legend-link {
+  flex-shrink: 0;
+  color: var(--color);
+  font-size: var(--font-label-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+  text-align: right;
+  text-decoration: underline;
+  text-underline-position: from-font;
+  white-space: nowrap;
+}
+
+.dev-main-product__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--variant-gap);
+}
+
+/* The radio is the state; the label is the chip. Hidden with clip rather than display:none so it
+   stays focusable and keyboard arrow-keys still move between the options like a real radio group. */
+.dev-main-product__chip-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.dev-main-product__chip {
+  display: flex;
+  flex: 1 1 var(--chip-w, 226px);
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  padding: var(--variant-pad);
+  border: var(--variant-border-w) solid var(--accent);
+  border-radius: var(--variant-radius);
+  background-color: transparent;
+  color: var(--color);
+  font-size: var(--font-variant-size);
+  font-weight: var(--w-bold);
+  line-height: var(--font-body-lh);
+  text-align: center;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background-color var(--transition) ease;
+}
+
+.dev-main-product__chip-input:checked + .dev-main-product__chip {
+  background-color: var(--accent);
+}
+
+.dev-main-product__chip-input:focus-visible + .dev-main-product__chip {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
+
+/* A combination Shopify has no variant for, or one that is out of stock. Struck through rather than
+   removed: the size still exists, it just is not available in this tog. */
+.dev-main-product__chip--unavailable {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+/* ---- Add to cart -------------------------------------------------------- */
+
+.dev-main-product__cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cta-gap);
+  width: 100%;
+  height: var(--cta-h);
+  margin: 0;
+  padding: var(--cta-pad);
+  border: 0;
+  border-radius: var(--cta-radius);
+  background-color: var(--accent);
+  color: var(--color);
+  font-family: var(--font-body);
+  font-size: var(--font-cta-size);
+  font-weight: var(--w-bold);
+  line-height: var(--font-body-lh);
+  cursor: pointer;
+  box-sizing: border-box;
+  appearance: none;
+}
+
+.dev-main-product__cta[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dev-main-product__cta-divider {
+  width: 1px;
+  height: var(--cta-divider-h);
+  background-color: var(--color);
+}
+
+.dev-main-product__cta:focus-visible,
+.dev-main-product__arrow:focus-visible,
+.dev-main-product__thumb:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
+
+/* ---- Tablet (769–1200) — no Figma reference: don't overflow, don't crush the buy column. */
+
+@media (max-width: 1200px) {
+  .dev-main-product__inner {
+    --col-gap: 40px;
+    --buy-w: 380px;
+  }
+
+  .dev-main-product__stage {
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .dev-main-product__slides {
+    height: auto;
+    aspect-ratio: 668 / 640;
+  }
+}
+
+/* ---- Mobile (<=768) ----------------------------------------------------
+   Gallery on top, full-bleed, with the thumbnails as a horizontal strip beneath it; then the buy
+   column. The mobile artboard runs the image edge to edge (44835:5511 is 375 wide on a 375 board),
+   so the section drops its side padding and the copy carries its own. */
+
+@media (max-width: 768px) {
+  .dev-main-product {
+    padding: 0;
+  }
+
+  .dev-main-product__inner {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .dev-main-product__gallery {
+    flex-direction: column;
+    width: 100%;
+    padding-top: 0;
+  }
+
+  .dev-main-product__stage {
+    order: 1;
+    width: 100%;
+  }
+
+  .dev-main-product__slides {
+    height: var(--image-h-mobile);
+    aspect-ratio: auto;
+    border-radius: 0;
+  }
+
+  .dev-main-product__media {
+    border-radius: 0;
+  }
+
+  /* Thumbnails become a scrolling strip under the image. The sixth one deliberately runs off the
+     edge on the artboard — that overhang is the affordance that says "these scroll". */
+  .dev-main-product__thumbs {
+    order: 2;
+    flex-direction: row;
+    width: 100%;
+    padding: 8px var(--section-px-mobile);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .dev-main-product__thumbs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dev-main-product__thumb-item {
+    flex-shrink: 0;
+  }
+
+  .dev-main-product__arrows {
+    bottom: 16px;
+    left: auto;
+    right: 16px;
+  }
+
+  .dev-main-product__arrow {
+    padding: 7px;
+  }
+
+  .dev-main-product__buy {
+    position: static;
+    width: auto;
+    padding: 8px var(--section-px-mobile) 0;
+  }
+
+  .dev-main-product__title {
+    font-size: var(--font-title-size-mobile);
+  }
+
+  .dev-main-product__tagline,
+  .dev-main-product__subtitle {
+    font-size: var(--font-sub-size-mobile);
+  }
+
+  .dev-main-product__chip {
+    flex-basis: calc(50% - var(--variant-gap));
+  }
+}

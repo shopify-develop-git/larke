@@ -1,0 +1,404 @@
+{{ 'dev-main-product.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'dev-main-product.js' | asset_url }}" defer></script>
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .dev-main-product {
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+
+    --section-px: 64px;
+    --section-px-mobile: 16px;
+    --col-gap: 96px;
+    --pt: 32px;
+
+    /* Desktop/Title 3 vs Mobile/Title 3 — the mobile artboard states its own size. */
+    --font-title-size: 32px;
+    --font-title-size-mobile: 24px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+
+    --font-sub-size: 18px;
+    --font-sub-size-mobile: 16px;
+    --font-label-size: 16px;
+    --font-variant-size: 16px;
+    --font-cta-size: 20px;
+    --font-badge-size: 14px;
+    --font-stars-size: 18px;
+    --font-body-lh: 1.4;
+    --w-medium: 500;
+    --w-bold: 700;
+
+    /* Gallery */
+    --gallery-gap: 24px;
+    --thumb-size: 62px;
+    --thumb-gap: 12px;
+    --thumb-radius: 8px;
+    --image-w: 668px;
+    --image-h: 640px;
+    --image-radius: 32px;
+    --image-h-mobile: 365px;
+    --arrow-pad: 19px;
+    --arrow-radius: 60px;
+    --icon-size: 24px;
+    --play-size: 28px;
+    --badge-pad: 4px 8px;
+    --badge-radius: 8px;
+
+    /* Buy column */
+    --buy-w: 460px;
+    --buy-gap: 32px;
+    --title-gap: 8px;
+    --group-gap: 16px;
+    --variant-gap: 8px;
+    --variant-radius: 8px;
+    /* 226x58 on the artboard. The border is 1px INSIDE the box in Figma, so CSS padding must be
+       one pixel short of the drawn inset: 1 + 31 = 32, 1 + 17 = 18. And the SELECTED chip carries a
+       transparent border of the same width — without it the filled chip would be 2px shorter than
+       the outlined ones sitting next to it. */
+    --variant-pad: 17px 31px;
+    --variant-border-w: 1px;
+
+    --cta-h: 60px;
+    --cta-radius: 60px;
+    --cta-pad: 16px 24px;
+    --cta-gap: 24px;
+    --cta-divider-h: 28px;
+
+    --transition: 200ms;
+  }
+</style>
+
+{%- liquid
+  assign product_media = product.media
+  assign current = product.selected_or_first_available_variant
+
+  assign rating = section.settings.rating_value
+  assign rating_pct = rating | times: 20.0
+  if rating_pct > 100
+    assign rating_pct = 100
+  endif
+-%}
+
+{%- comment -%}
+  The PDP buy box. Gallery left, sticky purchase column right (Figma 45060:2105).
+
+  The variant chips are rendered from product.options_with_values — the REAL Shopify options. The
+  artboard labels the second option "Tog: Lightweight", but this product's option is "Warmth: 4.5
+  tog"; the owner's call was to trust the data, not the mock. So the chips read whatever the product
+  actually carries, and this section works on any product instead of only on the one that was drawn.
+
+  Every class is dev-prefixed: Horizon compiles every stock section's {% stylesheet %} into a sheet
+  that loads on every page, so an unprefixed BEM name inherits stock rules.
+{%- endcomment -%}
+<div
+  class="dev-main-product"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --star-color: {{ section.settings.star_color }};
+    --surface: {{ section.settings.surface_color }};
+    --rating-pct: {{ rating_pct }}%;
+  "
+  data-main-product
+>
+  <div class="dev-main-product__inner">
+    {%- comment -%} ---------- Gallery ---------- {%- endcomment -%}
+    <div class="dev-main-product__gallery">
+      {%- if product_media.size > 1 -%}
+        <ul class="dev-main-product__thumbs" role="list">
+          {%- for media in product_media -%}
+            {%- comment -%}
+              The alt is computed BEFORE the tag. A filter chain inside a named image_tag argument
+              (`alt: media.alt | default: x | escape,`) does not parse — the comma after the filter
+              is read as part of it, and the whole section fails to upload.
+            {%- endcomment -%}
+            {%- liquid
+              assign media_alt = media.alt | default: product.title | escape
+              assign thumb_label = 'accessibility.slide_status' | t: index: forloop.index, length: product_media.size
+            -%}
+            <li class="dev-main-product__thumb-item">
+              <button
+                type="button"
+                class="dev-main-product__thumb{% if forloop.first %} dev-main-product__thumb--active{% endif %}"
+                data-thumb
+                data-index="{{ forloop.index0 }}"
+                aria-label="{{ thumb_label | escape }}"
+                aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+              >
+                {{
+                  media.preview_image
+                  | image_url: width: 186
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '62, 124, 186',
+                    sizes: '62px',
+                    alt: media_alt,
+                    class: 'dev-main-product__thumb-image'
+                }}
+
+                {%- comment -%}
+                  Only a real video gets the play badge. The artboard shows one because the mock had
+                  a video in the gallery; whether THIS product has one is a fact about the product,
+                  not about the design.
+                {%- endcomment -%}
+                {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+                  <span class="dev-main-product__play" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                      <path d="M8 5.5V18.5L19 12L8 5.5Z" fill="currentColor"/>
+                    </svg>
+                  </span>
+                {%- endif -%}
+              </button>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+      <div class="dev-main-product__stage">
+        <ul class="dev-main-product__slides" role="list" data-slides>
+          {%- for media in product_media -%}
+            {%- liquid
+              assign slide_alt = media.alt | default: product.title | escape
+              assign slide_loading = 'lazy'
+              if forloop.first
+                assign slide_loading = 'eager'
+              endif
+            -%}
+            <li
+              class="dev-main-product__slide{% if forloop.first %} dev-main-product__slide--active{% endif %}"
+              data-slide
+              data-index="{{ forloop.index0 }}"
+            >
+              {%- if media.media_type == 'video' -%}
+                {{ media | video_tag: controls: true, class: 'dev-main-product__media' }}
+              {%- elsif media.media_type == 'external_video' -%}
+                {{ media | external_video_tag: class: 'dev-main-product__media' }}
+              {%- else -%}
+                {{
+                  media
+                  | image_url: width: 1400
+                  | image_tag:
+                    loading: slide_loading,
+                    widths: '668, 1000, 1336, 1400',
+                    sizes: '(max-width: 768px) 100vw, 668px',
+                    alt: slide_alt,
+                    class: 'dev-main-product__media'
+                }}
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+
+        {%- if section.settings.badge_text != blank -%}
+          <span class="dev-main-product__badge">{{ section.settings.badge_text | escape }}</span>
+        {%- endif -%}
+
+        {%- if section.settings.seal_image != blank -%}
+          {%- assign seal_alt = section.settings.seal_alt | escape -%}
+          <span class="dev-main-product__seal">
+            {{
+              section.settings.seal_image
+              | image_url: width: 270
+              | image_tag:
+                loading: 'lazy',
+                widths: '90, 180, 270',
+                sizes: '90px',
+                alt: seal_alt,
+                class: 'dev-main-product__seal-image'
+            }}
+          </span>
+        {%- endif -%}
+
+        {%- if product_media.size > 1 -%}
+          <div class="dev-main-product__arrows">
+            <button type="button" class="dev-main-product__arrow" data-prev aria-label="{{ 'accessibility.slideshow_previous' | t | escape }}">
+              {%- comment -%} Exported from Figma (Icon/Outline/arrow-narrow-left) — path data verbatim. {%- endcomment -%}
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                <path d="M7 8L3 12L7 16M3 12L21 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <button type="button" class="dev-main-product__arrow" data-next aria-label="{{ 'accessibility.slideshow_next' | t | escape }}">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                <path d="M17 16L21 12L17 8M21 12L3 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- comment -%} ---------- Buy column ---------- {%- endcomment -%}
+    <div class="dev-main-product__buy">
+      <div class="dev-main-product__head">
+        {%- if section.settings.show_rating -%}
+          <div class="dev-main-product__rating">
+            {%- comment -%}
+              4.9/5 is FOUR full stars and one 90% full — the artboard clips the fifth with a
+              gradient. Painting five solid stars would be a nicer number than the product has.
+            {%- endcomment -%}
+            <span class="dev-main-product__stars" role="img" aria-label="{{ rating }} / 5">
+              <span class="dev-main-product__stars-base" aria-hidden="true">★★★★★</span>
+              <span class="dev-main-product__stars-fill" aria-hidden="true">★★★★★</span>
+            </span>
+            {%- if section.settings.rating_link != blank -%}
+              <a class="dev-main-product__rating-link" href="{{ section.settings.rating_link }}">
+                {{- section.settings.rating_label | escape -}}
+              </a>
+            {%- else -%}
+              <span class="dev-main-product__rating-link">{{ section.settings.rating_label | escape }}</span>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        <h1 class="dev-main-product__title">{{ product.title | escape }}</h1>
+
+        {%- if section.settings.tagline != blank or section.settings.subtitle != blank -%}
+          <div class="dev-main-product__sub">
+            {%- if section.settings.tagline != blank -%}
+              <p class="dev-main-product__tagline">{{ section.settings.tagline | escape }}</p>
+            {%- endif -%}
+            {%- if section.settings.subtitle != blank -%}
+              <p class="dev-main-product__subtitle">{{ section.settings.subtitle | escape }}</p>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- form 'product', product, class: 'dev-main-product__form', novalidate: 'novalidate' -%}
+        <input type="hidden" name="id" value="{{ current.id }}" data-variant-id>
+
+        {%- for option in product.options_with_values -%}
+          {%- liquid
+            assign selected = option.selected_value
+            assign link_label = ''
+            assign link_url = ''
+            if forloop.first
+              assign link_label = section.settings.option_1_link_label
+              assign link_url = section.settings.option_1_link
+            elsif forloop.index == 2
+              assign link_label = section.settings.option_2_link_label
+              assign link_url = section.settings.option_2_link
+            endif
+          -%}
+          <fieldset class="dev-main-product__group" data-option-index="{{ forloop.index0 }}">
+            <legend class="dev-main-product__legend">
+              <span class="dev-main-product__legend-row">
+                <span class="dev-main-product__legend-text">
+                  {{- option.name | escape }}: <strong data-selected-value>{{ selected | escape }}</strong>
+                </span>
+                {%- if link_label != blank and link_url != blank -%}
+                  <a class="dev-main-product__legend-link" href="{{ link_url }}">{{ link_label | escape }}</a>
+                {%- endif -%}
+              </span>
+            </legend>
+
+            <div class="dev-main-product__chips">
+              {%- for value in option.values -%}
+                {%- assign input_id = 'opt-' | append: option.position | append: '-' | append: forloop.index -%}
+                <input
+                  class="dev-main-product__chip-input"
+                  type="radio"
+                  id="{{ input_id }}"
+                  name="option-{{ option.position }}"
+                  value="{{ value | escape }}"
+                  data-option-input
+                  {% if value == selected %}checked{% endif %}
+                >
+                <label class="dev-main-product__chip" for="{{ input_id }}">{{ value | escape }}</label>
+              {%- endfor -%}
+            </div>
+          </fieldset>
+        {%- endfor -%}
+
+        <button
+          type="submit"
+          name="add"
+          class="dev-main-product__cta"
+          data-add
+          {% unless current.available %}disabled{% endunless %}
+        >
+          {%- comment -%}
+            Both labels ride on the element. The JS has to swap between them as the buyer moves
+            across combinations, and it cannot invent copy the merchant owns.
+          {%- endcomment -%}
+          <span
+            class="dev-main-product__cta-label"
+            data-cta-label
+            data-add-label="{{ section.settings.cta_label | escape }}"
+            data-sold-out-label="{{ section.settings.sold_out_label | escape }}"
+          >
+            {%- if current.available -%}
+              {{- section.settings.cta_label | escape -}}
+            {%- else -%}
+              {{- section.settings.sold_out_label | escape -}}
+            {%- endif -%}
+          </span>
+          <span class="dev-main-product__cta-divider" aria-hidden="true"></span>
+          <span class="dev-main-product__cta-price" data-cta-price>{{ current.price | money }}</span>
+        </button>
+      {%- endform -%}
+    </div>
+  </div>
+
+  {%- comment -%}
+    The variant table the JS resolves against. Rendered as JSON rather than rebuilt in script from
+    the DOM: the DOM only knows what the chips SAY, not which combination is a real, purchasable
+    variant, what it costs, or whether it is in stock.
+  {%- endcomment -%}
+  <script type="application/json" data-variants>
+    [
+      {%- for variant in product.variants -%}
+        {
+          "id": {{ variant.id }},
+          "options": {{ variant.options | json }},
+          "available": {{ variant.available }},
+          "price": {{ variant.price | money | json }}
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  </script>
+</div>
+
+{% schema %}
+{
+  "name": "Main product",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "text", "id": "tagline", "label": "Tagline (bold line)", "default": "Breathable. Love-able. Washable." },
+    { "type": "text", "id": "subtitle", "label": "Subtitle", "default": "Vegan-certified natural comfort for everyday sleepers." },
+    { "type": "text", "id": "cta_label", "label": "Add to cart label", "default": "Add to Order" },
+    { "type": "text", "id": "sold_out_label", "label": "Sold out label", "default": "Sold out" },
+
+    { "type": "header", "content": "Rating" },
+    { "type": "checkbox", "id": "show_rating", "label": "Show rating", "default": true },
+    { "type": "range", "id": "rating_value", "min": 0, "max": 5, "step": 0.1, "label": "Rating", "default": 4.9, "info": "Fills the stars proportionally — 4.9 leaves the fifth star 90% full, as drawn." },
+    { "type": "text", "id": "rating_label", "label": "Rating label", "default": "4.9/5" },
+    { "type": "url", "id": "rating_link", "label": "Rating link", "info": "Point it at the reviews section." },
+
+    { "type": "header", "content": "Gallery" },
+    { "type": "text", "id": "badge_text", "label": "Image badge", "default": "Smooth & Breezy" },
+    { "type": "image_picker", "id": "seal_image", "label": "Approval seal" },
+    { "type": "text", "id": "seal_alt", "label": "Approval seal alt text", "default": "Good Housekeeping Institute approved" },
+
+    { "type": "header", "content": "Option links" },
+    { "type": "paragraph", "content": "The small underlined links beside the first and second option labels." },
+    { "type": "text", "id": "option_1_link_label", "label": "Link 1 label", "default": "Size Guide" },
+    { "type": "url", "id": "option_1_link", "label": "Link 1" },
+    { "type": "text", "id": "option_2_link_label", "label": "Link 2 label", "default": "What’s the difference?" },
+    { "type": "url", "id": "option_2_link", "label": "Link 2" },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "accent_color", "label": "Accent (chips & button)", "default": "#A8CF78" },
+    { "type": "color", "id": "star_color", "label": "Star color", "default": "#F1B500" },
+    { "type": "color", "id": "surface_color", "label": "Arrow buttons", "default": "#FFFCF4" }
+  ],
+  "presets": [
+    { "name": "Main product" }
+  ]
+}
+{% endschema %}
