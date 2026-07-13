@@ -11,10 +11,17 @@
   display: flex;
   align-items: flex-start;
   gap: var(--col-gap);
+  max-width: var(--container-max);
+  margin-inline: auto;
 }
 
 /* ---- Gallery ------------------------------------------------------------ */
 
+/* The GALLERY is what sticks, not the buy column. Figma names the right-hand frame "Sticky", but
+   that column is 1893px tall — taller than any screen, so there is nothing for it to stick to. The
+   gallery is 672px: pinning it keeps the product in view while the buyer scrolls the variants, the
+   accordions and the comparison. Following the layer name would have produced a sticky element that
+   never sticks. */
 .dev-main-product__gallery {
   display: flex;
   flex: 1 1 auto;
@@ -22,6 +29,8 @@
   align-items: flex-start;
   gap: var(--gallery-gap);
   padding-top: var(--pt);
+  position: sticky;
+  top: 0;
 }
 
 .dev-main-product__thumbs {
@@ -196,9 +205,6 @@
   gap: var(--buy-gap);
   width: var(--buy-w);
   padding-top: calc(var(--pt) * 2);
-  /* Figma marks the column sticky — it holds while the gallery scrolls past. */
-  position: sticky;
-  top: 0;
 }
 
 .dev-main-product__head {

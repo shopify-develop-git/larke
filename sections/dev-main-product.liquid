@@ -9,6 +9,10 @@
 
     --section-px: 64px;
     --section-px-mobile: 16px;
+    /* 1440 artboard minus 2x64 of gutter. Without it the gallery just kept growing on a wide
+       monitor — the buy column is fixed at 460, so every extra pixel of viewport landed on the
+       image. The artboard is a 1312px frame, not a fluid one. */
+    --container-max: 1312px;
     --col-gap: 96px;
     --pt: 32px;
 
