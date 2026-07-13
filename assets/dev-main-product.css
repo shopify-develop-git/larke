@@ -788,7 +788,11 @@
   line-height: var(--font-heading-lh);
 }
 
+/* The tap target is grown, the box is not. Figma draws this link 28px tall, which is under the 44px
+   minimum for a touch target — but padding it to 44 would move the underline and break the artboard.
+   The ::after takes the hit area to 45px while the visible link stays exactly as drawn. */
 .dev-main-product__pc-link {
+  position: relative;
   display: inline-flex;
   align-self: flex-start;
   align-items: center;
@@ -800,6 +804,12 @@
   font-weight: var(--w-bold);
   line-height: var(--font-body-lh);
   text-decoration: none;
+}
+
+.dev-main-product__pc-link::after {
+  content: '';
+  position: absolute;
+  inset: -8px -4px;
 }
 
 .dev-main-product__pc-link svg {
