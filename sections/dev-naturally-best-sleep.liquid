@@ -1,0 +1,163 @@
+{{ 'dev-naturally-best-sleep.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  Section: "Naturally the best sleep" (dev name `naturally-best-sleep`).
+  Figma: desktop 45068:2587 (1312x195), mobile 44801:6564 (375x168).
+  Page: PDP (product). Part 2 of 3 carved out of Figma frame 45071:2617 — the other two are
+  dev-sleep-grows-on-trees (the cards) and dev-pdp-guarantees (the badge strip).
+
+  No JS: a heading and a link. Nothing toggles, slides or observes scroll.
+
+  NO BACKGROUND AT ALL — not even a card.
+  This section paints nothing: the page background (#FFFCF4) runs straight through it. So there
+  is deliberately no `--bg` on the root and no background_color setting in the schema. Adding one
+  would introduce a colour the design does not have. --color and --accent are the only colours.
+
+  THE BUTTON IS OUTLINED, NOT FILLED.
+  Figma's component here is the bordered variant (1px #333, transparent fill) — a different
+  instance from the solid green button in dev-fibre-cta. --accent is the border and the label,
+  and there is no fill. Do not "fix" this by giving it a background.
+
+  CONTAINER IS 1248px, NOT 1312px.
+  The block sits inside the parent frame's 64px gutter AND carries its own 32px inset, so the
+  copy is 1440 - 64*2 - 32*2 = 1248 wide. That total (96px) is --section-px; --container-max is
+  the 1248 it produces. On mobile the two collapse to a single 32px inset (375 - 64 = 311 wide,
+  which is exactly the Mobile artboard's text width).
+{%- endcomment -%}
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .naturally-best-sleep {
+    /* Brand params (Brief → Brand Params table). Faces are loaded by snippets/dev-brand-fonts.liquid. */
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+    --container-max: 1248px;
+    --section-px: 96px;
+    --section-px-m: 32px;
+
+    /* Typography — desktop */
+    --font-heading-size: 32px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+    --font-body-size: 18px;
+    --font-body-weight: 700;
+    --font-body-lh: 1.4;
+
+    /* Typography — mobile: read off the Mobile artboard (Mobile/Title 3, Body/Md_Body_Bold). */
+    --font-heading-size-m: 24px;
+    --font-body-size-m: 16px;
+
+    /* Spacing */
+    --spacing-md: 16px; /* heading -> button */
+
+    /* Mobile top spacer is 48px against a desktop 80px. Scaling the merchant's own padding_top
+       keeps that relationship intact if they change it. 80 * 0.6 = 48. */
+    --pt-scale-m: 0.6;
+
+    /* The button's padding is genuinely different per artboard — 24/18 desktop against 18/12
+       mobile — not one value at a scale factor. */
+    --button-pad-y: 18px;
+    --button-pad-x: 24px;
+    --button-pad-y-m: 12px;
+    --button-pad-x-m: 18px;
+    --button-border: 1px;
+
+    /* Layout / decoration */
+    --radius-button: 60px;
+  }
+</style>
+
+{%- liquid
+  # richtext: already-safe HTML from Shopify — never escape it. The <p> wrapper is unwrapped so the
+  # copy stays inline inside the <h2> (same idiom as dev-fibre-cta).
+  assign heading_html = section.settings.heading | remove: '<p>' | remove: '</p>'
+  assign button_label = section.settings.button_label
+-%}
+
+<div
+  class="naturally-best-sleep"
+  style="
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="naturally-best-sleep__inner">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="naturally-best-sleep__heading">{{ heading_html }}</h2>
+    {%- endif -%}
+
+    {%- if button_label != blank -%}
+      <a
+        class="naturally-best-sleep__button"
+        {% if section.settings.button_link != blank %}
+          href="{{ section.settings.button_link }}"
+        {% else %}
+          href="#"
+          aria-disabled="true"
+        {% endif %}
+      >
+        {{- button_label | escape -}}
+      </a>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Naturally the best sleep",
+  "tag": "section",
+  "presets": [{ "name": "Naturally the best sleep" }],
+  "settings": [
+    { "type": "header", "content": "Content" },
+    {
+      "type": "richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "<p>Naturally the best sleep of your life.</p>"
+    },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Start your 60-nights" },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "info": "The heading and the button label.",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Button border",
+      "info": "The button is outlined, not filled — this is its border and its focus outline.",
+      "default": "#333333"
+    },
+
+    { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "info": "Scales to 60% of this on mobile (80px → 48px), matching the Mobile artboard.",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "info": "The design has no bottom spacer — the next section's own top spacer carries the gap.",
+      "default": 0
+    }
+  ]
+}
+{% endschema %}

@@ -1,228 +1,250 @@
 {
-    "project": "larke",
-    "store": "wearelarke",
-    "store_admin": "https://admin.shopify.com/store/wearelarke",
-    "github": "https://github.com/shopify-develop-git/larke",
-    "theme": {
-        "mode": "local-only",
-        "remote_theme": "larke/main",
-        "rules": [
-            "NEVER run `shopify theme push`.",
-            "NEVER modify any remote theme. `larke/main` exists for the user only.",
-            "Work exclusively against the local `shopify theme dev` server."
-        ]
+  "project": "larke",
+  "store": "wearelarke",
+  "store_admin": "https://admin.shopify.com/store/wearelarke",
+  "github": "https://github.com/shopify-develop-git/larke",
+  "theme": {
+    "mode": "local-only",
+    "remote_theme": "larke/main",
+    "rules": [
+      "NEVER run `shopify theme push`.",
+      "NEVER modify any remote theme. `larke/main` exists for the user only.",
+      "Work exclusively against the local `shopify theme dev` server."
+    ]
+  },
+  "figma": {
+    "file_key": "EFl58zcozCynPI3AhJU4Ct",
+    "url": "https://www.figma.com/design/EFl58zcozCynPI3AhJU4Ct/Larke-Master-Design--Copy---Copy-",
+    "canvases": {
+      "desktop": {
+        "node": "28968:22885",
+        "width": 1440
+      },
+      "mobile": {
+        "node": "28899:21894",
+        "width": 375
+      }
     },
-    "figma": {
-        "file_key": "EFl58zcozCynPI3AhJU4Ct",
-        "url": "https://www.figma.com/design/EFl58zcozCynPI3AhJU4Ct/Larke-Master-Design--Copy---Copy-",
-        "canvases": {
-            "desktop": {
-                "node": "28968:22885",
-                "width": 1440
-            },
-            "mobile": {
-                "node": "28899:21894",
-                "width": 375
-            }
-        },
-        "export": {
-            "method": "download_assets",
-            "note": "WebP Exporter is a Figma PLUGIN and cannot be driven by MCP. Reproduce it: download_assets PNG @3x, then `cwebp -q 90` locally (cwebp 1.6.0 is installed).",
-            "format": "png",
-            "scale": 3,
-            "convert_to": "webp",
-            "quality": 90
-        }
-    },
-    "browser": {
-        "device_id": "7e735363-dd6e-4c17-b0c8-c5135ce97161",
-        "note": "The ONLY stable identifier is device_id. The extension's display names ('Browser 1'/'Browser 2') are positional and DO shift between sessions — they swapped between the 2026-07-13 run and the next one. Never select a browser by name. This device is the Chrome logged into the wearelarke admin. The other connected device sits behind a /challenges/user_verification bot-detection page: never solve or bypass it.",
-        "selected_by": "main loop, before the workflow starts — subagents must NOT call list_connected_browsers, select_browser or switch_browser (they cannot prompt the user, and switch_browser times out). The selection is already active; just call tabs_context_mcp."
-    },
-    "qa": {
-        "threshold_pct": 0.5,
-        "pixel_diff_widths": [
-            1440,
-            375
-        ],
-        "sanity_only_widths": [
-            1024,
-            768
-        ],
-        "note": "Pixel diff is ONLY allowed at 1440 (Desktop artboard) and 375 (Mobile artboard) — the two widths that have a real Figma reference. At 1024/768 there is NO ground truth: run metric + sanity checks only (no horizontal scroll, no overlap, no clipped text, touch targets >= 44px). Never invent a reference; a fabricated 'pass' is worse than no check."
-    },
-    "naming": {
-        "policy": "pm-names-from-content",
-        "note": "Several Figma frames carry no semantic name (Frame 4, Frame 6564, four different 'Image and text'). The PM inspects each via get_screenshot and assigns a descriptive kebab-case name from what the section actually shows. Record the chosen name back into this file so it is stable across runs."
-    },
-    "build_order": [
-        "1. Shared chrome first — announcement-bar, site-header, promo-bar, site-footer appear on EVERY page. Build once; never re-implement per page.",
-        "2. Homepage.",
-        "3. PDP.",
-        "4. Content pages (Our Story, Tree Fibre, Delivery & Returns, Contact, Shipping)."
+    "export": {
+      "method": "download_assets",
+      "note": "WebP Exporter is a Figma PLUGIN and cannot be driven by MCP. Reproduce it: download_assets PNG @3x, then `cwebp -q 90` locally (cwebp 1.6.0 is installed).",
+      "format": "png",
+      "scale": 3,
+      "convert_to": "webp",
+      "quality": 90
+    }
+  },
+  "browser": {
+    "device_id": "7e735363-dd6e-4c17-b0c8-c5135ce97161",
+    "note": "The ONLY stable identifier is device_id. The extension's display names ('Browser 1'/'Browser 2') are positional and DO shift between sessions — they swapped between the 2026-07-13 run and the next one. Never select a browser by name. This device is the Chrome logged into the wearelarke admin. The other connected device sits behind a /challenges/user_verification bot-detection page: never solve or bypass it.",
+    "selected_by": "main loop, before the workflow starts — subagents must NOT call list_connected_browsers, select_browser or switch_browser (they cannot prompt the user, and switch_browser times out). The selection is already active; just call tabs_context_mcp."
+  },
+  "qa": {
+    "threshold_pct": 0.5,
+    "pixel_diff_widths": [
+      1440,
+      375
     ],
-    "pages": {
-        "homepage": {
-            "desktop_node": "45031:2754",
-            "mobile_node": "44772:3396",
-            "sections": [
-                {
-                    "name": "announcement-bar",
-                    "shared": true,
-                    "figma_name": "Announcement bar",
-                    "desktop": "45196:1495",
-                    "mobile": "44955:1315"
-                },
-                {
-                    "name": "site-header",
-                    "shared": true,
-                    "figma_name": "Menu - Desktop / Mobile",
-                    "desktop": "45060:1441",
-                    "mobile": "45240:2518"
-                },
-                {
-                    "name": "promo-bar",
-                    "shared": true,
-                    "figma_name": "Promo Bar - mobile",
-                    "desktop": "45060:1442",
-                    "mobile": "44796:1888"
-                },
-                {
-                    "name": "hero",
-                    "figma_name": "_Master Hero Media",
-                    "desktop": "45031:3637",
-                    "mobile": "44935:4051"
-                },
-                {
-                    "name": "TODO-pm-names-it",
-                    "figma_name": "Frame 4",
-                    "desktop": "45031:2763",
-                    "mobile": "44821:5378"
-                },
-                {
-                    "name": "TODO-pm-names-it",
-                    "figma_name": "Image and text (1)",
-                    "desktop": "45031:4009",
-                    "mobile": "44821:5279"
-                },
-                {
-                    "name": "TODO-pm-names-it",
-                    "figma_name": "Image and text (2)",
-                    "desktop": "45031:4035",
-                    "mobile": "44821:5419"
-                },
-                {
-                    "name": "TODO-pm-names-it",
-                    "figma_name": "Video section (1)",
-                    "desktop": "45031:4268",
-                    "mobile": "44821:5480"
-                },
-                {
-                    "name": "three-step",
-                    "figma_name": "3 step",
-                    "desktop": "45158:5671",
-                    "mobile": "48740:2872"
-                },
-                {
-                    "name": "featured-product",
-                    "figma_name": "Featured PRoduct section",
-                    "desktop": "45031:3763",
-                    "mobile": "44821:5733"
-                },
-                {
-                    "name": "TODO-pm-names-it",
-                    "figma_name": "Image and Text (3)",
-                    "desktop": "45031:2800",
-                    "mobile": "44979:3461"
-                },
-                {
-                    "name": "TODO-pm-names-it",
-                    "figma_name": "Frame 6564",
-                    "desktop": "45031:2809",
-                    "mobile": "44821:5835"
-                },
-                {
-                    "name": "TODO-pm-names-it",
-                    "figma_name": "Video section (2)",
-                    "desktop": "45031:4057",
-                    "mobile": "44821:1062"
-                },
-                {
-                    "name": "site-footer",
-                    "shared": true,
-                    "figma_name": "Footer",
-                    "desktop": "45060:1514",
-                    "mobile": "44821:918"
-                }
-            ]
-        },
-        "pdp": {
-            "desktop_node": "45060:2100",
-            "mobile_node": "44773:3399",
-            "sections": []
-        },
-        "our_story": {
-            "desktop_node": "45078:8860",
-            "mobile_node": "44840:6152",
-            "sections": []
-        },
-        "tree_fibre": {
-            "desktop_node": "45081:9538",
-            "mobile_node": "44773:3401",
-            "sections": []
-        },
-        "delivery": {
-            "desktop_node": "45246:3303",
-            "mobile_node": "45246:900",
-            "sections": []
-        },
-        "contact": {
-            "desktop_node": "45246:3635",
-            "mobile_node": "45246:1195",
-            "sections": []
-        },
-        "shipping": {
-            "desktop_node": "45246:3849",
-            "mobile_node": "45246:1427",
-            "sections": []
-        }
-    },
-    "components": {
-        "note": "Drawers/modals, not page sections. Build after the pages they belong to.",
-        "basket": {
-            "desktop": "45058:2164",
-            "mobile": "44840:5858"
-        },
-        "menu_drawer": {
-            "desktop": "45158:2391",
-            "mobile": "44773:3886"
-        },
-        "size_guide": {
-            "desktop": "45071:2630",
-            "mobile": "44806:375"
-        },
-        "seasons_guide": {
-            "desktop": "45071:2877",
-            "mobile": "44808:695"
-        },
-        "review_summary": {
-            "desktop": "45075:2921",
-            "mobile": "44808:750"
-        },
-        "compare": {
-            "desktop": "45075:8383",
-            "mobile": "44837:5678"
-        },
-        "accordions": {
-            "desktop": "45068:1975",
-            "mobile": "44796:1984"
-        }
-    },
-    "figma_quirks": [
-        "Mobile 'Frame 3' (44821:902) is only a WRAPPER around Frame 6564 + Video section + Footer. Do not treat it as a section.",
-        "RESOLVED (2026-07-13): Mobile Homepage shows two 'Menu - Mobile' nodes, but they are the SAME component — 45240:2518 is the component MASTER (symbol, 375x66) and 45015:873 is an INSTANCE of it placed on the page at y=36 (375x65.02). Neither is a stray duplicate; both render identically (hamburger / Larke wordmark / bag). Build and diff against the master, 45240:2518. The earlier note here claimed 45015:873 was a stray duplicate — that was wrong.",
-        "'Promo Bar - mobile' is the layer name on the DESKTOP page too — the name is misleading, it is not mobile-only.",
-        "Desktop has two frames both named 'Shipping' (45246:3849, 45246:4413). Only 45246:3849 is mapped."
+    "sanity_only_widths": [
+      1024,
+      768
     ],
-    "instructions": "Larke — UK duvet/bedding brand. Store handle: wearelarke. Never touch any remote theme. Images: download_assets PNG@3x -> cwebp -q 90 -> upload to Shopify Files via the Chrome extension. No API tokens anywhere, ever."
+    "note": "Pixel diff is ONLY allowed at 1440 (Desktop artboard) and 375 (Mobile artboard) — the two widths that have a real Figma reference. At 1024/768 there is NO ground truth: run metric + sanity checks only (no horizontal scroll, no overlap, no clipped text, touch targets >= 44px). Never invent a reference; a fabricated 'pass' is worse than no check."
+  },
+  "naming": {
+    "policy": "pm-names-from-content",
+    "note": "Several Figma frames carry no semantic name (Frame 4, Frame 6564, four different 'Image and text'). The PM inspects each via get_screenshot and assigns a descriptive kebab-case name from what the section actually shows. Record the chosen name back into this file so it is stable across runs."
+  },
+  "build_order": [
+    "1. Shared chrome first — announcement-bar, site-header, promo-bar, site-footer appear on EVERY page. Build once; never re-implement per page.",
+    "2. Homepage.",
+    "3. PDP.",
+    "4. Content pages (Our Story, Tree Fibre, Delivery & Returns, Contact, Shipping)."
+  ],
+  "pages": {
+    "homepage": {
+      "desktop_node": "45031:2754",
+      "mobile_node": "44772:3396",
+      "sections": [
+        {
+          "name": "announcement-bar",
+          "shared": true,
+          "figma_name": "Announcement bar",
+          "desktop": "45196:1495",
+          "mobile": "44955:1315"
+        },
+        {
+          "name": "site-header",
+          "shared": true,
+          "figma_name": "Menu - Desktop / Mobile",
+          "desktop": "45060:1441",
+          "mobile": "45240:2518"
+        },
+        {
+          "name": "promo-bar",
+          "shared": true,
+          "figma_name": "Promo Bar - mobile",
+          "desktop": "45060:1442",
+          "mobile": "44796:1888"
+        },
+        {
+          "name": "hero",
+          "figma_name": "_Master Hero Media",
+          "desktop": "45031:3637",
+          "mobile": "44935:4051"
+        },
+        {
+          "name": "TODO-pm-names-it",
+          "figma_name": "Frame 4",
+          "desktop": "45031:2763",
+          "mobile": "44821:5378"
+        },
+        {
+          "name": "TODO-pm-names-it",
+          "figma_name": "Image and text (1)",
+          "desktop": "45031:4009",
+          "mobile": "44821:5279"
+        },
+        {
+          "name": "TODO-pm-names-it",
+          "figma_name": "Image and text (2)",
+          "desktop": "45031:4035",
+          "mobile": "44821:5419"
+        },
+        {
+          "name": "TODO-pm-names-it",
+          "figma_name": "Video section (1)",
+          "desktop": "45031:4268",
+          "mobile": "44821:5480"
+        },
+        {
+          "name": "three-step",
+          "figma_name": "3 step",
+          "desktop": "45158:5671",
+          "mobile": "48740:2872"
+        },
+        {
+          "name": "featured-product",
+          "figma_name": "Featured PRoduct section",
+          "desktop": "45031:3763",
+          "mobile": "44821:5733"
+        },
+        {
+          "name": "TODO-pm-names-it",
+          "figma_name": "Image and Text (3)",
+          "desktop": "45031:2800",
+          "mobile": "44979:3461"
+        },
+        {
+          "name": "TODO-pm-names-it",
+          "figma_name": "Frame 6564",
+          "desktop": "45031:2809",
+          "mobile": "44821:5835"
+        },
+        {
+          "name": "TODO-pm-names-it",
+          "figma_name": "Video section (2)",
+          "desktop": "45031:4057",
+          "mobile": "44821:1062"
+        },
+        {
+          "name": "site-footer",
+          "shared": true,
+          "figma_name": "Footer",
+          "desktop": "45060:1514",
+          "mobile": "44821:918"
+        }
+      ]
+    },
+    "pdp": {
+      "desktop_node": "45060:2100",
+      "mobile_node": "44773:3399",
+      "sections": [
+        {
+          "name": "sleep-grows-on-trees",
+          "figma_name": "Frame 6566",
+          "desktop": "45068:2568",
+          "mobile": "44797:3472",
+          "note": "Part 1 of 3 carved out of Figma frame 45071:2617, which bundles the cards, the CTA and the guarantee strip into one frame. Built as three sections."
+        },
+        {
+          "name": "naturally-best-sleep",
+          "figma_name": "Frame 6564",
+          "desktop": "45068:2587",
+          "mobile": "44801:6564",
+          "note": "Part 2 of 3 of frame 45071:2617. Outlined button variant, not the solid green one from fibre-cta."
+        },
+        {
+          "name": "pdp-guarantees",
+          "figma_name": "Frame 2",
+          "desktop": "45068:2590",
+          "mobile": "44850:1746",
+          "note": "Part 3 of 3 of frame 45071:2617. NOT dev-trust-badges: no icons, and it nests a Cream/50 tile inside a Cream/100 panel."
+        }
+      ]
+    },
+    "our_story": {
+      "desktop_node": "45078:8860",
+      "mobile_node": "44840:6152",
+      "sections": []
+    },
+    "tree_fibre": {
+      "desktop_node": "45081:9538",
+      "mobile_node": "44773:3401",
+      "sections": []
+    },
+    "delivery": {
+      "desktop_node": "45246:3303",
+      "mobile_node": "45246:900",
+      "sections": []
+    },
+    "contact": {
+      "desktop_node": "45246:3635",
+      "mobile_node": "45246:1195",
+      "sections": []
+    },
+    "shipping": {
+      "desktop_node": "45246:3849",
+      "mobile_node": "45246:1427",
+      "sections": []
+    }
+  },
+  "components": {
+    "note": "Drawers/modals, not page sections. Build after the pages they belong to.",
+    "basket": {
+      "desktop": "45058:2164",
+      "mobile": "44840:5858"
+    },
+    "menu_drawer": {
+      "desktop": "45158:2391",
+      "mobile": "44773:3886"
+    },
+    "size_guide": {
+      "desktop": "45071:2630",
+      "mobile": "44806:375"
+    },
+    "seasons_guide": {
+      "desktop": "45071:2877",
+      "mobile": "44808:695"
+    },
+    "review_summary": {
+      "desktop": "45075:2921",
+      "mobile": "44808:750"
+    },
+    "compare": {
+      "desktop": "45075:8383",
+      "mobile": "44837:5678"
+    },
+    "accordions": {
+      "desktop": "45068:1975",
+      "mobile": "44796:1984"
+    }
+  },
+  "figma_quirks": [
+    "Mobile 'Frame 3' (44821:902) is only a WRAPPER around Frame 6564 + Video section + Footer. Do not treat it as a section.",
+    "RESOLVED (2026-07-13): Mobile Homepage shows two 'Menu - Mobile' nodes, but they are the SAME component — 45240:2518 is the component MASTER (symbol, 375x66) and 45015:873 is an INSTANCE of it placed on the page at y=36 (375x65.02). Neither is a stray duplicate; both render identically (hamburger / Larke wordmark / bag). Build and diff against the master, 45240:2518. The earlier note here claimed 45015:873 was a stray duplicate — that was wrong.",
+    "'Promo Bar - mobile' is the layer name on the DESKTOP page too — the name is misleading, it is not mobile-only.",
+    "Desktop has two frames both named 'Shipping' (45246:3849, 45246:4413). Only 45246:3849 is mapped."
+  ],
+  "instructions": "Larke — UK duvet/bedding brand. Store handle: wearelarke. Never touch any remote theme. Images: download_assets PNG@3x -> cwebp -q 90 -> upload to Shopify Files via the Chrome extension. No API tokens anywhere, ever."
 }

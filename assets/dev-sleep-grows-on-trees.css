@@ -1,0 +1,240 @@
+/* dev-sleep-grows-on-trees.css */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+/* No background-color on the root: the section is transparent by design and the page background
+   shows through the gutters. --bg belongs to the cards. See the Liquid header. */
+.sleep-grows-on-trees {
+  color: var(--color);
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+  font-family: var(--font-body);
+}
+
+.sleep-grows-on-trees__inner {
+  max-width: var(--container-max);
+  width: 100%;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* --- layout --- */
+
+.sleep-grows-on-trees__cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.sleep-grows-on-trees__card {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  background-color: var(--bg);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+/* The only difference between the two card variants. Driven by the block's own `image_side`
+   setting rather than :nth-child, so a merchant adding or reordering a card keeps control. */
+.sleep-grows-on-trees__card--image-right {
+  flex-direction: row-reverse;
+}
+
+/* Two equal halves. The basis is 50%, NOT 0: with box-sizing: border-box a flex-basis of 0 cannot
+   hold the text column's own 160px of horizontal padding, so its hypothetical size would floor at
+   160px and the free space would split unevenly — shrinking the photo and dragging the card's
+   aspect-ratio height down with it. A 50% basis leaves no free space to mis-split. */
+.sleep-grows-on-trees__media {
+  flex: 0 0 50%;
+  min-width: 0;
+  aspect-ratio: var(--media-ratio);
+}
+
+.sleep-grows-on-trees__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sleep-grows-on-trees__content {
+  flex: 1 1 50%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--card-pad-y) var(--card-pad-x);
+  text-align: center;
+}
+
+/* --- typography --- */
+
+.sleep-grows-on-trees__heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  color: var(--color);
+  text-align: center;
+}
+
+.sleep-grows-on-trees__card-heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-card-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  color: var(--color);
+}
+
+.sleep-grows-on-trees__text {
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+/* text is a richtext setting, so Shopify wraps it in <p>. Strip the browser's default paragraph
+   margins so the flex gap is the only spacing that applies. */
+.sleep-grows-on-trees__text > :first-child {
+  margin-top: 0;
+}
+
+.sleep-grows-on-trees__text > :last-child {
+  margin-bottom: 0;
+}
+
+/* --- buttons / links --- */
+/* None: this section has no CTA, link or button in the design. */
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+/* No tablet artboard exists in Figma, so this band (769–1024) is derived, not read off the design.
+   Desktop (1440) and mobile (375) are untouched by it.
+
+   The row layout survives, but the 80px text inset does not: at 769px each column is only ~320px
+   wide, and an 80px inset either side would leave 160px of text. Padding and type therefore scale
+   linearly with the viewport across the band instead of stepping once at 1024 and breaking at 769.
+
+   Every clamp lands on the DESKTOP value at 1024 and the MOBILE value at 769 — 28 / 24 / 16px are
+   exactly --font-heading-size-m, --font-card-heading-size-m and --font-body-size-m. So the type is
+   continuous across the 768px breakpoint: the card restacks there, but nothing jumps size.
+
+   These override the PROPERTIES, not the tokens. Overriding a token here would do nothing: the
+   tokens are declared in the section's inline <style> on `.sleep-grows-on-trees`, which sits after
+   this stylesheet's <link> in the document — same selector, same specificity, and a media query
+   adds none, so the inline desktop token would win and the rule would silently no-op. */
+@media (max-width: 1024px) {
+  .sleep-grows-on-trees__content {
+    padding: var(--card-pad-y) clamp(32px, calc(18.82vw - 112.8px), 80px);
+  }
+
+  .sleep-grows-on-trees__heading {
+    font-size: clamp(28px, calc(3.92vw - 2.2px), 38px);
+  }
+
+  .sleep-grows-on-trees__card-heading {
+    font-size: clamp(24px, 3.14vw, 32px);
+  }
+
+  .sleep-grows-on-trees__text {
+    font-size: clamp(16px, calc(0.78vw + 10px), 18px);
+  }
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .sleep-grows-on-trees {
+    padding-top: calc(var(--pt) * var(--pt-scale-m));
+    padding-left: var(--section-px-m);
+    padding-right: var(--section-px-m);
+  }
+
+  /* Row → column restack: photo on top, text below. row-reverse is dropped with it — the Mobile
+     artboard stacks every card image-over-text regardless of its desktop side. */
+  .sleep-grows-on-trees__card,
+  .sleep-grows-on-trees__card--image-right {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sleep-grows-on-trees__media {
+    flex: 0 0 auto;
+    width: 100%;
+    aspect-ratio: var(--media-ratio-m);
+  }
+
+  .sleep-grows-on-trees__content {
+    flex: 0 0 auto;
+    gap: var(--spacing-sm-m);
+    padding: var(--card-pad-m);
+  }
+
+  .sleep-grows-on-trees__heading {
+    font-size: var(--font-heading-size-m);
+  }
+
+  /* The letter-spacing is mobile-only and is NOT a Figma value — see the token's comment in the
+     Liquid. It buys back the 0.4px that Chrome's text shaping costs over Figma's, so the heading
+     holds the two lines the design draws instead of spilling into a third. */
+  .sleep-grows-on-trees__card-heading {
+    font-size: var(--font-card-heading-size-m);
+    letter-spacing: var(--font-card-heading-ls-m);
+  }
+
+  .sleep-grows-on-trees__text {
+    font-size: var(--font-body-size-m);
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+/* Nothing changes below 480px — the 375 artboard's rules already hold, and the cards are fluid
+   (100% of the viewport minus the 16px gutters), so nothing overflows. */
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+/* The section has no interactive elements of its own. This is a safety net for merchant-authored
+   links inside the card richtext, which is the only place focusable content can appear. */
+.sleep-grows-on-trees__text a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.sleep-grows-on-trees__text a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .sleep-grows-on-trees,
+  .sleep-grows-on-trees * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

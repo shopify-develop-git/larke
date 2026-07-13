@@ -466,10 +466,112 @@
         "padding-block-start": 48,
         "padding-block-end": 48
       }
+    },
+    "dev_sleep_grows_on_trees": {
+      "type": "dev-sleep-grows-on-trees",
+      "blocks": {
+        "card_1": {
+          "type": "card",
+          "settings": {
+            "image_side": "left",
+            "heading": "<p>Over-heaters, cool sleepers. <br/>Sorted.</p>",
+            "text": "<p>Tree-fibre adapts effortlessly to heat at night, keeping you cool and cosy.</p>",
+            "alt_text": "A woman asleep under a Larke duvet",
+            "image": "shopify://shop_images/sleep-grows-on-trees-cool-sleepers.png"
+          }
+        },
+        "card_2": {
+          "type": "card",
+          "settings": {
+            "image_side": "right",
+            "heading": "<p>Say bye to clumping.</p>",
+            "text": "<p>Our innovative sea-shell inspired stitching, firmly holds all filling.</p>",
+            "alt_text": "A Larke duvet on a bed beside a bright window",
+            "image": "shopify://shop_images/sleep-grows-on-trees-no-clumping.png"
+          }
+        },
+        "card_3": {
+          "type": "card",
+          "settings": {
+            "image_side": "left",
+            "heading": "<p>Washing, Drying - <br/>Sorted.</p>",
+            "text": "<p>Wash and drying machine friendly. Feels softer and more luxurious after each wash.</p>",
+            "alt_text": "A hand smoothing a freshly washed Larke duvet",
+            "image": "shopify://shop_images/sleep-grows-on-trees-washing-drying.png"
+          }
+        }
+      },
+      "block_order": [
+        "card_1",
+        "card_2",
+        "card_3"
+      ],
+      "settings": {
+        "heading": "<p>Turns out great <br/>sleep grows on trees</p>",
+        "background_color": "#FCF5E3",
+        "text_color": "#333333",
+        "accent_color": "#333333",
+        "padding_top": 80,
+        "padding_bottom": 0
+      }
+    },
+    "dev_naturally_best_sleep": {
+      "type": "dev-naturally-best-sleep",
+      "settings": {
+        "heading": "<p>Naturally the best sleep of your life.</p>",
+        "button_label": "Start your 60-nights",
+        "button_link": "",
+        "text_color": "#333333",
+        "accent_color": "#333333",
+        "padding_top": 80,
+        "padding_bottom": 0
+      }
+    },
+    "dev_pdp_guarantees": {
+      "type": "dev-pdp-guarantees",
+      "blocks": {
+        "badge_1": {
+          "type": "badge",
+          "settings": {
+            "heading": "5-year warranty",
+            "text": "Sleep sound knowing you’re covered"
+          }
+        },
+        "badge_2": {
+          "type": "badge",
+          "settings": {
+            "heading": "60-night trial",
+            "text": "Every tree is traced back to responsibly managed forests."
+          }
+        },
+        "badge_3": {
+          "type": "badge",
+          "settings": {
+            "heading": "Free delivery",
+            "text": "Cosy comfort delivered across UK"
+          }
+        }
+      },
+      "block_order": [
+        "badge_1",
+        "badge_2",
+        "badge_3"
+      ],
+      "settings": {
+        "background_color": "#FCF5E3",
+        "badge_color": "#FFFCF4",
+        "text_color": "#333333",
+        "accent_color": "#333333",
+        "padding_top": 80,
+        "padding_bottom": 64
+      }
     }
   },
   "order": [
     "main",
+    "dev_sleep_grows_on_trees",
+    "dev_naturally_best_sleep",
+    "dev_pdp_guarantees",
     "product_recommendations_qggXJq"
   ]
 }

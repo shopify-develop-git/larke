@@ -1,0 +1,178 @@
+/* dev-pdp-guarantees.css */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+/* No background-color on the root: the section is transparent by design and the page background
+   shows through the gutters. --bg is the outer panel, --badge-bg the inner tiles. See the Liquid
+   header — the two-level nesting is the section's whole visual idea. */
+.pdp-guarantees {
+  color: var(--color);
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+  font-family: var(--font-body);
+}
+
+.pdp-guarantees__inner {
+  max-width: var(--container-max);
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* --- layout --- */
+
+/* A <ul>, so list-style and the browser's default padding have to go. */
+.pdp-guarantees__panel {
+  margin: 0;
+  padding: var(--panel-pad);
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: var(--spacing-md);
+  background-color: var(--bg);
+  border-radius: var(--radius-panel);
+}
+
+/* --- blocks / children --- */
+
+/* `flex: 1 1 0` IS safe here, unlike the two-column cards in the sibling sections: every badge
+   carries the SAME padding, so the border-box floor applies to all of them equally and the free
+   space still splits evenly. The trap only bites when siblings are padded differently.
+
+   justify-content: center is a no-op for the tallest badge (its content fills the stretched row)
+   and centres the shorter ones — one rule, correct for any copy the merchant writes. */
+.pdp-guarantees__badge {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--badge-pad);
+  background-color: var(--badge-bg);
+  border-radius: var(--radius-badge);
+  text-align: center;
+}
+
+/* --- typography --- */
+
+.pdp-guarantees__badge-heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  color: var(--color);
+}
+
+.pdp-guarantees__badge-text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+/* --- buttons / links --- */
+/* None: this section has no CTA, link or button in the design. */
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+/* No tablet artboard exists in Figma; this band (769–1024) is derived. The three-across row holds
+   — at 769px each badge is still ~277px wide, which fits the copy — so only the type eases down,
+   landing on the DESKTOP value at 1024 and the MOBILE value at 769 (20px / 14px, exactly
+   --font-heading-size-m and --font-body-size-m). Type is therefore continuous across the 768px
+   breakpoint: the row becomes a stack there, but nothing jumps size.
+
+   These override the PROPERTIES, not the tokens: the tokens live in the section's inline <style>,
+   which sits after this stylesheet's <link>, so a token override here would silently no-op. */
+@media (max-width: 1024px) {
+  .pdp-guarantees__badge-heading {
+    font-size: clamp(20px, calc(0.78vw + 14px), 22px);
+  }
+
+  .pdp-guarantees__badge-text {
+    font-size: clamp(14px, calc(0.78vw + 8px), 16px);
+  }
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .pdp-guarantees {
+    padding-top: calc(var(--pt) * var(--pt-scale-m));
+
+    /* Not a scale of --pb: the Mobile artboard has NO bottom spacer here at all (the reviews
+       section below opens with its own 48px). See the Liquid header — this is node math, not a
+       shortcut. padding_bottom is a desktop-only setting. */
+    padding-bottom: 0;
+    padding-left: var(--section-px-m);
+    padding-right: var(--section-px-m);
+  }
+
+  /* Row → stack. The badges go full width and take their natural height. */
+  .pdp-guarantees__panel {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-md-m);
+  }
+
+  .pdp-guarantees__badge {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .pdp-guarantees__badge-heading {
+    font-size: var(--font-heading-size-m);
+  }
+
+  .pdp-guarantees__badge-text {
+    font-size: var(--font-body-size-m);
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+/* Nothing changes below 480px — the 375 artboard's rules already hold, and the panel is fluid
+   (100% of the viewport minus the 16px gutters), so nothing overflows. */
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+/* The section has no interactive elements. This is a safety net only — nothing inside a badge is
+   focusable today, but the rule costs nothing and keeps the section consistent with its siblings. */
+.pdp-guarantees__badge a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.pdp-guarantees__badge a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .pdp-guarantees,
+  .pdp-guarantees * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

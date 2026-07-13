@@ -1,0 +1,288 @@
+{{ 'dev-sleep-grows-on-trees.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  Section: "Sleep grows on trees" (dev name `sleep-grows-on-trees`).
+  Figma: desktop 45068:2568 (1312x1552), mobile 44797:3472 (343x1413).
+  Page: PDP (product). Part 1 of 3 carved out of Figma frame 45071:2617 — the other two are
+  dev-naturally-best-sleep (the CTA) and dev-pdp-guarantees (the badge strip).
+
+  No JS: nothing here is interactive. No slider, accordion, tab, sticky or scroll behaviour,
+  so no dev-sleep-grows-on-trees.js exists.
+
+  BACKGROUND — read before "fixing" this.
+  `--bg` (#FCF5E3, Cream/100) is the CARD's fill, not the section's. The section root is
+  deliberately TRANSPARENT so the page background shows through the 64px gutters and the 80px
+  top spacer — same convention as dev-fibre-cta and dev-tree-fibre-intro. Painting --bg on the
+  root would flood those gutters cream.
+
+  ALTERNATING SIDES ARE A BLOCK SETTING, NOT A NTH-CHILD RULE.
+  Figma runs image-left, image-right, image-left. That is a pattern, not a law: the merchant can
+  add a fourth card or reorder, and an `:nth-child(even)` rule would silently decide the layout
+  for them. Each block owns its own `image_side`; the preset seeds the Figma order.
+
+  ONE IMAGE PER CARD, NOT TWO CROPS.
+  Desktop renders the photo 655x460 (ratio 1.424) and mobile 343x250 (ratio 1.372). Those are
+  near-identical, so a single image serves both breakpoints under object-fit: cover. This is
+  NOT the dev-fibre-cta case, where Figma genuinely held a landscape and a portrait crop.
+{%- endcomment -%}
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .sleep-grows-on-trees {
+    /* Brand params (Brief → Brand Params table). Faces are loaded by snippets/dev-brand-fonts.liquid. */
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+    --container-max: 1312px;
+    --section-px: 64px;
+    --section-px-m: 16px;
+
+    /* Typography — desktop. Two heading sizes: the section heading (Desktop/Title 2) and the
+       card heading (Desktop/Title 3). They are different tokens in Figma, not a scale of one. */
+    --font-heading-size: 38px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+    --font-card-heading-size: 32px;
+    --font-body-size: 18px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+
+    /* Typography — mobile: read off the Mobile artboard (Mobile/Title2, Mobile/Title 3,
+       Body/Md_Body_Medium), not derived with a scale factor. */
+    --font-heading-size-m: 28px;
+    --font-card-heading-size-m: 24px;
+    --font-body-size-m: 16px;
+
+    /* MOBILE-ONLY, AND NOT FROM FIGMA — the design's letter-spacing is 0 everywhere.
+       "Over-heaters, cool sleepers." measures 295.4px in Tiempos Medium 24px, against the 295px
+       a mobile card leaves for text. That 0.4px (0.14%) overflow pushes the line into a third row
+       and makes the card 437px tall against the artboard's 408px. Figma fits the line because its
+       text shaping is a hair tighter than Chrome's — this is an engine difference, not a layout
+       bug. -0.005em brings the line to 292px and restores the designed two-line heading.
+       Deliberate, measured, and approved — not a value invented to make QA pass.
+       Desktop needs none of this: the line is 394px inside a 496px column. */
+    --font-card-heading-ls-m: -0.005em;
+
+    /* Spacing — desktop */
+    --spacing-sm: 12px; /* card heading -> card text */
+    --spacing-md: 24px; /* card -> card */
+    --spacing-lg: 32px; /* section heading -> cards */
+    --card-pad-y: 24px;
+    --card-pad-x: 80px;
+
+    /* Spacing — mobile: the card's padding collapses to a uniform 24px and the text gap to 8px.
+       The card-to-card gap (24px) and the heading-to-cards gap (32px) are unchanged. */
+    --spacing-sm-m: 8px;
+    --card-pad-m: 24px;
+
+    /* Mobile top spacer is 48px against a desktop 80px. Scaling the merchant's own padding_top
+       keeps that relationship intact if they change it. 80 * 0.6 = 48. */
+    --pt-scale-m: 0.6;
+
+    /* Layout / decoration */
+    --radius-card: 32px;
+
+    /* The photo's aspect is what sets each card's height: 655x460 inside a 1312 card on desktop,
+       343x250 on mobile. No container carries a fixed height. */
+    --media-ratio: 655 / 460;
+    --media-ratio-m: 343 / 250;
+  }
+</style>
+
+{%- liquid
+  # richtext: already-safe HTML from Shopify — never escape it. The <p> wrapper is unwrapped so the
+  # copy stays inline inside the heading element (same idiom as dev-fibre-cta). richtext rather than
+  # text because both the section heading and every card heading carry a hard line break in Figma.
+  assign heading_html = section.settings.heading | remove: '<p>' | remove: '</p>'
+-%}
+
+<div
+  class="sleep-grows-on-trees"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="sleep-grows-on-trees__inner">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="sleep-grows-on-trees__heading">{{ heading_html }}</h2>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="sleep-grows-on-trees__cards">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign card_heading_html = block.settings.heading | remove: '<p>' | remove: '</p>'
+
+            assign image_alt = block.settings.alt_text
+            if image_alt == blank
+              assign image_alt = block.settings.image.alt
+            endif
+            assign image_alt = image_alt | default: '' | escape
+          -%}
+
+          <article
+            class="sleep-grows-on-trees__card sleep-grows-on-trees__card--image-{{ block.settings.image_side }}"
+            {{ block.shopify_attributes }}
+          >
+            {%- if block.settings.image != blank -%}
+              {%- comment -%}
+                The photo renders at half the card on desktop and full width on mobile; `sizes`
+                says exactly that. Source fills are 655x460 at 1x, so 1500 is the largest width
+                worth asking for.
+              {%- endcomment -%}
+              <div class="sleep-grows-on-trees__media">
+                {{
+                  block.settings.image
+                  | image_url: width: 1500
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '400, 600, 800, 1000, 1200, 1500',
+                    sizes: '(min-width: 1440px) 656px, (min-width: 769px) calc(50vw - 64px), calc(100vw - 32px)',
+                    alt: image_alt,
+                    class: 'sleep-grows-on-trees__image'
+                }}
+              </div>
+            {%- endif -%}
+
+            <div class="sleep-grows-on-trees__content">
+              {%- if block.settings.heading != blank -%}
+                <h3 class="sleep-grows-on-trees__card-heading">{{ card_heading_html }}</h3>
+              {%- endif -%}
+
+              {%- if block.settings.text != blank -%}
+                <div class="sleep-grows-on-trees__text">{{ block.settings.text }}</div>
+              {%- endif -%}
+            </div>
+          </article>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Sleep grows on trees",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    {
+      "type": "richtext",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Use a line break to split the heading across lines.",
+      "default": "<p>Turns out great <br/>sleep grows on trees</p>"
+    },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Card background",
+      "info": "The cream cards. The section itself stays transparent so the page background shows through.",
+      "default": "#FCF5E3"
+    },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "info": "Focus outlines only — this section has no button.",
+      "default": "#333333"
+    },
+
+    { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "info": "Scales to 60% of this on mobile (80px → 48px), matching the Mobile artboard.",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "info": "The design has no bottom spacer — the next section's own top spacer carries the gap.",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card",
+      "limit": 6,
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        {
+          "type": "text",
+          "id": "alt_text",
+          "label": "Image alt text",
+          "info": "Optional. Falls back to the alt text set on the image in Files."
+        },
+        {
+          "type": "select",
+          "id": "image_side",
+          "label": "Image side",
+          "info": "Desktop only. The card always stacks image-over-text on mobile.",
+          "default": "left",
+          "options": [
+            { "value": "left", "label": "Image left" },
+            { "value": "right", "label": "Image right" }
+          ]
+        },
+        {
+          "type": "richtext",
+          "id": "heading",
+          "label": "Heading",
+          "info": "Use a line break to split the heading across lines.",
+          "default": "<p>Card heading</p>"
+        },
+        { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Card text</p>" }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Sleep grows on trees",
+      "blocks": [
+        {
+          "type": "card",
+          "settings": {
+            "image_side": "left",
+            "heading": "<p>Over-heaters, cool sleepers. <br/>Sorted.</p>",
+            "text": "<p>Tree-fibre adapts effortlessly to heat at night, keeping you cool and cosy.</p>"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "image_side": "right",
+            "heading": "<p>Say bye to clumping.</p>",
+            "text": "<p>Our innovative sea-shell inspired stitching, firmly holds all filling.</p>"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "image_side": "left",
+            "heading": "<p>Washing, Drying - <br/>Sorted.</p>",
+            "text": "<p>Wash and drying machine friendly. Feels softer and more luxurious after each wash.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
