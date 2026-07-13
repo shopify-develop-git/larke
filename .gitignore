@@ -1,0 +1,30 @@
+# OS
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# Node — QA tooling only, not part of the theme
+node_modules/
+npm-debug.log*
+
+# Per-run workflow artifacts. Never commit these, never push them to the store.
+# NOTE: git does not support trailing comments on a pattern line — a `#` after a
+# pattern becomes part of the pattern. Keep comments on their own lines.
+
+# Figma exports staged before upload to Shopify Files
+.assets-export/
+
+# Screenshots, reference PNGs, diff images
+.qa-artifacts/
+
+# PM markup contracts (regenerated every run)
+.claude/contracts/
+
+# QA harness templates — one per lane, deleted when the lane finishes
+templates/index.qa*.json
+
+# Secrets. There should never be any (Chrome extension only, no API tokens),
+# but if one ever appears it must not be committed.
+.env
+.env.*
+*.token

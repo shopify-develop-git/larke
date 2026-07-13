@@ -1,0 +1,10 @@
+{
+  "name": "larke-qa-tools",
+  "private": true,
+  "type": "module",
+  "description": "QA tooling for the figma-shopify workflow. Not part of the theme — excluded via .shopifyignore.",
+  "dependencies": {
+    "pixelmatch": "^6.0.0",
+    "pngjs": "^7.0.0"
+  }
+}

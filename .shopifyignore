@@ -1,0 +1,5 @@
+.claude/
+docs/
+.assets-export/
+.qa-artifacts/
+node_modules/
