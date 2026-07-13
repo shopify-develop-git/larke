@@ -324,8 +324,18 @@
   font-weight: var(--w-bold);
 }
 
+/* This is a <button>, so it MUST be reset. It used to be an <a> and inherited nothing; as a button
+   the UA gives it a grey face, a 2px outset border, 1px 6px of padding and Arial. Setting only the
+   colour and the underline left a system button sitting in the middle of the design. */
 .dev-main-product__legend-link {
   flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-body);
+  cursor: pointer;
+  appearance: none;
   color: var(--color);
   font-size: var(--font-label-size);
   font-weight: var(--w-medium);
@@ -893,15 +903,27 @@
 
 /* ---- Guide drawers (45071:2630 Size, 45071:2877 Seasons) ----------------- */
 
+/* NO visibility toggle. That was the bug.
+
+   With `visibility: hidden` on the container, the panel's transform transition would not run: the
+   element has no painted frame to animate FROM, so the computed transform sat at its closed value
+   for ever and the first click did nothing at all. Forcing a reflow did not fix it either — the
+   transition simply never started.
+
+   So the container is always rendered. The panel is translated off-screen and CLIPPED by
+   overflow: hidden (no page overflow), and `pointer-events: none` means a closed drawer cannot
+   swallow a click meant for the page behind it. `inert` + aria-hidden keep it out of the focus
+   order and the a11y tree. Nothing to transition from a non-rendered state, so nothing to break. */
 .dev-main-product__guide {
   position: fixed;
   inset: 0;
   z-index: 100;
-  visibility: hidden;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .dev-main-product__guide[data-open='true'] {
-  visibility: visible;
+  pointer-events: auto;
 }
 
 .dev-main-product__guide-backdrop {

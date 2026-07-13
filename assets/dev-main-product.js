@@ -185,9 +185,11 @@
     let lastTrigger = null;
 
     function open(guide, trigger) {
-      guide.dataset.open = 'true';
       guide.removeAttribute('inert');
       guide.removeAttribute('aria-hidden');
+
+      guide.dataset.open = 'true';
+
       lastTrigger = trigger || null;
       if (trigger) trigger.setAttribute('aria-expanded', 'true');
 
@@ -198,7 +200,8 @@
     function close(guide) {
       guide.dataset.open = 'false';
       guide.setAttribute('aria-hidden', 'true');
-      // inert AFTER moving focus out, or the browser is left with focus inside an inert subtree.
+
+      // Focus leaves BEFORE inert goes on, or the browser is left with focus inside an inert subtree.
       if (lastTrigger) {
         lastTrigger.setAttribute('aria-expanded', 'false');
         lastTrigger.focus();
