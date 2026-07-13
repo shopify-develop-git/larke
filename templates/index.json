@@ -6,280 +6,348 @@
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
  * ------------------------------------------------------------
- */{
+ */
+{
   "sections": {
-    "hero_jVaWmY": {
-      "type": "hero",
+    "dev-hero": {
+      "type": "dev-hero",
+      "settings": {
+        "heading": "<p>Not just any<br/>ordinary duvet</p>",
+        "subtext": "<p>This one begins with <em>trees</em>.</p>",
+        "cta_label": "Discover Our Duvet",
+        "cta_link": "shopify://collections/all",
+        "background_image": "shopify://shop_images/hero-bg.jpg",
+        "background_image_mobile": "shopify://shop_images/hero-bg.jpg",
+        "show_underline_accent": true,
+        "background_color": "#333333",
+        "text_color": "#ffffff",
+        "accent_color": "#a8cf78",
+        "cta_text_color": "#333333",
+        "padding_top": 64,
+        "padding_bottom": 64
+      }
+    },
+    "dev-trust-badges": {
+      "type": "dev-trust-badges",
       "blocks": {
-        "text_YLPk4p": {
-          "type": "text",
-          "name": "t:names.heading",
+        "badge_warranty": {
+          "type": "trust_badge",
           "settings": {
-            "text": "<p>Browse our latest products</p>",
-            "text_color": "{{ settings.color_palette.background }}",
-            "width": "fit-content",
-            "max_width": "normal",
-            "alignment": "left",
-            "type_preset": "h2",
-            "font": "var(--font-body--family)",
-            "font_size": "1rem",
-            "line_height": "normal",
-            "letter_spacing": "normal",
-            "case": "none",
-            "wrap": "pretty",
-            "background": false,
-            "background_color": "#00000026",
-            "corner_radius": 0,
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
-          "blocks": {}
+            "icon": "warranty",
+            "heading": "5-Year Warranty",
+            "description": "Made to last, so you rest easy"
+          }
         },
-        "button_H9gpTf": {
-          "type": "button",
-          "name": "t:names.button",
+        "badge_trial": {
+          "type": "trust_badge",
           "settings": {
-            "label": "Shop all",
-            "link": "shopify://collections/all",
-            "open_in_new_tab": false,
-            "style_class": "button-custom",
-            "custom_button_background": "rgba(0,0,0,0)",
-            "custom_button_text": "{{ settings.color_palette.background }}",
-            "custom_button_border": "{{ settings.color_palette.background }}",
-            "width": "fit-content",
-            "custom_width": 100,
-            "width_mobile": "fit-content",
-            "custom_width_mobile": 100
-          },
-          "blocks": {}
+            "icon": "trial",
+            "heading": "60-Night Trial",
+            "description": "Peace of mind, love it or money back"
+          }
+        },
+        "badge_delivery": {
+          "type": "trust_badge",
+          "settings": {
+            "icon": "delivery",
+            "heading": "Free Delivery",
+            "description": "Comfort delivered across the UK"
+          }
         }
       },
       "block_order": [
-        "text_YLPk4p",
-        "button_H9gpTf"
+        "badge_warranty",
+        "badge_trial",
+        "badge_delivery"
       ],
-      "name": "t:names.hero",
       "settings": {
-        "media_type_1": "image",
-        "media_type_2": "image",
-        "stack_media_on_mobile": false,
-        "custom_mobile_media": false,
-        "media_type_1_mobile": "image",
-        "media_type_2_mobile": "image",
-        "open_in_new_tab": false,
-        "content_direction": "column",
-        "vertical_on_mobile": true,
-        "horizontal_alignment": "space-between",
-        "vertical_alignment": "flex-end",
-        "align_baseline": true,
-        "horizontal_alignment_flex_direction_column": "center",
-        "vertical_alignment_flex_direction_column": "flex-end",
-        "gap": 24,
-        "section_width": "page-width",
-        "section_height": "medium",
-        "section_height_custom": 50,
-        "background_color": "rgba(0,0,0,0)",
-        "toggle_overlay": true,
-        "overlay_color": "#12121266",
-        "overlay_style": "solid",
-        "gradient_direction": "to bottom",
-        "blurred_reflection": false,
-        "reflection_opacity": 75,
-        "padding-block-start": 100,
-        "padding-block-end": 72
+        "background_color": "#fffcf4",
+        "text_color": "#333333",
+        "accent_color": "#333333",
+        "padding_top": 80,
+        "padding_bottom": 0
       }
     },
-    "product_list_fa6P9H": {
-      "type": "product-list",
+    "dev-wash-dry-repeat-promo": {
+      "type": "dev-wash-dry-repeat-promo",
       "blocks": {
-        "static-header": {
-          "type": "_product-list-content",
-          "name": "t:names.header",
-          "static": true,
+        "tile-raw-materials": {
+          "type": "image_tile",
           "settings": {
-            "content_direction": "row",
-            "vertical_on_mobile": false,
-            "horizontal_alignment": "space-between",
-            "vertical_alignment": "flex-end",
-            "align_baseline": true,
-            "horizontal_alignment_flex_direction_column": "flex-start",
-            "vertical_alignment_flex_direction_column": "center",
-            "gap": 12,
-            "width": "fill",
-            "custom_width": 100,
-            "width_mobile": "fill",
-            "custom_width_mobile": 100,
-            "height": "fit",
-            "custom_height": 100,
-            "background_media": "none",
-            "video_position": "cover",
-            "background_image_position": "cover",
-            "border": "none",
-            "border_width": 1,
-            "border_opacity": 100,
-            "border_radius": 0,
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
-          "blocks": {
-            "product_list_text_YFtzcL": {
-              "type": "_product-list-text",
-              "name": "t:names.collection_title",
-              "settings": {
-                "text": "<h3>{{ closest.collection.title }}</h3>",
-                "width": "fit-content",
-                "max_width": "normal",
-                "alignment": "left",
-                "type_preset": "h4",
-                "font": "var(--font-body--family)",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "wrap": "pretty",
-                "background": false,
-                "background_color": "#00000026",
-                "corner_radius": 0,
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            },
-            "product_list_button_MWeP9V": {
-              "type": "_product-list-button",
-              "name": "t:names.product_list_button",
-              "settings": {
-                "label": "View all",
-                "open_in_new_tab": false,
-                "style_class": "link",
-                "width": "fit-content",
-                "custom_width": 100,
-                "width_mobile": "fit-content",
-                "custom_width_mobile": 100
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": [
-            "product_list_text_YFtzcL",
-            "product_list_button_MWeP9V"
-          ]
+            "image": "shopify://shop_images/naturally-better-promo-tile-1.png",
+            "alt_text": "Hands holding wood chips and rice hulls, the raw materials for our fibre",
+            "border_color": "#c4bca9"
+          }
         },
-        "static-product-card": {
-          "type": "_product-card",
-          "name": "t:names.product_card",
-          "static": true,
+        "tile-line-drying": {
+          "type": "image_tile",
           "settings": {
-            "product_card_gap": 4,
-            "border": "none",
-            "border_width": 1,
-            "border_opacity": 100,
-            "border_radius": 0,
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
-          "blocks": {
-            "product_card_gallery_677WP3": {
-              "type": "_product-card-gallery",
-              "name": "t:names.product_card_media",
-              "settings": {
-                "image_ratio": "adapt",
-                "border": "none",
-                "border_width": 1,
-                "border_opacity": 100,
-                "border_radius": 0,
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            },
-            "product_title_YXxMTj": {
-              "type": "product-title",
-              "name": "t:names.product_title",
-              "settings": {
-                "width": "100%",
-                "max_width": "normal",
-                "alignment": "left",
-                "type_preset": "rte",
-                "font": "var(--font-body--family)",
-                "font_size": "1rem",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "wrap": "pretty",
-                "background": false,
-                "background_color": "#00000026",
-                "corner_radius": 0,
-                "padding-block-start": 4,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            },
-            "price_JQzVV4": {
-              "type": "price",
-              "name": "t:names.product_price",
-              "settings": {
-                "show_sale_price_first": true,
-                "show_installments": false,
-                "show_tax_info": false,
-                "type_preset": "h6",
-                "width": "100%",
-                "alignment": "left",
-                "font": "var(--font-body--family)",
-                "font_size": "1rem",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": [
-            "product_card_gallery_677WP3",
-            "product_title_YXxMTj",
-            "price_JQzVV4"
-          ]
+            "image": "shopify://shop_images/wash-dry-repeat-promo-tile-2.jpg",
+            "alt_text": "A Larke duvet drying outdoors on a washing line",
+            "border_color": "#c4bca9"
+          }
         }
       },
-      "name": "Featured collection",
+      "block_order": [
+        "tile-raw-materials",
+        "tile-line-drying"
+      ],
       "settings": {
-        "collection": "all",
-        "layout_type": "grid",
-        "carousel_on_mobile": false,
-        "max_products": 8,
-        "columns": 4,
-        "mobile_columns": "2",
-        "mobile_card_size": "60cqw",
-        "columns_gap": 8,
-        "rows_gap": 24,
-        "icons_style": "arrow",
-        "icons_shape": "none",
-        "section_width": "page-width",
-        "horizontal_alignment": "flex-start",
-        "gap": 28,
-        "background_color": "{{ settings.color_palette.background }}",
-        "padding-block-start": 48,
-        "padding-block-end": 48
+        "heading": "Naturally Better.",
+        "subheading": "<p>From trees, to the most breathable duvet.</p>",
+        "cta_label": "Start your 60-night trial",
+        "cta_link": "/collections/all",
+        "background_color": "#fcf5e3",
+        "text_color": "#333333",
+        "accent_color": "#c4bca9",
+        "padding_top": 80,
+        "padding_bottom": 0
+      }
+    },
+    "dev-as-seen-in": {
+      "type": "dev-as-seen-in",
+      "blocks": {
+        "tile-laundry": {
+          "type": "image_tile",
+          "settings": {
+            "image": "shopify://shop_images/wash-dry-repeat-laundry.jpg",
+            "alt_text": "Folded towels beside a washing machine"
+          }
+        },
+        "tile-bedroom": {
+          "type": "image_tile",
+          "settings": {
+            "image": "shopify://shop_images/wash-dry-repeat-bedroom.jpg",
+            "alt_text": "Woman stretching in bed under a Larke duvet"
+          }
+        }
+      },
+      "block_order": [
+        "tile-laundry",
+        "tile-bedroom"
+      ],
+      "settings": {
+        "heading": "Wash. Dry. Repeat.",
+        "body_text": "<p>Fuss-free comfort.<br/>Fresh again by bedtime.</p>",
+        "button_label": "Discover Tree-Fibre",
+        "button_link": "",
+        "background_color": "rgba(0,0,0,0)",
+        "text_color": "#333333",
+        "accent_color": "#c4bca9",
+        "padding_top": 80,
+        "padding_bottom": 0
+      }
+    },
+    "dev-video-promo-banner": {
+      "type": "dev-video-promo-banner",
+      "blocks": {
+        "cta": {
+          "type": "cta_button",
+          "settings": {
+            "label": "Our Story",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "cta"
+      ],
+      "settings": {
+        "heading": "Trees into duvets – who would've thought?",
+        "subheading": "See the difference in under 60 seconds.",
+        "background_poster_image": "shopify://shop_images/video-promo-banner-bg.png",
+        "video": "shopify://files/videos/trimmed_furniture_720.mov",
+        "video_external_url": "",
+        "show_play_button": true,
+        "background_color": "rgba(0,0,0,0)",
+        "text_color": "#ffffff",
+        "accent_color": "#fffcf4",
+        "cta_text_color": "#333333",
+        "padding_top": 80,
+        "padding_bottom": 0
+      }
+    },
+    "dev-featured-product": {
+      "type": "dev-featured-product",
+      "blocks": {
+        "icon-breathable": {
+          "type": "trust_icon",
+          "settings": {
+            "icon": "wind",
+            "label": "Breathable"
+          }
+        },
+        "icon-easy-care": {
+          "type": "trust_icon",
+          "settings": {
+            "icon": "care",
+            "label": "Easy care"
+          }
+        },
+        "icon-hypoallergenic": {
+          "type": "trust_icon",
+          "settings": {
+            "icon": "organic",
+            "label": "Hypoallergenic"
+          }
+        }
+      },
+      "block_order": [
+        "icon-breathable",
+        "icon-easy-care",
+        "icon-hypoallergenic"
+      ],
+      "settings": {
+        "heading": "<p>Meet your new<br/><em>(and last)</em> duvet</p>",
+        "subheading": "<p>Cooler, cosier,<br/>kinder to the planet.</p>",
+        "rating_stars": "★★★★★",
+        "rating_text": "Rated 4.9/5* by real sleepers",
+        "button_label": "Shop Your Duvet",
+        "button_link": "",
+        "product_image": "shopify://shop_images/featured-product-hero.jpg",
+        "background_color": "#fcf5e3",
+        "text_color": "#333333",
+        "accent_color": "#fab725",
+        "padding_top": 80,
+        "padding_bottom": 0
+      }
+    },
+    "dev-cool-sleepers-promo": {
+      "type": "dev-cool-sleepers-promo",
+      "settings": {
+        "heading": "As seen in",
+        "subheading": "Comfort put to the test",
+        "logos_image": "shopify://shop_images/cool-sleepers-promo-logos-desktop.png",
+        "logos_image_mobile": "shopify://shop_images/cool-sleepers-promo-logos-mobile.png",
+        "lifestyle_image": "shopify://shop_images/cool-sleepers-promo-lifestyle-desktop.png",
+        "lifestyle_image_mobile": "shopify://shop_images/cool-sleepers-promo-lifestyle-mobile.png",
+        "background_color": "rgba(0,0,0,0)",
+        "text_color": "#333333",
+        "accent_color": "#333333",
+        "padding_top": 80,
+        "padding_bottom": 0
+      }
+    },
+    "dev-brand-social-gallery": {
+      "type": "dev-brand-social-gallery",
+      "blocks": {
+        "tile_1": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/brand-social-gallery-tile-1.jpg",
+            "alt": "Close-up profile against green foliage"
+          }
+        },
+        "tile_2": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/brand-social-gallery-tile-2.jpg",
+            "alt": "Hand resting on a white Larke duvet"
+          }
+        },
+        "tile_3": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/brand-social-gallery-tile-3.jpg",
+            "alt": "Woman wrapped in a white duvet in a forest"
+          }
+        },
+        "tile_4": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/brand-social-gallery-tile-4.jpg",
+            "alt": "Woman sleeping in bed under a Larke duvet"
+          }
+        }
+      },
+      "block_order": [
+        "tile_1",
+        "tile_2",
+        "tile_3",
+        "tile_4"
+      ],
+      "settings": {
+        "heading": "Larke, lived in.",
+        "social_handle": "@wearelarke.com",
+        "profile_badge_ring": "shopify://shop_images/brand-social-gallery-badge-ring.png",
+        "profile_badge_logo": "shopify://shop_images/brand-social-gallery-badge-logo.png",
+        "background_color": "#fffcf4",
+        "text_color": "#333333",
+        "accent_color": "#4ea448",
+        "padding_top": 80,
+        "padding_bottom": 0
+      }
+    },
+    "dev-video-story-banner": {
+      "type": "dev-video-story-banner",
+      "settings": {
+        "heading": "<p>Tree-mendous<br/>since day one.</p>",
+        "subheading": "See how it all began.",
+        "button_label": "Our Story",
+        "button_link": "/pages/our-story",
+        "image": "shopify://shop_images/our-story-video-banner-bg.jpg",
+        "image_mobile": "shopify://shop_images/our-story-video-banner-bg.jpg",
+        "background_color": "#ffffff",
+        "text_color": "#ffffff",
+        "accent_color": "#a8cf78",
+        "padding_top": 80,
+        "padding_bottom": 0
+      }
+    },
+    "dev_three_step_hVnPqK": {
+      "type": "dev-three-step",
+      "blocks": {
+        "step-1": {
+          "type": "step",
+          "settings": {
+            "title": "Step 1",
+            "body": "<p>Our duvets started life as a tree. Think eucalyptus.</p>",
+            "image_alt": "Stacked eucalyptus logs"
+          }
+        },
+        "step-2": {
+          "type": "step",
+          "settings": {
+            "title": "Step 2",
+            "body": "<p>Using water, it’s transformed into ultra-fine fibres, smoother than merino wool.</p>",
+            "image_alt": "Close-up of ultra-fine tree fibre"
+          }
+        },
+        "step-3": {
+          "type": "step",
+          "settings": {
+            "title": "Step 3",
+            "body": "<p>Collected, filled then sewn together, it adapts to heat in sleep for all seasons. Year round.</p>",
+            "image_alt": "A duvet being sewn on a machine"
+          }
+        }
+      },
+      "block_order": [
+        "step-1",
+        "step-2",
+        "step-3"
+      ],
+      "name": "Three step",
+      "settings": {
+        "background_color": "#fffcf4",
+        "text_color": "#333333",
+        "card_color": "#fcf5e3",
+        "border_color": "#c4bca9",
+        "padding_top": 80,
+        "padding_bottom": 0
       }
     }
   },
   "order": [
-    "hero_jVaWmY",
-    "product_list_fa6P9H"
+    "dev-hero",
+    "dev-trust-badges",
+    "dev-wash-dry-repeat-promo",
+    "dev-as-seen-in",
+    "dev-video-promo-banner",
+    "dev_three_step_hVnPqK",
+    "dev-featured-product",
+    "dev-cool-sleepers-promo",
+    "dev-brand-social-gallery",
+    "dev-video-story-banner"
   ]
 }
