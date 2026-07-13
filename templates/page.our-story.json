@@ -19,8 +19,8 @@
         "slide-founder": {
           "type": "slide",
           "settings": {
-            "image": "",
-            "image_alt": "",
+            "image": "shopify://shop_images/story-slider-tile-1.png",
+            "image_alt": "Larke founder Reuven Sherman sitting on a bed in cream loungewear",
             "text": "<p><strong>Our story began in 2024,</strong><br>with our founder Reuven Sherman setting out to find the very best in natural sleep.</p>",
             "crop": "short"
           }
@@ -28,8 +28,8 @@
         "slide-eucalyptus": {
           "type": "slide",
           "settings": {
-            "image": "",
-            "image_alt": "",
+            "image": "shopify://shop_images/story-slider-tile-2.jpg",
+            "image_alt": "Looking up a stand of tall eucalyptus trees towards the sun",
             "text": "<p><strong>Chancing upon fibers from </strong>eucalyptus trees, we were intrigued, inspired and captivated by its magical benefits and durability.</p>",
             "crop": "tall"
           }
@@ -37,8 +37,8 @@
         "slide-transform": {
           "type": "slide",
           "settings": {
-            "image": "",
-            "image_alt": "",
+            "image": "shopify://shop_images/story-slider-tile-3.jpg",
+            "image_alt": "A woman wrapped in a white Larke duvet among evergreen trees",
             "text": "<p><strong>Transforming our duvet naturally </strong>into a biodegradable and compostable wonder.</p>",
             "crop": "short"
           }
@@ -46,8 +46,8 @@
         "slide-never-back": {
           "type": "slide",
           "settings": {
-            "image": "",
-            "image_alt": "",
+            "image": "shopify://shop_images/story-slider-tile-4.png",
+            "image_alt": "Sunlight breaking through a dark woodland",
             "text": "<p><strong>We’ve never looked back,</strong> seeking to harness nature’s power every day.</p>",
             "crop": "tall"
           }
@@ -123,6 +123,11 @@
       "type": "dev-journal-cards",
       "settings": {
         "heading": "The coded language of bedding — Uncoded",
+        "blog": "news",
+        "articles_count": 3,
+        "button_label": "Read Article",
+        "read_time_label": "min read",
+        "author_prefix": "By",
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#333333",
         "accent_color": "#333333",
