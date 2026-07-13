@@ -1,0 +1,79 @@
+{%- comment -%}
+  One journal card. Rendered from TWO sources and deliberately shared between them so they can
+  never drift apart:
+
+    1. real articles pulled from a Shopify blog  (sections/dev-journal-cards.liquid, blog mode)
+    2. hand-authored blocks                      (the same file, fallback mode)
+
+  Every value arrives as a parameter — the snippet reads no `block` and no `section`, so it does
+  not care which mode it is in.
+
+  @param {object} [image]        - Shopify image object (article.image or an image_picker value)
+  @param {string} [image_alt]    - alt text; the caller resolves the fallback chain
+  @param {string} [badge]        - the "Guest Review" / "Insight" pill; omitted when blank
+  @param {string} [meta]         - "4 min read ㆍBy Priya s"
+  @param {string} [heading]      - card headline (may contain inline HTML in fallback mode)
+  @param {string} [url]          - where the CTA points
+  @param {string} [cta_label]    - CTA text; the whole CTA is omitted when blank
+  @param {string} [attrs]        - block.shopify_attributes in fallback mode, blank in blog mode
+{%- endcomment -%}
+
+<li class="journal-cards__card" {{ attrs }}>
+  <article class="journal-cards__card-inner">
+    {%- if image != blank -%}
+      {%- assign card_image_src = image | image_url: width: 1200 -%}
+      <div class="journal-cards__media">
+        {{
+          card_image_src
+          | image_tag:
+            loading: 'lazy',
+            widths: '343, 400, 600, 800, 1000, 1200',
+            sizes: '(min-width: 769px) 33vw, 100vw',
+            alt: image_alt,
+            class: 'journal-cards__image'
+        }}
+
+        {%- if badge != blank -%}
+          <span class="journal-cards__badge">{{ badge | escape }}</span>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <div class="journal-cards__content">
+      {%- if meta != blank -%}
+        <p class="journal-cards__meta">{{ meta | escape }}</p>
+      {%- endif -%}
+
+      {%- if heading != blank -%}
+        {%- comment -%}
+          NOT escaped: in fallback mode this is an inline_richtext (already-safe HTML from Shopify),
+          and in blog mode the caller passes `article.title | escape`. Escaping here would print the
+          entities of the former.
+        {%- endcomment -%}
+        <h3 class="journal-cards__card-heading">{{ heading }}</h3>
+      {%- endif -%}
+
+      {%- if cta_label != blank -%}
+        {%- assign card_link = url | default: '#' -%}
+        <a class="journal-cards__cta" href="{{ card_link }}">
+          <span class="journal-cards__cta-label">{{ cta_label | escape }}</span>
+          {%- comment -%}
+            Path data verbatim from .figma-assets/journal-cards/cta-icon-arrow-right.svg.
+          {%- endcomment -%}
+          <svg
+            class="journal-cards__cta-icon"
+            width="24"
+            height="24"
+            viewBox="99 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M116 16L120 12L116 8M120 12L102 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      {%- endif -%}
+    </div>
+  </article>
+</li>

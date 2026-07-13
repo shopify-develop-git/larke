@@ -114,72 +114,89 @@
     --pb: {{ section.settings.padding_bottom }}px;
   "
 >
+  {%- liquid
+    comment
+      TWO SOURCES, ONE CARD.
+
+      Pick a blog in the section settings and the cards become REAL articles — title, image, tag,
+      author and URL all come from Shopify, so publishing a post updates the page and nobody has to
+      retype "The coded language of bedding" into a theme setting ever again.
+
+      The hand-authored blocks stay as the fallback, and that is not dead code:
+        * a merchant who has not created a blog yet still gets a rendered section
+        * the theme editor needs SOMETHING to show while the blog is being chosen
+        * `blog.articles` is empty on a brand-new blog, and an empty section is worse than a stub
+      So: blog mode when a blog is chosen AND it actually has articles; blocks otherwise.
+
+      Both paths render snippets/dev-journal-cards-card.liquid, so the markup cannot drift.
+    endcomment
+
+    assign journal_blog = blogs[section.settings.blog]
+    assign use_blog = false
+    if section.settings.blog != blank and journal_blog.articles_count > 0
+      assign use_blog = true
+    endif
+  -%}
+
   <div class="journal-cards__inner">
     {%- if section.settings.heading != blank -%}
       <h2 class="journal-cards__heading">{{ section.settings.heading }}</h2>
     {%- endif -%}
 
-    {%- if section.blocks.size > 0 -%}
+    {%- if use_blog -%}
+      <ul class="journal-cards__list" role="list">
+        {%- for article in journal_blog.articles limit: section.settings.articles_count -%}
+          {%- comment -%}
+            Reading time comes from snippets/dev-article-read-time.liquid, which the article page
+            renders through too — so the number on the card and the number on the post it links to
+            can never disagree. The snippet prefers the `custom.reading_time` metafield and falls
+            back to the article's word count.
+          {%- endcomment -%}
+          {%- capture read_minutes -%}{%- render 'dev-article-read-time', article: article -%}{%- endcapture -%}
+
+          {%- liquid
+            # "4 min read ㆍBy Reuven S" — the separator is the artboard's own glyph, so it is
+            # design, not copy, and stays here rather than in a setting.
+            assign card_meta = read_minutes | append: ' ' | append: section.settings.read_time_label
+            if article.author != blank
+              assign card_meta = card_meta | append: ' ㆍ' | append: section.settings.author_prefix | append: ' ' | append: article.author
+            endif
+
+            # The badge is the article's FIRST tag ("Guest Review", "Insight", "Expert Guide" on the
+            # artboard are exactly that shape). No tag, no badge — inventing one would be inventing
+            # editorial.
+            assign card_badge = article.tags | first
+
+            assign card_alt = article.image.alt | default: article.title | escape
+          -%}
+
+          {%- render 'dev-journal-cards-card',
+            image: article.image,
+            image_alt: card_alt,
+            badge: card_badge,
+            meta: card_meta,
+            heading: article.title | escape,
+            url: article.url,
+            cta_label: section.settings.button_label
+          -%}
+        {%- endfor -%}
+      </ul>
+
+    {%- elsif section.blocks.size > 0 -%}
       <ul class="journal-cards__list" role="list">
         {%- for block in section.blocks -%}
-          <li class="journal-cards__card" {{ block.shopify_attributes }}>
-            <article class="journal-cards__card-inner">
-              {%- if block.settings.image != blank -%}
-                {%- liquid
-                  assign card_image = block.settings.image
-                  assign card_alt = card_image.alt | default: block.settings.heading | strip_html | escape
-                  assign card_image_src = card_image | image_url: width: 1200
-                -%}
-                <div class="journal-cards__media">
-                  {{
-                    card_image_src
-                    | image_tag:
-                      loading: 'lazy',
-                      widths: '343, 400, 600, 800, 1000, 1200',
-                      sizes: '(min-width: 769px) 33vw, 100vw',
-                      alt: card_alt,
-                      class: 'journal-cards__image'
-                  }}
+          {%- assign card_alt = block.settings.image.alt | default: block.settings.heading | strip_html | escape -%}
 
-                  {%- if block.settings.badge_label != blank -%}
-                    <span class="journal-cards__badge">{{ block.settings.badge_label | escape }}</span>
-                  {%- endif -%}
-                </div>
-              {%- endif -%}
-
-              <div class="journal-cards__content">
-                {%- if block.settings.meta_text != blank -%}
-                  <p class="journal-cards__meta">{{ block.settings.meta_text | escape }}</p>
-                {%- endif -%}
-
-                {%- if block.settings.heading != blank -%}
-                  <h3 class="journal-cards__card-heading">{{ block.settings.heading }}</h3>
-                {%- endif -%}
-
-                {%- if block.settings.button_label != blank -%}
-                  {%- assign card_link = block.settings.button_link | default: '#' -%}
-                  <a class="journal-cards__cta" href="{{ card_link }}">
-                    <span class="journal-cards__cta-label">{{ block.settings.button_label | escape }}</span>
-                    {%- comment -%}
-                      Path data verbatim from .figma-assets/journal-cards/cta-icon-arrow-right.svg.
-                    {%- endcomment -%}
-                    <svg
-                      class="journal-cards__cta-icon"
-                      width="24"
-                      height="24"
-                      viewBox="99 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      aria-hidden="true"
-                      focusable="false"
-                    >
-                      <path d="M116 16L120 12L116 8M120 12L102 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </a>
-                {%- endif -%}
-              </div>
-            </article>
-          </li>
+          {%- render 'dev-journal-cards-card',
+            image: block.settings.image,
+            image_alt: card_alt,
+            badge: block.settings.badge_label,
+            meta: block.settings.meta_text,
+            heading: block.settings.heading,
+            url: block.settings.button_link,
+            cta_label: block.settings.button_label,
+            attrs: block.shopify_attributes
+          -%}
         {%- endfor -%}
       </ul>
     {%- endif -%}
@@ -198,6 +215,38 @@
       "label": "Heading",
       "default": "The coded language of bedding — Uncoded"
     },
+
+    { "type": "header", "content": "Articles" },
+    {
+      "type": "paragraph",
+      "content": "Pick a blog and the cards become real articles — image, title, tag, author and link all come from Shopify. Leave it empty to hand-author the cards as blocks instead."
+    },
+    { "type": "blog", "id": "blog", "label": "Blog" },
+    {
+      "type": "range",
+      "id": "articles_count",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "label": "Articles to show",
+      "info": "The design lays out three across; more will wrap.",
+      "default": 3
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Card link label",
+      "info": "Used for every article card. Hand-authored blocks keep their own label.",
+      "default": "Read Article"
+    },
+    {
+      "type": "text",
+      "id": "read_time_label",
+      "label": "Reading time label",
+      "info": "Reading time is estimated from the article's own word count at 200 words per minute.",
+      "default": "min read"
+    },
+    { "type": "text", "id": "author_prefix", "label": "Author prefix", "default": "By" },
 
     { "type": "header", "content": "Colors" },
     {
