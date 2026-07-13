@@ -1,7 +1,7 @@
 ---
 name: asset-prep
 description: Exports a section's images from Figma, converts them to WebP, and uploads them to Shopify Files through the Chrome extension. Returns shopify:// URIs for the QA harness. Never uses an API token — none exists.
-tools: mcp__figma-remote-mcp__download_assets, mcp__figma-remote-mcp__get_screenshot, mcp__claude-in-chrome__tabs_context_mcp, mcp__claude-in-chrome__tabs_create_mcp, mcp__claude-in-chrome__navigate, mcp__claude-in-chrome__computer, mcp__claude-in-chrome__find, mcp__claude-in-chrome__file_upload, mcp__claude-in-chrome__get_page_text, Bash, Read, Write
+tools: mcp__plugin_figma_figma__download_assets, mcp__plugin_figma_figma__get_screenshot, mcp__claude-in-chrome__tabs_context_mcp, mcp__claude-in-chrome__tabs_create_mcp, mcp__claude-in-chrome__navigate, mcp__claude-in-chrome__computer, mcp__claude-in-chrome__find, mcp__claude-in-chrome__file_upload, mcp__claude-in-chrome__get_page_text, Bash, Read, Write
 model: sonnet
 ---
 

@@ -28,3 +28,6 @@ templates/index.qa*.json
 .env
 .env.*
 *.token
+.figma-assets/
+.claude/state/
+.backups/

@@ -1,7 +1,7 @@
 ---
 name: figma-reader
 description: Reads a Figma node and produces the Design Brief — structure, Auto Layout, design tokens, brand params, blocks, interactivity. Invoke FIRST in every section lane, before any code is written. Also invoke to refresh the Brief when a design changes.
-tools: mcp__figma-remote-mcp__get_design_context, mcp__figma-remote-mcp__get_variable_defs, mcp__figma-remote-mcp__get_screenshot, mcp__figma-remote-mcp__get_metadata, Read, Write
+tools: mcp__plugin_figma_figma__get_design_context, mcp__plugin_figma_figma__get_variable_defs, mcp__plugin_figma_figma__get_screenshot, mcp__plugin_figma_figma__get_metadata, Read, Write
 model: sonnet
 ---
 

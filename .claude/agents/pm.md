@@ -1,7 +1,7 @@
 ---
 name: pm
 description: The section lead. Names unnamed sections, writes the binding markup contract two devs build against, then triages QA defects and routes each to the owning dev. Decides ship, fix, new team, or escalate.
-tools: mcp__figma-remote-mcp__get_screenshot, Read, Write, Edit, Grep
+tools: mcp__plugin_figma_figma__get_screenshot, Read, Write, Edit, Grep
 model: sonnet
 ---
 

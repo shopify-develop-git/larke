@@ -1,7 +1,7 @@
 ---
 name: qa-visual
 description: Pixel-diffs a rendered section against its Figma artboard at every width that has a reference. Uses the Chrome extension for screenshots and the pixel-diff tool for the verdict. Never guesses a result.
-tools: mcp__claude-in-chrome__tabs_context_mcp, mcp__claude-in-chrome__tabs_create_mcp, mcp__claude-in-chrome__navigate, mcp__claude-in-chrome__computer, mcp__claude-in-chrome__resize_window, mcp__claude-in-chrome__find, mcp__claude-in-chrome__browser_batch, mcp__figma-remote-mcp__download_assets, mcp__figma-remote-mcp__get_screenshot, Bash, Read
+tools: mcp__claude-in-chrome__tabs_context_mcp, mcp__claude-in-chrome__tabs_create_mcp, mcp__claude-in-chrome__navigate, mcp__claude-in-chrome__computer, mcp__claude-in-chrome__resize_window, mcp__claude-in-chrome__find, mcp__claude-in-chrome__browser_batch, mcp__plugin_figma_figma__download_assets, mcp__plugin_figma_figma__get_screenshot, Bash, Read
 model: sonnet
 ---
 
