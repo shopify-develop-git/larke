@@ -20,16 +20,32 @@
   padding: var(--pt) var(--section-px) var(--pb);
 }
 
-/* The whole page is one reading column, centred. The hero image is the only thing allowed to break
-   out of it (see __media) — everything else stays inside the measure so the eye never has to track
-   a 1300px line. */
+/* Two widths, nested rather than negative-margined.
+
+   The container is the WIDER of the two (--media-w), and the prose blocks inside it are capped at
+   the reading measure and centred. The first attempt did the opposite — a 720px container with the
+   image breaking out via `margin-inline: calc(... - 100vw ...)` — and it was wrong twice over: the
+   image kept `width: 100%`, which pins it to the container and makes the negative margins move it
+   without widening it (so the break-out silently did nothing), and `100vw` ignores the scrollbar,
+   which is a horizontal-scroll bug waiting for a narrow window.
+
+   Nesting needs no negative margins, no 100vw, and cannot overflow. */
 .dev-article__inner {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-lg);
-  max-width: var(--measure);
+  max-width: var(--media-w);
   margin: 0 auto;
+}
+
+/* Everything that is READ stays at the measure. Only the media is allowed the full container. */
+.dev-article__head,
+.dev-article__body,
+.dev-article__foot {
+  width: 100%;
+  max-width: var(--measure);
+  margin-inline: auto;
 }
 
 /* --- back link --- */
@@ -113,13 +129,10 @@
 
 /* --- hero media --- */
 
-/* The one element that breaks the measure. 100vw would sit under the scrollbar, so it is widened
-   to the section's own gutters instead: the image spans the full container while the prose stays
-   at 720px. */
+/* The one element that breaks the measure — it simply fills the container, which IS the wider of
+   the two widths (see __inner). No negative margins, nothing to overflow. */
 .dev-article__media {
   width: 100%;
-  max-width: calc(100vw - (2 * var(--section-px)));
-  margin-inline: calc((var(--measure) - 100vw + (2 * var(--section-px))) / 2);
   overflow: hidden;
   border-radius: var(--radius-media);
 }
@@ -265,12 +278,8 @@
     font-size: var(--font-h3-size);
   }
 
-  /* The break-out is pointless once the measure is wider than the viewport — the image is already
-     the full column. Reset it, or the negative margin drags it off-screen. */
-  .dev-article__media {
-    max-width: 100%;
-    margin-inline: 0;
-  }
+  /* Nothing to reset for the media: both widths are max-widths, so below 720px the container, the
+     measure and the image all collapse to the same fluid column on their own. */
 }
 
 /* =============================================

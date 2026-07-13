@@ -1,0 +1,269 @@
+{{ 'dev-journal-cards.css' | asset_url | stylesheet_tag }}
+{{ 'dev-blog.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Section: "Blog" (dev name `dev-blog`). The /blogs/<handle> index.
+
+  NO FIGMA ARTBOARD EXISTS FOR THIS PAGE — same honest caveat as dev-article. It is COMPOSED from
+  the system rather than measured, and the composition is deliberately boring: the page is a grid
+  of the SAME cards the Our Story strip uses.
+
+  THE CARD IS NOT REBUILT HERE. It renders through snippets/dev-journal-cards-card.liquid — the very
+  file dev-journal-cards renders — with the tokens supplied by snippets/dev-journal-card-tokens.liquid
+  and the styling by assets/dev-journal-cards.css. A reader clicking from the Journal strip to this
+  index and back must not see the card change, and the only way to guarantee that is to make it the
+  same card, not a lookalike. Reading time therefore also matches by construction: both go through
+  snippets/dev-article-read-time.liquid, which prefers the `custom.reading_time` metafield.
+
+  THE TAG FILTER is real data, not decoration. Shopify already routes /blogs/news/tagged/<tag>, and
+  the articles already carry the tags the design uses as badges ("Guest Review", "Insight",
+  "Expert Guide"). So the filter is a row of links, not JS: it works with scripting off, it is
+  crawlable, and the browser's back button behaves.
+{%- endcomment -%}
+
+{%- comment -%} Tokens for the CARD — shared with dev-journal-cards so the two cannot drift. {%- endcomment -%}
+{%- render 'dev-journal-card-tokens', scope: '.dev-blog' -%}
+
+{%- comment -%} Tokens for the PAGE around the cards — this section's own {%- endcomment -%}
+<style>
+  .dev-blog {
+    --font-title-size: 48px;
+    --font-title-size-m: 32px;
+    --font-title-lh: 1.2;
+    --font-intro-size: 18px;
+    --font-intro-size-m: 16px;
+
+    --gap-head: 16px;
+    --gap-section: 48px;
+    --gap-filter: 8px;
+    --gap-grid: 32px;
+    --gap-grid-m: 24px;
+
+    --grid-min: 320px;
+
+    --filter-px: 16px;
+    --filter-py: 8px;
+    --filter-size: 14px;
+    --radius-filter: 60px;
+
+    --pagination-gap: 8px;
+    --pagination-size: 40px;
+  }
+</style>
+
+{%- liquid
+  assign per_page = section.settings.articles_per_page
+  assign current_tag = current_tags | first
+-%}
+
+<div
+  class="dev-blog"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --muted: {{ section.settings.meta_color }};
+    --chip: {{ section.settings.filter_color }};
+    --chip-active: {{ section.settings.filter_active_color }};
+    --chip-active-text: {{ section.settings.filter_active_text_color }};
+    --rule: {{ section.settings.rule_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="dev-blog__inner">
+    <header class="dev-blog__head">
+      {%- comment -%}
+        The blog's own title, not a theme setting — rename the blog in Shopify and the page follows.
+        A setting here would be a second place to keep in sync, and the first one to go stale.
+      {%- endcomment -%}
+      <h1 class="dev-blog__title">{{ section.settings.heading | default: blog.title | escape }}</h1>
+
+      {%- if section.settings.intro != blank -%}
+        <p class="dev-blog__intro">{{ section.settings.intro | escape }}</p>
+      {%- endif -%}
+    </header>
+
+    {%- comment -%}
+      Tag filter. `blog.all_tags` is every tag across the blog; `current_tags` is what the visitor
+      is filtered to. Plain links to Shopify's own /tagged/ routes — no JS, works crawled and with
+      scripting off. Hidden entirely when the blog has no tags, rather than rendering an empty rail.
+    {%- endcomment -%}
+    {%- if section.settings.show_tag_filter and blog.all_tags.size > 0 -%}
+      <nav class="dev-blog__filter" aria-label="{{ section.settings.filter_label | escape }}">
+        <a
+          class="dev-blog__chip{% unless current_tag %} dev-blog__chip--active{% endunless %}"
+          href="{{ blog.url }}"
+          {% unless current_tag %}aria-current="page"{% endunless %}
+        >
+          {{- section.settings.all_label | escape -}}
+        </a>
+
+        {%- for tag in blog.all_tags -%}
+          {%- assign is_active = false -%}
+          {%- if current_tags contains tag -%}
+            {%- assign is_active = true -%}
+          {%- endif -%}
+
+          <a
+            class="dev-blog__chip{% if is_active %} dev-blog__chip--active{% endif %}"
+            href="{{ blog.url }}/tagged/{{ tag | handleize }}"
+            {% if is_active %}aria-current="page"{% endif %}
+          >
+            {{- tag | escape -}}
+          </a>
+        {%- endfor -%}
+      </nav>
+    {%- endif -%}
+
+    {%- paginate blog.articles by per_page -%}
+      {%- if blog.articles.size > 0 -%}
+        <ul class="dev-blog__grid journal-cards__list" role="list">
+          {%- for article in blog.articles -%}
+            {%- comment -%}
+              Same reading-time snippet as the Journal strip and the article page: metafield first,
+              word count as the fallback. Three surfaces, one number.
+            {%- endcomment -%}
+            {%- capture read_minutes -%}{%- render 'dev-article-read-time', article: article -%}{%- endcapture -%}
+
+            {%- liquid
+              assign card_meta = read_minutes | append: ' ' | append: section.settings.read_time_label
+              if article.author != blank
+                assign card_meta = card_meta | append: ' ㆍ' | append: section.settings.author_prefix | append: ' ' | append: article.author
+              endif
+
+              assign card_badge = article.tags | first
+              assign card_alt = article.image.alt | default: article.title | escape
+            -%}
+
+            {%- render 'dev-journal-cards-card',
+              image: article.image,
+              image_alt: card_alt,
+              badge: card_badge,
+              meta: card_meta,
+              heading: article.title | escape,
+              url: article.url,
+              cta_label: section.settings.button_label
+            -%}
+          {%- endfor -%}
+        </ul>
+
+        {%- comment -%}
+          Pagination only when there is a second page. Rendering a lone, dead "1" under a
+          three-article blog is noise pretending to be a control.
+        {%- endcomment -%}
+        {%- if paginate.pages > 1 -%}
+          <nav class="dev-blog__pagination" aria-label="{{ section.settings.pagination_label | escape }}">
+            {%- if paginate.previous -%}
+              <a class="dev-blog__page dev-blog__page--arrow" href="{{ paginate.previous.url }}" aria-label="{{ section.settings.previous_label | escape }}">
+                <svg width="24" height="24" viewBox="99 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                  <path d="M106 16L102 12L106 8M102 12L120 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            {%- endif -%}
+
+            {%- comment -%}
+              The comparison string is built in its own assign. A filter pipe is NOT allowed inside
+              a condition — `elsif part.title == paginate.current_page | append: ''` parses as
+              `elsif part.title == paginate.current_page` and silently DISCARDS the rest, so every
+              non-link part would have fallen through to the "…" branch and the current page number
+              would have rendered as a greyed-out gap.
+
+              A non-link part is either the current page or the ellipsis; nothing else. Comparing
+              against the current page tells the two apart.
+            {%- endcomment -%}
+            {%- assign current_page_title = paginate.current_page | append: '' -%}
+
+            {%- for part in paginate.parts -%}
+              {%- if part.is_link -%}
+                <a class="dev-blog__page" href="{{ part.url }}">{{ part.title }}</a>
+              {%- elsif part.title == current_page_title -%}
+                <span class="dev-blog__page dev-blog__page--current" aria-current="page">{{ part.title }}</span>
+              {%- else -%}
+                <span class="dev-blog__page dev-blog__page--gap">{{ part.title }}</span>
+              {%- endif -%}
+            {%- endfor -%}
+
+            {%- if paginate.next -%}
+              <a class="dev-blog__page dev-blog__page--arrow" href="{{ paginate.next.url }}" aria-label="{{ section.settings.next_label | escape }}">
+                <svg width="24" height="24" viewBox="99 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                  <path d="M116 16L120 12L116 8M120 12L102 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            {%- endif -%}
+          </nav>
+        {%- endif -%}
+
+      {%- else -%}
+        {%- comment -%}
+          Reachable in two ways: a blog with no posts, or a /tagged/ route with no matches. The
+          second needs a way back, or the visitor is stranded on a dead end with the filter still
+          showing their selection.
+        {%- endcomment -%}
+        <div class="dev-blog__empty">
+          <p>{{ section.settings.empty_text | escape }}</p>
+          {%- if current_tag -%}
+            <a class="dev-blog__chip" href="{{ blog.url }}">{{ section.settings.all_label | escape }}</a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Blog",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "text", "id": "heading", "label": "Heading", "info": "Leave empty to use the blog's own title." },
+    { "type": "text", "id": "intro", "label": "Intro line", "default": "Sleep, trees and everything in between." },
+    { "type": "text", "id": "empty_text", "label": "Empty state message", "default": "Nothing here yet — check back soon." },
+
+    { "type": "header", "content": "Cards" },
+    {
+      "type": "paragraph",
+      "content": "The cards are the same ones the Journal section uses. Reading time comes from each article's 'Reading time' metafield, and falls back to an estimate from the word count."
+    },
+    { "type": "range", "id": "articles_per_page", "min": 3, "max": 24, "step": 3, "label": "Articles per page", "default": 9 },
+    { "type": "text", "id": "button_label", "label": "Card link label", "default": "Read Article" },
+    { "type": "text", "id": "read_time_label", "label": "Reading time label", "default": "min read" },
+    { "type": "text", "id": "author_prefix", "label": "Author prefix", "default": "By" },
+
+    { "type": "header", "content": "Tag filter" },
+    {
+      "type": "checkbox",
+      "id": "show_tag_filter",
+      "label": "Show the tag filter",
+      "info": "Built from the blog's real tags. Hidden automatically when there are none.",
+      "default": true
+    },
+    { "type": "text", "id": "all_label", "label": "\"All\" chip label", "default": "All" },
+    { "type": "text", "id": "filter_label", "label": "Filter label (screen readers only)", "default": "Filter articles by topic" },
+
+    { "type": "header", "content": "Pagination" },
+    { "type": "text", "id": "pagination_label", "label": "Pagination label (screen readers only)", "default": "Pagination" },
+    { "type": "text", "id": "previous_label", "label": "Previous page label (screen readers only)", "default": "Previous page" },
+    { "type": "text", "id": "next_label", "label": "Next page label (screen readers only)", "default": "Next page" },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "info": "Transparent by default so the page canvas shows through, as on the Journal section.",
+      "default": "rgba(0,0,0,0)"
+    },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "meta_color", "label": "Intro and meta text", "default": "#666666" },
+    { "type": "color", "id": "filter_color", "label": "Filter chip background", "default": "#FCF5E3" },
+    { "type": "color", "id": "filter_active_color", "label": "Filter chip background (selected)", "default": "#333333" },
+    { "type": "color", "id": "filter_active_text_color", "label": "Filter chip text (selected)", "default": "#FFFFFF" },
+    { "type": "color", "id": "rule_color", "label": "Rules and borders", "default": "#C4BCA9" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding top", "default": 48 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding bottom", "default": 80 }
+  ]
+}
+{% endschema %}

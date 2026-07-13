@@ -35,8 +35,12 @@
     --section-px: 64px;
     --section-px-m: 16px;
 
-    /* The reading column. Judgement call — see the header comment. */
+    /* Two widths. --measure is the reading column: 720px at 18px type is ~72 characters per line,
+       the middle of the 45–75 range that is comfortable to read. --media-w is the wider container
+       the hero image fills, so the photo has presence without the prose inheriting a 960px line.
+       Both are judgement calls — no artboard covers this page. See the header comment. */
     --measure: 720px;
+    --media-w: 960px;
 
     --font-title-size: 48px;
     --font-title-size-m: 32px;
@@ -126,7 +130,17 @@
     </header>
 
     {%- if article.image != blank -%}
-      {%- assign hero_src = article.image | image_url: width: 1600 -%}
+      {%- comment -%}
+        The alt is resolved in its own assign, NOT inline in the image_tag arguments. Liquid does
+        not allow a filter pipe inside an argument list: `alt: article.image.alt | default: x` is
+        parsed as "pipe the whole image_tag output into `default`", which swallows every argument
+        after it — the `class` never reached image_tag and the <img> rendered unclassed, so its
+        `width: 100%` never applied. This bit once; keep the assign.
+      {%- endcomment -%}
+      {%- liquid
+        assign hero_src = article.image | image_url: width: 1600
+        assign hero_alt = article.image.alt | default: article.title
+      -%}
       <div class="dev-article__media">
         {{
           hero_src
@@ -134,7 +148,7 @@
             loading: 'eager',
             widths: '400, 600, 800, 1000, 1200, 1600',
             sizes: '(max-width: 768px) 100vw, 1312px',
-            alt: article.image.alt | default: article.title,
+            alt: hero_alt,
             class: 'dev-article__image'
         }}
       </div>

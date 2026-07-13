@@ -1,0 +1,254 @@
+/* dev-values-we-cherish.css
+   Tokens come from the <style> block of sections/dev-values-we-cherish.liquid (fixed Figma values)
+   and inline on the root (merchant: --bg / --color / --accent / --pb). Nothing here hardcodes a
+   colour, a font family, or a base padding.
+
+   NAMING: `values-we-cherish` was checked against Horizon's stock classes before being used —
+   every stock {% stylesheet %} block is compiled into one sheet that loads on EVERY page, so an
+   unprefixed name can silently inherit stock rules. That has already bitten .announcement-bar__link
+   and .hero__*. This name collides with nothing. */
+
+/* =============================================
+   BASE — desktop  (Figma 45081:9421, 1440)
+   ============================================= */
+
+.values-we-cherish {
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+}
+
+/* --- layout --- */
+
+.values-we-cherish__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-section);
+  width: 100%;
+}
+
+/* --- heading --- */
+
+.values-we-cherish__heading {
+  margin: 0;
+  padding: 0 var(--section-px);
+
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  color: var(--color);
+}
+
+/* The emphasised run. The artboard sets "Cherish" in Tiempos Headline MEDIUM ITALIC — weight 500,
+   which IS loaded (snippets/dev-brand-fonts.liquid ships Regular and Medium italics). So unlike the
+   Our Story hero, whose design asks for a Bold Italic face that does not exist, this one renders
+   the real face and needs no compromise. */
+.values-we-cherish__heading em,
+.values-we-cherish__heading i {
+  position: relative;
+  font-style: italic;
+  font-weight: var(--font-heading-weight);
+}
+
+/* The hand-drawn stroke. Same technique as dev-tree-fibre-hero: a MASK on the <em>, tinted with
+   --accent, so it follows whatever the merchant italicises and no colour is hardcoded here. It
+   stretches to the word because Figma exports the vector preserveAspectRatio="none" — the stroke
+   is MEANT to fit its word, which is why only the height is a token.
+
+   See the FOLLOW-UP note in the .liquid: this is the second copy of these rules, and a third use
+   should extract them into a shared utility. */
+.values-we-cherish__heading em::after,
+.values-we-cherish__heading i::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  margin-top: var(--underline-gap);
+  height: var(--underline-h);
+
+  background-color: var(--accent);
+  -webkit-mask-image: var(--underline);
+  mask-image: var(--underline);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  pointer-events: none;
+}
+
+/* --- tiles --- */
+
+/* Desktop is a 3-up row; the SAME element is a horizontal scroller at ≤768px (see the mobile
+   block), which is what the mobile artboard shows. One element, two behaviours — no duplicate
+   markup and no JS, because a native scroll container already does touch, trackpad and keyboard. */
+.values-we-cherish__track {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--gap-tiles);
+  margin: 0;
+  padding: 0 var(--section-px);
+  list-style: none;
+}
+
+.values-we-cherish__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-tile-inner);
+
+  /* `1 0 0` — the three tiles share the row equally, which is exactly how the artboard resolves
+     421.33px each inside 1312 with two 24px gaps. min-width:0 lets the caption wrap instead of
+     forcing the tile open to its longest word. */
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+/* --- media --- */
+
+/* aspect-ratio, not the artboard's raw 421.33px height, so the crop survives the tile flexing at
+   any viewport. Mobile states its own ratio (260/250) — a different crop, not a reflow of this one. */
+.values-we-cherish__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--ratio-image);
+  overflow: hidden;
+  border-radius: var(--radius-tile);
+}
+
+.values-we-cherish__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  /* Horizon's base.css resets `img { max-width: 100% }`, which silently clamps any fill wider than
+     its box. Nothing here asks for that today, but the hero was broken by exactly this and the cost
+     of being explicit is one line. */
+  max-width: none;
+}
+
+/* --- caption --- */
+
+.values-we-cherish__caption {
+  margin: 0;
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+/* Nothing to override. The tiles are `flex: 1 0 0` and the images are aspect-ratios, so the row
+   narrows evenly all the way down to the 768px switch — there is no fixed column here to starve
+   the way dev-wash-dry-repeat-promo's image row starved its text. */
+
+@media (max-width: 1024px) {
+}
+
+/* =============================================
+   MOBILE  ≤ 768px  (Figma 44847:1038, 375)
+   ============================================= */
+
+@media (max-width: 768px) {
+  .values-we-cherish {
+    padding-top: var(--pt-m);
+  }
+
+  .values-we-cherish__inner {
+    gap: var(--gap-section-m);
+  }
+
+  .values-we-cherish__heading {
+    padding: 0 var(--section-px-m);
+    font-size: var(--font-heading-size-m);
+  }
+
+  .values-we-cherish__heading em::after,
+  .values-we-cherish__heading i::after {
+    height: var(--underline-h-m);
+    margin-top: var(--underline-gap-m);
+  }
+
+  /* The row becomes a scroller. The artboard runs the tiles off the right edge of the 375 frame
+     with no arrows and no rail, so this is the design, not a fallback. */
+  .values-we-cherish__track {
+    gap: var(--gap-tiles-m);
+    padding: 0 var(--section-px-m);
+
+    overflow-x: auto;
+    /* `clip`, not `hidden`: `hidden` on the cross axis would quietly make this a vertical scroll
+       container too, and the tiles' 32px corners would sit on a scrollable region. */
+    overflow-y: clip;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: var(--section-px-m);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .values-we-cherish__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Fixed 303px and NOT allowed to shrink — overflowing the row is the whole point of a scroller. */
+  .values-we-cherish__tile {
+    flex: 0 0 var(--tile-w-m);
+    width: var(--tile-w-m);
+    scroll-snap-align: start;
+  }
+
+  .values-we-cherish__media {
+    aspect-ratio: var(--ratio-image-m);
+  }
+
+  .values-we-cherish__caption {
+    font-size: var(--font-body-size-m);
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+/* Nothing to override: the 303px tile and the 16px gutter are already inside the 375 artboard, and
+   the track scrolls, so a narrower viewport simply shows less of the next tile. */
+
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+/* The track is focusable on mobile so it can be scrolled with the arrow keys without a pointer;
+   that means it needs a visible focus ring of its own. */
+.values-we-cherish__track:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
+
+.values-we-cherish__track:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .values-we-cherish,
+  .values-we-cherish * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

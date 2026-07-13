@@ -1,0 +1,272 @@
+/* dev-blog.css — the /blogs/<handle> index.
+
+   This file styles ONLY the page around the cards: the header, the tag filter and the pagination.
+   The cards themselves are NOT styled here — they come from assets/dev-journal-cards.css, because
+   they are literally the same cards the Journal strip renders (see the note in dev-blog.liquid).
+   Adding a `.dev-blog__card` here would be the first step to the two drifting apart.
+
+   Tokens: the CARD's come from snippets/dev-journal-card-tokens.liquid (scoped to .dev-blog); this
+   section's own are in the <style> block of dev-blog.liquid; merchant colours arrive inline on the
+   root. Nothing here hardcodes a colour, a font family, or a base padding.
+
+   NAMING: `dev-blog`, prefixed and checked against Horizon's stock classes — every stock
+   {% stylesheet %} block compiles into one sheet that loads on EVERY page, so an unprefixed name
+   can inherit stock rules silently. That has already bitten .announcement-bar__link and .hero__*. */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.dev-blog {
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+  padding: var(--pt) var(--section-px) var(--pb);
+}
+
+.dev-blog__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-section);
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+}
+
+/* --- head --- */
+
+.dev-blog__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-head);
+}
+
+.dev-blog__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-title-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-title-lh);
+  color: var(--color);
+}
+
+.dev-blog__intro {
+  margin: 0;
+  font-size: var(--font-intro-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  color: var(--muted);
+}
+
+/* --- tag filter --- */
+
+/* Links, not buttons — they navigate to Shopify's own /tagged/ routes, so they must be links or
+   the back button and "open in new tab" both break. Wrapping rather than scrolling: a blog has a
+   handful of tags, and a scroller would hide them behind a gesture for no reason. */
+.dev-blog__filter {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-filter);
+  margin-top: calc(var(--gap-section) * -1 + var(--spacing-md));
+}
+
+.dev-blog__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--filter-py) var(--filter-px);
+  border-radius: var(--radius-filter);
+  background-color: var(--chip);
+
+  font-size: var(--filter-size);
+  font-weight: var(--badge-font-weight);
+  line-height: var(--badge-lh);
+  color: var(--color);
+  text-decoration: none;
+  white-space: nowrap;
+
+  transition: opacity 0.15s ease-out;
+}
+
+.dev-blog__chip:hover {
+  opacity: 0.75;
+}
+
+/* The selected chip inverts rather than just darkening: at a glance the visitor must be able to
+   see WHICH filter is on, and a 10% tint difference does not survive a photo-heavy page. */
+.dev-blog__chip--active {
+  background-color: var(--chip-active);
+  color: var(--chip-active-text);
+}
+
+/* --- grid --- */
+
+/* auto-FILL, capped at three. Both halves of that are load-bearing.
+
+   CAPPED AT THREE: plain `minmax(320px, 1fr)` fits five tracks on a 1920 screen, and the card —
+   drawn for ~421px on the 1440 artboard — collapses to 330px, right on the floor where the badge
+   and the meta line start to crowd. The Journal strip is 3-up; a reader arriving here from it must
+   not find the same card two sizes smaller. The `max()` makes the minimum track at least a third
+   of the row, so a fourth column can never fit. Below that, --grid-min takes over and the grid
+   steps down to 2, then to 1 on mobile — no media query has to know the article count.
+
+   auto-FILL, not auto-FIT: auto-fit COLLAPSES the tracks it cannot fill and hands their width to
+   the ones it can. Filter the blog down to a single "Guest Review" post and that one card stretches
+   to the full 1455px row — a card designed at 421px, blown up 3.5x. auto-fill keeps the empty
+   tracks, so a lone card stays card-sized and the row simply has gaps to its right, which is what
+   a filtered result should look like. Same column counts at every width; only the under-filled row
+   differs, and that is exactly the case that matters here. */
+.dev-blog__grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(max(var(--grid-min), calc((100% - (2 * var(--gap-grid))) / 3)), 1fr)
+  );
+  gap: var(--gap-grid);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* --- pagination --- */
+
+.dev-blog__pagination {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pagination-gap);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--rule);
+}
+
+.dev-blog__page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 40px square — a real touch target, and it keeps the numbers on a shared baseline grid rather
+     than each one sizing to its own digit count. */
+  min-width: var(--pagination-size);
+  height: var(--pagination-size);
+  padding: 0 var(--spacing-sm);
+  border-radius: var(--radius-filter);
+
+  font-size: var(--filter-size);
+  font-weight: var(--badge-font-weight);
+  color: var(--color);
+  text-decoration: none;
+
+  transition: background-color 0.15s ease-out;
+}
+
+.dev-blog__page:hover {
+  background-color: var(--chip);
+}
+
+.dev-blog__page--current {
+  background-color: var(--chip-active);
+  color: var(--chip-active-text);
+}
+
+/* The "…" between page ranges is not a control. It must not look like one. */
+.dev-blog__page--gap {
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.dev-blog__page--arrow svg {
+  display: block;
+  width: var(--cta-icon-size);
+  height: var(--cta-icon-size);
+}
+
+/* --- empty --- */
+
+.dev-blog__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg) 0;
+  color: var(--muted);
+}
+
+.dev-blog__empty p {
+  margin: 0;
+  font-size: var(--font-intro-size);
+  line-height: var(--font-body-lh);
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+/* Nothing to override. The grid is auto-fit, so it drops from three columns to two on its own the
+   moment a third 320px card stops fitting — no breakpoint has to know the count. */
+
+@media (max-width: 1024px) {
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .dev-blog {
+    padding-left: var(--section-px-m);
+    padding-right: var(--section-px-m);
+  }
+
+  .dev-blog__title {
+    font-size: var(--font-title-size-m);
+  }
+
+  .dev-blog__intro {
+    font-size: var(--font-intro-size-m);
+  }
+
+  .dev-blog__grid {
+    /* One column below 768: two 320px cards cannot fit inside a 375px viewport, and auto-fit would
+       otherwise stretch a single column to the full width anyway — this just says so explicitly. */
+    grid-template-columns: 1fr;
+    gap: var(--gap-grid-m);
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+/* Nothing to override: the grid is already a single fluid column and the gutters are 16px. */
+
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.dev-blog__chip:focus-visible,
+.dev-blog__page:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
+
+.dev-blog__chip:focus:not(:focus-visible),
+.dev-blog__page:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-blog,
+  .dev-blog * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

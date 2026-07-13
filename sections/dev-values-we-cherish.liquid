@@ -1,0 +1,215 @@
+{{ 'dev-values-we-cherish.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Section: "Values we Cherish." (dev name `values-we-cherish`).
+  Figma: desktop 45081:9421, mobile 44847:1038. Page: Our Story, between "Our Proudest Moments"
+  and "The coded language of bedding".
+
+  No JS. The mobile track is a NATIVE scroll container — the artboard shows the tiles running off
+  the right edge at 375 with no arrows and no rail, so there is nothing to drive. Desktop is a
+  plain 3-up grid. Same reasoning as dev-story-slider, one step simpler.
+
+  THE UNDERLINE is the same treatment as the Our Story hero: an italic run with a hand-drawn
+  stroke beneath it. It is implemented the same way too — a MASK on the <em>, tinted with
+  --accent — so it follows whatever the merchant italicises instead of being pinned under one
+  hard-coded word. It reuses the hero's exported vector verbatim rather than shipping a third
+  copy of the same wave.
+
+  FOLLOW-UP, named rather than hidden: this is now the SECOND section carrying that ~15 lines of
+  underline CSS (dev-tree-fibre-hero has the first). A third use should extract it into a shared
+  `dev-underline` utility. It is not extracted here because dev-tree-fibre-hero is already
+  QA-verified and refactoring it mid-flight would put a passing section back at risk for no
+  design gain.
+{%- endcomment -%}
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .values-we-cherish {
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+
+    /* No --container-max: the section is full-bleed and the inset is --section-px alone, exactly
+       as on the sibling "Image and Text" frames. On mobile the track deliberately runs out past
+       the gutter, so the padding lives on the track, not on a centred frame. */
+    --section-px: 64px;
+    --section-px-m: 16px;
+
+    /* The artboards state their own top spacers (Section padding: 80 desktop, 48 mobile) —
+       fixed tokens, not a scale factor. --pb is 0 on both: no bottom spacer node exists, the
+       next section supplies the gap. Same convention as dev-journal-cards. */
+    --pt: 80px;
+    --pt-m: 48px;
+
+    /* Typography. Desktop/Title 3 -> Mobile/Title 3 (32 -> 24); captions Body/Lg -> Body/Md. */
+    --font-heading-size: 32px;
+    --font-heading-size-m: 24px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+
+    --font-body-size: 18px;
+    --font-body-size-m: 16px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+
+    /* Rhythm. Heading -> tiles is 32 on desktop and 24 on mobile; tile -> caption is 16 on both. */
+    --gap-section: 32px;
+    --gap-section-m: 24px;
+    --gap-tiles: 24px;
+    --gap-tiles-m: 16px;
+    --gap-tile-inner: 16px;
+
+    /* Tile. Desktop tiles are flex-1 of the 1312px row (3 x 421.33 + 2 x 24). Mobile tiles are a
+       FIXED 303px and overflow the 375 viewport on purpose — the artboard scrolls them. */
+    --tile-w-m: 303px;
+    --radius-tile: 32px;
+
+    /* The desktop image is a fixed 421.33px tall on a ~421.33px-wide tile — i.e. square. Carried
+       as an aspect-ratio so it survives the tile flexing; the mobile artboard states 260/250,
+       which is its own crop, not a reflow of this one. */
+    --ratio-image: 1 / 1;
+    --ratio-image-m: 260 / 250;
+
+    /* ---- Underline ----------------------------------------------------------------
+       Figma's Vector 3 anchor is 124x3, but the artwork overflows it (inset -46.82% top,
+       -49.98% bottom, -0.44/-0.45% sides), so the real ink is:
+         w = 124 * (1 + .0045 + .0044) = 125.1px
+         h = 3   * (1 + .4682 + .4998) = 5.90px
+       The stroke stretches to its word (Figma exports it preserveAspectRatio="none"), so only the
+       HEIGHT is a token. The gap is measured off the artboard: the heading box bottom sits at
+       y=38 and the ink starts at y=37.27 − 1.40 (the top overflow) = 35.87 — i.e. the stroke
+       begins just ABOVE the box bottom, hence a small negative gap. */
+    --underline: url('{{ 'dev-tree-fibre-hero-underline-1.svg' | asset_url }}');
+    --underline-h: 5.9px;
+    --underline-gap: -2px;
+    --underline-h-m: 4.4px;
+    --underline-gap-m: -1px;
+  }
+</style>
+
+{%- liquid
+  assign tile_count = 0
+  for block in section.blocks
+    if block.settings.image != blank or block.settings.text != blank
+      assign tile_count = tile_count | plus: 1
+    endif
+  endfor
+-%}
+
+{%- if section.settings.heading != blank or tile_count > 0 -%}
+  <div
+    class="values-we-cherish"
+    style="
+      --bg: {{ section.settings.background_color }};
+      --color: {{ section.settings.text_color }};
+      --accent: {{ section.settings.accent_color }};
+      --pb: {{ section.settings.padding_bottom }}px;
+    "
+  >
+    <div class="values-we-cherish__inner">
+      {%- if section.settings.heading != blank -%}
+        {%- comment -%}
+          inline_richtext: already-safe HTML from Shopify, never escape it. The merchant italicises
+          the word to be underlined — "Values we <em>Cherish</em>." on the artboard.
+        {%- endcomment -%}
+        <h2 class="values-we-cherish__heading">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+
+      {%- if tile_count > 0 -%}
+        <ul class="values-we-cherish__track" tabindex="0">
+          {%- for block in section.blocks -%}
+            {%- if block.settings.image == blank and block.settings.text == blank -%}
+              {%- continue -%}
+            {%- endif -%}
+
+            <li class="values-we-cherish__tile" {{ block.shopify_attributes }}>
+              <div class="values-we-cherish__media">
+                {%- if block.settings.image != blank -%}
+                  {%- liquid
+                    assign tile_src = block.settings.image | image_url: width: 900
+                    assign tile_alt = block.settings.image.alt | default: block.settings.image_alt
+                  -%}
+                  {{
+                    tile_src
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '303, 420, 600, 900',
+                      sizes: '(max-width: 768px) 303px, 33vw',
+                      alt: tile_alt,
+                      class: 'values-we-cherish__image'
+                  }}
+                {%- endif -%}
+              </div>
+
+              {%- if block.settings.text != blank -%}
+                <p class="values-we-cherish__caption">{{ block.settings.text | escape }}</p>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Values we cherish",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Italicise a word to underline it with the hand-drawn accent stroke.",
+      "default": "Values we <em>Cherish</em>."
+    },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "info": "Transparent by default — the artboard has no fill here and inherits the page canvas.",
+      "default": "rgba(0,0,0,0)"
+    },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "accent_color", "label": "Underline color", "default": "#A8CF78" },
+
+    { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "info": "0 on the artboard — the next section supplies the gap.",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "value",
+      "name": "Value",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "text", "id": "image_alt", "label": "Image alt text" },
+        { "type": "text", "id": "text", "label": "Caption" }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Values we cherish",
+      "blocks": [
+        { "type": "value", "settings": { "text": "Sleep isn’t just downtime: it’s the most important moment in life." } },
+        { "type": "value", "settings": { "text": "All things sleep that feel simple to enjoy — no PhD in sleep required." } },
+        { "type": "value", "settings": { "text": "And when it comes to materials, choosing responsibly matters to our planet and future." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

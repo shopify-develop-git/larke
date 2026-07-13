@@ -46,63 +46,9 @@
 {%- endcomment -%}
 
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
-<style>
-  .journal-cards {
-    /* Brand params (Brief → Brand Params). Faces are loaded by snippets/dev-brand-fonts.liquid. */
-    --font-body: 'Public Sans', sans-serif;
-    --font-heading: 'Test Tiempos Headline', serif;
-    /* The Figma content frame is 1440 − 2×64 = 1312, i.e. it is the section's padding box, not an
-       independent cap. Per the Brief's container caveat this is 100%, not a hardcoded 1312px. */
-    --container-max: 100%;
-    --section-px: 64px;
-    --section-px-m: 16px;
-
-    /* Typography — desktop */
-    --font-heading-size: 32px;
-    --font-heading-weight: 500;
-    --font-heading-lh: 1.2;
-    --font-body-size: 14px;
-    --font-body-weight: 400;
-    --font-body-lh: 1.4;
-
-    /* Typography — mobile: read off the Mobile artboard, not a scale factor. */
-    --font-heading-size-m: 24px;
-    --font-body-size-m: 12px;
-
-    /* Card */
-    --card-heading-size: 20px;
-    --card-heading-weight: 500;
-    --card-heading-lh: 1.2;
-    --card-image-h: 220px;
-    --card-image-h-m: 150px;
-    --card-content-py: 16px;
-    --radius-card: 16px;
-
-    /* Badge */
-    --badge-bg: rgba(255, 255, 255, 0.9);
-    --badge-color: #000000;
-    --badge-font-size: 13px;
-    --badge-font-weight: 500;
-    --badge-lh: 1.4;
-    --badge-px: 12px;
-    --badge-py: 6px;
-    --radius-badge: 4px;
-
-    /* CTA */
-    --cta-font-size: 16px;
-    --cta-font-weight: 700;
-    --cta-lh: 1.4;
-    --cta-icon-gap: 4px;
-    --cta-icon-size: 24px;
-
-    /* Spacing */
-    --spacing-sm: 12px;
-    --spacing-md: 24px;
-    --spacing-lg: 32px;
-    --spacing-md-m: 16px;
-    --spacing-lg-m: 24px;
-  }
-</style>
+{%- comment -%} Design tokens for the card — SHARED with sections/dev-blog.liquid, so the
+  card on this strip and the card on /blogs/<handle> cannot drift apart. {%- endcomment -%}
+{%- render 'dev-journal-card-tokens', scope: '.journal-cards' -%}
 
 <div
   class="journal-cards"
