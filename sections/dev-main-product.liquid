@@ -418,6 +418,52 @@
               {%- if block.settings.body != blank -%}
                 <div class="dev-main-product__acc-body">{{ block.settings.body }}</div>
               {%- endif -%}
+
+              {%- comment -%}
+                Certifications is the only row that pairs a mark with a line of copy, and richtext
+                cannot hold an <img>. Three optional slots rather than a nested block type: they are
+                a fixed set of accreditations, not a list that grows.
+              {%- endcomment -%}
+              {%- assign has_certs = false -%}
+              {%- for i in (1..3) -%}
+                {%- assign key = 'cert_' | append: i | append: '_text' -%}
+                {%- if block.settings[key] != blank -%}
+                  {%- assign has_certs = true -%}
+                {%- endif -%}
+              {%- endfor -%}
+
+              {%- if has_certs -%}
+                <ul class="dev-main-product__certs" role="list">
+                  {%- for i in (1..3) -%}
+                    {%- liquid
+                      assign text_key = 'cert_' | append: i | append: '_text'
+                      assign logo_key = 'cert_' | append: i | append: '_logo'
+                      assign cert_text = block.settings[text_key]
+                      assign cert_logo = block.settings[logo_key]
+                    -%}
+                    {%- if cert_text != blank -%}
+                      <li class="dev-main-product__cert">
+                        {%- if cert_logo != blank and cert_logo != 'none' -%}
+                          {%- assign cert_src = 'dev-main-product-cert-' | append: cert_logo -%}
+                          {%- if cert_logo == 'vegan' -%}
+                            {%- assign cert_src = cert_src | append: '.webp' -%}
+                          {%- else -%}
+                            {%- assign cert_src = cert_src | append: '.svg' -%}
+                          {%- endif -%}
+                          <img class="dev-main-product__cert-logo" src="{{ cert_src | asset_url }}" alt="" width="48" height="58" loading="lazy" aria-hidden="true">
+                        {%- endif -%}
+                        <span class="dev-main-product__cert-text">{{ cert_text }}</span>
+                      </li>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+
+              {%- if block.settings.button_label != blank -%}
+                <a class="dev-main-product__acc-button" href="{{ block.settings.button_link | default: '#' }}">
+                  {{- block.settings.button_label | escape -}}
+                </a>
+              {%- endif -%}
             </details>
           {%- endfor -%}
         </div>
@@ -553,7 +599,24 @@
       "settings": [
         { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Why you’ll love it" },
         { "type": "richtext", "id": "body", "label": "Body", "default": "<ul><li>Awarded <strong>Best Lightweight Duvet</strong> by Good Housekeeping 2025.</li></ul>", "info": "Use a bullet list — the dots are styled to the artboard." },
-        { "type": "checkbox", "id": "open_by_default", "label": "Open by default", "default": false }
+        { "type": "checkbox", "id": "open_by_default", "label": "Open by default", "default": false },
+        { "type": "text", "id": "button_label", "label": "Button label", "info": "Optional — the Care row carries one." },
+        { "type": "url", "id": "button_link", "label": "Button link" },
+
+        { "type": "header", "content": "Certification rows" },
+        { "type": "paragraph", "content": "Only the Certifications row uses these. A mark plus a line of copy — richtext cannot hold an image." },
+        { "type": "select", "id": "cert_1_logo", "label": "Logo 1", "default": "none", "options": [
+          { "value": "none", "label": "None" }, { "value": "vegan", "label": "The Vegan Society" },
+          { "value": "fsc", "label": "FSC" }, { "value": "oeko", "label": "OEKO-TEX" } ] },
+        { "type": "inline_richtext", "id": "cert_1_text", "label": "Text 1" },
+        { "type": "select", "id": "cert_2_logo", "label": "Logo 2", "default": "none", "options": [
+          { "value": "none", "label": "None" }, { "value": "vegan", "label": "The Vegan Society" },
+          { "value": "fsc", "label": "FSC" }, { "value": "oeko", "label": "OEKO-TEX" } ] },
+        { "type": "inline_richtext", "id": "cert_2_text", "label": "Text 2" },
+        { "type": "select", "id": "cert_3_logo", "label": "Logo 3", "default": "none", "options": [
+          { "value": "none", "label": "None" }, { "value": "vegan", "label": "The Vegan Society" },
+          { "value": "fsc", "label": "FSC" }, { "value": "oeko", "label": "OEKO-TEX" } ] },
+        { "type": "inline_richtext", "id": "cert_3_text", "label": "Text 3" }
       ]
     },
     {

@@ -828,3 +828,65 @@
   outline: 2px solid var(--color);
   outline-offset: 2px;
 }
+
+/* ---- Accordion extras: FAQ pairs, Care button, Certification rows -------- */
+
+/* The FAQ row is question/answer pairs, not bullets: the question and its answer sit tight
+   together (a <br> between them) and it is the PAIRS that are 16px apart. A blanket margin on
+   every <p> would have pushed the answer away from its own question. */
+.dev-main-product__acc-body p + p {
+  margin-top: var(--group-gap);
+}
+
+.dev-main-product__acc-button {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--group-gap);
+  /* Inside-stroke correction — 1 + 17 = 18, 1 + 23 = 24. */
+  padding: 17px 23px;
+  border: 1px solid var(--color);
+  border-radius: var(--cta-radius);
+  background: none;
+  color: var(--color);
+  font-size: var(--font-sub-size);
+  font-weight: var(--w-bold);
+  line-height: var(--font-body-lh);
+  text-decoration: none;
+}
+
+.dev-main-product__acc-button:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
+
+.dev-main-product__certs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--group-gap);
+  margin: var(--group-gap) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dev-main-product__cert {
+  display: flex;
+  align-items: center;
+  gap: var(--gallery-gap);
+}
+
+.dev-main-product__cert-logo {
+  flex-shrink: 0;
+  width: 48px;
+  height: auto;
+  max-width: none;
+}
+
+.dev-main-product__cert-text {
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: var(--font-sub-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+}

@@ -149,7 +149,7 @@
           "settings": {
             "heading": "FAQs",
             "open_by_default": false,
-            "body": ""
+            "body": "<p><strong>I’ve got allergies – will we be friends?</strong><br>Absolutely. Tree-fibre is naturally hypoallergenic and safe for sensitive sleepers whilst also free from added synthetics.</p><p><strong>Does tree-fibre smell?</strong><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean commodo vitae dolor sit amet iaculis.</p><p><strong>What if I regret it?</strong><br>You won’t hurt our feelings.<br>Try it for 60-nights, if it’s not the one – you’ll get a full refund with zero fuss.</p><p><strong>Will I find wood chips inside my duvet?</strong><br>No bark, splinters or crunchy surprises here.<br>Just soft, tree-fibre that feels as light as pure down.</p>"
           }
         },
         "acc-care": {
@@ -157,7 +157,8 @@
           "settings": {
             "heading": "Care",
             "open_by_default": false,
-            "body": ""
+            "body": "<ul><li>Air regularly</li><li>Wash at 30 degrees on gentle cycle</li><li>Air dry preferred or tumble dry on low</li><li>Use mild detergent. Avoid bleach and softeners</li></ul>",
+            "button_label": "How to wash"
           }
         },
         "acc-cert": {
@@ -165,7 +166,13 @@
           "settings": {
             "heading": "Certifications",
             "open_by_default": false,
-            "body": ""
+            "body": "",
+            "cert_1_logo": "vegan",
+            "cert_1_text": "Certified by The Vegan Society — made for every kind of sleeper",
+            "cert_2_logo": "fsc",
+            "cert_2_text": "FSC approved – sourced from responsibly managed trees.",
+            "cert_3_logo": "oeko",
+            "cert_3_text": "OEKO TEX approved – tested for harmful substances. Safe on all skins."
           }
         },
         "pc-care": {
