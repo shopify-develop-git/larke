@@ -1,0 +1,196 @@
+/* dev-policy.css
+   Split    — Delivery & Returns.  Desktop 45246:3564 / mobile 45246:1161
+   Centered — Shipping policy.     Desktop 45246:4418 / mobile 45246:1431
+   The two mobile artboards are identical, so mobile is written once at the bottom. */
+
+.dev-policy {
+  padding: var(--pt) 0 var(--pb);
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+}
+
+/* ---- Split: card left, questions right (Delivery & Returns) ------------- */
+
+.dev-policy--split .dev-policy__inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--col-gap);
+  padding: var(--section-py) var(--section-px);
+}
+
+.dev-policy--split .dev-policy__card {
+  flex-shrink: 0;
+  width: var(--card-w);
+  /* Figma marks the card `sticky top-0`: it holds while the answers scroll past it. */
+  position: sticky;
+  top: 0;
+}
+
+.dev-policy--split .dev-policy__list {
+  flex: 1 1 0;
+  min-width: 0;
+  gap: var(--qa-gap);
+}
+
+/* ---- Centered: banner above, questions below (Shipping policy) ---------- */
+
+/* Figma states px-[400px] at 1440, which is a 640px column dead-centre. Expressed as a
+   max-width instead, so it lands on exactly 640px at the artboard width but does not crush
+   itself on a narrower viewport (400px of padding each side would leave nothing at 900px). */
+.dev-policy--centered .dev-policy__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--centered-gap);
+  max-width: var(--centered-max);
+  margin-inline: auto;
+  padding: var(--centered-py) var(--section-px);
+  box-sizing: content-box;
+}
+
+.dev-policy--centered .dev-policy__card {
+  width: 100%;
+}
+
+.dev-policy--centered .dev-policy__title {
+  text-align: center;
+}
+
+.dev-policy--centered .dev-policy__list {
+  width: 100%;
+  gap: var(--qa-gap-centered);
+}
+
+/* The centered artboard carries no intro copy — only the heading sits in the banner. */
+.dev-policy--centered .dev-policy__card-body {
+  display: none;
+}
+
+/* ---- Shared pieces ------------------------------------------------------ */
+
+.dev-policy__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+  padding: var(--card-pad);
+  border-radius: var(--card-radius);
+  background-color: var(--card-bg);
+}
+
+.dev-policy__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-title-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+/* richtext emits its own <p>; the reset stops it picking up UA margins. */
+.dev-policy__card-body,
+.dev-policy__card-body p {
+  margin: 0;
+  font-size: var(--font-card-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+}
+
+.dev-policy__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.dev-policy__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qa-item-gap);
+}
+
+/* Figma pads the closing note 24px clear of the list above it (45246:3617). */
+.dev-policy__item--note {
+  padding-top: var(--note-pt);
+}
+
+.dev-policy__question {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-qa-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+.dev-policy__answer,
+.dev-policy__answer p {
+  margin: 0;
+  font-size: var(--font-qa-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+}
+
+/* An answer may hold several paragraphs (45246:3610 is two, 8px apart). */
+.dev-policy__answer p + p {
+  margin-top: var(--qa-item-gap);
+}
+
+.dev-policy__answer a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+/* ---- Tablet (769–1024) -------------------------------------------------
+   No Figma reference at these widths. The only rules are: never overflow, never overlap.
+   The 533px card plus a 136px gutter leaves the answers unreadably narrow here, so both
+   shrink. */
+
+@media (max-width: 1024px) {
+  .dev-policy--split .dev-policy__inner {
+    --col-gap: 48px;
+    --card-w: 380px;
+  }
+}
+
+/* ---- Mobile (<=768) ----------------------------------------------------
+   Both layouts collapse to the same thing: a full-width banner with the heading centred,
+   the questions stacked beneath. */
+
+@media (max-width: 768px) {
+  .dev-policy--split .dev-policy__inner,
+  .dev-policy--centered .dev-policy__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--qa-gap-mobile);
+    max-width: none;
+    margin-inline: 0;
+    padding: var(--section-py-mobile) var(--section-px-mobile);
+  }
+
+  .dev-policy--split .dev-policy__card,
+  .dev-policy--centered .dev-policy__card {
+    position: static;
+    width: auto;
+    padding: var(--card-pad-mobile);
+  }
+
+  .dev-policy__title {
+    font-size: var(--font-title-size-mobile);
+    text-align: center;
+  }
+
+  /* Dropped on mobile: the Delivery artboard (45246:1161) carries the banner heading only. */
+  .dev-policy__card-body {
+    display: none;
+  }
+
+  .dev-policy--split .dev-policy__list,
+  .dev-policy--centered .dev-policy__list {
+    gap: var(--qa-gap-mobile);
+  }
+
+  .dev-policy__question {
+    font-size: var(--font-qa-size-mobile);
+  }
+}

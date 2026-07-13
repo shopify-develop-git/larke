@@ -1,0 +1,199 @@
+{{ 'dev-contact-form.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .dev-contact-form {
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+
+    --font-title-size: 32px;
+    --font-title-size-mobile: 24px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+
+    --font-body-size: 18px;
+    --font-field-size: 16px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+    --font-button-weight: 700;
+
+    --card-radius: 32px;
+    --card-pad: 32px;
+    --card-pad-mobile: 24px;
+    --card-gap: 16px;
+    --card-w: 533px;
+
+    --section-px: 64px;
+    --section-py: 40px;
+    --col-gap: 136px;
+
+    --section-px-mobile: 16px;
+    --section-py-mobile: 16px;
+    --stack-gap-mobile: 24px;
+
+    /* The Figma "Input Fields" component exposes no layout of its own, so these two are
+       measured off the 1:1 render (45246:3826): 58px tall with a 1px stroke, and the
+       placeholder's first ink at x=20. 18px block padding is what makes 58px with a
+       16px/1.4 line. Radius fitted to the corner arc — 4px, not the footer input's 8px. */
+    --field-h: 58px;
+    --field-pad: 18px 20px;
+    --field-radius: 4px;
+    --field-border-w: 1px;
+
+    --field-gap: 8px;
+    --form-gap: 16px;
+
+    --button-pad: 12px 18px;
+    --button-radius: 60px;
+    --button-border-w: 1px;
+  }
+</style>
+
+{%- liquid
+  assign button_alpha = section.settings.button_opacity | divided_by: 100.0
+  assign button_fill = section.settings.button_color | color_modify: 'alpha', button_alpha
+-%}
+
+{%- comment -%}
+  Contact. 45246:3640 (desktop) / 45246:1199 (mobile).
+
+  Desktop: cream card on the left (sticky), the form on the right.
+  Mobile:  the card becomes a full-width banner holding ONLY the centred heading, and its body
+           copy drops out of the card to sit underneath it as plain copy — then the form.
+
+  That reflow is done with `display: contents` on the card at <=768 rather than by rendering
+  the copy twice. Duplicating it would put the same paragraph in the DOM twice, which screen
+  readers and search engines both read as two paragraphs.
+{%- endcomment -%}
+<div
+  class="dev-contact-form"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --card-bg: {{ section.settings.card_color }};
+    --field-border: {{ section.settings.field_border_color }};
+    --field-placeholder: {{ section.settings.placeholder_color }};
+    --button-bg: {{ button_fill }};
+    --button-color: {{ section.settings.button_text_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="dev-contact-form__inner">
+    <div class="dev-contact-form__card">
+      {%- if section.settings.title != blank -%}
+        {%- comment -%} inline_richtext: already safe HTML from Shopify — never escape it. {%- endcomment -%}
+        <h2 class="dev-contact-form__title">{{ section.settings.title }}</h2>
+      {%- endif -%}
+
+      {%- if section.settings.body != blank -%}
+        <div class="dev-contact-form__body">{{ section.settings.body }}</div>
+      {%- endif -%}
+    </div>
+
+    <div class="dev-contact-form__col">
+      {%- form 'contact', class: 'dev-contact-form__form' -%}
+        {%- if form.posted_successfully? -%}
+          <p class="dev-contact-form__success" role="status">
+            {{- section.settings.success_text | escape -}}
+          </p>
+        {%- endif -%}
+
+        {%- if form.errors -%}
+          <div class="dev-contact-form__errors" role="alert">
+            {{ form.errors | default_errors }}
+          </div>
+        {%- endif -%}
+
+        <div class="dev-contact-form__fields">
+          <div class="dev-contact-form__row">
+            <div class="dev-contact-form__field">
+              <label class="dev-contact-form__label" for="contact-name">
+                {{- section.settings.name_placeholder | escape -}}
+              </label>
+              <input
+                id="contact-name"
+                class="dev-contact-form__input"
+                type="text"
+                name="contact[name]"
+                value="{{ form.name }}"
+                placeholder="{{ section.settings.name_placeholder | escape }}"
+                autocomplete="name"
+              >
+            </div>
+
+            <div class="dev-contact-form__field">
+              <label class="dev-contact-form__label" for="contact-email">
+                {{- section.settings.email_placeholder | escape -}}
+              </label>
+              <input
+                id="contact-email"
+                class="dev-contact-form__input"
+                type="email"
+                name="contact[email]"
+                value="{{ form.email }}"
+                placeholder="{{ section.settings.email_placeholder | escape }}"
+                autocomplete="email"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="dev-contact-form__field">
+            <label class="dev-contact-form__label" for="contact-body">
+              {{- section.settings.message_placeholder | escape -}}
+            </label>
+            <textarea
+              id="contact-body"
+              class="dev-contact-form__input dev-contact-form__input--textarea"
+              name="contact[body]"
+              placeholder="{{ section.settings.message_placeholder | escape }}"
+              required
+            >{{ form.body }}</textarea>
+          </div>
+        </div>
+
+        <button type="submit" class="dev-contact-form__button">
+          {{- section.settings.button_label | escape -}}
+        </button>
+      {%- endform -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Contact form",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "inline_richtext", "id": "title", "label": "Title", "default": "Contact" },
+    { "type": "richtext", "id": "body", "label": "Intro copy", "default": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>" },
+    { "type": "text", "id": "name_placeholder", "label": "Name field label", "default": "Your name" },
+    { "type": "text", "id": "email_placeholder", "label": "Email field label", "default": "Your email" },
+    { "type": "text", "id": "message_placeholder", "label": "Message field label", "default": "Your message" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Send message" },
+    { "type": "text", "id": "success_text", "label": "Success message", "default": "Thanks — we’ll be in touch shortly." },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "card_color", "label": "Card background", "default": "#FCF5E3" },
+    { "type": "color", "id": "field_border_color", "label": "Field border", "default": "#666666" },
+    { "type": "color", "id": "placeholder_color", "label": "Placeholder text", "default": "#666666" },
+    { "type": "color", "id": "button_color", "label": "Button fill", "default": "#343434" },
+    { "type": "range", "id": "button_opacity", "min": 0, "max": 100, "step": 1, "unit": "%", "label": "Button fill opacity", "default": 66, "info": "The Figma fill is a translucent dark neutral, not a solid." },
+    { "type": "color", "id": "button_text_color", "label": "Button text & border", "default": "#FFFFFF" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding top", "default": 0 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding bottom", "default": 0 }
+  ],
+  "presets": [
+    { "name": "Contact form" }
+  ]
+}
+{% endschema %}

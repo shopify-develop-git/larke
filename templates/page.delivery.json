@@ -1,0 +1,66 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "policy": {
+      "type": "dev-policy",
+      "blocks": {
+        "qa-cost": {
+          "type": "qa",
+          "settings": {
+            "heading": "How much does delivery cost?",
+            "body": "<p>We offer free standard delivery to all UK addresses, which typically arrives within 2–4 working days.</p><p>If your delivery address is within London and you place your order before 4 pm, you’ll also qualify for free same-day delivery.</p>"
+          }
+        },
+        "qa-updates": {
+          "type": "qa",
+          "settings": {
+            "heading": "Will I receive delivery updates?",
+            "body": "<p>You will receive order confirmations and tracking options through your local delivery provider.</p>"
+          }
+        },
+        "qa-intl": {
+          "type": "qa",
+          "settings": {
+            "heading": "Do you delivery internationally?",
+            "body": "<p>Not as of now.</p>"
+          }
+        },
+        "note": {
+          "type": "note",
+          "settings": {
+            "heading": "Still got questions?",
+            "body": "<p><a href=\"/pages/contact\">Click here</a> to chat with us</p>"
+          }
+        }
+      },
+      "block_order": [
+        "qa-cost",
+        "qa-updates",
+        "qa-intl",
+        "note"
+      ],
+      "name": "Delivery & Returns",
+      "settings": {
+        "title": "Delivery &amp; Returns",
+        "body": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet consectetur ex, nec tristique odio. Curabitur mollis dui eget sapien semper, id laoreet massa gravida.</p>",
+        "layout": "split",
+        "background_color": "#fffcf4",
+        "text_color": "#333333",
+        "card_color": "#fcf5e3",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    }
+  },
+  "order": [
+    "policy"
+  ]
+}
