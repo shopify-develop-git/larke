@@ -1,0 +1,36 @@
+{%- comment -%}
+  Reading time, in whole minutes. ONE source of truth — both the Journal cards and the article
+  page render through this, so the number can never disagree between the two.
+
+  Order of precedence:
+    1. the `custom.reading_time` metafield on the article  (an editor said so — always wins)
+    2. otherwise, derived from the article's own word count at 200 wpm
+
+  The derivation is a FALLBACK, not the answer. It cannot know that a piece is dense, or that it
+  carries a long recipe the reader will skim, so an editor is allowed to overrule it. But an empty
+  metafield must never render an empty meta line either — hence the fallback rather than a blank.
+
+  200 wpm is the usual English-prose average. The `plus: 199` before the integer divide is a
+  ceiling: a 30-word post reads as "1 min", never "0 min". The `< 1` guard then catches the one
+  case the ceiling cannot — an article with no body at all.
+
+  Outputs a bare integer, nothing else. The caller supplies the label, so wording stays in the
+  section's settings where a merchant can translate it.
+
+  @param {object} article - a Shopify article
+{%- endcomment -%}
+
+{%- liquid
+  assign minutes = article.metafields.custom.reading_time.value | plus: 0
+
+  if minutes <= 0
+    assign word_count = article.content | strip_html | split: ' ' | size
+    assign minutes = word_count | plus: 199 | divided_by: 200
+  endif
+
+  if minutes < 1
+    assign minutes = 1
+  endif
+
+  echo minutes
+-%}

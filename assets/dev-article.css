@@ -1,0 +1,310 @@
+/* dev-article.css
+   The blog post page. Tokens come from the <style> block of sections/dev-article.liquid (values
+   borrowed from the MEASURED sections — see the long note there; this page has no artboard) and
+   from the merchant inline on the root (--bg / --color / --muted / --badge-bg / --rule / --pt / --pb).
+   Nothing here hardcodes a colour, a font family, or a base padding.
+
+   NAMING: `dev-article`, prefixed. Horizon compiles every section's {% stylesheet %} into one sheet
+   that loads on EVERY page, so an unprefixed name risks inheriting stock rules silently — that has
+   already bitten .announcement-bar__link and .hero__*. `article` and `dev-article` were both clear,
+   but the body wrapper deliberately does NOT reuse Horizon's `.rte`, which is taken. */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.dev-article {
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+  padding: var(--pt) var(--section-px) var(--pb);
+}
+
+/* The whole page is one reading column, centred. The hero image is the only thing allowed to break
+   out of it (see __media) — everything else stays inside the measure so the eye never has to track
+   a 1300px line. */
+.dev-article__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+  max-width: var(--measure);
+  margin: 0 auto;
+}
+
+/* --- back link --- */
+
+.dev-article__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  align-self: flex-start;
+
+  font-size: var(--font-meta-size);
+  font-weight: var(--font-body-weight);
+  line-height: 1.4;
+  color: var(--color);
+  text-decoration: none;
+}
+
+.dev-article__back:hover span {
+  text-decoration: underline;
+}
+
+.dev-article__back-icon {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  transition: transform 0.15s ease-out;
+}
+
+/* Nudges toward where it is taking you. */
+.dev-article__back:hover .dev-article__back-icon {
+  transform: translateX(-3px);
+}
+
+/* --- head --- */
+
+.dev-article__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  text-align: center;
+}
+
+/* The tag pill. On the Journal card this sits on a photo and needs a 90% white scrim to stay
+   legible; here it sits on the page canvas, so it takes a solid cream instead of a scrim over
+   nothing. Same size and radius family, different ground. */
+.dev-article__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-badge);
+  background-color: var(--badge-bg);
+
+  font-size: var(--font-badge-size);
+  font-weight: var(--font-body-weight);
+  line-height: 1.4;
+  color: var(--color);
+}
+
+.dev-article__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-title-size);
+  font-weight: var(--font-title-weight);
+  line-height: var(--font-title-lh);
+  color: var(--color);
+
+  /* `balance` so a two-line title breaks into two even lines instead of a long one and an orphan.
+     Unsupported browsers just get the normal break — nothing to guard. */
+  text-wrap: balance;
+}
+
+.dev-article__meta {
+  margin: 0;
+  font-size: var(--font-meta-size);
+  font-weight: var(--font-body-weight);
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+/* --- hero media --- */
+
+/* The one element that breaks the measure. 100vw would sit under the scrollbar, so it is widened
+   to the section's own gutters instead: the image spans the full container while the prose stays
+   at 720px. */
+.dev-article__media {
+  width: 100%;
+  max-width: calc(100vw - (2 * var(--section-px)));
+  margin-inline: calc((var(--measure) - 100vw + (2 * var(--section-px))) / 2);
+  overflow: hidden;
+  border-radius: var(--radius-media);
+}
+
+.dev-article__image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* --- body --- */
+
+/* Long-form prose written in the Shopify editor. Every tag it can emit is given a size and a
+   rhythm here, because an unstyled <blockquote> or <ul> is the fastest way for a page to stop
+   looking like the rest of the site. */
+.dev-article__body {
+  width: 100%;
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+.dev-article__body > :first-child {
+  margin-top: 0;
+}
+
+.dev-article__body > :last-child {
+  margin-bottom: 0;
+}
+
+.dev-article__body p {
+  margin: 0 0 var(--spacing-md);
+}
+
+.dev-article__body h2,
+.dev-article__body h3,
+.dev-article__body h4 {
+  margin: var(--spacing-xl) 0 var(--spacing-sm);
+  font-family: var(--font-heading);
+  font-weight: var(--font-title-weight);
+  line-height: var(--font-title-lh);
+  color: var(--color);
+}
+
+.dev-article__body h2 {
+  font-size: var(--font-h2-size);
+}
+
+.dev-article__body h3,
+.dev-article__body h4 {
+  font-size: var(--font-h3-size);
+}
+
+.dev-article__body a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.dev-article__body ul,
+.dev-article__body ol {
+  margin: 0 0 var(--spacing-md);
+  padding-left: var(--spacing-md);
+}
+
+.dev-article__body li {
+  margin-bottom: var(--spacing-xs);
+}
+
+.dev-article__body blockquote {
+  margin: var(--spacing-lg) 0;
+  padding-left: var(--spacing-md);
+  border-left: 2px solid var(--rule);
+
+  font-family: var(--font-heading);
+  font-size: var(--font-h3-size);
+  line-height: var(--font-title-lh);
+}
+
+.dev-article__body blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* Images the editor drops INTO the body: rounded, never wider than the measure. */
+.dev-article__body img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: var(--spacing-lg) 0;
+  border-radius: var(--radius-inline);
+}
+
+.dev-article__body hr {
+  margin: var(--spacing-xl) 0;
+  border: 0;
+  border-top: 1px solid var(--rule);
+}
+
+.dev-article__body strong,
+.dev-article__body b {
+  font-weight: 700;
+}
+
+/* --- foot --- */
+
+.dev-article__foot {
+  width: 100%;
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--rule);
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+/* Nothing to override. The column is a max-width, so it simply stops growing; the hero image is
+   already tied to the section gutters. The 1025–1200 squeeze that hit the homepage cannot happen
+   here — there are no side-by-side fixed columns to starve. */
+
+@media (max-width: 1024px) {
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .dev-article {
+    padding-left: var(--section-px-m);
+    padding-right: var(--section-px-m);
+  }
+
+  .dev-article__title {
+    font-size: var(--font-title-size-m);
+  }
+
+  .dev-article__body {
+    font-size: var(--font-body-size-m);
+  }
+
+  .dev-article__body h2 {
+    font-size: var(--font-h3-size);
+  }
+
+  /* The break-out is pointless once the measure is wider than the viewport — the image is already
+     the full column. Reset it, or the negative margin drags it off-screen. */
+  .dev-article__media {
+    max-width: 100%;
+    margin-inline: 0;
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+/* Nothing to override: the column is fluid below the measure and the gutters are already 16px. */
+
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.dev-article__back:focus-visible,
+.dev-article__body a:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
+
+.dev-article__back:focus:not(:focus-visible),
+.dev-article__body a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-article,
+  .dev-article * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

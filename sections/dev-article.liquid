@@ -1,0 +1,200 @@
+{{ 'dev-article.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Section: "Article" (dev name `dev-article`). The blog post page.
+
+  NO FIGMA ARTBOARD EXISTS FOR THIS PAGE — read that before "correcting" any value here.
+  Every other dev-* section in this theme is measured off a 1440/375 artboard and QA'd with a
+  pixel diff. This one cannot be, because the design does not cover it. So it is COMPOSED from the
+  system the artboards already establish, and every value below is borrowed from a section that
+  WAS measured, rather than invented:
+
+    * Tiempos Headline Medium 48/1.2 heading  -> dev-hero's --font-heading-size
+    * Public Sans Medium 18/1.4 body          -> dev-journal-cards' card copy (Body/Lg)
+    * 16px meta, 14px badge                   -> dev-journal-cards' __meta / __badge
+    * 32px media radius, 16px inline radius   -> dev-journal-cards' --radius-media
+    * 64px / 16px gutters, 80px top spacer    -> the shared section rhythm
+    * the back arrow                          -> the SAME exported vector as journal-cards' CTA
+
+  The one thing that is genuinely new is the READING COLUMN (--measure, 720px). No section in the
+  design has long-form prose, so nothing to copy: 720px at 18px type is ~72 characters per line,
+  which is the middle of the 45–75 range typography treats as readable. Flagged as a judgement
+  call, not a measurement — if a Journal artboard ever lands, this is the first value to check.
+
+  Reading time is NOT computed here. It comes from snippets/dev-article-read-time.liquid, shared
+  with dev-journal-cards, so the "4 min read" on the card and on the post it links to are the same
+  number by construction.
+{%- endcomment -%}
+
+{%- comment -%} Fixed design tokens — borrowed from the measured sections, see above {%- endcomment -%}
+<style>
+  .dev-article {
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+
+    --section-px: 64px;
+    --section-px-m: 16px;
+
+    /* The reading column. Judgement call — see the header comment. */
+    --measure: 720px;
+
+    --font-title-size: 48px;
+    --font-title-size-m: 32px;
+    --font-title-weight: 500;
+    --font-title-lh: 1.2;
+
+    /* Body copy and the headings INSIDE the article body. The body h2/h3 step down from the
+       title rather than repeating it, so the page has one obvious top. */
+    --font-body-size: 18px;
+    --font-body-size-m: 16px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.6; /* looser than the 1.4 the cards use: those are 2-line captions, this is prose */
+    --font-h2-size: 32px;
+    --font-h3-size: 22px;
+
+    --font-meta-size: 16px;
+    --font-badge-size: 14px;
+
+    --spacing-xs: 8px;
+    --spacing-sm: 16px;
+    --spacing-md: 24px;
+    --spacing-lg: 32px;
+    --spacing-xl: 48px;
+    --spacing-2xl: 64px;
+
+    --radius-media: 32px;
+    --radius-inline: 16px;
+    --radius-badge: 60px;
+
+    --icon-size: 24px;
+  }
+</style>
+
+{%- liquid
+  assign article_tag = article.tags | first
+  assign blog_url = blog.url | default: routes.root_url
+-%}
+
+<div
+  class="dev-article"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --muted: {{ section.settings.meta_color }};
+    --badge-bg: {{ section.settings.badge_color }};
+    --rule: {{ section.settings.rule_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <article class="dev-article__inner">
+    {%- if section.settings.back_label != blank -%}
+      <a class="dev-article__back" href="{{ blog_url }}">
+        {%- comment -%} Same vector as dev-journal-cards' CTA, mirrored to point back. {%- endcomment -%}
+        <svg class="dev-article__back-icon" width="24" height="24" viewBox="99 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path d="M106 16L102 12L106 8M102 12L120 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>{{ section.settings.back_label | escape }}</span>
+      </a>
+    {%- endif -%}
+
+    <header class="dev-article__head">
+      {%- if article_tag != blank -%}
+        <span class="dev-article__badge">{{ article_tag | escape }}</span>
+      {%- endif -%}
+
+      <h1 class="dev-article__title">{{ article.title | escape }}</h1>
+
+      {%- comment -%}
+        The meta line is built from the parts that actually exist. An article with no author must
+        not render a dangling "ㆍBy" — hence the per-part guards rather than one fixed string.
+      {%- endcomment -%}
+      {%- capture read_minutes -%}{%- render 'dev-article-read-time', article: article -%}{%- endcapture -%}
+      {%- liquid
+        assign meta = read_minutes | append: ' ' | append: section.settings.read_time_label
+
+        if article.author != blank
+          assign meta = meta | append: ' ㆍ' | append: section.settings.author_prefix | append: ' ' | append: article.author
+        endif
+
+        if section.settings.show_date
+          assign published = article.published_at | date: format: 'date'
+          assign meta = meta | append: ' ㆍ' | append: published
+        endif
+      -%}
+      <p class="dev-article__meta">{{ meta | escape }}</p>
+    </header>
+
+    {%- if article.image != blank -%}
+      {%- assign hero_src = article.image | image_url: width: 1600 -%}
+      <div class="dev-article__media">
+        {{
+          hero_src
+          | image_tag:
+            loading: 'eager',
+            widths: '400, 600, 800, 1000, 1200, 1600',
+            sizes: '(max-width: 768px) 100vw, 1312px',
+            alt: article.image.alt | default: article.title,
+            class: 'dev-article__image'
+        }}
+      </div>
+    {%- endif -%}
+
+    {%- comment -%}
+      article.content is merchant HTML from the Shopify editor — already safe, never escape it.
+      Every tag it can emit is styled in the CSS; the class is `dev-article__body`, deliberately
+      NOT Horizon's `.rte`, which is a stock class and would drag stock rules in with it.
+    {%- endcomment -%}
+    <div class="dev-article__body">
+      {{ article.content }}
+    </div>
+
+    {%- if section.settings.back_label != blank -%}
+      <div class="dev-article__foot">
+        <a class="dev-article__back" href="{{ blog_url }}">
+          <svg class="dev-article__back-icon" width="24" height="24" viewBox="99 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <path d="M106 16L102 12L106 8M102 12L120 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>{{ section.settings.back_label | escape }}</span>
+        </a>
+      </div>
+    {%- endif -%}
+  </article>
+</div>
+
+{% schema %}
+{
+  "name": "Article",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "text", "id": "back_label", "label": "Back link label", "default": "Back to Journal" },
+    {
+      "type": "text",
+      "id": "read_time_label",
+      "label": "Reading time label",
+      "info": "Set the article's 'Reading time' metafield to state the minutes. Left empty, it is estimated from the word count.",
+      "default": "min read"
+    },
+    { "type": "text", "id": "author_prefix", "label": "Author prefix", "default": "By" },
+    { "type": "checkbox", "id": "show_date", "label": "Show the published date", "default": true },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "info": "Transparent by default so the page canvas shows through, as on the Journal section.",
+      "default": "rgba(0,0,0,0)"
+    },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "meta_color", "label": "Meta text", "default": "#666666" },
+    { "type": "color", "id": "badge_color", "label": "Tag badge background", "default": "#FCF5E3" },
+    { "type": "color", "id": "rule_color", "label": "Rules and borders", "default": "#C4BCA9" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding top", "default": 48 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding bottom", "default": 80 }
+  ]
+}
+{% endschema %}
