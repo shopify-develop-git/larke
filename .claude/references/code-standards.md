@@ -156,7 +156,6 @@ cannot select or reorder the block. Never omit it.
 {
   "name": "{Human Name}",
   "tag": "section",
-  "class": "{name}",
   "presets": [
     { "name": "{Human Name}", "blocks": [ { "type": "{block_type}" }, { "type": "{block_type}" } ] }
   ],
@@ -194,7 +193,10 @@ cannot select or reorder the block. Never omit it.
 Hard rules:
 
 - `name` and `presets.name` — human readable, no `dev-` prefix. ("Featured product", not "Dev featured product".)
-- `tag` is always `"section"`. `class` is the root CSS class, no `dev-` prefix.
+- `tag` is always `"section"`. **Never set `class`.** Shopify puts a schema `class` on the `<section>`
+  wrapper it generates — and the root `<div>` inside already carries that same class, so every rule
+  keyed to it lands twice. Horizontal padding in particular is then applied to both elements and the
+  container comes out `2 × --section-px` too narrow, with nothing in the CSS to explain it.
 - `presets.blocks` — seed with the number of blocks the Figma design actually shows.
 - Settings order: **Content → Colors → Spacing → Layout**.
 - Every `text`, `color`, and `range` setting has a `label` and a `default`.
