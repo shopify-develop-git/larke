@@ -36,6 +36,9 @@
     {% endif %}
 
     {{ content_for_header }}
+
+    {%- comment -%} Brand fonts from Figma — every dev-* section depends on these. {%- endcomment -%}
+    {%- render 'dev-brand-fonts' -%}
   </head>
 
   <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">

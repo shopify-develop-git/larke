@@ -1,0 +1,108 @@
+{%- comment -%}
+  Brand fonts from the Figma design. Every dev-* section depends on these.
+
+  Without this snippet the sections still SAY the right thing —
+  `font-family: 'Test Tiempos Headline', serif` matches the Design Brief exactly —
+  and then render in system Times, because no @font-face for it exists. A matching
+  font-family string is not a loaded font. That bug reached the browser once already.
+
+  Tiempos Headline is a LICENSED Klim font. The files here are the free TRIAL cut
+  (limited glyph set) supplied by the owner for preview only — they MUST be swapped
+  for the licensed release before this goes anywhere near production.
+
+  Public Sans is open source (SIL OFL), self-hosted rather than pulled from Google
+  so no third-party request is needed to render the page.
+
+  font-display: swap — text paints immediately in the fallback, then swaps. Never
+  `block`: an invisible heading is worse than a briefly wrong one.
+{%- endcomment -%}
+
+{%- liquid
+  assign tiempos_regular = 'TiemposHeadline-Regular.woff2' | asset_url
+  assign tiempos_medium = 'TiemposHeadline-Medium.woff2' | asset_url
+  assign tiempos_semibold = 'TiemposHeadline-Semibold.woff2' | asset_url
+  assign tiempos_bold = 'TiemposHeadline-Bold.woff2' | asset_url
+  assign tiempos_medium_italic = 'TiemposHeadline-MediumItalic.woff2' | asset_url
+  assign tiempos_regular_italic = 'TiemposHeadline-RegularItalic.woff2' | asset_url
+  assign sans_regular = 'PublicSans-Regular.woff2' | asset_url
+  assign sans_medium = 'PublicSans-Medium.woff2' | asset_url
+  assign sans_bold = 'PublicSans-Bold.woff2' | asset_url
+  assign sans_regular_italic = 'PublicSans-RegularItalic.woff2' | asset_url
+-%}
+
+<link rel="preload" as="font" type="font/woff2" href="{{ tiempos_medium }}" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="{{ sans_regular }}" crossorigin>
+
+<style>
+  @font-face {
+    font-family: 'Test Tiempos Headline';
+    src: url('{{ tiempos_regular }}') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Test Tiempos Headline';
+    src: url('{{ tiempos_regular_italic }}') format('woff2');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Test Tiempos Headline';
+    src: url('{{ tiempos_medium }}') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Test Tiempos Headline';
+    src: url('{{ tiempos_medium_italic }}') format('woff2');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Test Tiempos Headline';
+    src: url('{{ tiempos_semibold }}') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Test Tiempos Headline';
+    src: url('{{ tiempos_bold }}') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Public Sans';
+    src: url('{{ sans_regular }}') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Public Sans';
+    src: url('{{ sans_regular_italic }}') format('woff2');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Public Sans';
+    src: url('{{ sans_medium }}') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Public Sans';
+    src: url('{{ sans_bold }}') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+</style>
