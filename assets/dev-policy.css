@@ -140,17 +140,13 @@
   text-underline-position: from-font;
 }
 
-/* ---- Tablet (769–1024) -------------------------------------------------
-   No Figma reference at these widths. The only rules are: never overflow, never overlap.
-   The 533px card plus a 136px gutter leaves the answers unreadably narrow here, so both
-   shrink. */
-
-@media (max-width: 1024px) {
-  .dev-policy--split .dev-policy__inner {
-    --col-gap: 48px;
-    --card-w: 380px;
-  }
-}
+/* ---- Tablet (769–1200) -------------------------------------------------
+   No Figma reference at these widths, so the rules are: never overflow, never overlap, and never
+   let one column absorb the whole loss. The card, the gutter and the page inset are all clamped to
+   the artboard's own ratios (see the token block), so they shrink together and no breakpoint is
+   needed to carry it — the layout is continuous from 1440 straight down to 769. The card keeps
+   flex-shrink: 0 because its width IS the clamp, not something for flexbox to renegotiate; the
+   answers already carry min-width: 0 so a long unbroken word wraps instead of widening the row. */
 
 /* ---- Mobile (<=768) ----------------------------------------------------
    Both layouts collapse to the same thing: a full-width banner with the heading centred,

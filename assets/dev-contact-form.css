@@ -132,8 +132,11 @@
   appearance: none;
 }
 
+/* No drag handle. The field is 58px by design and the corner grip let a visitor pull it into any
+   shape they liked, straight through the layout below it. A long message scrolls inside the field
+   instead — which it now does cleanly, since the box was made to fit its own line exactly. */
 .dev-contact-form .dev-contact-form__input--textarea {
-  resize: vertical;
+  resize: none;
 }
 
 .dev-contact-form .dev-contact-form__input::placeholder {
@@ -175,14 +178,13 @@
   outline-offset: 2px;
 }
 
-/* ---- Tablet (769–1024) — no Figma reference: just don't overflow or crush the form. */
-
-@media (max-width: 1024px) {
-  .dev-contact-form__inner {
-    --col-gap: 48px;
-    --card-w: 380px;
-  }
-}
+/* ---- Tablet (769–1200) ---------------------------------------------------
+   No Figma reference here, so: never overflow, never overlap, and never let one column absorb the
+   whole loss. The card, the gutter and the page inset are clamped to the artboard's own ratios (see
+   the token block), so they shrink together and the layout stays continuous from 1440 down to 769
+   with no breakpoint at all. The card keeps flex-shrink: 0 — its width IS the clamp, not something
+   for flexbox to renegotiate — and the form column already has min-width: 0, so it wraps rather
+   than widening the row. */
 
 /* ---- Mobile (<=768) ---------------------------------------------------- */
 

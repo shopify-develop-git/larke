@@ -25,15 +25,22 @@
     --card-pad: 32px;
     --card-pad-mobile: 24px;
     --card-gap: 16px;
-    --card-w: 533px;
 
     --qa-item-gap: 8px;
     --note-pt: 24px;
 
-    /* Split (Delivery & Returns, 45246:3564) */
-    --section-px: 64px;
+    /* Split (Delivery & Returns, 45246:3564).
+
+       Fluid, not stepped. A single breakpoint at 1024 left 1025–1200 holding the full 533px card
+       AND the full 136px gutter, which squeezed the answers to ~228px at 1025 — the worst point on
+       the whole curve sat just ABOVE the breakpoint meant to fix it. The vw terms are the artboard
+       ratios (64/1440, 136/1440, 533/1440), so at 1440 they resolve to exactly 64 / 136 / 533 and
+       the pixel reference is untouched; below that everything scales together instead of the
+       answers absorbing the entire loss. */
+    --section-px: clamp(24px, 4.4444vw, 64px);
     --section-py: 40px;
-    --col-gap: 136px;
+    --col-gap: clamp(40px, 9.4444vw, 136px);
+    --card-w: clamp(280px, 37.0139vw, 533px);
     --qa-gap: 24px;
 
     /* Centered (Shipping policy, 45246:4418). Figma states px-[400px] at 1440, which is a
