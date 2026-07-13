@@ -1,0 +1,242 @@
+{{ 'dev-three-step.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'dev-three-step.js' | asset_url }}" defer></script>
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .dev-three-step {
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+
+    /* No --container-max: the card row is hug-width and centred, there is no
+       centred max-width frame in the artboard. The inset is all --section-px.
+       Mobile is deliberately full-bleed (0), so the photos run edge to edge. */
+    --section-px: 64px;
+    --section-px-mobile: 0px;
+    --pt-mobile: 0px;
+
+    /* Mobile has no cards: each step carries its own 48px top padding, which is
+       what produces the 403px step pitch on the mobile artboard. */
+    --step-pt-mobile: 48px;
+
+    /* Mobile/Title 3 — same 24px on both artboards. */
+    --font-heading-size: 24px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+
+    /* Body drops Lg (18) → Md (16) on mobile; the artboard states its own size,
+       so it wins over a scale factor. */
+    --font-body-size: 18px;
+    --font-body-size-mobile: 16px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+
+    --card-radius: 32px;
+    --card-pad: 32px;
+    /* 332 media + 2x32 padding + 2x1 border. The card is hug-width in Figma; in CSS it must be
+       stated, or the text block's `width: 100%` has nothing to resolve against. */
+    --card-w: 398px;
+    /* The active card is the same width but taller: 64px block padding vs 32px. */
+    --card-pad-active-block: 64px;
+    --text-w-active: 300px;
+
+    --media-w: 332px;
+    --media-h: 250px;
+    --media-radius: 16px;
+
+    --gap-cards: 24px;
+    --gap-card-inner: 24px;
+    --gap-text: 8px;
+    --text-px: 16px;
+
+    --controls-pt: 24px;
+    --controls-gap: 16px;
+    --arrow-pad: 19px;
+    --arrow-radius: 60px;
+    --icon-size: 24px;
+    --dot-size: 8px;
+    --dot-gap: 16px;
+
+    --transition: 300ms;
+  }
+</style>
+
+{%- comment -%}
+  Every class is `dev-`-prefixed on purpose. Horizon compiles the {% stylesheet %} block of EVERY
+  stock section into one sheet that loads on EVERY page, so an unprefixed BEM name silently inherits
+  stock rules (this exact trap broke dev-announcement-bar). Do not drop the prefix.
+{%- endcomment -%}
+<div
+  class="dev-three-step"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --card-bg: {{ section.settings.card_color }};
+    --border-color: {{ section.settings.border_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="dev-three-step__inner">
+    {%- comment -%}
+      One scroll-snap track at every width. At >=1280 all three cards fit, so it never scrolls and
+      the arrows/dots only move the highlight — exactly the desktop artboard. Between 769 and 1279
+      the same track scrolls instead of squashing the cards to unreadable slivers (no Figma reference
+      exists at those widths, so the rule there is: never overflow the page, never overlap).
+    {%- endcomment -%}
+    <ul class="dev-three-step__track" role="list">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign img = block.settings.image
+          assign img_alt = block.settings.image_alt | strip_html | escape
+          assign fallback = 'dev-three-step-' | append: forloop.index | append: '.webp'
+        -%}
+        <li
+          class="dev-three-step__card{% if forloop.first %} dev-three-step__card--active{% endif %}"
+          data-three-step-card
+          {{ block.shopify_attributes }}
+        >
+          <div class="dev-three-step__text">
+            {%- if block.settings.title != blank -%}
+              {%- comment -%} inline_richtext: already safe HTML from Shopify — never escape it. {%- endcomment -%}
+              <h3 class="dev-three-step__title">{{ block.settings.title }}</h3>
+            {%- endif -%}
+
+            {%- if block.settings.body != blank -%}
+              <div class="dev-three-step__body">{{ block.settings.body }}</div>
+            {%- endif -%}
+          </div>
+
+          <div class="dev-three-step__media">
+            {%- if img != blank -%}
+              {{
+                img
+                | image_url: width: 1000
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '332, 375, 664, 750, 1000',
+                  sizes: '(max-width: 768px) 100vw, 332px',
+                  alt: img_alt,
+                  class: 'dev-three-step__image'
+              }}
+            {%- elsif forloop.index <= 3 -%}
+              {%- comment -%}
+                Fallback to the artboard photo bundled with the theme, so the section renders (and can
+                be pixel-diffed) with zero setup. A merchant image always wins over it.
+              {%- endcomment -%}
+              <img
+                class="dev-three-step__image"
+                src="{{ fallback | asset_url }}"
+                alt="{{ img_alt }}"
+                width="1000"
+                height="800"
+                loading="lazy"
+              >
+            {%- endif -%}
+          </div>
+        </li>
+      {%- endfor -%}
+    </ul>
+
+    {%- if section.blocks.size > 1 -%}
+      <div class="dev-three-step__controls">
+        <button
+          type="button"
+          class="dev-three-step__arrow dev-three-step__arrow--prev"
+          aria-label="{{ 'accessibility.slideshow_previous' | t | escape }}"
+        >
+          {%- comment -%} Exported from Figma (Icon/Outline/arrow-narrow-left) — path data verbatim. {%- endcomment -%}
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <path d="M7 8L3 12L7 16M3 12L21 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <ul class="dev-three-step__dots" role="list">
+          {%- for block in section.blocks -%}
+            <li class="dev-three-step__dot-item">
+              <button
+                type="button"
+                class="dev-three-step__dot"
+                data-three-step-dot
+                aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+                aria-label="{{ block.settings.title | strip_html | default: forloop.index | escape }}"
+              ></button>
+            </li>
+          {%- endfor -%}
+        </ul>
+
+        <button
+          type="button"
+          class="dev-three-step__arrow dev-three-step__arrow--next"
+          aria-label="{{ 'accessibility.slideshow_next' | t | escape }}"
+        >
+          {%- comment -%} Exported from Figma (Icon/Outline/arrow-narrow-right) — path data verbatim. {%- endcomment -%}
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <path d="M17 16L21 12L17 8M21 12L3 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Three step",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "card_color", "label": "Active card background", "default": "#FCF5E3", "info": "The cream fill on the highlighted step. Desktop only — mobile has no cards." },
+    { "type": "color", "id": "border_color", "label": "Card border & inactive dot", "default": "#C4BCA9" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding top", "default": 80, "info": "Desktop only. On mobile each step carries its own 48px top padding, per the artboard." },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding bottom", "default": 0 }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step",
+      "limit": 6,
+      "settings": [
+        { "type": "inline_richtext", "id": "title", "label": "Title", "default": "Step 1" },
+        { "type": "richtext", "id": "body", "label": "Text", "default": "<p>Our duvets started life as a tree. Think eucalyptus.</p>" },
+        { "type": "image_picker", "id": "image", "label": "Image", "info": "Leave empty on the first three steps to use the photo bundled with the theme." },
+        { "type": "text", "id": "image_alt", "label": "Image alt text" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Three step",
+      "blocks": [
+        {
+          "type": "step",
+          "settings": {
+            "title": "Step 1",
+            "body": "<p>Our duvets started life as a tree. Think eucalyptus.</p>",
+            "image_alt": "Stacked eucalyptus logs"
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "title": "Step 2",
+            "body": "<p>Using water, it’s transformed into ultra-fine fibres, smoother than merino wool.</p>",
+            "image_alt": "Close-up of ultra-fine tree fibre"
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "title": "Step 3",
+            "body": "<p>Collected, filled then sewn together, it adapts to heat in sleep for all seasons. Year round.</p>",
+            "image_alt": "A duvet being sewn on a machine"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

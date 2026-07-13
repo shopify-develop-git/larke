@@ -1,0 +1,254 @@
+/* dev-three-step.css
+   Desktop artboard 45158:5671 (1440) — three cards in a row, first one highlighted, arrows + dots.
+   Mobile artboard 48740:2872 (375)  — the same three steps stacked, full-bleed photos, NO carousel
+                                       chrome, no cards, no borders, no radii.
+   Two genuinely different layouts from one DOM. */
+
+/* The horizontal inset lives on the TRACK, not here. The track is the scroll container, so putting
+   the 64px on it means the padding scrolls with the content: the cards centre exactly where the
+   artboard puts them at 1440, but once the carousel actually scrolls (<1280) they can travel all the
+   way to the viewport edge instead of stopping 64px short of it. */
+.dev-three-step {
+  background-color: var(--bg);
+  color: var(--color);
+  padding: var(--pt) 0 var(--pb);
+  font-family: var(--font-body);
+}
+
+.dev-three-step__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* One scroll-snap track at every width. At >=1280 the three cards fit inside the content box, so it
+   never actually scrolls and `justify-content: safe center` reproduces the artboard exactly. Below
+   that it scrolls rather than squashing the cards. `safe` matters: plain `center` makes the first
+   item unreachable once a flex row overflows. */
+.dev-three-step__track {
+  display: flex;
+  gap: var(--gap-cards);
+  align-items: center;
+  justify-content: safe center;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  padding-inline: var(--section-px);
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.dev-three-step__track::-webkit-scrollbar {
+  display: none;
+}
+
+/* While dev-three-step.js measures each step's active height, transitions must be off or
+   getBoundingClientRect reads a mid-animation value and the reserved height comes out wrong. */
+.dev-three-step__track--measuring .dev-three-step__card {
+  transition: none;
+}
+
+/* The width is explicit, and it has to be. In Figma the card hugs its 332px media and the text block
+   is `w-full`. Ported literally that is circular in CSS: a column flex item with `width: auto` gets
+   sized by its children's MAX-CONTENT, so `width: 100%` on the text resolved against nothing and the
+   body copy laid out on one unwrapped line — cards 2 and 3 came out 753px and 841px wide and the
+   track overflowed at 1440. Pinning the card to media + padding + border makes `width: 100%` on the
+   text resolve to the intended 332px. */
+.dev-three-step__card {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-card-inner);
+  width: var(--card-w);
+  padding: var(--card-pad);
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-radius);
+  background-color: transparent;
+  scroll-snap-align: center;
+  cursor: pointer;
+  transition: background-color var(--transition) ease, padding var(--transition) ease;
+}
+
+/* The highlighted step. Same width, taller: 64px block padding against the inactive 32px. */
+.dev-three-step__card--active {
+  padding-block: var(--card-pad-active-block);
+  background-color: var(--card-bg);
+  cursor: default;
+}
+
+.dev-three-step__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-text);
+  width: 100%;
+  padding-inline: var(--text-px);
+  text-align: center;
+}
+
+/* Figma gives the active card's text block a fixed 300px (border-box, so 268px of copy) while the
+   inactive ones hug the 332px media. Not a rounding artifact — it is why the highlighted step wraps
+   differently from its neighbours. */
+.dev-three-step__card--active .dev-three-step__text {
+  width: var(--text-w-active);
+}
+
+.dev-three-step__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+/* richtext emits its own <p>; the reset keeps it from picking up UA margins. */
+.dev-three-step__body,
+.dev-three-step__body p {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+}
+
+.dev-three-step__media {
+  flex-shrink: 0;
+  width: var(--media-w);
+  height: var(--media-h);
+  border-radius: var(--media-radius);
+  overflow: hidden;
+}
+
+.dev-three-step__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--media-radius);
+  object-fit: cover;
+}
+
+/* ---- Controls ---------------------------------------------------------- */
+
+.dev-three-step__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--controls-gap);
+  padding-top: var(--controls-pt);
+}
+
+.dev-three-step__arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--arrow-pad);
+  border: 0;
+  border-radius: var(--arrow-radius);
+  background: none;
+  color: var(--color);
+  cursor: pointer;
+}
+
+.dev-three-step__arrow svg {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+.dev-three-step__dots {
+  display: flex;
+  align-items: center;
+  gap: var(--dot-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dev-three-step__dot-item {
+  display: flex;
+}
+
+.dev-three-step__dot {
+  display: block;
+  width: var(--dot-size);
+  height: var(--dot-size);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background-color: var(--border-color);
+  cursor: pointer;
+  transition: background-color var(--transition) ease;
+}
+
+.dev-three-step__dot[aria-current='true'] {
+  background-color: var(--color);
+}
+
+.dev-three-step__arrow:focus-visible,
+.dev-three-step__dot:focus-visible,
+.dev-three-step__card:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-three-step__card,
+  .dev-three-step__dot {
+    transition: none;
+  }
+}
+
+/* ---- Mobile (<=768) ----------------------------------------------------
+   No cards, no carousel: three stacked blocks, photos edge to edge. Each step owns its 48px top
+   padding, which is what makes the 403px step pitch on the artboard. */
+
+@media (max-width: 768px) {
+  .dev-three-step {
+    padding: var(--pt-mobile) 0 var(--pb);
+  }
+
+  /* Full-bleed: the photos run edge to edge on the mobile artboard, so the track keeps no inset. */
+  .dev-three-step__track {
+    flex-direction: column;
+    gap: 0;
+    padding-inline: var(--section-px-mobile);
+    overflow-x: visible;
+    scroll-snap-type: none;
+  }
+
+  .dev-three-step__card,
+  .dev-three-step__card--active {
+    width: 100%;
+    padding: var(--step-pt-mobile) 0 0;
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+    cursor: default;
+  }
+
+  .dev-three-step__card--active .dev-three-step__text {
+    width: 100%;
+  }
+
+  .dev-three-step__body,
+  .dev-three-step__body p {
+    font-size: var(--font-body-size-mobile);
+  }
+
+  .dev-three-step__media {
+    width: 100%;
+    height: var(--media-h);
+    border-radius: 0;
+  }
+
+  .dev-three-step__image {
+    border-radius: 0;
+  }
+
+  .dev-three-step__controls {
+    display: none;
+  }
+}
