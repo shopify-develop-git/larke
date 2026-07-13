@@ -166,3 +166,101 @@
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
 })();
+
+/* ---- Guide drawers + unit toggle ---------------------------------------- */
+(function () {
+  const FOCUSABLE = 'a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-main-product]').forEach((root) => {
+      initGuides(root);
+      initUnits(root);
+    });
+  });
+
+  function initGuides(root) {
+    const guides = Array.from(root.querySelectorAll('[data-guide]'));
+    if (guides.length === 0) return;
+
+    let lastTrigger = null;
+
+    function open(guide, trigger) {
+      guide.dataset.open = 'true';
+      guide.removeAttribute('inert');
+      guide.removeAttribute('aria-hidden');
+      lastTrigger = trigger || null;
+      if (trigger) trigger.setAttribute('aria-expanded', 'true');
+
+      const first = guide.querySelector(FOCUSABLE);
+      if (first) first.focus();
+    }
+
+    function close(guide) {
+      guide.dataset.open = 'false';
+      guide.setAttribute('aria-hidden', 'true');
+      // inert AFTER moving focus out, or the browser is left with focus inside an inert subtree.
+      if (lastTrigger) {
+        lastTrigger.setAttribute('aria-expanded', 'false');
+        lastTrigger.focus();
+      }
+      guide.setAttribute('inert', '');
+    }
+
+    root.querySelectorAll('[data-guide-open]').forEach((trigger) => {
+      trigger.addEventListener('click', () => {
+        const guide = root.querySelector('[data-guide="' + trigger.dataset.guideOpen + '"]');
+        if (guide) open(guide, trigger);
+      });
+    });
+
+    guides.forEach((guide) => {
+      guide.addEventListener('click', (event) => {
+        if (event.target.closest('[data-guide-close]')) close(guide);
+      });
+
+      guide.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          close(guide);
+          return;
+        }
+        if (event.key !== 'Tab') return;
+
+        // Trap the tab ring. A modal you can tab out of is a modal that lies about being one.
+        const items = Array.from(guide.querySelectorAll(FOCUSABLE)).filter((el) => el.offsetParent !== null);
+        if (items.length === 0) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      });
+    });
+  }
+
+  function initUnits(root) {
+    const buttons = Array.from(root.querySelectorAll('[data-unit]'));
+    if (buttons.length === 0) return;
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const unit = button.dataset.unit;
+
+        buttons.forEach((other) => {
+          const on = other === button;
+          other.classList.toggle('dev-main-product__unit--active', on);
+          other.setAttribute('aria-pressed', String(on));
+        });
+
+        // Both values were rendered server-side; the switch only chooses which one is shown.
+        root.querySelectorAll('[data-unit-value]').forEach((value) => {
+          value.hidden = value.dataset.unitValue !== unit;
+        });
+      });
+    });
+  }
+})();

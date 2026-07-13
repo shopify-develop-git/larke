@@ -299,13 +299,10 @@
           {%- liquid
             assign selected = option.selected_value
             assign link_label = ''
-            assign link_url = ''
             if forloop.first
               assign link_label = section.settings.option_1_link_label
-              assign link_url = section.settings.option_1_link
             elsif forloop.index == 2
               assign link_label = section.settings.option_2_link_label
-              assign link_url = section.settings.option_2_link
             endif
           -%}
           <fieldset class="dev-main-product__group" data-option-index="{{ forloop.index0 }}">
@@ -314,8 +311,26 @@
                 <span class="dev-main-product__legend-text">
                   {{- option.name | escape }}: <strong data-selected-value>{{ selected | escape }}</strong>
                 </span>
-                {%- if link_label != blank and link_url != blank -%}
-                  <a class="dev-main-product__legend-link" href="{{ link_url }}">{{ link_label | escape }}</a>
+                {%- comment -%}
+                  A button, not a link: it opens a dialog on this page, it does not navigate. Giving
+                  it an href would put a destination in the status bar that does not exist and let
+                  cmd-click open a blank tab.
+                {%- endcomment -%}
+                {%- if link_label != blank -%}
+                  {%- assign guide = 'size' -%}
+                  {%- if forloop.index == 2 -%}
+                    {%- assign guide = 'tog' -%}
+                  {%- endif -%}
+                  <button
+                    type="button"
+                    class="dev-main-product__legend-link"
+                    data-guide-open="{{ guide }}"
+                    aria-haspopup="dialog"
+                    aria-expanded="false"
+                    aria-controls="guide-{{ guide }}"
+                  >
+                    {{- link_label | escape -}}
+                  </button>
                 {%- endif -%}
               </span>
             </legend>
@@ -524,6 +539,113 @@
   </div>
 
   {%- comment -%}
+    ---------- Guide drawers ----------
+    Size Guide (45071:2630) and Seasons Guide (45071:2877). They live in THIS section because this
+    section owns the triggers — the same reason the menu and cart drawers are blocks of the header.
+    Closed server-side with inert + aria-hidden so they are never focusable before the JS runs.
+  {%- endcomment -%}
+  {%- assign size_rows = section.blocks | where: 'type', 'size_row' -%}
+  {%- assign tog_cards = section.blocks | where: 'type', 'tog_card' -%}
+
+  {%- if size_rows.size > 0 -%}
+    <div id="guide-size" class="dev-main-product__guide" role="dialog" aria-modal="true" aria-labelledby="guide-size-title" data-guide="size" data-open="false" aria-hidden="true" inert>
+      <div class="dev-main-product__guide-backdrop" data-guide-close></div>
+      <div class="dev-main-product__guide-panel">
+        <div class="dev-main-product__guide-head">
+          <h2 class="dev-main-product__guide-title" id="guide-size-title">{{ section.settings.size_guide_title | escape }}</h2>
+          <button type="button" class="dev-main-product__guide-close" data-guide-close aria-label="{{ 'actions.close' | t | escape }}">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+              <path d="M7 17L17 7M7 7L17 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="dev-main-product__guide-body">
+          <div class="dev-main-product__size-card">
+            {%- comment -%}
+              CM / IN is a real toggle, not two links. Both values are already in the DOM — a unit
+              switch that had to fetch anything would be absurd.
+            {%- endcomment -%}
+            <div class="dev-main-product__units" role="group" aria-label="{{ section.settings.size_guide_title | escape }}">
+              <button type="button" class="dev-main-product__unit dev-main-product__unit--active" data-unit="cm" aria-pressed="true">{{ section.settings.unit_metric | escape }}</button>
+              <button type="button" class="dev-main-product__unit" data-unit="in" aria-pressed="false">{{ section.settings.unit_imperial | escape }}</button>
+            </div>
+
+            <dl class="dev-main-product__size-rows">
+              {%- for block in size_rows -%}
+                <div class="dev-main-product__size-row" {{ block.shopify_attributes }}>
+                  <dt class="dev-main-product__size-label">{{ block.settings.label | escape }}</dt>
+                  <dd class="dev-main-product__size-value" data-unit-value="cm">{{ block.settings.value_cm | escape }}</dd>
+                  <dd class="dev-main-product__size-value" data-unit-value="in" hidden>{{ block.settings.value_in | escape }}</dd>
+                </div>
+              {%- endfor -%}
+            </dl>
+          </div>
+
+          {%- if section.settings.guide_footer != blank -%}
+            <div class="dev-main-product__guide-foot">{{ section.settings.guide_footer }}</div>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- if tog_cards.size > 0 -%}
+    <div id="guide-tog" class="dev-main-product__guide" role="dialog" aria-modal="true" aria-labelledby="guide-tog-title" data-guide="tog" data-open="false" aria-hidden="true" inert>
+      <div class="dev-main-product__guide-backdrop" data-guide-close></div>
+      <div class="dev-main-product__guide-panel">
+        <div class="dev-main-product__guide-head">
+          <h2 class="dev-main-product__guide-title" id="guide-tog-title">{{ section.settings.tog_guide_title | escape }}</h2>
+          <button type="button" class="dev-main-product__guide-close" data-guide-close aria-label="{{ 'actions.close' | t | escape }}">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+              <path d="M7 17L17 7M7 7L17 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="dev-main-product__guide-body">
+          {%- if section.settings.tog_heading != blank -%}
+            <p class="dev-main-product__tog-heading">{{ section.settings.tog_heading | escape }}</p>
+          {%- endif -%}
+
+          {%- for block in tog_cards -%}
+            <div class="dev-main-product__tog-card" {{ block.shopify_attributes }}>
+              <h3 class="dev-main-product__tog-title">{{ block.settings.heading }}</h3>
+
+              {%- if block.settings.temperature != blank -%}
+                <p class="dev-main-product__tog-line">
+                  <span class="dev-main-product__tog-label">{{ section.settings.tog_label_temp | escape }}</span>
+                  <span class="dev-main-product__tog-text">{{ block.settings.temperature | escape }}</span>
+                </p>
+              {%- endif -%}
+
+              {%- if block.settings.feel != blank -%}
+                <p class="dev-main-product__tog-line">
+                  <span class="dev-main-product__tog-label">{{ section.settings.tog_label_feel | escape }}</span>
+                  <span class="dev-main-product__tog-text">{{ block.settings.feel | escape }}</span>
+                </p>
+              {%- endif -%}
+
+              {%- if block.settings.chips != blank -%}
+                <p class="dev-main-product__tog-label">{{ section.settings.tog_label_best | escape }}</p>
+                <ul class="dev-main-product__tog-chips" role="list">
+                  {%- assign chips = block.settings.chips | split: ',' -%}
+                  {%- for chip in chips -%}
+                    <li class="dev-main-product__tog-chip">
+                      <img src="{{ 'dev-main-product-chip-icon.svg' | asset_url }}" alt="" width="22" height="16" loading="lazy" aria-hidden="true">
+                      <span>{{ chip | strip | escape }}</span>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%}
     The variant table the JS resolves against. Rendered as JSON rather than rebuilt in script from
     the DOM: the DOM only knows what the chips SAY, not which combination is a real, purchasable
     variant, what it costs, or whether it is in stock.
@@ -566,11 +688,20 @@
     { "type": "text", "id": "seal_alt", "label": "Approval seal alt text", "default": "Good Housekeeping Institute approved" },
 
     { "type": "header", "content": "Option links" },
-    { "type": "paragraph", "content": "The small underlined links beside the first and second option labels." },
+    { "type": "paragraph", "content": "The small underlined controls beside the first and second option labels. They open the Size guide and the Seasons guide — they are buttons, not links, because they open a dialog on this page rather than navigating." },
     { "type": "text", "id": "option_1_link_label", "label": "Link 1 label", "default": "Size Guide" },
-    { "type": "url", "id": "option_1_link", "label": "Link 1" },
     { "type": "text", "id": "option_2_link_label", "label": "Link 2 label", "default": "What’s the difference?" },
-    { "type": "url", "id": "option_2_link", "label": "Link 2" },
+
+    { "type": "header", "content": "Guides" },
+    { "type": "text", "id": "size_guide_title", "label": "Size guide title", "default": "Size Guide" },
+    { "type": "text", "id": "unit_metric", "label": "Metric unit", "default": "CM" },
+    { "type": "text", "id": "unit_imperial", "label": "Imperial unit", "default": "IN" },
+    { "type": "richtext", "id": "guide_footer", "label": "Size guide footer", "default": "<p>Still got questions? <strong>Click here</strong> to chat with us</p>" },
+    { "type": "text", "id": "tog_guide_title", "label": "Seasons guide title", "default": "Seasons Guide" },
+    { "type": "text", "id": "tog_heading", "label": "Seasons guide heading", "default": "What\u2019s the difference?" },
+    { "type": "text", "id": "tog_label_temp", "label": "Label: temperature", "default": "Temperature:" },
+    { "type": "text", "id": "tog_label_feel", "label": "Label: feel", "default": "How it feels over you:" },
+    { "type": "text", "id": "tog_label_best", "label": "Label: best for", "default": "Best for:" },
 
     { "type": "header", "content": "Still undecided" },
     { "type": "text", "id": "compare_heading", "label": "Heading", "default": "Still undecided?" },
@@ -617,6 +748,25 @@
           { "value": "none", "label": "None" }, { "value": "vegan", "label": "The Vegan Society" },
           { "value": "fsc", "label": "FSC" }, { "value": "oeko", "label": "OEKO-TEX" } ] },
         { "type": "inline_richtext", "id": "cert_3_text", "label": "Text 3" }
+      ]
+    },
+    {
+      "type": "size_row",
+      "name": "Size row",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Size", "default": "Single" },
+        { "type": "text", "id": "value_cm", "label": "Value (cm)", "default": "135 cm x 200 cm" },
+        { "type": "text", "id": "value_in", "label": "Value (in)", "default": "53 in x 79 in" }
+      ]
+    },
+    {
+      "type": "tog_card",
+      "name": "Seasons card",
+      "settings": [
+        { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Lightweight" },
+        { "type": "text", "id": "temperature", "label": "Temperature", "default": "Our coolest: 2/10 on the warmth scale." },
+        { "type": "text", "id": "feel", "label": "How it feels", "default": "Think cloud-like comfort \u2013 (cool and forever light)." },
+        { "type": "text", "id": "chips", "label": "Best for", "info": "Comma separated.", "default": "Hot sleepers, Warm bedrooms." }
       ]
     },
     {

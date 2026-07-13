@@ -890,3 +890,272 @@
   font-weight: var(--w-medium);
   line-height: var(--font-body-lh);
 }
+
+/* ---- Guide drawers (45071:2630 Size, 45071:2877 Seasons) ----------------- */
+
+.dev-main-product__guide {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  visibility: hidden;
+}
+
+.dev-main-product__guide[data-open='true'] {
+  visibility: visible;
+}
+
+.dev-main-product__guide-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgb(51 51 51 / 40%);
+  opacity: 0;
+  transition: opacity var(--transition) ease;
+}
+
+.dev-main-product__guide[data-open='true'] .dev-main-product__guide-backdrop {
+  opacity: 1;
+}
+
+.dev-main-product__guide-panel {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  width: 568px;
+  max-width: calc(100% - 32px);
+  border-radius: var(--image-radius);
+  background-color: var(--bg);
+  overflow: hidden;
+  transform: translateX(calc(100% + 16px));
+  transition: transform var(--transition) ease;
+}
+
+.dev-main-product__guide[data-open='true'] .dev-main-product__guide-panel {
+  transform: translateX(0);
+}
+
+.dev-main-product__guide-head {
+  display: flex;
+  align-items: center;
+  gap: var(--group-gap);
+  margin: 0 var(--pt);
+  padding: var(--pt) 0 var(--group-gap);
+  border-bottom: 1px solid #d8d1c0;
+}
+
+.dev-main-product__guide-title {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-title-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+.dev-main-product__guide-close {
+  flex-shrink: 0;
+  display: flex;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color);
+  cursor: pointer;
+}
+
+.dev-main-product__guide-close svg {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+.dev-main-product__guide-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gallery-gap);
+  padding: var(--pt);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* ---- Size guide ---------------------------------------------------------- */
+
+.dev-main-product__size-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gallery-gap);
+  padding: var(--gallery-gap);
+  border-radius: var(--image-radius);
+  background-color: var(--card-bg);
+}
+
+.dev-main-product__units {
+  display: flex;
+  justify-content: center;
+  gap: var(--pt);
+}
+
+.dev-main-product__unit {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #666;
+  font-family: var(--font-body);
+  font-size: var(--font-sub-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+  text-decoration: underline;
+  text-underline-position: from-font;
+  cursor: pointer;
+}
+
+.dev-main-product__unit--active {
+  color: var(--color);
+  font-weight: var(--w-bold);
+}
+
+.dev-main-product__size-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--group-gap);
+  margin: 0;
+}
+
+.dev-main-product__size-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--group-gap);
+  padding-bottom: var(--group-gap);
+  border-bottom: 1px solid #d8d1c0;
+}
+
+/* Figma rules off between the rows, not under the last one. */
+.dev-main-product__size-row:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.dev-main-product__size-label {
+  flex-shrink: 0;
+  margin: 0;
+  font-size: var(--font-sub-size);
+  font-weight: var(--w-bold);
+  line-height: var(--font-body-lh);
+}
+
+.dev-main-product__size-value {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--font-sub-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+  text-align: right;
+}
+
+.dev-main-product__guide-foot,
+.dev-main-product__guide-foot p {
+  margin: 0;
+  font-size: var(--font-sub-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+  text-align: center;
+}
+
+.dev-main-product__guide-foot strong {
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+/* ---- Seasons guide ------------------------------------------------------- */
+
+.dev-main-product__tog-heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-title-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+.dev-main-product__tog-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--variant-gap);
+  padding: var(--group-gap);
+  border-radius: 16px;
+  background-color: var(--card-bg);
+}
+
+.dev-main-product__tog-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-title-size-mobile);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+.dev-main-product__tog-line {
+  margin: 0;
+}
+
+.dev-main-product__tog-label {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: var(--font-pc-label-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+.dev-main-product__tog-text {
+  display: block;
+  font-size: var(--font-sub-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+}
+
+.dev-main-product__tog-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--variant-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dev-main-product__tog-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--variant-gap);
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--variant-radius);
+  background-color: var(--surface);
+  font-size: var(--font-sub-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+}
+
+.dev-main-product__tog-chip img {
+  flex-shrink: 0;
+  width: 22px;
+  height: auto;
+  max-width: none;
+}
+
+@media (max-width: 768px) {
+  .dev-main-product__guide-panel {
+    top: 32px;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: none;
+    border-radius: var(--image-radius) var(--image-radius) 0 0;
+    transform: translateY(100%);
+  }
+
+  .dev-main-product__guide[data-open='true'] .dev-main-product__guide-panel {
+    transform: translateY(0);
+  }
+}

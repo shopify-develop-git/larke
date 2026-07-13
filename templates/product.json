@@ -133,7 +133,16 @@
         "border_color": "#c4bca9",
         "pc_heading": "Sleep r<em>emarkable.</em>",
         "pc_subheading": "Without any compromises",
-        "pc_link_label": "See how we’re different"
+        "pc_link_label": "See how we’re different",
+        "size_guide_title": "Size Guide",
+        "unit_metric": "CM",
+        "unit_imperial": "IN",
+        "guide_footer": "<p>Still got questions?<br><strong>Click here</strong> to chat with us</p>",
+        "tog_guide_title": "Seasons Guide",
+        "tog_heading": "What’s the difference?",
+        "tog_label_temp": "Temperature:",
+        "tog_label_feel": "How it feels over you:",
+        "tog_label_best": "Best for:"
       },
       "blocks": {
         "acc-love": {
@@ -195,6 +204,65 @@
             "icon": "trial",
             "label": "Longer trial periods"
           }
+        },
+        "size-1": {
+          "type": "size_row",
+          "settings": {
+            "label": "Single",
+            "value_cm": "135 cm x 200 cm",
+            "value_in": "53 in x 79 in"
+          }
+        },
+        "size-2": {
+          "type": "size_row",
+          "settings": {
+            "label": "Double",
+            "value_cm": "200 cm x 200 cm",
+            "value_in": "79 in x 79 in"
+          }
+        },
+        "size-3": {
+          "type": "size_row",
+          "settings": {
+            "label": "King",
+            "value_cm": "230 cm x 220 cm",
+            "value_in": "91 in x 87 in"
+          }
+        },
+        "size-4": {
+          "type": "size_row",
+          "settings": {
+            "label": "Super King",
+            "value_cm": "260 cm x 220 cm",
+            "value_in": "102 in x 87 in"
+          }
+        },
+        "tog-1": {
+          "type": "tog_card",
+          "settings": {
+            "heading": "Lightweight",
+            "temperature": "Our coolest: 2/10 on the warmth scale.",
+            "feel": "Think cloud-like comfort – (cool and forever light).",
+            "chips": "Hot sleepers, Warm bedrooms."
+          }
+        },
+        "tog-2": {
+          "type": "tog_card",
+          "settings": {
+            "heading": "All-Season",
+            "temperature": "The middle ground: 5/10 warmth. Balanced and reliable.",
+            "feel": "Stays cool when you warm up, and cosy when the room cools down.",
+            "chips": "Couples, Temperature-changing rooms"
+          }
+        },
+        "tog-3": {
+          "type": "tog_card",
+          "settings": {
+            "heading": "Heavyweight",
+            "temperature": "Our warmest: 8/10 warmth – turn the cosy setting to high.",
+            "feel": "A warm, cocooning feel with extra weight – cosy, never stuffy.",
+            "chips": "Cold sleepers, Cooler homes"
+          }
         }
       },
       "block_order": [
@@ -204,7 +272,14 @@
         "acc-cert",
         "pc-care",
         "pc-warranty",
-        "pc-trial"
+        "pc-trial",
+        "size-1",
+        "size-2",
+        "size-3",
+        "size-4",
+        "tog-1",
+        "tog-2",
+        "tog-3"
       ]
     }
   },
