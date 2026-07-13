@@ -36,12 +36,18 @@
        the top edge and 20px from the left. Radius fitted to the corner arc — 4px, NOT the footer
        input's 8px.
 
-       The padding is 1px short of those insets ON PURPOSE. Figma draws a stroke INSIDE the box, so
-       its 18/20px padding is measured from the outer edge. CSS puts the border OUTSIDE the padding,
-       so border + padding must add up to the Figma inset: 1 + 17 = 18, 1 + 19 = 20. Using 18/20
-       directly makes every field 2px too big and shifts the text 1px. */
+       The padding is short of those insets ON PURPOSE. Figma draws a stroke INSIDE the box, so its
+       padding is measured from the outer edge. CSS puts the border OUTSIDE the padding, so
+       border + padding must add up to the Figma inset. Using the inset directly makes every field
+       2px too big and shifts the text 1px.
+
+       And the block padding is 16.8, not 17. The real inset is not a round 18: a 58px box holding a
+       16px/1.4 line (22.4px) leaves (58 - 22.4) / 2 = 17.8px a side. Rounding that to 18 left the
+       content box 0.4px shorter than its own line, and a textarea whose content overflows by any
+       amount grows a scrollbar — visible even when the field is empty. 1 + 16.8 = 17.8 makes the
+       line fit exactly, and the scrollbar goes away at the root instead of being hidden. */
     --field-h: 58px;
-    --field-pad: 17px 19px;
+    --field-pad: 16.8px 19px;
     --field-radius: 4px;
     --field-border-w: 1px;
 
