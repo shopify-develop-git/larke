@@ -199,12 +199,91 @@
         "pc-warranty",
         "pc-trial"
       ]
+    },
+    "product_reviews": {
+      "type": "dev-product-reviews",
+      "name": "Product reviews",
+      "blocks": {
+        "rev-1": {
+          "type": "review",
+          "settings": {
+            "stars": 5,
+            "author": "Ruth S",
+            "verified": true,
+            "heading": "The perfect Vegan cotton duvet!",
+            "body": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum condimentum posuere fringilla</p>",
+            "date": "18 months ago"
+          }
+        },
+        "rev-2": {
+          "type": "review",
+          "settings": {
+            "stars": 5,
+            "author": "Ruth S",
+            "verified": true,
+            "heading": "The perfect Vegan cotton duvet!",
+            "body": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum condimentum posuere fringilla</p>",
+            "date": "18 months ago"
+          }
+        },
+        "rev-3": {
+          "type": "review",
+          "settings": {
+            "stars": 5,
+            "author": "Ruth S",
+            "verified": true,
+            "heading": "The perfect Vegan cotton duvet!",
+            "body": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum condimentum posuere fringilla</p>",
+            "date": "18 months ago"
+          }
+        },
+        "rev-4": {
+          "type": "review",
+          "settings": {
+            "stars": 5,
+            "author": "Ruth S",
+            "verified": true,
+            "heading": "The perfect Vegan cotton duvet!",
+            "body": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum condimentum posuere fringilla</p>",
+            "date": "18 months ago"
+          }
+        }
+      },
+      "block_order": [
+        "rev-1",
+        "rev-2",
+        "rev-3",
+        "rev-4"
+      ],
+      "settings": {
+        "heading": "Rated Excellent",
+        "rating_value": 4.9,
+        "count_prefix": "Based on",
+        "count_suffix": "reviews",
+        "verified_label": "Verified",
+        "count_5": 43,
+        "count_4": 21,
+        "count_3": 0,
+        "count_2": 0,
+        "count_1": 0,
+        "summary_heading": "Review Summary",
+        "summary_text": "Customers say these sheets are exceptionally soft and comfortable. Many reviews highlight their temperature-regulating qualities, keeping sleepers cool throughout the night.",
+        "button_label": "Show more reviews",
+        "background_color": "#fffcf4",
+        "text_color": "#333333",
+        "star_color": "#f1b500",
+        "card_color": "#fcf5e3",
+        "border_color": "#c4bca9",
+        "track_color": "#c4bca9",
+        "padding_bottom": 40
+      }
     }
   },
   "order": [
     "main_product",
     "dev_sleep_grows_on_trees",
     "dev_naturally_best_sleep",
-    "dev_pdp_guarantees"
+    "dev_pdp_guarantees",
+    "product_reviews"
   ]
 }
