@@ -58,9 +58,28 @@
       if (next) next.disabled = track.scrollLeft >= max - 1;
     }
 
+    /* Feature-detect ScrollToOptions rather than assume it. Safari below 15.4 ignores the options
+       OBJECT entirely — `scrollBy({left: x})` there is a silent no-op, so the arrows would look
+       alive and do nothing. Falling back to a plain scrollLeft assignment keeps them working; the
+       browser's own `scroll-behavior` still smooths it where that is supported. */
+    let smoothSupported = false;
+    try {
+      const probe = { get behavior() { smoothSupported = true; return 'auto'; } };
+      track.scrollBy(probe);
+    } catch (e) {
+      smoothSupported = false;
+    }
+
     function scrollByStep(direction) {
+      const delta = direction * step();
+
+      if (!smoothSupported) {
+        track.scrollLeft += delta;
+        return;
+      }
+
       track.scrollBy({
-        left: direction * step(),
+        left: delta,
         behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
       });
     }
