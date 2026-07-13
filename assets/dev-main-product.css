@@ -696,3 +696,119 @@
     transition: none;
   }
 }
+
+/* ---- Price comparison (45068:2385) -------------------------------------- */
+
+.dev-main-product__pc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gallery-gap);
+  padding: var(--gallery-gap);
+  border-radius: 16px;
+  background-color: var(--card-bg);
+}
+
+.dev-main-product__pc-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--variant-gap);
+}
+
+.dev-main-product__pc-title {
+  position: relative;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-pc-title-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+/* The hand-drawn swoosh under "remarkable". Absolute so it cannot push the line apart, and
+   aria-hidden because it says nothing a screen reader needs. */
+.dev-main-product__pc-underline {
+  position: absolute;
+  top: 33px;
+  left: 76px;
+  display: block;
+  width: 147px;
+  height: auto;
+  max-width: none;
+}
+
+.dev-main-product__pc-sub {
+  margin: 0;
+  font-size: var(--font-sub-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+}
+
+.dev-main-product__pc-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gallery-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dev-main-product__pc-row {
+  display: flex;
+  align-items: center;
+  gap: var(--group-gap);
+}
+
+/* Figma rules off between the rows, not above the first one. */
+.dev-main-product__pc-row + .dev-main-product__pc-row {
+  padding-top: var(--gallery-gap);
+  border-top: 1px solid var(--border-color);
+}
+
+.dev-main-product__pc-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--arrow-radius);
+  background-color: var(--card-bg);
+}
+
+.dev-main-product__pc-icon img {
+  display: block;
+  width: 40px;
+  height: auto;
+  max-width: none;
+}
+
+.dev-main-product__pc-label {
+  font-family: var(--font-heading);
+  font-size: var(--font-pc-label-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+.dev-main-product__pc-link {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: var(--variant-gap);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--color);
+  font-size: var(--font-label-size);
+  font-weight: var(--w-bold);
+  line-height: var(--font-body-lh);
+  text-decoration: none;
+}
+
+.dev-main-product__pc-link svg {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+.dev-main-product__pc-link:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}

@@ -130,20 +130,74 @@
         "star_color": "#f1b500",
         "surface_color": "#fffcf4",
         "card_color": "#fcf5e3",
-        "border_color": "#c4bca9"
+        "border_color": "#c4bca9",
+        "pc_heading": "Sleep r<em>emarkable.</em>",
+        "pc_subheading": "Without any compromises",
+        "pc_link_label": "See how we’re different"
       },
       "blocks": {
         "acc-love": {
           "type": "accordion",
           "settings": {
             "heading": "Why you’ll love it",
-            "body": "<ul><li>Awarded <strong>Best Lightweight Duvet</strong> by Good Housekeeping 2025.</li><li>Smooth, soft-to-the-touch <strong>300TC cotton</strong> outer shell</li><li>Moisture-wicking, sweat beating 100% <strong>eucalyptus tree-fibre filling</strong>.</li><li>Vegan approved by the UK’s oldest vegan society.</li><li>Made in the EU.</li></ul>",
-            "open_by_default": true
+            "open_by_default": true,
+            "body": "<ul><li>Awarded <strong>Best Lightweight Duvet</strong> by Good Housekeeping 2025.</li><li>Smooth, soft-to-the-touch <strong>300TC cotton</strong> outer shell</li><li>Moisture-wicking, sweat beating 100% <strong>eucalyptus tree-fibre filling</strong>.</li><li>Vegan approved by the UK’s oldest vegan society.</li><li>Made in the EU.</li></ul>"
+          }
+        },
+        "acc-faqs": {
+          "type": "accordion",
+          "settings": {
+            "heading": "FAQs",
+            "open_by_default": false,
+            "body": ""
+          }
+        },
+        "acc-care": {
+          "type": "accordion",
+          "settings": {
+            "heading": "Care",
+            "open_by_default": false,
+            "body": ""
+          }
+        },
+        "acc-cert": {
+          "type": "accordion",
+          "settings": {
+            "heading": "Certifications",
+            "open_by_default": false,
+            "body": ""
+          }
+        },
+        "pc-care": {
+          "type": "compare_row",
+          "settings": {
+            "icon": "care",
+            "label": "Easier to care for"
+          }
+        },
+        "pc-warranty": {
+          "type": "compare_row",
+          "settings": {
+            "icon": "warranty",
+            "label": "Longer warranties"
+          }
+        },
+        "pc-trial": {
+          "type": "compare_row",
+          "settings": {
+            "icon": "trial",
+            "label": "Longer trial periods"
           }
         }
       },
       "block_order": [
-        "acc-love"
+        "acc-love",
+        "acc-faqs",
+        "acc-care",
+        "acc-cert",
+        "pc-care",
+        "pc-warranty",
+        "pc-trial"
       ]
     }
   },
