@@ -76,7 +76,127 @@
         "accent_color": "#4EA448",
         "padding_top": 24,
         "padding_bottom": 24
-      }
+      },
+      "blocks": {
+        "menu-drawer": {
+          "type": "dev-menu-drawer",
+          "blocks": {
+            "nav": {
+              "type": "dev-menu-drawer-nav",
+              "blocks": {
+                "nav-link-1": {
+                  "type": "dev-menu-drawer-nav-link",
+                  "settings": {
+                    "label": "Shop Our Duvet",
+                    "link": "/collections/all"
+                  }
+                },
+                "nav-link-2": {
+                  "type": "dev-menu-drawer-nav-link",
+                  "settings": {
+                    "label": "Our Story",
+                    "link": "/pages/our-story"
+                  }
+                },
+                "nav-link-3": {
+                  "type": "dev-menu-drawer-nav-link",
+                  "settings": {
+                    "label": "Discover Tree-Fibre",
+                    "link": "/pages/tree-fibre"
+                  }
+                }
+              },
+              "block_order": [
+                "nav-link-1",
+                "nav-link-2",
+                "nav-link-3"
+              ],
+              "settings": {}
+            },
+            "footer": {
+              "type": "dev-menu-drawer-footer",
+              "blocks": {
+                "footer-link-1": {
+                  "type": "dev-menu-drawer-footer-link",
+                  "settings": {
+                    "label": "FAQs",
+                    "link": "/pages/faqs"
+                  }
+                },
+                "footer-link-2": {
+                  "type": "dev-menu-drawer-footer-link",
+                  "settings": {
+                    "label": "Delivery",
+                    "link": "/pages/delivery"
+                  }
+                },
+                "footer-link-3": {
+                  "type": "dev-menu-drawer-footer-link",
+                  "settings": {
+                    "label": "Returns",
+                    "link": "/pages/returns"
+                  }
+                },
+                "footer-link-4": {
+                  "type": "dev-menu-drawer-footer-link",
+                  "settings": {
+                    "label": "Contact",
+                    "link": "/pages/contact"
+                  }
+                }
+              },
+              "block_order": [
+                "footer-link-1",
+                "footer-link-2",
+                "footer-link-3",
+                "footer-link-4"
+              ],
+              "settings": {}
+            }
+          },
+          "block_order": [
+            "nav",
+            "footer"
+          ],
+          "settings": {}
+        },
+        "cart-drawer": {
+          "type": "dev-cart-drawer",
+          "blocks": {
+            "badge-1": {
+              "type": "dev-cart-drawer-badge",
+              "settings": {
+                "icon": "wind",
+                "label": "Breathable"
+              }
+            },
+            "badge-2": {
+              "type": "dev-cart-drawer-badge",
+              "settings": {
+                "icon": "care",
+                "label": "Easy care"
+              }
+            },
+            "badge-3": {
+              "type": "dev-cart-drawer-badge",
+              "settings": {
+                "icon": "organic",
+                "label": "Hypoallergenic"
+              }
+            }
+          },
+          "block_order": [
+            "badge-1",
+            "badge-2",
+            "badge-3"
+          ],
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "menu-drawer",
+        "cart-drawer"
+      ]
     },
     "dev-promo-bar": {
       "type": "dev-promo-bar",
