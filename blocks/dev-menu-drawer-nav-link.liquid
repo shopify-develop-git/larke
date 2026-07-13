@@ -1,0 +1,21 @@
+{%- if block.settings.label != blank -%}
+  <li class="dev-menu-drawer__nav-item" {{ block.shopify_attributes }}>
+    <a
+      class="dev-menu-drawer__nav-link"
+      href="{{ block.settings.link | default: routes.root_url }}"
+    >
+      {{- block.settings.label | escape -}}
+    </a>
+  </li>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Nav link",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "label", "label": "Label", "default": "Shop Our Duvet" },
+    { "type": "url", "id": "link", "label": "Link" }
+  ]
+}
+{% endschema %}

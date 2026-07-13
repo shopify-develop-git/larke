@@ -1,0 +1,409 @@
+{{ 'dev-cart-drawer.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'dev-cart-drawer.js' | asset_url }}" defer></script>
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .cart-drawer {
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+
+    /* The FIXED width of the drawer panel ("Cart/Order" 45058:2048) — this is the
+       overlay's own width token, NOT the site's centred page container. On mobile the
+       panel is full-bleed, so it is not applied there. */
+    --container-max: 568px;
+
+    --section-px: 32px;
+    --section-px-mobile: 16px;
+    /* Mobile header row keeps 24px of horizontal padding while the body drops to 16px
+       (44840:5860) — extra breathing room around the close button. Intentional. */
+    --header-px-mobile: 24px;
+
+    /* Desktop floats the panel 16px off the viewport edge (outer wrapper 45058:2164).
+       Mobile is a bottom sheet: flush left/right/bottom, gap at the top. */
+    --drawer-inset: 16px;
+    --sheet-top-gap: 32px;
+
+    --radius-drawer: 32px;
+    --radius-drawer-mobile: 16px;
+    --radius-card: 16px;
+    --radius-image: 16px;
+    --radius-badge: 8px;
+    --radius-cta: 60px;
+    --radius-payment: 2px;
+
+    /* Desktop/Title 3 vs Mobile/Title 3 — the mobile artboard states its own size,
+       so it wins over a scale factor. */
+    --font-heading-size: 32px;
+    --font-heading-size-mobile: 24px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+
+    --font-body-lh: 1.4;
+    --font-size-title: 18px;
+    --font-size-title-mobile: 14px;
+    --font-size-option: 16px;
+    --font-size-option-mobile: 14px;
+    --font-size-price: 16px;
+    --font-size-remove: 14px;
+    --font-size-remove-mobile: 13px;
+    --font-size-badge: 14px;
+    --font-size-cta: 18px;
+    --font-size-payment: 14px;
+    --weight-medium: 500;
+    --weight-bold: 700;
+
+    --spacing-2xs: 2px;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+
+    --image-size: 80px;
+    --image-size-mobile: 64px;
+    --icon-size: 24px;
+
+    /* Badge icons are stroked #666666 on the Figma layers — a muted grey that is
+       deliberately not the body text colour. */
+    --icon-muted: #666666;
+  }
+</style>
+
+{%- liquid
+  assign cta_alpha = block.settings.cta_opacity | divided_by: 100.0
+  assign cta_fill = block.settings.cta_color | color_modify: 'alpha', cta_alpha
+
+  assign backdrop_alpha = block.settings.backdrop_opacity | divided_by: 100.0
+  assign backdrop_fill = block.settings.backdrop_color | color_modify: 'alpha', backdrop_alpha
+
+  assign checkout_url = block.settings.checkout_url
+  if checkout_url == blank
+    assign checkout_url = '/checkout'
+  endif
+
+  assign is_open = 'false'
+  if block.settings.open_on_load
+    assign is_open = 'true'
+  endif
+
+  assign heading_id = 'cart-drawer-heading'
+-%}
+
+{%- comment -%}
+  The overlay. id="cart-drawer" is a contract, not a preference: dev-site-header's
+  cart trigger carries aria-controls="cart-drawer" and looks this element up by id
+  before it will preventDefault and open a drawer at all.
+
+  Closed by default: aria-hidden + inert are rendered server-side so the drawer is
+  never focusable or announced before the JS runs. Open state lives in exactly one
+  place — [data-open] on this root — so it can be forced open with plain JS.
+
+  It lives as a block of dev-site-header (rather than a section of its own) so one
+  configuration serves every template, and so it always ships with the trigger that
+  opens it. position:fixed is unaffected — no ancestor creates a containing block.
+{%- endcomment -%}
+<div
+  id="cart-drawer"
+  class="cart-drawer"
+  data-open="{{ is_open }}"
+  {%- unless block.settings.open_on_load %} aria-hidden="true" inert{% endunless %}
+  style="
+    --bg: {{ block.settings.background_color }};
+    --color: {{ block.settings.text_color }};
+    --accent: {{ cta_fill }};
+    --pt: {{ block.settings.padding_top }}px;
+    --pb: {{ block.settings.padding_bottom }}px;
+    --card-bg: {{ block.settings.card_color }};
+    --badge-bg: {{ block.settings.badge_color }};
+    --border-header: {{ block.settings.header_divider_color }};
+    --border-header-mobile: {{ block.settings.header_divider_color_mobile }};
+    --border-footer: {{ block.settings.footer_divider_color }};
+    --cta-color: {{ block.settings.cta_text_color }};
+    --backdrop: {{ backdrop_fill }};
+  "
+  {{ block.shopify_attributes }}
+>
+  <div class="cart-drawer__backdrop" data-cart-drawer-close></div>
+
+  <div
+    class="cart-drawer__panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="{{ heading_id }}"
+  >
+    <div class="cart-drawer__header">
+      {%- if block.settings.heading != blank -%}
+        <h2 class="cart-drawer__heading" id="{{ heading_id }}">{{ block.settings.heading }}</h2>
+      {%- endif -%}
+
+      <button
+        type="button"
+        class="cart-drawer__close"
+        data-cart-drawer-close
+        aria-label="{{ block.settings.close_label | escape }}"
+      >
+        <svg class="cart-drawer__icon" viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden="true" focusable="false">
+<path d="M7 17L17 7M7 7L17 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+      </button>
+    </div>
+
+    {%- comment -%}
+      The badge row is painted on EVERY line-item card, but `content_for 'blocks'` may be
+      emitted only ONCE per block — and `block.shopify_attributes` may appear only once per
+      block in the document, or the theme editor gets duplicate block ids and click-to-select
+      breaks. So: the first card renders the real Feature badge blocks (editable); every
+      other card renders an identical, attribute-free copy built from block.blocks. Both
+      draw their artwork from the same snippet.
+    {%- endcomment -%}
+    {%- capture badges_editable -%}
+      {%- if block.blocks.size > 0 -%}
+        <ul class="cart-drawer__badges">
+          {% content_for 'blocks' %}
+        </ul>
+      {%- endif -%}
+    {%- endcapture -%}
+
+    {%- capture badges_plain -%}
+      {%- if block.blocks.size > 0 -%}
+        <ul class="cart-drawer__badges">
+          {%- for badge in block.blocks -%}
+            {%- if badge.settings.label != blank -%}
+              <li class="cart-drawer__badge">
+                {%- render 'dev-cart-drawer-badge-icon', icon: badge.settings.icon -%}
+                <span class="cart-drawer__badge-label">{{ badge.settings.label | escape }}</span>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    {%- endcapture -%}
+
+    <div class="cart-drawer__content">
+      {%- if cart.item_count > 0 -%}
+        <ul class="cart-drawer__items">
+          {%- for item in cart.items -%}
+            {%- liquid
+              assign item_alt = item.title | escape
+              assign item_src = item.image | image_url: width: 240
+            -%}
+            <li class="cart-drawer__item">
+              <div class="cart-drawer__item-detail">
+                <div class="cart-drawer__item-media">
+                  {%- if item.image != blank -%}
+                    {{
+                      item_src
+                      | image_tag:
+                        loading: 'lazy',
+                        widths: '64, 80, 128, 160, 240',
+                        sizes: '(max-width: 768px) 64px, 80px',
+                        alt: item_alt,
+                        class: 'cart-drawer__item-image'
+                    }}
+                  {%- endif -%}
+
+                  <div class="cart-drawer__item-info">
+                    <h3 class="cart-drawer__item-title">{{ item.product.title | escape }}</h3>
+
+                    {%- for option in item.options_with_values -%}
+                      {%- if option.value != blank -%}
+                        <p class="cart-drawer__item-option">
+                          <span class="cart-drawer__item-option-name">{{ option.name | escape }}:</span>
+                          <span class="cart-drawer__item-option-value">{{ option.value | escape }}</span>
+                        </p>
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </div>
+                </div>
+
+                <div class="cart-drawer__item-actions">
+                  <p class="cart-drawer__item-price">{{ item.line_price | money }}</p>
+                  <a class="cart-drawer__item-remove" href="{{ item.url_to_remove }}">
+                    {{- block.settings.remove_label | escape -}}
+                  </a>
+                </div>
+              </div>
+
+              {%- if forloop.first -%}{{ badges_editable }}{%- else -%}{{ badges_plain }}{%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+
+      {%- else -%}
+        <p class="cart-drawer__empty">{{ block.settings.empty_text | escape }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="cart-drawer__footer">
+      {%- if block.settings.checkout_label != blank -%}
+        <a class="cart-drawer__checkout" href="{{ checkout_url }}">
+          <span class="cart-drawer__checkout-label">{{ block.settings.checkout_label | escape }}</span>
+          <svg class="cart-drawer__icon" viewBox="329.5 18.5 24 24" width="24" height="24" fill="none" aria-hidden="true" focusable="false">
+<path d="M341.5 33.5V35.5M335.5 39.5H347.5C348.605 39.5 349.5 38.6046 349.5 37.5V31.5C349.5 30.3954 348.605 29.5 347.5 29.5H335.5C334.395 29.5 333.5 30.3954 333.5 31.5V37.5C333.5 38.6046 334.395 39.5 335.5 39.5ZM345.5 29.5V25.5C345.5 23.2909 343.709 21.5 341.5 21.5C339.291 21.5 337.5 23.2909 337.5 25.5V29.5H345.5Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+        </a>
+      {%- endif -%}
+
+      <div class="cart-drawer__payment">
+        {%- if block.settings.payment_label != blank -%}
+          <p class="cart-drawer__payment-label">{{ block.settings.payment_label | escape }}</p>
+        {%- endif -%}
+
+        {%- comment -%}
+          The eight marks exported from the Figma artboard, in artboard order. NOT
+          shop.enabled_payment_types: that renders Shopify's own icon set, which is
+          different artwork from the owner's. The last mark is filed in Figma as a
+          second "Amex" but is a blue Shop Pay mark — flagged in the Brief, drawn here
+          exactly as exported and labelled for what it depicts.
+        {%- endcomment -%}
+        <ul class="cart-drawer__payment-icons">
+          <li class="cart-drawer__payment-item"><svg class="cart-drawer__payment-icon" viewBox="0 0 35 20" width="35" height="20" fill="none" role="img" aria-label="Visa">
+<g id="Visa-cd-visa">
+<g id="Visa_2-cd-visa">
+<rect id="Rectangle 25-cd-visa" x="0.129619" y="0.129619" width="34.4318" height="18.771" rx="1.87038" fill="white" stroke="white" stroke-width="0.259238"/>
+</g>
+<g id="Layer 4-cd-visa">
+<path id="Vector-cd-visa" d="M14.3093 5.33362L12.9253 13.7439H15.1077L16.4917 5.33362H14.3093Z" fill="#005CCD"/>
+<path id="Vector_2-cd-visa" d="M26.9244 5.33362C26.3921 5.33362 26.0195 5.49331 25.8066 6.02561L22.5596 13.7972H24.8485C24.8485 13.7972 25.2211 12.7326 25.3275 12.5196C25.5937 12.5196 27.7761 12.5196 28.0955 12.5196C28.1487 12.839 28.3616 13.7972 28.3616 13.7972H30.3844L28.6278 5.33362H26.9244ZM25.9131 10.7631C26.0727 10.284 26.7647 8.42095 26.7647 8.42095C26.7647 8.42095 26.9244 7.94188 27.0309 7.6225L27.1906 8.36772C27.1906 8.36772 27.6164 10.3905 27.7229 10.8163H25.9131V10.7631Z" fill="#005CCD"/>
+<path id="Vector_3-cd-visa" d="M20.8546 8.74059C20.1094 8.36799 19.6303 8.10184 19.6303 7.676C19.6303 7.30339 20.0029 6.93078 20.8546 6.93078C21.5466 6.93078 22.0789 7.09047 22.5047 7.25016L22.7176 7.35662L23.037 5.5468C22.6112 5.38711 21.9192 5.17419 21.0675 5.17419C18.9383 5.17419 17.3947 6.34525 17.3947 7.94215C17.3947 9.16643 18.4593 9.85842 19.3109 10.231C20.1626 10.6569 20.4288 10.923 20.4288 11.2956C20.4288 11.8812 19.7368 12.0941 19.098 12.0941C18.2463 12.0941 17.7673 11.9876 17.0221 11.6682L16.7559 11.5085L16.4365 13.3716C16.9688 13.5845 17.8737 13.7974 18.8851 13.7974C21.174 13.7974 22.6644 12.6796 22.6644 10.923C22.7176 10.0713 22.1321 9.32612 20.8546 8.74059Z" fill="#005CCD"/>
+<path id="Vector_4-cd-visa" d="M11.1153 5.33362L8.9861 11.0824L8.77318 9.91139L8.02796 6.02561C7.9215 5.49331 7.49566 5.33362 7.01659 5.33362H3.55666C3.50343 5.33362 3.50343 5.38685 3.4502 5.38685C3.4502 5.44008 3.4502 5.49331 3.50343 5.49331C4.03572 5.653 4.51479 5.81269 4.94063 6.02561C5.4197 6.23853 5.73908 6.66436 5.89877 7.14343L7.65535 13.7439H9.94424L13.3509 5.33362H11.1153Z" fill="#005CCD"/>
+</g>
+</g>
+</svg></li>
+          <li class="cart-drawer__payment-item"><svg class="cart-drawer__payment-icon" viewBox="0 0 35 20" width="35" height="20" fill="none" role="img" aria-label="American Express">
+<g id="AMEX-cd-amex">
+<g id="Mask Group-cd-amex">
+<mask id="mask0_28968_22885-cd-amex" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="35" height="20">
+<rect id="Rectangle 24-cd-amex" x="0.00195312" width="34.691" height="19.0302" rx="2" fill="#C4C4C4"/>
+</mask>
+<g mask="url(#mask0_28968_22885-cd-amex)">
+<g id="American_Express-Logo.wine 1-cd-amex">
+<path id="Vector-cd-amex" d="M0.00244141 -8.05096H34.6076V10.4736L32.8947 13.1276L34.6076 15.4896V26.2646H0.00244141V8.80165L1.07298 7.58082L0.00244141 6.41308V-8.05096Z" fill="#016FD0"/>
+<path id="Vector_2-cd-amex" d="M6.72007 15.8607V10.4731H12.4726L13.0898 11.271L13.7274 10.4731H34.6076V15.4892C34.6076 15.4892 34.0616 15.8553 33.43 15.8607H21.8682L21.1724 15.0114V15.8607H18.8921V14.411C18.8921 14.411 18.5806 14.6133 17.9072 14.6133H17.1311V15.8607H13.6786L13.0623 15.0458L12.4365 15.8607L6.72007 15.8607ZM0.00244141 6.41261L1.29965 3.41364H3.54307L4.27922 5.09354V3.41364H7.06799L7.50624 4.62782L7.93111 3.41364H20.4497V4.02405C20.4497 4.02405 21.1078 3.41364 22.1894 3.41364L26.2512 3.42774L26.9747 5.08563V3.41364H29.3085L29.9508 4.36596V3.41364H32.306V8.80118H29.9508L29.3352 7.84572V8.80114H25.9064L25.5615 7.95189H24.6398L24.3006 8.80114H21.9753C21.0446 8.80114 20.4497 8.20322 20.4497 8.20322V8.80114H16.9437L16.2479 7.95192V8.80118H3.21073L2.86614 7.95192H1.94724L1.60518 8.80114H0.00244141V6.41261Z" fill="white"/>
+<path id="Vector_3-cd-amex" d="M1.75942 4.07869L0.00976562 8.11269H1.14889L1.47173 7.30489H3.34853L3.66967 8.11269H4.83391L3.08584 4.07869H1.75942ZM2.40676 5.01749L2.97882 6.42911H1.83304L2.40676 5.01749ZM4.95432 8.112V4.078L6.57305 4.08395L7.51457 6.68484L8.43355 4.078H10.0394V8.112H9.02236V5.13958L7.94429 8.112H7.05238L5.97133 5.13958V8.112H4.95432ZM10.7352 8.112V4.078H14.0539V4.98034H11.7629V5.67036H14.0004V6.51965H11.7629V7.23622H14.0539V8.112H10.7352ZM14.6427 4.07869V8.11269H15.6597V6.67955H16.0879L17.3073 8.11269H18.5502L17.212 6.62646C17.7612 6.58051 18.3277 6.1131 18.3277 5.38741C18.3277 4.53853 17.6558 4.07869 16.9059 4.07869H14.6427ZM15.6597 4.98103H16.8222C17.1011 4.98103 17.304 5.19734 17.304 5.40564C17.304 5.67363 17.0411 5.83029 16.8373 5.83029H15.6597V4.98103ZM19.7813 8.112H18.7429V4.078H19.7813V8.112ZM22.2435 8.112H22.0194C20.9349 8.112 20.2764 7.26471 20.2764 6.11159C20.2764 4.92994 20.9275 4.078 22.297 4.078H23.4211V5.03342H22.256C21.7 5.03342 21.3068 5.46368 21.3068 6.12153C21.3068 6.90277 21.7564 7.23089 22.4041 7.23089H22.6717L22.2435 8.112ZM24.4565 4.07869L22.7069 8.11269H23.846L24.1688 7.30489H26.0456L26.3668 8.11269H27.531L25.783 4.07869H24.4565ZM25.1039 5.01749L25.6759 6.42911H24.5301L25.1039 5.01749ZM27.6497 8.112V4.078H28.9427L30.5937 6.61253V4.078H31.6107V8.112H30.3595L28.6667 5.51115V8.112H27.6497ZM7.41657 15.1715V11.1375H10.7352V12.0398H8.44427V12.7299H10.6817V13.5792H8.44427V14.2957H10.7352V15.1715H7.41657ZM23.6781 15.1715V11.1375H26.9967V12.0398H24.7058V12.7299H26.9325V13.5792H24.7057V14.2957H26.9967V15.1715H23.6781ZM10.864 15.1715L12.4799 13.1794L10.8255 11.1375H12.1069L13.0921 12.3998L14.0807 11.1375H15.3118L13.6793 13.1545L15.2981 15.1715H14.017L13.0603 13.9291L12.127 15.1715H10.864ZM15.4189 11.1382V15.1722H16.4626V13.8983H17.5331C18.439 13.8983 19.1256 13.4218 19.1256 12.495C19.1256 11.7273 18.5871 11.1382 17.6653 11.1382H15.4189ZM16.4626 12.0505H17.59C17.8827 12.0505 18.0918 12.2284 18.0918 12.5149C18.0918 12.7841 17.8837 12.9794 17.5867 12.9794H16.4626V12.0505ZM19.5672 11.1375V15.1715H20.5842V13.7384H21.0124L22.2318 15.1715H23.4746L22.1365 13.6853C22.6856 13.6394 23.2522 13.1719 23.2522 12.4462C23.2522 11.5973 22.5802 11.1375 21.8304 11.1375H19.5672ZM20.5842 12.0398H21.7467C22.0256 12.0398 22.2285 12.2562 22.2285 12.4645C22.2285 12.7325 21.9656 12.8891 21.7618 12.8891H20.5842V12.0398ZM27.4677 15.1715V14.2957H29.5031C29.8043 14.2957 29.9347 14.1343 29.9347 13.9573C29.9347 13.7877 29.8047 13.6163 29.5031 13.6163H28.5833C27.7839 13.6163 27.3386 13.1333 27.3386 12.4081C27.3386 11.7613 27.7463 11.1375 28.9344 11.1375H30.9149L30.4867 12.0452H28.7738C28.4464 12.0452 28.3456 12.2155 28.3456 12.3782C28.3456 12.5454 28.4701 12.7299 28.7203 12.7299H29.6837C30.575 12.7299 30.9617 13.2312 30.9617 13.8877C30.9617 14.5935 30.5308 15.1715 29.6353 15.1715H27.4677ZM31.2004 15.1715V14.2957H33.2358C33.5369 14.2957 33.6673 14.1343 33.6673 13.9573C33.6673 13.7877 33.5374 13.6163 33.2358 13.6163H32.316C31.5165 13.6163 31.0713 13.1333 31.0713 12.4081C31.0713 11.7613 31.479 11.1375 32.6671 11.1375H34.6476L34.2193 12.0452H32.5065C32.1791 12.0452 32.0782 12.2155 32.0782 12.3782C32.0782 12.5454 32.2028 12.7299 32.4529 12.7299H33.4164C34.3077 12.7299 34.6944 13.2312 34.6944 13.8877C34.6944 14.5935 34.2635 15.1715 33.3679 15.1715H31.2004Z" fill="#016FD0"/>
+</g>
+</g>
+</g>
+<rect id="Rectangle 25-cd-amex" x="0.129619" y="0.129619" width="34.4318" height="18.771" rx="1.87038" stroke="white" stroke-width="0.259238"/>
+</g>
+</svg></li>
+          <li class="cart-drawer__payment-item"><svg class="cart-drawer__payment-icon" viewBox="0 0 33 22" width="33" height="22" fill="none" role="img" aria-label="Mastercard">
+<g id="Mastercard-Logo.wine 2-cd-mastercard" clip-path="url(#clip0_28968_22885-cd-mastercard)">
+<rect id="Rectangle 25-cd-mastercard" x="-0.0315139" y="1.03544" width="32.7408" height="20.1878" rx="1.87038" fill="white" stroke="white" stroke-width="0.259238"/>
+<path id="path891-cd-mastercard" d="M29.5503 16.9929V16.715H29.6597V16.6575H29.3994V16.715H29.5022V16.993L29.5503 16.9929ZM30.0556 16.9929V16.6575H29.9769L29.885 16.8971L29.7931 16.6575H29.7144V16.9929H29.7713V16.7389L29.8566 16.957H29.9156L30.001 16.7389V16.9929H30.0556Z" fill="#F79E1B"/>
+<g id="Group 6563-cd-mastercard">
+<path id="rect887-cd-mastercard" d="M12.6182 4.43304H20.2001V17.9971H12.6182V4.43304Z" fill="#FF5F00"/>
+<path id="path889-cd-mastercard" d="M13.3997 11.2161C13.3988 9.91004 13.6691 8.62082 14.1902 7.44605C14.7113 6.27127 15.4695 5.24173 16.4075 4.43532C15.2458 3.43526 13.8506 2.81338 12.3814 2.64076C10.9123 2.46814 9.42841 2.75174 8.09944 3.45914C6.77046 4.16655 5.65 5.26922 4.8661 6.64113C4.08221 8.01305 3.6665 9.59885 3.6665 11.2173C3.6665 12.8358 4.08221 14.4216 4.8661 15.7935C5.65 17.1654 6.77046 18.2681 8.09944 18.9755C9.42841 19.6829 10.9123 19.9665 12.3814 19.7939C13.8506 19.6212 15.2458 18.9994 16.4075 17.9993C15.4692 17.1926 14.7108 16.1627 14.1897 14.9875C13.6686 13.8123 13.3984 12.5226 13.3997 11.2161V11.2161Z" fill="#EB001B"/>
+<path id="path893-cd-mastercard" d="M29.1494 11.2162C29.1494 12.8348 28.7336 14.4207 27.9496 15.7927C27.1655 17.1647 26.0449 18.2673 24.7157 18.9746C23.3866 19.6819 21.9026 19.9653 20.4333 19.7925C18.9641 19.6196 17.5689 18.9974 16.4072 17.997C17.3448 17.1899 18.1029 16.1601 18.6241 14.9852C19.1453 13.8104 19.4162 12.5212 19.4162 11.215C19.4162 9.90881 19.1453 8.61966 18.6241 7.44482C18.1029 6.26999 17.3448 5.24016 16.4072 4.43304C17.5689 3.43266 18.9641 2.81047 20.4333 2.6376C21.9026 2.46473 23.3866 2.74814 24.7158 3.45545C26.0449 4.16276 27.1655 5.26542 27.9496 6.63739C28.7336 8.00936 29.1494 9.59527 29.1494 11.2139V11.2162Z" fill="#F79E1B"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_28968_22885-cd-mastercard">
+<rect width="33" height="22" fill="white"/>
+</clipPath>
+</defs>
+</svg></li>
+          <li class="cart-drawer__payment-item">
+            <img
+              class="cart-drawer__payment-icon"
+              src="{{ 'dev-cart-drawer-payment-maestro.svg' | asset_url }}"
+              alt="Maestro"
+              width="33"
+              height="19"
+              loading="lazy"
+            >
+          </li>
+          <li class="cart-drawer__payment-item">
+            <img
+              class="cart-drawer__payment-icon"
+              src="{{ 'dev-cart-drawer-payment-paypal.svg' | asset_url }}"
+              alt="PayPal"
+              width="35"
+              height="20"
+              loading="lazy"
+            >
+          </li>
+          <li class="cart-drawer__payment-item"><svg class="cart-drawer__payment-icon" viewBox="0 0 35 20" width="35" height="20" fill="none" role="img" aria-label="Google Pay">
+<g id="google-pay-mark_800 2-cd-googlepay">
+<rect id="Rectangle 25-cd-googlepay" x="0.129619" y="0.129619" width="34.639" height="18.8846" rx="1.87038" fill="white" stroke="#262626" stroke-width="0.259238"/>
+<g id="G Pay Lockup 1-cd-googlepay">
+<g id="Pay Typeface 3-cd-googlepay">
+<path id="Letter p 3-cd-googlepay" d="M16.2111 9.80282V12.4259H15.3706V5.94843H17.5988C18.1635 5.94843 18.6451 6.13486 19.0391 6.50772C19.4418 6.88059 19.6432 7.33583 19.6432 7.87345C19.6432 8.42408 19.4418 8.87932 19.0391 9.24785C18.6495 9.61638 18.1679 9.79848 17.5988 9.79848H16.2111V9.80282ZM16.2111 6.74619V9.00506H17.6163C17.949 9.00506 18.2292 8.89233 18.4481 8.67121C18.6714 8.45009 18.7852 8.18128 18.7852 7.87779C18.7852 7.57863 18.6714 7.31416 18.4481 7.09304C18.2292 6.86325 17.9534 6.75052 17.6163 6.75052H16.2111V6.74619Z" fill="#262626"/>
+<path id="Letter a 3-cd-googlepay" d="M21.844 7.84723C22.4656 7.84723 22.9559 8.01198 23.3149 8.34149C23.6738 8.671 23.8533 9.12191 23.8533 9.69422V12.4257H23.0522V11.81H23.0172C22.6714 12.3173 22.2073 12.5688 21.6295 12.5688C21.1348 12.5688 20.7233 12.4257 20.3906 12.1352C20.058 11.8447 19.8916 11.4848 19.8916 11.0513C19.8916 10.5917 20.0667 10.2275 20.4169 9.95869C20.7671 9.68555 21.2355 9.55114 21.8177 9.55114C22.3168 9.55114 22.7283 9.64219 23.0478 9.82429V9.63352C23.0478 9.34303 22.934 9.10023 22.702 8.89646C22.47 8.69268 22.1986 8.59296 21.8878 8.59296C21.4194 8.59296 21.0473 8.78807 20.7759 9.18261L20.0361 8.72303C20.4432 8.13772 21.0473 7.84723 21.844 7.84723ZM20.7584 11.0643C20.7584 11.2811 20.8503 11.4632 21.0385 11.6062C21.2224 11.7493 21.4413 11.823 21.6908 11.823C22.0454 11.823 22.3606 11.693 22.6363 11.4328C22.9121 11.1727 23.0522 10.8692 23.0522 10.518C22.7896 10.3142 22.4262 10.2102 21.9578 10.2102C21.6164 10.2102 21.3318 10.2925 21.1042 10.453C20.8722 10.622 20.7584 10.8258 20.7584 11.0643Z" fill="#262626"/>
+<path id="Letter y 3-cd-googlepay" d="M28.4182 7.98993L25.6166 14.372H24.7498L25.7917 12.1391L23.9443 7.98993H24.8592L26.19 11.1723H26.2075L27.5033 7.98993H28.4182Z" fill="#262626"/>
+</g>
+<g id="G Mark 1-cd-googlepay">
+<path id="Blue 500-cd-googlepay" d="M12.8671 9.27438C12.8671 9.00297 12.8426 8.74326 12.7971 8.49353H9.27393V9.92429L11.303 9.92472C11.2207 10.4008 10.9558 10.8066 10.55 11.0771V12.0054H11.7578C12.463 11.3589 12.8671 10.4034 12.8671 9.27438Z" fill="#4285F4"/>
+<path id="Green 500 1-cd-googlepay" d="M10.549 11.077C10.2128 11.3016 9.77983 11.4329 9.27334 11.4329C8.29495 11.4329 7.46497 10.78 7.16773 9.89984H5.92188V10.8572C6.53911 12.0703 7.80773 12.9027 9.27334 12.9027C10.2863 12.9027 11.1373 12.5728 11.7567 12.0048L10.549 11.077Z" fill="#34A853"/>
+<path id="Yellow 500 1-cd-googlepay" d="M7.04882 9.18984C7.04882 8.9427 7.09041 8.70381 7.16614 8.47922V7.52191H5.92028C5.66507 8.02355 5.52148 8.58978 5.52148 9.18984C5.52148 9.78989 5.66551 10.3561 5.92028 10.8578L7.16614 9.90045C7.09041 9.67586 7.04882 9.43697 7.04882 9.18984Z" fill="#FABB05"/>
+<path id="Red 500-cd-googlepay" d="M9.27334 6.94605C9.82623 6.94605 10.3213 7.13465 10.7122 7.50318L11.7826 6.44398C11.1325 5.84436 10.285 5.47626 9.27334 5.47626C7.80817 5.47626 6.53911 6.3087 5.92188 7.52182L7.16773 8.47914C7.46497 7.599 8.29495 6.94605 9.27334 6.94605Z" fill="#E94235"/>
+</g>
+</g>
+</g>
+</svg></li>
+          <li class="cart-drawer__payment-item">
+            <img
+              class="cart-drawer__payment-icon"
+              src="{{ 'dev-cart-drawer-payment-applepay.svg' | asset_url }}"
+              alt="Apple Pay"
+              width="32"
+              height="19"
+              loading="lazy"
+            >
+          </li>
+          <li class="cart-drawer__payment-item"><svg class="cart-drawer__payment-icon" viewBox="0 0 35 20" width="35" height="20" fill="none" role="img" aria-label="Shop Pay">
+<g id="Amex-cd-amex2">
+<rect id="Rectangle 25-cd-amex2" x="0.129619" y="0.129619" width="34.639" height="18.8846" rx="1.87038" fill="#3498D8" stroke="white" stroke-width="0.259238"/>
+<g id="E Com-cd-amex2">
+<g id="Group-cd-amex2">
+<path id="Vector-cd-amex2" fill-rule="evenodd" clip-rule="evenodd" d="M8.7446 9.83428H10.327L9.53581 8.24788L8.7446 9.83428ZM30.7997 6.82013H26.7447L25.7557 7.69265L24.8656 6.82013H16.2611L15.4699 8.24788L14.6787 6.82013H11.2171V7.45469L10.8215 6.82013H7.85448L4.98633 12.3725H8.44789L8.8435 11.5H9.83252L10.2281 12.3725H14.0853V11.738L14.382 12.3725H16.36L16.6567 11.6586V12.3725H24.5689L25.5579 11.5L26.448 12.3725H30.503L27.9315 9.59632L30.7997 6.82013ZM18.8326 11.5793H17.7447V8.48584L16.0633 11.5793H15.0743L13.393 8.48584V11.5793H11.1182L10.7226 10.7068H8.34899L7.95338 11.5793H6.66766L8.7446 7.61333H10.4259L12.3051 11.3414V7.61333H14.1842L15.6677 10.3102L17.0523 7.61333H18.9315V11.5793H18.8326ZM28.6239 11.5793H27.1403L25.8546 10.2309L24.3711 11.5793H19.9205V7.61333H24.47L25.8546 8.88244L27.3381 7.61333H28.7228L26.5469 9.59632L28.6239 11.5793ZM21.0084 8.40652V9.1204H23.481V9.9136H21.0084V10.7068H23.7777L25.0634 9.517L23.8766 8.40652H21.0084Z" fill="white"/>
+</g>
+</g>
+</g>
+</svg></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Cart drawer",
+  "tag": null,
+  "blocks": [
+    { "type": "dev-cart-drawer-badge" }
+  ],
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Your Order" },
+    { "type": "text", "id": "close_label", "label": "Close button label (screen readers only)", "default": "Close basket" },
+    { "type": "text", "id": "remove_label", "label": "Remove link label", "default": "Remove" },
+    { "type": "text", "id": "empty_text", "label": "Empty basket message", "default": "Your basket is empty." },
+    { "type": "text", "id": "checkout_label", "label": "Checkout button label", "default": "Checkout Securely" },
+    { "type": "url", "id": "checkout_url", "label": "Checkout link", "info": "Leave empty to use the store's checkout." },
+    { "type": "text", "id": "payment_label", "label": "Payment methods label", "default": "Accepted payment methods" },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "card_color", "label": "Line item card background", "default": "#FCF5E3" },
+    { "type": "color", "id": "badge_color", "label": "Feature badge background", "default": "#FFFCF4" },
+    { "type": "color", "id": "header_divider_color", "label": "Header divider", "default": "#D8D1C0" },
+    { "type": "color", "id": "header_divider_color_mobile", "label": "Header divider (mobile)", "default": "#C4BCA9", "info": "The mobile artboard uses a darker divider than desktop." },
+    { "type": "color", "id": "footer_divider_color", "label": "Footer divider", "default": "#D8D1C0" },
+    { "type": "color", "id": "cta_color", "label": "Checkout button fill", "default": "#343434" },
+    { "type": "range", "id": "cta_opacity", "min": 0, "max": 100, "step": 1, "unit": "%", "label": "Checkout button fill opacity", "default": 66, "info": "The Figma fill is a translucent dark neutral, not a solid accent." },
+    { "type": "color", "id": "cta_text_color", "label": "Checkout button text & border", "default": "#FFFFFF" },
+    { "type": "color", "id": "backdrop_color", "label": "Backdrop color", "default": "#333333" },
+    { "type": "range", "id": "backdrop_opacity", "min": 0, "max": 100, "step": 5, "unit": "%", "label": "Backdrop opacity", "default": 40, "info": "No scrim was authored in Figma — set to taste." },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 100, "step": 4, "unit": "px", "label": "Padding top", "default": 32 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 100, "step": 4, "unit": "px", "label": "Padding bottom", "default": 32 },
+
+    { "type": "header", "content": "Layout" },
+    { "type": "checkbox", "id": "open_on_load", "label": "Open on page load", "default": false, "info": "Preview only — lets the drawer be designed in the editor. Leave off in production." }
+  ]
+}
+{% endschema %}

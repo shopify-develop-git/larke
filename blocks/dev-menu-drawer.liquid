@@ -1,0 +1,189 @@
+{{ 'dev-menu-drawer.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'dev-menu-drawer.js' | asset_url }}" defer></script>
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .dev-menu-drawer {
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+
+    /* Desktop: --container-max is the FIXED width of the drawer panel
+       ("Cart/Order" 45158:2392), not a centred page container.
+       Mobile: the panel is full-bleed, so this is not applied there. */
+    --container-max: 568px;
+
+    --section-px: 32px;
+    --section-px-mobile: 24px;
+
+    /* Mobile artboard specifies its own bottom padding, not a scale factor. */
+    --pb-mobile: 16px;
+
+    /* Desktop floats the panel 16px off the viewport edge; mobile is edge-to-edge. */
+    --drawer-inset: 16px;
+    --radius: 32px;
+
+    /* Nav link: Desktop/Title 2 (38px) vs Mobile/Title2 (28px) — the mobile
+       artboard specifies its own size, so it wins over a scale factor. */
+    --font-heading-size: 38px;
+    --font-heading-size-mobile: 28px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+
+    --font-body-size: 16px;
+    --font-body-lh: 1.4;
+    --font-body-weight: 500;
+
+    --promo-rating-size: 16px;
+    --promo-rating-size-mobile: 14px;
+    --promo-rating-weight: 700;
+    --promo-label-weight: 500;
+    --promo-stars-size: 13px;
+    --promo-stars-weight: 700;
+
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 64px;
+
+    /* Header inner row is 54px tall (38px content + 16px bottom padding); with the
+       panel's 32px top padding that reproduces the 86px "Overlay Top" band. */
+    --header-row-h: 38px;
+    --link-row-h: 24px;
+    --icon-size: 24px;
+
+    /* NOT FOUND in Figma (no scrim/animation layer authored) — drawer convention. */
+    --transition: 300ms;
+  }
+</style>
+
+{%- liquid
+  assign menu_label = 'accessibility.menu' | t
+  assign close_label = 'actions.close' | t
+  assign drawer_title = block.settings.drawer_heading | default: menu_label
+  assign backdrop_opacity = block.settings.backdrop_opacity | divided_by: 100.0
+  assign is_open = block.settings.open_on_load
+-%}
+
+{%- comment -%}
+  Overlay, not a page section: inert + aria-hidden + visibility:hidden by default, so it
+  takes no space and cannot be focused until it opens. The header's triggers point at it
+  with aria-controls="menu-drawer", so this id is a contract — do not rename it.
+  Open state is driven purely by [data-open="true"] on this root, which is what
+  dev-menu-drawer.js flips and what QA can flip with plain JS.
+
+  It lives as a block of dev-site-header (rather than a section of its own) so one
+  configuration serves every template, and so it always ships with the trigger that
+  opens it. position:fixed is unaffected — no ancestor creates a containing block.
+{%- endcomment -%}
+<div
+  id="menu-drawer"
+  class="dev-menu-drawer"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="menu-drawer-title"
+  data-open="{% if is_open %}true{% else %}false{% endif %}"
+  {% unless is_open %}aria-hidden="true" inert{% endunless %}
+  style="
+    --bg: {{ block.settings.background_color }};
+    --color: {{ block.settings.text_color }};
+    --accent: {{ block.settings.accent_color }};
+    --border-color: {{ block.settings.divider_color }};
+    --backdrop: {{ block.settings.backdrop_color }};
+    --backdrop-opacity: {{ backdrop_opacity }};
+    --pt: {{ block.settings.padding_top }}px;
+    --pb: {{ block.settings.padding_bottom }}px;
+  "
+  {{ block.shopify_attributes }}
+>
+  <div class="dev-menu-drawer__backdrop" data-menu-drawer-close></div>
+
+  <div class="dev-menu-drawer__panel">
+    <div class="dev-menu-drawer__header">
+      {%- comment -%}
+        The Figma "Your Order" layer (45158:2395) is painted with a transparent fill and is
+        invisible in the artboard — Brief note #2 reads it as leftover cruft from a duplicated
+        Cart/Order drawer. It is NOT rendered as visible copy: it stays screen-reader-only and
+        gives the dialog its accessible name.
+      {%- endcomment -%}
+      <h2 class="dev-menu-drawer__title" id="menu-drawer-title">{{ drawer_title | escape }}</h2>
+
+      <button
+        type="button"
+        class="dev-menu-drawer__close"
+        aria-label="{{ close_label | escape }}"
+        data-menu-drawer-close
+      >
+        <svg
+          class="dev-menu-drawer__close-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M7 17L17 7M7 7L17 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    {%- comment -%}
+      Desktop: content is a space-between column (nav+footer stack flexes, promo pins to the
+      bottom). Mobile: __content and __stack collapse to display:contents so the panel's four
+      real children (header, nav, footer, promo) distribute with space-between, exactly as the
+      mobile artboard does. Same DOM, two genuinely different layout modes.
+
+      __stack's two children are the Navigation and Footer links blocks, in that order.
+    {%- endcomment -%}
+    <div class="dev-menu-drawer__content">
+      <div class="dev-menu-drawer__stack">
+        {% content_for 'blocks' %}
+      </div>
+
+      {%- if block.settings.show_rating_bar -%}
+        <div class="dev-menu-drawer__promo">
+          {%- if block.settings.rating_value != blank -%}
+            <span class="dev-menu-drawer__promo-rating">{{ block.settings.rating_value | escape }}</span>
+          {%- endif -%}
+          {%- comment -%} Static glyphs, per Brief — not a data-driven rating widget. {%- endcomment -%}
+          <span class="dev-menu-drawer__promo-stars" aria-hidden="true">★★★★★</span>
+          {%- if block.settings.rating_label != blank -%}
+            <span class="dev-menu-drawer__promo-label">{{ block.settings.rating_label | escape }}</span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Menu drawer",
+  "tag": null,
+  "blocks": [
+    { "type": "dev-menu-drawer-nav" },
+    { "type": "dev-menu-drawer-footer" }
+  ],
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "text", "id": "drawer_heading", "label": "Drawer title (screen readers only)", "default": "Menu", "info": "Not visible — the Figma title layer is transparent. It names the dialog for assistive tech." },
+    { "type": "checkbox", "id": "show_rating_bar", "label": "Show rating bar", "default": true },
+    { "type": "text", "id": "rating_value", "label": "Rating value", "default": "4.6/5" },
+    { "type": "text", "id": "rating_label", "label": "Rating label", "default": "Rated Excellent" },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#F1B500" },
+    { "type": "color", "id": "divider_color", "label": "Divider color", "default": "#C4BCA9" },
+    { "type": "color", "id": "backdrop_color", "label": "Backdrop color", "default": "#333333" },
+    { "type": "range", "id": "backdrop_opacity", "min": 0, "max": 100, "step": 5, "unit": "%", "label": "Backdrop opacity", "default": 40, "info": "No scrim was authored in Figma — set to taste." },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 100, "step": 4, "unit": "px", "label": "Padding top", "default": 32 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 100, "step": 4, "unit": "px", "label": "Padding bottom", "default": 32 },
+
+    { "type": "header", "content": "Layout" },
+    { "type": "checkbox", "id": "open_on_load", "label": "Open on page load", "default": false, "info": "Preview only — lets the drawer be designed in the editor. Leave off in production." }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,649 @@
+/* dev-site-footer.css
+   Every design token this file consumes is declared in the <style> block of
+   sections/dev-site-footer.liquid (desktop values + the Mobile artboard overrides).
+   Nothing here hardcodes a colour, a font family, or a base padding. */
+
+/* =============================================
+   BASE — desktop  (Figma 45060:1514, 1440x627)
+   ============================================= */
+
+.site-footer {
+  /* The root is NOT the visible surface. The Figma Footer frame is
+     [ 80px page-background reveal ] + [ the cream card ]. The card's rounded top
+     corners must sit on the page background, so the root paints --page-bg and the
+     card (.site-footer__content) paints the merchant's --bg / --pt / --pb / --section-px. */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: var(--footer-top-spacer);
+  background-color: var(--page-bg);
+  color: var(--color);
+  font-family: var(--font-body);
+}
+
+.site-footer__content {
+  /* No --container-max by design — full-bleed shared chrome, same as dev-site-header.
+     Horizontal inset comes entirely from --section-px. */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-section);
+  width: 100%;
+  padding: var(--pt) var(--section-px) var(--pb);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  background-color: var(--bg);
+  overflow: hidden;
+}
+
+/* --- layout: newsletter --- */
+
+/* space-between, not center: on the 1440 artboard the text column (642px) and the form (640px)
+   almost exactly fill the row, so `center` LOOKS correct there — but it is centring the pair as
+   a group. On any wider viewport the leftover space splits evenly and the heading drifts inward
+   (237px off the left edge at 1920). The design anchors the text to the left gutter and the form
+   to the right one, which is what space-between actually expresses. */
+.site-footer__newsletter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--gap-newsletter);
+  width: 100%;
+}
+
+.site-footer__newsletter-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-heading-sub);
+  flex: 0 1 var(--newsletter-text-w);
+  min-width: 0;
+}
+
+.site-footer__form {
+  flex: 0 1 var(--newsletter-form-w);
+  min-width: 0;
+}
+
+.site-footer__form-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--gap-form);
+}
+
+/* --- layout: divider --- */
+
+.site-footer__divider {
+  width: 100%;
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: var(--border-width) solid var(--divider);
+}
+
+.site-footer__divider--2 {
+  /* The second divider exists only on the Mobile artboard (44956:8486). */
+  display: none;
+}
+
+/* --- layout: columns --- */
+
+.site-footer__columns {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--gap-columns);
+  width: 100%;
+}
+
+/* The basis is the brand column's Figma width (418px), NOT 0. The three right-hand columns are
+   fixed (304 + 310 + 200 + 2x24 = 862px) and the group did not shrink, so with a 0 basis the
+   brand column was the only elastic thing in the row and swallowed the entire loss: 418px at
+   1440 but ~97px at 1100, where the Larke mark clipped and the tagline broke one word per line.
+   Real bases on both sides make them shrink in proportion instead. At 1440 they sum to exactly
+   the container (418 + 32 + 862 = 1312), so nothing shrinks and the artboard still matches. */
+.site-footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-brand);
+  flex: 1 1 var(--col-brand-w);
+  min-width: 0;
+}
+
+.site-footer__identity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-identity);
+}
+
+/* The basis must be the group's real 862px (304 + 24 + 310 + 24 + 200), not `auto`. With `auto`
+   the basis resolves against min-content, so the group collapsed to almost nothing and the brand
+   column — which grows — expanded to 552px, the exact opposite of the bug being fixed. A stated
+   basis makes the shrink split correctly against the brand column's 418px. */
+.site-footer__column-group {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--gap-col-group);
+  flex: 0 1 var(--col-group-w);
+  min-width: 0;
+}
+
+.site-footer__menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-col-heading);
+  /* Figma gives the two link columns different fixed widths. They are pure spacers for
+     left-aligned text; a merchant-added third column falls back to the 304px default.
+     Carried as a flex BASIS rather than a hard `width`, so the column can narrow toward its
+     longest link instead of pinning the row open and starving the brand column. */
+  flex: 0 1 var(--col-menu-w);
+  min-width: 0;
+}
+
+.site-footer__menu:nth-child(2) {
+  flex-basis: var(--col-menu-2-w);
+}
+
+.site-footer__menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-link-list);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-footer__menu-item {
+  display: flex;
+  align-items: flex-end;
+  min-height: var(--link-row-min-h);
+}
+
+.site-footer__social {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-col-heading);
+  flex: 0 1 var(--col-social-w);
+  min-width: 0;
+}
+
+.site-footer__social-list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--social-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-footer__social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color);
+}
+
+.site-footer__social-icon {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+/* --- layout: brand identity / address --- */
+
+.site-footer__logo {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  text-decoration: none;
+}
+
+.site-footer__logo-mark {
+  display: block;
+  width: var(--logo-w);
+  height: var(--logo-h);
+  color: var(--accent); /* fill="currentColor" on the inlined Figma wordmark picks this up */
+}
+
+.site-footer__address {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--gap-address);
+  font-style: normal; /* <address> defaults to italic */
+}
+
+.site-footer__address-icon {
+  display: block;
+  flex: 0 0 auto;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  color: var(--color); /* stroke="currentColor" on the inlined Figma marker */
+}
+
+/* --- layout: bottom bar --- */
+
+.site-footer__bottom {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  padding-top: var(--bottom-bar-pt);
+  border-top: var(--border-width) solid var(--border);
+}
+
+.site-footer__copyright {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.site-footer__payments {
+  flex: 0 0 auto;
+}
+
+.site-footer__payment-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--gap-payments);
+  min-height: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-footer__payment-list > li {
+  display: flex;
+  align-items: center;
+}
+
+/* Each brand mark renders at the intrinsic size of its own Figma export — the marks are
+   NOT a uniform size, and forcing one would distort them. Brand fills stay as exported. */
+.site-footer__payment-icon {
+  display: block;
+}
+
+.site-footer__payment-icon--visa,
+.site-footer__payment-icon--amex,
+.site-footer__payment-icon--paypal,
+.site-footer__payment-icon--googlepay,
+.site-footer__payment-icon--ecom {
+  width: 35px;
+  height: 20px;
+}
+
+.site-footer__payment-icon--mastercard {
+  width: 33px;
+  height: 22px;
+}
+
+.site-footer__payment-icon--maestro {
+  width: 33px;
+  height: 19px;
+}
+
+.site-footer__payment-icon--applepay {
+  width: 32px;
+  height: 19px;
+}
+
+/* --- typography --- */
+
+.site-footer__heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  color: var(--color);
+}
+
+.site-footer__menu-heading,
+.site-footer__social-heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-sm-size);
+  font-weight: var(--font-heading-sm-weight);
+  line-height: var(--font-heading-sm-lh);
+  color: var(--color);
+}
+
+.site-footer__subheading,
+.site-footer__tagline {
+  margin: 0;
+  width: 100%;
+  max-width: var(--brand-text-w);
+  font-size: var(--font-body-size);
+  font-weight: 500;
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+.site-footer__subheading {
+  /* the newsletter subhead sits in the 642px text column, not the 343px brand column */
+  max-width: none;
+}
+
+.site-footer__address-text {
+  font-size: var(--font-address-size);
+  font-weight: 500;
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+.site-footer__link {
+  font-size: var(--font-body-sm-size);
+  font-weight: 500;
+  line-height: var(--font-body-lh);
+  color: var(--color);
+  text-decoration: none;
+}
+
+.site-footer__link:hover {
+  text-decoration: underline;
+}
+
+.site-footer__copyright {
+  font-size: var(--font-copyright-size);
+  font-weight: 500;
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+.site-footer__copyright p {
+  margin: 0;
+}
+
+.site-footer__copyright a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+/* --- newsletter form controls --- */
+
+.site-footer__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: var(--input-padding);
+  border: 0;
+  border-radius: var(--radius-input);
+  background-color: var(--input-bg);
+  color: var(--color);
+  font-family: var(--font-body);
+  font-size: var(--font-input-size);
+  font-weight: 500;
+  line-height: var(--font-body-lh);
+  appearance: none;
+}
+
+.site-footer__input::placeholder {
+  color: var(--color);
+  opacity: 1;
+}
+
+.site-footer__button {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: var(--button-padding);
+  border: var(--border-width) solid var(--button-border-color);
+  border-radius: var(--radius-button);
+  background-color: var(--button-bg);
+  color: var(--button-color);
+  font-family: var(--font-body);
+  font-size: var(--font-button-size);
+  font-weight: var(--font-button-weight);
+  line-height: var(--font-body-lh);
+  text-align: center;
+  white-space: nowrap;
+  appearance: none;
+  cursor: pointer;
+}
+
+.site-footer__form-message {
+  margin: var(--spacing-sm) 0 0;
+  font-size: var(--font-body-sm-size);
+  font-weight: 500;
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+.site-footer__visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+  /* No artboard at this width. The two fixed-width newsletter columns (642 / 640) would
+     overflow 1024 - 2x64, so let them shrink; everything else already reflows fluidly. */
+  .site-footer__newsletter {
+    flex-wrap: wrap;
+  }
+
+  .site-footer__newsletter-text,
+  .site-footer__form {
+    flex: 1 1 320px;
+  }
+
+  /* The menu/social columns used to be re-declared `flex: 1 1 0` here. They no longer need it:
+     they carry their Figma basis in the base rules and shrink in proportion with the brand
+     column at every width, so the row degrades continuously from 1440 instead of snapping to
+     equal columns at exactly 1024. */
+}
+
+/* =============================================
+   MOBILE  ≤ 768px  (Figma 44821:918, 375x1216)
+   ============================================= */
+
+@media (max-width: 768px) {
+  /* The Mobile artboard REORDERS, it does not merely restack: the link columns move above
+     the brand block, a second divider appears, and Social/Address are pulled out of the
+     columns row. The three desktop wrappers collapse to `display: contents` so every leaf
+     becomes a direct flex child of __content and `order` can re-sequence them. */
+  .site-footer__columns,
+  .site-footer__brand,
+  .site-footer__column-group,
+  .site-footer__bottom {
+    display: contents;
+  }
+
+  .site-footer__content {
+    /* --pb is set inline on the root by the merchant, so an external rule cannot beat it —
+       override the resolved property instead. Mobile card padding-bottom is 24px, not 32px. */
+    padding-bottom: 24px;
+    /* Gap is per-item on mobile (menu -> menu is 32px, everything else 40px), so the
+       container gap is zeroed and each item carries its own margin-top. */
+    gap: 0;
+    text-align: center;
+  }
+
+  .site-footer__newsletter { order: 1; margin-top: 0; }
+  .site-footer__divider--1 { order: 2; }
+  .site-footer__menu { order: 3; }
+  .site-footer__divider--2 { order: 4; display: block; }
+  .site-footer__identity { order: 5; }
+  .site-footer__social { order: 6; }
+  .site-footer__address { order: 7; }
+  .site-footer__payments { order: 8; }
+  .site-footer__copyright { order: 9; }
+
+  .site-footer__divider,
+  .site-footer__menu,
+  .site-footer__identity,
+  .site-footer__social,
+  .site-footer__address,
+  .site-footer__payments {
+    margin-top: var(--gap-section);
+  }
+
+  .site-footer__menu + .site-footer__menu {
+    margin-top: var(--gap-menus);
+  }
+
+  /* newsletter: single centred column, form stacks input over button */
+  .site-footer__newsletter {
+    flex-direction: column;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+
+  .site-footer__newsletter-text,
+  .site-footer__form {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .site-footer__form-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .site-footer__input {
+    width: 100%;
+    flex: 0 0 auto;
+  }
+
+  /* link columns — nth-child(2) is repeated so it beats the base 310px rule's specificity */
+  .site-footer__menu,
+  .site-footer__menu:nth-child(2) {
+    /* `flex: 0 0 auto` for the same reason __social already does it: __columns and
+       __column-group are display:contents here, so these columns become direct children of
+       __content — a COLUMN flex container. Their desktop basis (304px / 310px) would resolve
+       against the main axis and become a HEIGHT, stretching the two link columns to 304px and
+       310px tall and the whole footer to 1561px instead of 1168px. */
+    flex: 0 0 auto;
+    width: 100%;
+    align-items: center;
+  }
+
+  .site-footer__menu-list {
+    align-items: center;
+    width: 100%;
+  }
+
+  .site-footer__menu-item {
+    justify-content: center;
+  }
+
+  /* brand identity: logo + tagline centred, no "Social" label, address stacks */
+  .site-footer__identity {
+    align-items: center;
+    width: 100%;
+  }
+
+  .site-footer__logo {
+    align-self: center;
+  }
+
+  .site-footer__subheading,
+  .site-footer__tagline {
+    max-width: none;
+  }
+
+  .site-footer__social {
+    width: auto;
+    flex: 0 0 auto; /* undo the ≤1024 `flex: 1 1 0`: in this column it would grow vertically */
+    align-items: center;
+  }
+
+  .site-footer__social-heading {
+    /* The Mobile artboard drops the "Social" label — an explicit design difference. */
+    display: none;
+  }
+
+  .site-footer__address {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  /* payment icons get their own rule above AND below on mobile */
+  .site-footer__payments {
+    width: 100%;
+    padding: var(--payment-block-py) 0;
+    border-top: var(--border-width) solid var(--border);
+    border-bottom: var(--border-width) solid var(--border);
+  }
+
+  .site-footer__payment-list {
+    justify-content: center;
+  }
+
+  .site-footer__copyright {
+    width: 100%;
+    flex: 0 0 auto;
+    margin-top: 0;
+    padding-top: var(--copyright-pt);
+    text-align: center;
+  }
+
+  /* Touch targets: the Mobile artboard specifies 24x24 social marks and a tight 22.4px link
+     list — both below the 44px guideline. Shipped as designed, exactly as dev-site-header
+     ships its 24px icon buttons: padding them out to 44px would move the marks and the link
+     baselines away from the artboard. Raising them is a product decision, not a dev fix. */
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+  /* No further deltas below 768px — the 375px Mobile artboard already covers this range. */
+  .site-footer__payment-list {
+    /* the eight marks total ~301px; they still fit inside 375 - 2x16, but wrap defensively */
+    flex-wrap: wrap;
+  }
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.site-footer__link:focus-visible,
+.site-footer__logo:focus-visible,
+.site-footer__social-link:focus-visible,
+.site-footer__button:focus-visible,
+.site-footer__input:focus-visible,
+.site-footer__copyright a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.site-footer__link:focus:not(:focus-visible),
+.site-footer__logo:focus:not(:focus-visible),
+.site-footer__social-link:focus:not(:focus-visible),
+.site-footer__button:focus:not(:focus-visible),
+.site-footer__input:focus:not(:focus-visible),
+.site-footer__copyright a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .site-footer,
+  .site-footer * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

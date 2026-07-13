@@ -1,0 +1,545 @@
+{{ 'dev-site-footer.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  No dev-site-footer.js: the Design Brief records Interactivity = None. The only dynamic
+  element is the newsletter signup, which is a native Shopify {% form 'customer' %} submit,
+  not a JS state machine. Do not add a script tag for this section.
+{%- endcomment -%}
+
+{%- comment -%}
+  Fixed design tokens from Figma — not merchant-controlled.
+
+  The Mobile artboard (44821:918) overrides many of these with its OWN measured values, so the
+  mobile token block lives here too rather than in dev-site-footer.css. Reason: this <style> tag
+  is emitted AFTER the stylesheet link, so at equal specificity it wins on source order — a
+  `.site-footer { --token: … }` rule inside a media query in the stylesheet could never beat it.
+  One declaration site, no specificity war. Layout/decoration still lives entirely in the CSS file.
+{%- endcomment -%}
+<style>
+  .site-footer {
+    /* brand params */
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+    --section-px: 64px;
+    /* No --container-max by design: like dev-site-header, this is full-bleed shared chrome.
+       The cream card is 100% of the section frame; content is inset only by --section-px. */
+
+    /* structure */
+    --footer-top-spacer: 80px;
+    --radius-card: 32px;
+    --radius-button: 60px;
+    --radius-input: 8px;
+    --border-width: 1px;
+    --border: #c4bca9;   /* bottom-bar rule + mobile payment-block rules (sampled from both artboards) */
+    --divider: #c4bca9;  /* full-width divider line — mobile overrides this to #d8d1c0 */
+
+    /* type */
+    --font-heading-size: 32px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+    --font-heading-sm-size: 22px;
+    --font-heading-sm-weight: 500;
+    --font-heading-sm-lh: 1.2;
+    --font-body-size: 18px;
+    --font-body-lh: 1.4;
+    --font-body-sm-size: 16px;
+    --font-address-size: 16px;
+    --font-copyright-size: 14px;
+    --font-input-size: 16px;
+    --font-button-size: 18px;
+    --font-button-weight: 700;
+
+    /* newsletter form */
+    --input-bg: #ffffff;
+    --input-padding: 18px 24px;
+    --button-bg: rgba(52, 52, 52, 0.66);
+    --button-color: #ffffff;
+    --button-border-color: #ffffff;
+    --button-padding: 18px 24px;
+
+    /* spacing */
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --gap-section: 64px;
+    --gap-newsletter: 24px;
+    --gap-form: 24px;
+    --gap-heading-sub: 8px;
+    --gap-columns: 32px;
+    --gap-col-group: 24px;
+    --gap-col-heading: 12px;
+    --gap-link-list: 4px;
+    --gap-menus: 32px;
+    --gap-identity: 16px;
+    --gap-brand: 24px;
+    --gap-address: 8px;
+    --gap-payments: 4px;
+    --link-row-min-h: 24px;
+    --payment-block-py: 40px;
+    --copyright-pt: 40px;
+    --bottom-bar-pt: 32px;
+
+    /* fixed widths read off the Desktop artboard */
+    --newsletter-text-w: 642px;
+    --newsletter-form-w: 640px;
+    /* The columns row on the 1440 artboard: 1312 (container) = 418 (brand) + 32 (gap)
+       + [304 + 24 + 310 + 24 + 200] (the three right-hand columns). All four are flex BASES,
+       not fixed widths — they sum to the container at 1440 so the artboard matches exactly, and
+       below it every column gives up width in proportion instead of the brand column alone. */
+    --col-brand-w: 418px;
+    --col-group-w: 862px; /* 304 + 24 + 310 + 24 + 200 — the three right-hand columns together */
+    --col-menu-w: 304px;
+    --col-menu-2-w: 310px;
+    --col-social-w: 200px;
+    --brand-text-w: 343px;
+    --logo-w: 110px;
+    --logo-h: 33.016px;
+    --icon-size: 24px;
+    --social-gap: 14px;
+  }
+
+  @media (max-width: 768px) {
+    .site-footer {
+      --section-px: 16px;
+      --footer-top-spacer: 48px;
+      --divider: #d8d1c0; /* the two mobile divider lines really are a lighter tan than the rules */
+
+      --font-heading-size: 24px;
+      --font-heading-sm-size: 20px;
+      --font-heading-sm-weight: 600; /* deliberate mobile-only Semibold — do not "fix" to 500 */
+      --font-body-size: 16px;
+      --font-address-size: 14px;
+      --font-button-size: 16px;
+      --button-padding: 12px 18px;
+
+      --gap-section: 40px;
+      --gap-newsletter: 16px;
+      --gap-form: 16px;
+      --gap-col-heading: 8px;
+      --gap-link-list: 0px;
+      --gap-address: 16px;
+      --link-row-min-h: 0px;
+    }
+  }
+</style>
+
+<footer
+  class="site-footer"
+  style="
+    --page-bg: {{ section.settings.page_background_color }};
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  {%- comment -%}
+    The 80px / 48px band above the rounded card is a real child layer of the Figma Footer frame
+    (SectionPaddingD, 28764:32899). It reveals the page background behind the card's rounded top
+    corners, so the root paints --page-bg and the card paints --bg.
+  {%- endcomment -%}
+  <div class="site-footer__content">
+    {%- comment -%} ---------- newsletter ---------- {%- endcomment -%}
+    <div class="site-footer__newsletter">
+      {%- if section.settings.newsletter_heading != blank or section.settings.newsletter_subheading != blank -%}
+        <div class="site-footer__newsletter-text">
+          {%- if section.settings.newsletter_heading != blank -%}
+            <h2 class="site-footer__heading">{{ section.settings.newsletter_heading }}</h2>
+          {%- endif -%}
+          {%- if section.settings.newsletter_subheading != blank -%}
+            <p class="site-footer__subheading">{{ section.settings.newsletter_subheading | escape }}</p>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- assign newsletter_id = 'site-footer-email-' | append: section.id -%}
+      {%- form 'customer', class: 'site-footer__form' -%}
+        <input type="hidden" name="contact[tags]" value="newsletter">
+        <div class="site-footer__form-row">
+          <label class="site-footer__visually-hidden" for="{{ newsletter_id }}">
+            {{ section.settings.newsletter_placeholder | escape }}
+          </label>
+          <input
+            id="{{ newsletter_id }}"
+            class="site-footer__input"
+            type="email"
+            name="contact[email]"
+            value="{{ form.email }}"
+            placeholder="{{ section.settings.newsletter_placeholder | escape }}"
+            autocomplete="email"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            required
+          >
+          <button type="submit" class="site-footer__button">
+            {{- section.settings.newsletter_button_label | escape -}}
+          </button>
+        </div>
+        {%- if form.posted_successfully? -%}
+          <p class="site-footer__form-message" role="status" tabindex="-1">
+            {{- 'blocks.email_signup.success' | t -}}
+          </p>
+        {%- endif -%}
+        {%- if form.errors -%}
+          <p class="site-footer__form-message" role="alert" tabindex="-1">
+            {{- form.errors.translated_fields.email | capitalize }} {{ form.errors.messages.email -}}
+          </p>
+        {%- endif -%}
+      {%- endform -%}
+    </div>
+
+    {%- comment -%} ---------- divider 1 ---------- {%- endcomment -%}
+    <hr class="site-footer__divider site-footer__divider--1">
+
+    {%- comment -%}
+      ---------- columns ----------
+      Desktop: [ brand (logo+tagline / address) ] [ menu · menu · social ]
+      Mobile:  the three wrappers below collapse to `display: contents` so every leaf becomes a
+      direct flex child of __content and CSS `order` can re-sequence them — the Mobile artboard
+      genuinely REORDERS (menus, then logo, then social, then address), it does not just restack.
+    {%- endcomment -%}
+    <div class="site-footer__columns">
+      <div class="site-footer__brand">
+        <div class="site-footer__identity">
+          <a class="site-footer__logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+            <svg class="site-footer__logo-mark" viewBox="0 0 110 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<g id="sf-logo-Size-lg--White-True" clip-path="url(#sf-logo-clip0_43_2171)">
+<g id="sf-logo-_Master-Logo">
+<g id="sf-logo-Group-1">
+<path id="sf-logo-Vector" d="M83.3138 32.4672C79.0494 32.3267 77.7032 28.4072 76.1952 24.6343C75.8106 23.6666 75.0322 23.0317 74.0432 22.4272C74.034 22.238 74.6873 21.6916 74.9803 21.6061C77.3735 20.9284 79.3455 19.4601 79.8797 16.9967C80.0567 16.1847 79.7668 14.9881 79.2906 14.402C78.8724 13.8892 77.6025 13.4649 76.9126 13.5962C73.5456 14.2341 72.1658 16.9906 72.2483 20.0584L72.5718 32.2748H65.4807C65.6211 29.9763 65.7677 27.8578 65.7677 25.547L65.7585 5.42747C65.7585 3.62646 65.5998 2.03607 65.4502 0H72.6207C72.465 2.34438 72.3154 4.24307 72.3185 6.33409L72.3337 15.8734C74.6629 12.3507 77.9718 10.0674 82.0073 10.5161C83.8511 10.7206 85.411 11.7371 86.0978 13.1444C86.9372 14.866 86.6381 16.7861 85.411 18.3246C83.5611 20.6476 80.7741 21.6122 77.8925 22.1006C84.1716 22.9676 83.9824 26.9725 86.8518 31.0874C87.6607 31.0935 88.198 31.5727 88.0453 32.2565C86.5251 32.3969 84.8707 32.516 83.3108 32.4641L83.3138 32.4672Z" fill="currentColor"/>
+<path id="sf-logo-Vector_2" d="M21.3497 28.682L20.7056 32.2809L0 32.2748C0.152629 30.3548 0.317467 28.627 0.317467 26.768V5.73578C0.314415 3.96529 0.152629 2.3749 0.0122103 0.463991L8.33963 0.457886C8.17784 2.88773 8.04963 4.95127 8.04963 7.26512V31.179C12.6987 31.2309 16.8075 30.3945 21.3497 28.682Z" fill="currentColor"/>
+<path id="sf-logo-Vector_3" d="M29.378 32.9922C26.2735 33.0136 23.8589 31.24 23.3156 28.5415C22.0976 22.4913 28.4042 21.3314 33.7309 19.4144C35.6571 18.7214 37.3208 17.2867 37.5131 15.2323C37.6352 13.9228 37.2078 12.6254 36.2157 11.9874C33.6149 10.3207 31.5148 13.1841 29.7778 15.7574C28.7186 17.3233 26.5055 18.0956 25.0219 16.5785C24.3565 15.9008 24.2222 14.4265 24.329 13.4161C28.4652 10.9893 33.157 9.85675 37.7664 10.8672C41.6035 11.7066 43.8197 14.7226 43.841 18.5413L43.8929 27.4304C43.9021 29.0452 44.479 30.66 44.882 32.2809L37.8061 32.2871L37.3452 27.232C35.941 30.4341 33.2242 32.9739 29.381 33.0014L29.378 32.9922ZM31.9024 29.1276C34.3048 29.8419 36.4294 27.9341 36.9819 25.6569C37.5253 23.4254 37.3849 20.9773 37.391 18.9015L32.2626 21.5908C30.8005 22.357 29.7687 23.6941 29.6985 25.1288C29.6252 26.6673 30.1014 28.5934 31.9024 29.1276Z" fill="currentColor"/>
+<path id="sf-logo-Vector_4" d="M105.396 28.685C107.417 27.5372 108.598 25.6538 109.209 23.5719L109.859 23.5353C110.503 23.4987 108.98 29.1093 104.471 31.6399C101.04 33.5661 96.8185 33.4775 93.3202 31.3285C90.3165 29.4817 88.3262 26.1086 88.1034 22.2044C87.7493 15.968 92.1633 10.9679 98.4424 10.5069C104.309 10.0765 109.636 13.7823 109.7 19.8203L94.9778 19.8295C95.0449 22.3143 95.805 24.7106 97.2153 26.7436C99.0957 29.4573 102.365 30.4097 105.396 28.6881V28.685ZM102.936 18.6542L102.142 13.6511C101.455 12.5705 100.588 11.6547 99.4467 11.5601C96.4064 11.3067 94.8221 15.0217 94.8801 18.6848L102.933 18.6573L102.936 18.6542Z" fill="currentColor"/>
+<path id="sf-logo-Vector_5" d="M47.2813 32.2748L47.5468 21.8992C47.6384 18.2788 47.4766 14.8447 47.2629 11.2243L54.409 11.209C54.2381 13.1596 54.1068 14.8447 54.2442 16.9051C55.7155 12.9063 58.7925 10.2231 63.1058 10.6321C63.7865 11.612 63.759 13.1474 63.1852 14.1853C62.5502 15.3331 61.2559 15.7787 59.6777 15.736C57.4646 15.678 54.5281 16.9174 54.2808 19.4907C53.8657 23.8009 54.1465 28.0928 54.3785 32.2779H47.2843L47.2813 32.2748Z" fill="currentColor"/>
+</g>
+</g>
+</g>
+<defs>
+<clipPath id="sf-logo-clip0_43_2171">
+<rect width="110" height="34" fill="white" transform="translate(0 -0.491943)"/>
+</clipPath>
+</defs>
+</svg>
+          </a>
+          {%- if section.settings.brand_tagline != blank -%}
+            <p class="site-footer__tagline">{{ section.settings.brand_tagline | escape }}</p>
+          {%- endif -%}
+        </div>
+
+        {%- if section.settings.address_text != blank -%}
+          <address class="site-footer__address">
+            <svg class="site-footer__address-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<g id="sf-marker-_Master-Icons">
+<g id="sf-marker-Icon-Outline-location-marker">
+<g id="sf-marker-Icon">
+<path d="M17.6569 16.6569C16.7202 17.5935 14.7616 19.5521 13.4138 20.8999C12.6327 21.681 11.3677 21.6814 10.5866 20.9003C9.26234 19.576 7.34159 17.6553 6.34315 16.6569C3.21895 13.5327 3.21895 8.46734 6.34315 5.34315C9.46734 2.21895 14.5327 2.21895 17.6569 5.34315C20.781 8.46734 20.781 13.5327 17.6569 16.6569Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M15 11C15 12.6569 13.6569 14 12 14C10.3431 14 9 12.6569 9 11C9 9.34315 10.3431 8 12 8C13.6569 8 15 9.34315 15 11Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+</g>
+</svg>
+            <span class="site-footer__address-text">{{ section.settings.address_text | escape }}</span>
+          </address>
+        {%- endif -%}
+      </div>
+
+      <div class="site-footer__column-group">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'footer_menu' -%}
+            <nav
+              class="site-footer__menu"
+              aria-label="{{ block.settings.title | strip_html | escape }}"
+              {{ block.shopify_attributes }}
+            >
+              {%- if block.settings.title != blank -%}
+                <h3 class="site-footer__menu-heading">{{ block.settings.title }}</h3>
+              {%- endif -%}
+
+              <ul class="site-footer__menu-list" role="list">
+                {%- if block.settings.menu != blank -%}
+                  {%- for link in block.settings.menu.links -%}
+                    <li class="site-footer__menu-item">
+                      <a class="site-footer__link" href="{{ link.url }}">{{ link.title | escape }}</a>
+                    </li>
+                  {%- endfor -%}
+                {%- else -%}
+                  {%- comment -%}
+                    Fallback when no navigation menu is picked: the block's own label/url pairs,
+                    seeded from the Figma copy. This is what lets the section render the designed
+                    link list on a store whose menus have not been set up yet.
+                  {%- endcomment -%}
+                  {%- for i in (1..5) -%}
+                    {%- assign label_key = 'link_' | append: i | append: '_label' -%}
+                    {%- assign url_key = 'link_' | append: i | append: '_url' -%}
+                    {%- assign label = block.settings[label_key] -%}
+                    {%- assign url = block.settings[url_key] -%}
+                    {%- if label != blank -%}
+                      <li class="site-footer__menu-item">
+                        <a class="site-footer__link" href="{{ url | default: '#' }}">{{ label | escape }}</a>
+                      </li>
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endif -%}
+              </ul>
+            </nav>
+          {%- endif -%}
+        {%- endfor -%}
+
+        <div class="site-footer__social">
+          {%- if section.settings.social_heading != blank -%}
+            <h3 class="site-footer__social-heading">{{ section.settings.social_heading }}</h3>
+          {%- endif -%}
+          <ul class="site-footer__social-list" role="list">
+            {%- if section.settings.social_facebook_url != blank -%}
+              <li>
+                <a
+                  class="site-footer__social-link"
+                  href="{{ section.settings.social_facebook_url }}"
+                  aria-label="Facebook"
+                  rel="noopener"
+                  target="_blank"
+                >
+                  <svg class="site-footer__social-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<path id="sf-fb-Vector" d="M24 12.0728C24 5.4048 18.628 0 12 0C5.372 0 0 5.4048 0 12.0728C0 18.1 4.3872 23.0944 10.1248 24V15.5632H7.0784V12.072H10.1248V9.4128C10.1248 6.3872 11.916 4.7152 14.6576 4.7152C15.9696 4.7152 17.344 4.9512 17.344 4.9512V7.9224H15.8296C14.3392 7.9224 13.8752 8.8536 13.8752 9.8088V12.0728H17.2032L16.6712 15.5624H13.8752V24C19.6128 23.0944 24 18.1 24 12.0728Z" fill="currentColor"/>
+</svg>
+                </a>
+              </li>
+            {%- endif -%}
+            {%- if section.settings.social_instagram_url != blank -%}
+              <li>
+                <a
+                  class="site-footer__social-link"
+                  href="{{ section.settings.social_instagram_url }}"
+                  aria-label="Instagram"
+                  rel="noopener"
+                  target="_blank"
+                >
+                  <svg class="site-footer__social-icon" viewBox="38 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+<g id="sf-ig-Vector_2">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M50 0C46.7408 0 46.3328 0.0136 45.0528 0.072C43.7752 0.1304 42.9024 0.3336 42.1392 0.6304C41.3392 0.9312 40.6136 1.4032 40.0136 2.0144C39.4034 2.61371 38.9311 3.3388 38.6296 4.1392C38.3344 4.9024 38.1304 5.776 38.072 7.0536C38.0144 8.3328 38 8.74 38 12C38 15.26 38.0136 15.6672 38.072 16.9472C38.1304 18.2248 38.3336 19.0976 38.6304 19.8608C38.9312 20.6608 39.4032 21.3864 40.0144 21.9864C40.6137 22.5966 41.3388 23.0689 42.1392 23.3704C42.9024 23.6664 43.7752 23.8696 45.0528 23.928C46.3328 23.9864 46.7408 24 50 24C53.2592 24 53.6672 23.9864 54.9472 23.928C56.2248 23.8696 57.0976 23.6664 57.8608 23.3696C58.6608 23.0688 59.3864 22.5968 59.9864 21.9856C60.5966 21.3863 61.0689 20.6612 61.3704 19.8608C61.6664 19.0976 61.8696 18.2248 61.928 16.9472C61.9864 15.6672 62 15.2592 62 12C62 8.7408 61.9864 8.3328 61.928 7.0528C61.8696 5.7752 61.6664 4.9024 61.3696 4.1392C61.0683 3.33845 60.596 2.61306 59.9856 2.0136C59.3863 1.40338 58.6612 0.931087 57.8608 0.6296C57.0976 0.3344 56.224 0.1304 54.9464 0.072C53.6672 0.0144 53.26 0 50 0ZM50 2.1624C53.204 2.1624 53.584 2.1744 54.8496 2.232C56.0192 2.2856 56.6544 2.48 57.0776 2.6456C57.6376 2.8624 58.0376 3.1232 58.4576 3.5424C58.8776 3.9624 59.1376 4.3624 59.3544 4.9224C59.5192 5.3456 59.7144 5.9808 59.768 7.1504C59.8256 8.416 59.8376 8.796 59.8376 12C59.8376 15.204 59.8256 15.584 59.768 16.8496C59.7144 18.0192 59.52 18.6544 59.3544 19.0776C59.1623 19.5988 58.8559 20.0704 58.4576 20.4576C58.0705 20.856 57.5989 21.1624 57.0776 21.3544C56.6544 21.5192 56.0192 21.7144 54.8496 21.768C53.584 21.8256 53.2048 21.8376 50 21.8376C46.7952 21.8376 46.416 21.8256 45.1504 21.768C43.9808 21.7144 43.3456 21.52 42.9224 21.3544C42.4012 21.1623 41.9296 20.8559 41.5424 20.4576C41.1441 20.0704 40.8377 19.5988 40.6456 19.0776C40.4808 18.6544 40.2856 18.0192 40.232 16.8496C40.1744 15.584 40.1624 15.204 40.1624 12C40.1624 8.796 40.1744 8.416 40.232 7.1504C40.2856 5.9808 40.48 5.3456 40.6456 4.9224C40.8624 4.3624 41.1232 3.9624 41.5424 3.5424C41.9296 3.14404 42.4011 2.83758 42.9224 2.6456C43.3456 2.4808 43.9808 2.2856 45.1504 2.232C46.416 2.1744 46.796 2.1624 50 2.1624Z" fill="currentColor"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M50 16.004C49.4742 16.004 48.9535 15.9004 48.4677 15.6992C47.9819 15.498 47.5406 15.2031 47.1687 14.8313C46.7969 14.4595 46.502 14.0181 46.3008 13.5323C46.0996 13.0465 45.996 12.5258 45.996 12C45.996 11.4742 46.0996 10.9535 46.3008 10.4677C46.502 9.98195 46.7969 9.54055 47.1687 9.16875C47.5406 8.79694 47.9819 8.50201 48.4677 8.30079C48.9535 8.09957 49.4742 7.996 50 7.996C51.0619 7.996 52.0804 8.41785 52.8313 9.16875C53.5821 9.91964 54.004 10.9381 54.004 12C54.004 13.0619 53.5821 14.0804 52.8313 14.8313C52.0804 15.5822 51.0619 16.004 50 16.004ZM50 5.832C48.3641 5.832 46.7953 6.48184 45.6386 7.63857C44.4818 8.79529 43.832 10.3641 43.832 12C43.832 13.6359 44.4818 15.2047 45.6386 16.3614C46.7953 17.5182 48.3641 18.168 50 18.168C51.6359 18.168 53.2047 17.5182 54.3614 16.3614C55.5182 15.2047 56.168 13.6359 56.168 12C56.168 10.3641 55.5182 8.79529 54.3614 7.63857C53.2047 6.48184 51.6359 5.832 50 5.832ZM57.9624 5.72C57.9624 6.10669 57.8088 6.47754 57.5354 6.75097C57.2619 7.02439 56.8911 7.178 56.5044 7.178C56.1177 7.178 55.7469 7.02439 55.4734 6.75097C55.2 6.47754 55.0464 6.10669 55.0464 5.72C55.0464 5.33332 55.2 4.96247 55.4734 4.68904C55.7469 4.41561 56.1177 4.262 56.5044 4.262C56.8911 4.262 57.2619 4.41561 57.5354 4.68904C57.8088 4.96247 57.9624 5.33332 57.9624 5.72Z" fill="currentColor"/>
+</g>
+</svg>
+                </a>
+              </li>
+            {%- endif -%}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    {%- comment -%} ---------- divider 2 (Mobile artboard only) ---------- {%- endcomment -%}
+    <hr class="site-footer__divider site-footer__divider--2">
+
+    {%- comment -%} ---------- bottom bar ---------- {%- endcomment -%}
+    <div class="site-footer__bottom">
+      {%- if section.settings.copyright_text != blank -%}
+        <div class="site-footer__copyright">{{ section.settings.copyright_text }}</div>
+      {%- endif -%}
+
+      {%- if section.settings.show_payment_icons -%}
+        {%- comment -%}
+          The eight brand marks are the owner's own Figma exports, inlined verbatim
+          (.figma-assets/site-footer/payment-*.svg). Multi-colour by design: brand fills are kept
+          exactly as exported — no currentColor, no theme/stock payment icon set.
+        {%- endcomment -%}
+        <div class="site-footer__payments">
+          <ul class="site-footer__payment-list" role="list">
+            <li><svg class="site-footer__payment-icon site-footer__payment-icon--visa" viewBox="0 0 35 20" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Visa</title>
+<g id="sf-visa-Visa">
+<g id="sf-visa-Visa_2">
+<rect id="sf-visa-Rectangle-25" x="0.129619" y="0.129619" width="34.4318" height="18.771" rx="1.87038" fill="white" stroke="white" stroke-width="0.259238"/>
+</g>
+<g id="sf-visa-Layer-4">
+<path id="sf-visa-Vector" d="M14.3094 5.33398L12.9254 13.7443H15.1078L16.4918 5.33398H14.3094Z" fill="#005CCD"/>
+<path id="sf-visa-Vector_2" d="M26.9245 5.33398C26.3922 5.33398 26.0196 5.49367 25.8067 6.02597L22.5597 13.7975H24.8486C24.8486 13.7975 25.2212 12.7329 25.3276 12.52C25.5938 12.52 27.7762 12.52 28.0956 12.52C28.1488 12.8394 28.3617 13.7975 28.3617 13.7975H30.3845L28.6279 5.33398H26.9245ZM25.9132 10.7634C26.0729 10.2844 26.7649 8.42131 26.7649 8.42131C26.7649 8.42131 26.9245 7.94225 27.031 7.62287L27.1907 8.36808C27.1907 8.36808 27.6165 10.3908 27.723 10.8167H25.9132V10.7634Z" fill="#005CCD"/>
+<path id="sf-visa-Vector_3" d="M20.8548 8.74072C20.1096 8.36811 19.6306 8.10196 19.6306 7.67612C19.6306 7.30351 20.0032 6.9309 20.8548 6.9309C21.5468 6.9309 22.0791 7.09059 22.505 7.25028L22.7179 7.35674L23.0373 5.54693C22.6114 5.38724 21.9194 5.17432 21.0678 5.17432C18.9386 5.17432 17.3949 6.34537 17.3949 7.94227C17.3949 9.16656 18.4595 9.85854 19.3112 10.2312C20.1629 10.657 20.429 10.9231 20.429 11.2957C20.429 11.8813 19.737 12.0942 19.0983 12.0942C18.2466 12.0942 17.7675 11.9877 17.0223 11.6684L16.7561 11.5087L16.4368 13.3717C16.9691 13.5846 17.874 13.7976 18.8853 13.7976C21.1742 13.7976 22.6647 12.6797 22.6647 10.9231C22.7179 10.0715 22.1324 9.32624 20.8548 8.74072Z" fill="#005CCD"/>
+<path id="sf-visa-Vector_4" d="M11.1153 5.33398L8.9861 11.0828L8.77318 9.91175L8.02796 6.02597C7.9215 5.49367 7.49566 5.33398 7.01659 5.33398H3.55666C3.50343 5.33398 3.50343 5.38721 3.4502 5.38721C3.4502 5.44044 3.4502 5.49367 3.50343 5.49367C4.03572 5.65336 4.51479 5.81305 4.94063 6.02597C5.4197 6.23889 5.73908 6.66473 5.89877 7.1438L7.65535 13.7443H9.94424L13.3509 5.33398H11.1153Z" fill="#005CCD"/>
+</g>
+</g>
+</svg></li>
+            <li><svg class="site-footer__payment-icon site-footer__payment-icon--amex" viewBox="0 0 35 20" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>American Express</title>
+<g id="sf-amex-AMEX">
+<g id="sf-amex-Mask-Group">
+<mask id="sf-amex-mask0_28968_22885" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="35" height="20">
+<rect id="sf-amex-Rectangle-24" x="0.00183105" width="34.691" height="19.0302" rx="2" fill="#C4C4C4"/>
+</mask>
+<g mask="url(#sf-amex-mask0_28968_22885)">
+<g id="sf-amex-American_Express-Logo-wine-1">
+<path id="sf-amex-Vector" d="M0.00244141 -8.05078H34.6076V10.4738L32.8947 13.1278L34.6076 15.4898V26.2648H0.00244141V8.80183L1.07298 7.58101L0.00244141 6.41326V-8.05078Z" fill="#016FD0"/>
+<path id="sf-amex-Vector_2" d="M6.71995 15.8606V10.4731H12.4725L13.0897 11.2709L13.7273 10.4731H34.6075V15.4891C34.6075 15.4891 34.0615 15.8553 33.4299 15.8607H21.8681L21.1722 15.0114V15.8607H18.892V14.4109C18.892 14.4109 18.5805 14.6133 17.9071 14.6133H17.1309V15.8607H13.6785L13.0621 15.0457L12.4364 15.8607L6.71995 15.8606ZM0.00231934 6.41255L1.29953 3.41357H3.54295L4.2791 5.09348V3.41357H7.06786L7.50612 4.62776L7.93098 3.41357H20.4496V4.02399C20.4496 4.02399 21.1077 3.41357 22.1893 3.41357L26.2511 3.42768L26.9745 5.08557V3.41357H29.3083L29.9506 4.3659V3.41357H32.3058V8.80112H29.9506L29.3351 7.84566V8.80108H25.9063L25.5614 7.95182H24.6397L24.3004 8.80108H21.9751C21.0445 8.80108 20.4496 8.20316 20.4496 8.20316V8.80108H16.9436L16.2477 7.95186V8.80112H3.21061L2.86602 7.95186H1.94711L1.60506 8.80108H0.00231934V6.41255Z" fill="white"/>
+<path id="sf-amex-Vector_3" d="M1.75954 4.07881L0.0098877 8.11281H1.14901L1.47185 7.30501H3.34865L3.66979 8.11281H4.83403L3.08597 4.07881H1.75954ZM2.40688 5.01762L2.97894 6.42923H1.83316L2.40688 5.01762ZM4.95444 8.11213V4.07812L6.57317 4.08408L7.5147 6.68497L8.43367 4.07812H10.0395V8.11213H9.02248V5.13971L7.94442 8.11213H7.0525L5.97145 5.13971V8.11213H4.95444ZM10.7353 8.11213V4.07812H14.054V4.98046H11.7631V5.67048H14.0005V6.51977H11.7631V7.23635H14.054V8.11213H10.7353ZM14.6428 4.07881V8.11281H15.6598V6.67967H16.088L17.3074 8.11281H18.5503L17.2121 6.62659C17.7613 6.58063 18.3278 6.11322 18.3278 5.38753C18.3278 4.53865 17.6559 4.07881 16.906 4.07881H14.6428ZM15.6598 4.98115H16.8223C17.1013 4.98115 17.3041 5.19747 17.3041 5.40576C17.3041 5.67375 17.0412 5.83041 16.8374 5.83041H15.6598V4.98115ZM19.7814 8.11213H18.743V4.07812H19.7814V8.11213ZM22.2436 8.11213H22.0195C20.935 8.11213 20.2765 7.26483 20.2765 6.11171C20.2765 4.93007 20.9276 4.07812 22.2972 4.07812H23.4212V5.03354H22.2561C21.7001 5.03354 21.3069 5.4638 21.3069 6.12165C21.3069 6.9029 21.7565 7.23101 22.4042 7.23101H22.6719L22.2436 8.11213ZM24.4567 4.07881L22.707 8.11281H23.8461L24.1689 7.30501H26.0457L26.3669 8.11281H27.5311L25.7831 4.07881H24.4567ZM25.104 5.01762L25.6761 6.42923H24.5302L25.104 5.01762ZM27.6498 8.11213V4.07812H28.9429L30.5938 6.61265V4.07812H31.6109V8.11213H30.3597L28.6669 5.51127V8.11213H27.6498ZM7.41669 15.1716V11.1376H10.7353V12.04H8.44439V12.73H10.6818V13.5793H8.44439V14.2958H10.7353V15.1716H7.41669ZM23.6782 15.1716V11.1376H26.9968V12.04H24.7059V12.73H26.9326V13.5793H24.7058V14.2958H26.9968V15.1716H23.6782ZM10.8641 15.1716L12.48 13.1795L10.8257 11.1376H12.107L13.0922 12.3999L14.0808 11.1376H15.312L13.6794 13.1546L15.2982 15.1716H14.0171L13.0604 13.9293L12.1271 15.1716H10.8641ZM15.419 11.1383V15.1723H16.4627V13.8984H17.5333C18.4391 13.8984 19.1257 13.4219 19.1257 12.4952C19.1257 11.7274 18.5872 11.1383 17.6654 11.1383H15.419ZM16.4627 12.0506H17.5901C17.8828 12.0506 18.0919 12.2285 18.0919 12.515C18.0919 12.7843 17.8838 12.9795 17.5868 12.9795H16.4627V12.0506ZM19.5673 11.1376V15.1716H20.5843V13.7385H21.0125L22.2319 15.1716H23.4747L22.1366 13.6854C22.6858 13.6395 23.2523 13.172 23.2523 12.4463C23.2523 11.5975 22.5804 11.1376 21.8305 11.1376H19.5673ZM20.5843 12.04H21.7468C22.0257 12.04 22.2286 12.2563 22.2286 12.4646C22.2286 12.7326 21.9657 12.8892 21.7619 12.8892H20.5843V12.04ZM27.4679 15.1716V14.2958H29.5032C29.8044 14.2958 29.9348 14.1344 29.9348 13.9574C29.9348 13.7878 29.8048 13.6164 29.5032 13.6164H28.5835C27.784 13.6164 27.3387 13.1334 27.3387 12.4082C27.3387 11.7614 27.7465 11.1376 28.9345 11.1376H30.915L30.4868 12.0453H28.7739C28.4465 12.0453 28.3457 12.2157 28.3457 12.3784C28.3457 12.5456 28.4703 12.73 28.7204 12.73H29.6839C30.5751 12.73 30.9618 13.2313 30.9618 13.8878C30.9618 14.5936 30.5309 15.1716 29.6354 15.1716H27.4679ZM31.2005 15.1716V14.2958H33.2359C33.5371 14.2958 33.6674 14.1344 33.6674 13.9574C33.6674 13.7878 33.5375 13.6164 33.2359 13.6164H32.3161C31.5166 13.6164 31.0714 13.1334 31.0714 12.4082C31.0714 11.7614 31.4791 11.1376 32.6672 11.1376H34.6477L34.2194 12.0453H32.5066C32.1792 12.0453 32.0784 12.2157 32.0784 12.3784C32.0784 12.5456 32.2029 12.73 32.4531 12.73H33.4166C34.3078 12.73 34.6945 13.2313 34.6945 13.8878C34.6945 14.5936 34.2636 15.1716 33.3681 15.1716H31.2005Z" fill="#016FD0"/>
+</g>
+</g>
+</g>
+<rect id="sf-amex-Rectangle-25" x="0.129619" y="0.129619" width="34.4318" height="18.771" rx="1.87038" stroke="white" stroke-width="0.259238"/>
+</g>
+</svg></li>
+            <li><svg class="site-footer__payment-icon site-footer__payment-icon--mastercard" viewBox="0 0 33 22" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Mastercard</title>
+<g id="sf-mc-Mastercard-Logo-wine-2" clip-path="url(#sf-mc-clip1_28968_22885)">
+<rect id="sf-mc-Rectangle-25" x="-0.0315139" y="1.03538" width="32.7408" height="20.1878" rx="1.87038" fill="white" stroke="white" stroke-width="0.259238"/>
+<path id="sf-mc-path891" d="M29.5502 16.9932V16.7152H29.6596V16.6577H29.3993V16.7152H29.5021V16.9932L29.5502 16.9932ZM30.0555 16.9932V16.6578H29.9768L29.8849 16.8973L29.793 16.6577H29.7143V16.9932H29.7712V16.7392L29.8565 16.9573H29.9155L30.0009 16.7392V16.9932H30.0555Z" fill="#F79E1B"/>
+<g id="sf-mc-Group-6563">
+<path id="sf-mc-rect887" d="M12.6184 4.43311H20.2003V17.9971H12.6184V4.43311Z" fill="#FF5F00"/>
+<path id="sf-mc-path889" d="M13.3998 11.2164C13.3989 9.91028 13.6692 8.62106 14.1903 7.44629C14.7114 6.27152 15.4696 5.24197 16.4076 4.43556C15.2459 3.4355 13.8507 2.81363 12.3815 2.64101C10.9124 2.46838 9.42853 2.75198 8.09956 3.45939C6.77059 4.16679 5.65012 5.26946 4.86623 6.64138C4.08233 8.01329 3.66663 9.5991 3.66663 11.2176C3.66663 12.836 4.08233 14.4218 4.86623 15.7937C5.65012 17.1656 6.77059 18.2683 8.09956 18.9757C9.42853 19.6831 10.9124 19.9667 12.3815 19.7941C13.8507 19.6215 15.2459 18.9996 16.4076 17.9995C15.4694 17.1929 14.7109 16.163 14.1898 14.9877C13.6687 13.8125 13.3986 12.5228 13.3998 11.2163V11.2164Z" fill="#EB001B"/>
+<path id="sf-mc-path893" d="M29.1494 11.2164C29.1494 12.8349 28.7336 14.4209 27.9496 15.7928C27.1655 17.1648 26.0449 18.2674 24.7157 18.9747C23.3866 19.682 21.9026 19.9655 20.4333 19.7926C18.9641 19.6197 17.5689 18.9975 16.4072 17.9971C17.3448 17.19 18.1029 16.1602 18.6241 14.9854C19.1453 13.8105 19.4162 12.5214 19.4162 11.2151C19.4162 9.90894 19.1453 8.61978 18.6241 7.44495C18.1029 6.27011 17.3448 5.24028 16.4072 4.43316C17.5689 3.43278 18.9641 2.8106 20.4333 2.63772C21.9026 2.46485 23.3866 2.74827 24.7158 3.45557C26.0449 4.16288 27.1655 5.26554 27.9496 6.63751C28.7336 8.00948 29.1494 9.59539 29.1494 11.214V11.2164Z" fill="#F79E1B"/>
+</g>
+</g>
+<defs>
+<clipPath id="sf-mc-clip1_28968_22885">
+<rect width="33" height="22" fill="white"/>
+</clipPath>
+</defs>
+</svg></li>
+            <li>
+              <img
+                class="site-footer__payment-icon site-footer__payment-icon--maestro"
+                src="{{ 'dev-site-footer-payment-maestro.svg' | asset_url }}"
+                alt="Maestro"
+                width="33"
+                height="19"
+                loading="lazy"
+                decoding="async"
+              >
+            </li>
+            <li>
+              <img
+                class="site-footer__payment-icon site-footer__payment-icon--paypal"
+                src="{{ 'dev-site-footer-payment-paypal.svg' | asset_url }}"
+                alt="PayPal"
+                width="35"
+                height="20"
+                loading="lazy"
+                decoding="async"
+              >
+            </li>
+            <li><svg class="site-footer__payment-icon site-footer__payment-icon--googlepay" viewBox="0 0 35 20" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Google Pay</title>
+<g id="sf-gp-google-pay-mark_800-2">
+<rect id="sf-gp-Rectangle-25" x="0.129619" y="0.129619" width="34.639" height="18.8846" rx="1.87038" fill="white" stroke="#262626" stroke-width="0.259238"/>
+<g id="sf-gp-G-Pay-Lockup-1">
+<g id="sf-gp-Pay-Typeface-3">
+<path id="sf-gp-Letter-p-3" d="M16.211 9.80263V12.4257H15.3705V5.94824H17.5987C18.1634 5.94824 18.645 6.13468 19.039 6.50754C19.4417 6.88041 19.6431 7.33565 19.6431 7.87327C19.6431 8.4239 19.4417 8.87914 19.039 9.24767C18.6493 9.6162 18.1678 9.7983 17.5987 9.7983H16.211V9.80263ZM16.211 6.746V9.00487H17.6162C17.9489 9.00487 18.2291 8.89215 18.448 8.67103C18.6712 8.44991 18.785 8.1811 18.785 7.87761C18.785 7.57845 18.6712 7.31397 18.448 7.09285C18.2291 6.86306 17.9533 6.75034 17.6162 6.75034H16.211V6.746Z" fill="#262626"/>
+<path id="sf-gp-Letter-a-3" d="M21.8441 7.84717C22.4657 7.84717 22.956 8.01192 23.315 8.34143C23.6739 8.67094 23.8534 9.12185 23.8534 9.69416V12.4256H23.0523V11.81H23.0173C22.6715 12.3172 22.2075 12.5687 21.6296 12.5687C21.135 12.5687 20.7235 12.4256 20.3908 12.1351C20.0581 11.8446 19.8917 11.4848 19.8917 11.0512C19.8917 10.5916 20.0668 10.2274 20.417 9.95863C20.7672 9.68548 21.2356 9.55108 21.8179 9.55108C22.3169 9.55108 22.7284 9.64213 23.048 9.82423V9.63346C23.048 9.34297 22.9341 9.10017 22.7021 8.8964C22.4701 8.69262 22.1987 8.5929 21.8879 8.5929C21.4195 8.5929 21.0474 8.788 20.776 9.18255L20.0362 8.72297C20.4433 8.13766 21.0474 7.84717 21.8441 7.84717ZM20.7585 11.0642C20.7585 11.281 20.8504 11.4631 21.0386 11.6062C21.2225 11.7493 21.4414 11.823 21.6909 11.823C22.0455 11.823 22.3607 11.6929 22.6365 11.4328C22.9122 11.1726 23.0523 10.8691 23.0523 10.5179C22.7897 10.3142 22.4263 10.2101 21.9579 10.2101C21.6165 10.2101 21.3319 10.2925 21.1043 10.4529C20.8723 10.622 20.7585 10.8258 20.7585 11.0642Z" fill="#262626"/>
+<path id="sf-gp-Letter-y-3" d="M28.418 7.98975L25.6163 14.3718H24.7496L25.7914 12.139L23.9441 7.98975H24.859L26.1898 11.1721H26.2073L27.5031 7.98975H28.418Z" fill="#262626"/>
+</g>
+<g id="sf-gp-G-Mark-1">
+<path id="sf-gp-Blue-500" d="M12.867 9.27401C12.867 9.0026 12.8425 8.7429 12.7969 8.49316H9.2738V9.92392L11.3028 9.92436C11.2205 10.4004 10.9557 10.8062 10.5499 11.0768V12.005H11.7577C12.4629 11.3586 12.867 10.403 12.867 9.27401Z" fill="#4285F4"/>
+<path id="sf-gp-Green-500-1" d="M10.5491 11.077C10.2129 11.3016 9.77995 11.433 9.27346 11.433C8.29508 11.433 7.46509 10.78 7.16785 9.8999H5.922V10.8572C6.53923 12.0703 7.80785 12.9028 9.27346 12.9028C10.2864 12.9028 11.1374 12.5728 11.7569 12.0049L10.5491 11.077Z" fill="#34A853"/>
+<path id="sf-gp-Yellow-500-1" d="M7.04907 9.1899C7.04907 8.94277 7.09065 8.70387 7.16638 8.47929V7.52197H5.92053C5.66531 8.02361 5.52173 8.58984 5.52173 9.1899C5.52173 9.78995 5.66575 10.3562 5.92053 10.8578L7.16638 9.90051C7.09065 9.67592 7.04907 9.43703 7.04907 9.1899Z" fill="#FABB05"/>
+<path id="sf-gp-Red-500" d="M9.27346 6.94586C9.82635 6.94586 10.3215 7.13447 10.7124 7.503L11.7827 6.44379C11.1326 5.84417 10.2851 5.47607 9.27346 5.47607C7.80829 5.47607 6.53923 6.30852 5.922 7.52164L7.16785 8.47895C7.46509 7.59882 8.29508 6.94586 9.27346 6.94586Z" fill="#E94235"/>
+</g>
+</g>
+</g>
+</svg></li>
+            <li>
+              <img
+                class="site-footer__payment-icon site-footer__payment-icon--applepay"
+                src="{{ 'dev-site-footer-payment-applepay.svg' | asset_url }}"
+                alt="Apple Pay"
+                width="32"
+                height="19"
+                loading="lazy"
+                decoding="async"
+              >
+            </li>
+            <li><svg class="site-footer__payment-icon site-footer__payment-icon--ecom" viewBox="0 0 35 20" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>American Express</title>
+<g id="sf-ec-Amex">
+<rect id="sf-ec-Rectangle-25" x="0.129619" y="0.129619" width="34.639" height="18.8846" rx="1.87038" fill="#3498D8" stroke="white" stroke-width="0.259238"/>
+<g id="sf-ec-E-Com">
+<g id="sf-ec-Group">
+<path id="sf-ec-Vector" fill-rule="evenodd" clip-rule="evenodd" d="M8.74447 9.83446H10.3269L9.53569 8.24807L8.74447 9.83446ZM30.7996 6.82031H26.7446L25.7556 7.69283L24.8655 6.82031H16.261L15.4698 8.24807L14.6786 6.82031H11.217V7.45487L10.8214 6.82031H7.85436L4.98621 12.3727H8.44777L8.84338 11.5002H9.83239L10.228 12.3727H14.0852V11.7381L14.3819 12.3727H16.3599L16.6566 11.6588V12.3727H24.5688L25.5578 11.5002L26.4479 12.3727H30.5029L27.9314 9.5965L30.7996 6.82031ZM18.8325 11.5795H17.7445V8.48603L16.0632 11.5795H15.0742L13.3929 8.48603V11.5795H11.1181L10.7225 10.707H8.34887L7.95326 11.5795H6.66754L8.74447 7.61351H10.4258L12.3049 11.3415V7.61351H14.1841L15.6676 10.3104L17.0522 7.61351H18.9314V11.5795H18.8325ZM28.6237 11.5795H27.1402L25.8545 10.2311L24.371 11.5795H19.9204V7.61351H24.4699L25.8545 8.88263L27.338 7.61351H28.7226L26.5468 9.5965L28.6237 11.5795ZM21.0083 8.40671V9.12058H23.4808V9.91378H21.0083V10.707H23.7775L25.0633 9.51718L23.8764 8.40671H21.0083Z" fill="white"/>
+</g>
+</g>
+</g>
+</svg></li>
+          </ul>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "inline_richtext", "id": "newsletter_heading", "label": "Newsletter heading", "default": "Be the first to know." },
+    { "type": "text", "id": "newsletter_subheading", "label": "Newsletter subheading", "default": "Stay in touch – only for the good stuff like new launches and offers." },
+    { "type": "text", "id": "newsletter_placeholder", "label": "Email placeholder", "default": "Your Email" },
+    { "type": "text", "id": "newsletter_button_label", "label": "Newsletter button label", "default": "Subscribe" },
+    { "type": "text", "id": "brand_tagline", "label": "Brand tagline", "default": "Nature-based sleep for the everyday." },
+    { "type": "text", "id": "address_text", "label": "Address", "default": "Monks Way, London, NW11 0AF" },
+    { "type": "inline_richtext", "id": "social_heading", "label": "Social heading", "default": "Social" },
+    { "type": "url", "id": "social_facebook_url", "label": "Facebook link" },
+    { "type": "url", "id": "social_instagram_url", "label": "Instagram link" },
+    { "type": "checkbox", "id": "show_payment_icons", "label": "Show payment icons", "default": true },
+    { "type": "richtext", "id": "copyright_text", "label": "Copyright", "default": "<p>Copyright © 2026 <a href=\"https://wearelarke.com/\">Larke</a></p>" },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "#FCF5E3" },
+    { "type": "color", "id": "page_background_color", "label": "Page background", "info": "Shows through the gap above the rounded card.", "default": "#FFFCF4" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#4EA448" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 200, "step": 4, "unit": "px", "label": "Padding top", "default": 64 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 200, "step": 4, "unit": "px", "label": "Padding bottom", "default": 32 }
+  ],
+  "blocks": [
+    {
+      "type": "footer_menu",
+      "name": "Link column",
+      "limit": 4,
+      "settings": [
+        { "type": "inline_richtext", "id": "title", "label": "Heading", "default": "Inside Larke" },
+        { "type": "link_list", "id": "menu", "label": "Navigation menu", "info": "Optional. When set, it replaces the links below." },
+        { "type": "text", "id": "link_1_label", "label": "Link 1 label", "default": "Shop Our Duvet" },
+        { "type": "url", "id": "link_1_url", "label": "Link 1 URL" },
+        { "type": "text", "id": "link_2_label", "label": "Link 2 label", "default": "Our Story" },
+        { "type": "url", "id": "link_2_url", "label": "Link 2 URL" },
+        { "type": "text", "id": "link_3_label", "label": "Link 3 label", "default": "Discover Tree-Fibre" },
+        { "type": "url", "id": "link_3_url", "label": "Link 3 URL" },
+        { "type": "text", "id": "link_4_label", "label": "Link 4 label" },
+        { "type": "url", "id": "link_4_url", "label": "Link 4 URL" },
+        { "type": "text", "id": "link_5_label", "label": "Link 5 label" },
+        { "type": "url", "id": "link_5_url", "label": "Link 5 URL" }
+      ]
+    }
+  ],
+  "max_blocks": 4,
+  "presets": [
+    {
+      "name": "Footer",
+      "blocks": [
+        {
+          "type": "footer_menu",
+          "settings": {
+            "title": "Inside Larke",
+            "link_1_label": "Shop Our Duvet",
+            "link_2_label": "Our Story",
+            "link_3_label": "Discover Tree-Fibre"
+          }
+        },
+        {
+          "type": "footer_menu",
+          "settings": {
+            "title": "Help Centre",
+            "link_1_label": "FAQs",
+            "link_2_label": "Delivery",
+            "link_3_label": "Returns",
+            "link_4_label": "Contact"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

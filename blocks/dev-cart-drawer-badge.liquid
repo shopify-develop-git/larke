@@ -1,0 +1,36 @@
+{%- comment -%}
+  One feature chip. Figma shows the same three chips on the line-item card, and the Brief
+  could not confirm a tag/metafield contract with the PM, so they are merchant-authored
+  rather than invented from a data source we do not have.
+
+  This file renders the EDITABLE copy (the one carrying shopify_attributes, on the first
+  card). dev-cart-drawer.liquid paints the repeat copies for the remaining cards from
+  block.blocks, because shopify_attributes may appear only ONCE per block in the document.
+{%- endcomment -%}
+{%- if block.settings.label != blank -%}
+  <li class="cart-drawer__badge" {{ block.shopify_attributes }}>
+    {%- render 'dev-cart-drawer-badge-icon', icon: block.settings.icon -%}
+    <span class="cart-drawer__badge-label">{{ block.settings.label | escape }}</span>
+  </li>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Feature badge",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "Icon",
+      "default": "wind",
+      "options": [
+        { "value": "wind", "label": "Breathable (wind)" },
+        { "value": "care", "label": "Easy care" },
+        { "value": "organic", "label": "Hypoallergenic (organic)" }
+      ]
+    },
+    { "type": "text", "id": "label", "label": "Label", "default": "Breathable" }
+  ]
+}
+{% endschema %}

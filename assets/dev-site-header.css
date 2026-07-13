@@ -1,0 +1,220 @@
+/* dev-site-header.css */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+/* Fixed Figma tokens (--section-px, --icon-size, --logo-*, …) are declared in the
+   section's <style> block, per the code standards. Merchant-controlled values
+   (--bg/--color/--accent/--pt/--pb/--logo-w) arrive inline on the root wrapper.
+   This file only consumes them. */
+
+.site-header {
+  /* PM ruling (Brief, Interactivity): no "scrolled" state variant exists in the
+     Figma file, so there is no evidence for sticky — static, full stop. Do not
+     change without an explicit product decision. */
+  position: static;
+
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+  padding: var(--pt) 0 var(--pb) 0;
+}
+
+.site-header__inner {
+  /* Full-bleed by design — no --container-max (Brief note #1: no centred
+     max-width frame exists). Horizontal inset comes entirely from --section-px. */
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 var(--section-px);
+}
+
+/* --- buttons / links --- */
+
+.site-header__menu-toggle,
+.site-header__cart-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative; /* anchors .site-header__cart-count */
+  padding: var(--spacing-sm);
+  border: none;
+  border-radius: var(--radius-icon-btn);
+  background: transparent; /* circular hit target only — no visible fill in Figma */
+  color: var(--color);
+  text-decoration: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.site-header__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* --- icons --- */
+/* stroke="currentColor" on the inline SVGs inherits color: var(--color) from the button. */
+
+.site-header__menu-icon,
+.site-header__cart-icon {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+/* --- logo --- */
+/* Two distinct Figma assets, NOT one scaled by CSS (Brief note #4). Each is rendered
+   at its own viewBox aspect: desktop 140/42 = 3.3333, mobile 110/33.0161 = 3.3317.
+   Sizing the desktop mark to the mobile 124x34 wrapper would render it at aspect
+   3.647 — a 9.5% deviation from its viewBox, which QA fails at >2%. */
+
+.site-header__logo-mark {
+  display: block;
+  color: var(--accent); /* fill="currentColor" on the inline SVG picks this up */
+}
+
+.site-header__logo-mark--desktop {
+  width: var(--logo-w);
+  aspect-ratio: var(--logo-aspect); /* height follows the viewBox at any --logo-w */
+  height: auto;
+}
+
+.site-header__logo-mark--mobile {
+  display: none;
+}
+
+/* Merchant-supplied logo override — same aspect discipline, capped to the box. */
+.site-header__logo-image {
+  display: block;
+  width: var(--logo-w);
+  height: auto;
+  max-width: 100%;
+}
+
+/* --- cart count badge --- */
+
+.site-header__cart-count {
+  /* No populated badge appears in the Figma artboard (empty-cart state), so the
+     size/offset below is an implementation detail, not a value read off the design. */
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background-color: var(--accent);
+  color: var(--bg);
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+  /* No artboard at this width and nothing in the Brief calls for a change. The
+     flex row already reflows fluidly; this block exists to keep the six-block
+     structure the standards require. */
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .site-header {
+    /* The mobile artboard specifies its own fixed padding (16px), not a scale
+       factor. Override the resolved property, not --pt/--pb: those are inline
+       on the root and an external stylesheet cannot beat inline custom props. */
+    padding-top: var(--pt-mobile);
+    padding-bottom: var(--pb-mobile);
+  }
+
+  .site-header__inner {
+    padding: 0 var(--section-px-mobile);
+  }
+
+  .site-header__menu-toggle,
+  .site-header__cart-toggle {
+    /* Structural difference, not a resize (Brief note #3): mobile icon buttons
+       have NO padding and NO radius — the bare 24x24 icon is the whole hit
+       target. This is under the 44px touch-target guideline; ship it as designed.
+       Padding it back up would break the pixel diff and is a separate product
+       decision this section is not authorised to make. */
+    padding: 0;
+    border-radius: 0;
+  }
+
+  /* Swap to the mobile logo asset. The 124x34 link box centres the 110x33.016
+     mark exactly as the Figma wrapper does. */
+  .site-header__logo {
+    width: var(--logo-mobile-box-w);
+    height: var(--logo-mobile-box-h);
+  }
+
+  .site-header__logo-mark--desktop {
+    display: none;
+  }
+
+  .site-header__logo-mark--mobile {
+    display: block;
+    width: var(--logo-mobile-w);
+    height: var(--logo-mobile-h);
+  }
+
+  .site-header__logo-image {
+    width: var(--logo-mobile-box-w);
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+  /* No further deltas below 768px — the 375px mobile artboard already covers
+     this range and specifies nothing additional. */
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.site-header__menu-toggle:focus-visible,
+.site-header__cart-toggle:focus-visible,
+.site-header__logo:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.site-header__menu-toggle:focus:not(:focus-visible),
+.site-header__cart-toggle:focus:not(:focus-visible),
+.site-header__logo:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header,
+  .site-header * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

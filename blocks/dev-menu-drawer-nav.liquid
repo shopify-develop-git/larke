@@ -1,0 +1,27 @@
+{%- comment -%}
+  The primary nav list. It is a block only so its links can be nested inside it:
+  the drawer holds two DISTINCT link lists in two DOM containers, and a block can
+  emit `content_for 'blocks'` exactly once — so each list owns its own container.
+{%- endcomment -%}
+{%- if block.blocks.size > 0 -%}
+  <nav
+    class="dev-menu-drawer__nav"
+    aria-label="{{ 'accessibility.menu' | t | escape }}"
+    {{ block.shopify_attributes }}
+  >
+    <ul class="dev-menu-drawer__nav-list" role="list">
+      {% content_for 'blocks' %}
+    </ul>
+  </nav>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Navigation",
+  "tag": null,
+  "blocks": [
+    { "type": "dev-menu-drawer-nav-link" }
+  ],
+  "settings": []
+}
+{% endschema %}

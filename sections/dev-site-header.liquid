@@ -1,0 +1,194 @@
+{{ 'dev-site-header.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'dev-site-header.js' | asset_url }}" defer></script>
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .site-header {
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+
+    /* Horizontal gutters. No --container-max: this header is full-bleed by
+       design (Brief note #1 — no centred max-width frame exists in Figma);
+       the inset comes entirely from --section-px. */
+    --section-px: 64px;
+    --section-px-mobile: 16px;
+
+    /* Mobile artboard specifies its own fixed padding, not a scale factor. */
+    --pt-mobile: 16px;
+    --pb-mobile: 16px;
+
+    --spacing-sm: 7px;
+    --radius-icon-btn: 60px;
+    --icon-size: 24px;
+
+    /* Two DISTINCT logo assets (Brief note #4), not one scaled by CSS.
+       Desktop mark is 140x42 (viewBox 140 42).
+       Mobile mark is 110x33.016 (viewBox 110 33.0161) centred in a 124x34 box.
+       Rendered size must equal the viewBox aspect or QA fails it. */
+    --logo-aspect: 140 / 42;
+    --logo-mobile-w: 110px;
+    --logo-mobile-h: 33.016px;
+    --logo-mobile-box-w: 124px;
+    --logo-mobile-box-h: 34px;
+  }
+</style>
+
+{%- liquid
+  assign logo_image = section.settings.logo
+  assign logo_w = section.settings.logo_width
+  assign logo_link_label = 'accessibility.home_logo_alt' | t: store_name: shop.name
+  assign logo_alt = logo_image.alt | default: shop.name | escape
+  assign logo_sizes = '(max-width: 768px) 124px, ' | append: logo_w | append: 'px'
+  assign logo_src = logo_image | image_url: width: 560
+  assign cart_label = 'accessibility.cart' | t
+  assign cart_label = cart_label | append: ', ' | append: cart.item_count
+-%}
+
+<header
+  class="site-header"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+    --logo-w: {{ logo_w }}px;
+  "
+  data-menu-open="false"
+>
+  <div class="site-header__inner">
+    {%- comment -%}
+      Hamburger. The drawer it opens was NOT exported in the Figma nodes for this
+      section (Brief note #6) — this section owns the trigger + aria state only and
+      announces `site-header:menu-toggle`; it must not invent the drawer's layout.
+    {%- endcomment -%}
+    <button
+      type="button"
+      class="site-header__menu-toggle"
+      aria-label="{{ 'accessibility.menu' | t }}"
+      aria-haspopup="true"
+      aria-expanded="false"
+      aria-controls="menu-drawer"
+    >
+      <svg
+        class="site-header__menu-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <a href="{{ routes.root_url }}" class="site-header__logo" aria-label="{{ logo_link_label | escape }}">
+      {%- if logo_image != blank -%}
+        {{
+          logo_src
+          | image_tag:
+            loading: 'eager',
+            widths: '140, 280, 420, 560',
+            sizes: logo_sizes,
+            alt: logo_alt,
+            class: 'site-header__logo-image'
+        }}
+      {%- else -%}
+        <svg
+          class="site-header__logo-mark site-header__logo-mark--desktop"
+          viewBox="0 0 140 42"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M106.036 41.3017C100.608 41.1231 98.895 36.137 96.9757 31.3374C96.4862 30.1064 95.4955 29.2987 94.2367 28.5299C94.2251 28.2891 95.0565 27.594 95.4295 27.4853C98.4754 26.6232 100.985 24.7554 101.665 21.6217C101.89 20.5887 101.521 19.0665 100.915 18.3209C100.383 17.6686 98.7668 17.1288 97.8887 17.2958C93.6035 18.1074 91.8474 21.6139 91.9523 25.5165L92.3641 41.0571H83.3391C83.5178 38.133 83.7043 35.4381 83.7043 32.4985L83.6926 6.90433C83.6926 4.61324 83.4906 2.59009 83.3002 0H92.4263C92.2282 2.9823 92.0378 5.39765 92.0417 8.05764L92.0611 20.1926C95.0254 15.7114 99.2369 12.8068 104.373 13.3776C106.72 13.6378 108.705 14.9309 109.579 16.7211C110.647 18.9112 110.267 21.3537 108.705 23.3108C106.35 26.266 102.803 27.493 99.1358 28.1144C107.127 29.2172 106.887 34.3119 110.539 39.5465C111.568 39.5543 112.252 40.1639 112.058 41.0338C110.123 41.2124 108.017 41.3638 106.032 41.2978L106.036 41.3017Z" fill="currentColor"/>
+          <path d="M27.1723 36.4865L26.3526 41.0648L0 41.0571C0.194254 38.6145 0.404049 36.4166 0.404049 34.0518V7.29653C0.400164 5.04427 0.194254 3.02113 0.0155404 0.590246L10.6141 0.58248C10.4082 3.67351 10.245 6.29855 10.245 9.24201V39.663C16.162 39.729 21.3913 38.665 27.1723 36.4865Z" fill="currentColor"/>
+          <path d="M37.3901 41.9696C33.439 41.9968 30.3659 39.7407 29.6743 36.3079C28.1242 28.6114 36.1508 27.1358 42.9303 24.6971C45.3817 23.8157 47.4991 21.9906 47.7439 19.3772C47.8993 17.7113 47.3554 16.0609 46.0927 15.2493C42.7826 13.1291 40.1097 16.7715 37.8991 20.0451C36.5509 22.0371 33.7343 23.0196 31.8461 21.0897C30.9991 20.2276 30.8282 18.352 30.9642 17.0667C36.2285 13.9795 42.1999 12.5388 48.0663 13.8242C52.9499 14.8921 55.7705 18.7287 55.7977 23.5865L55.8637 34.8944C55.8754 36.9486 56.6097 39.0028 57.1225 41.0648L48.1169 41.0726L47.5302 34.642C45.7431 38.7155 42.2853 41.9463 37.394 41.9813L37.3901 41.9696ZM40.6031 37.0535C43.6607 37.9621 46.3647 35.5352 47.0679 32.6383C47.7594 29.7997 47.5807 26.6853 47.5885 24.0448L41.0615 27.4659C39.2006 28.4405 37.8874 30.1414 37.7981 31.9665C37.7048 33.9236 38.3109 36.3739 40.6031 37.0535Z" fill="currentColor"/>
+          <path d="M134.141 36.4904C136.712 35.0303 138.216 32.6344 138.993 29.986L139.821 29.9394C140.64 29.8928 138.702 37.0302 132.963 40.2493C128.597 42.6996 123.223 42.587 118.771 39.8532C114.948 37.5039 112.415 33.213 112.132 28.2464C111.681 20.313 117.299 13.9523 125.29 13.3659C132.757 12.8184 139.537 17.5326 139.619 25.2136L120.881 25.2252C120.966 28.3862 121.934 31.4345 123.729 34.0207C126.122 37.4728 130.283 38.6844 134.141 36.4943V36.4904ZM131.009 23.7302L129.999 17.3656C129.125 15.991 128.022 14.826 126.569 14.7057C122.699 14.3833 120.683 19.1092 120.756 23.769L131.005 23.7341L131.009 23.7302Z" fill="currentColor"/>
+          <path d="M60.1761 41.0571L60.5141 27.8581C60.6307 23.2526 60.4248 18.884 60.1528 14.2785L69.2478 14.2591C69.0302 16.7405 68.8632 18.884 69.038 21.5052C70.9106 16.4182 74.8268 13.0048 80.3164 13.5252C81.1828 14.7717 81.1478 16.7249 80.4174 18.0452C79.6093 19.5053 77.9621 20.0723 75.9535 20.0179C73.1368 19.9441 69.3993 21.5207 69.0846 24.7942C68.5563 30.2773 68.9137 35.7371 69.209 41.0609H60.18L60.1761 41.0571Z" fill="currentColor"/>
+        </svg>
+        <svg
+          class="site-header__logo-mark site-header__logo-mark--mobile"
+          viewBox="0 0 110 33.0161"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M83.3138 32.4672C79.0494 32.3267 77.7032 28.4072 76.1952 24.6343C75.8106 23.6666 75.0322 23.0317 74.0432 22.4272C74.034 22.238 74.6873 21.6916 74.9803 21.6061C77.3735 20.9284 79.3455 19.4601 79.8797 16.9967C80.0567 16.1847 79.7668 14.9881 79.2906 14.402C78.8724 13.8892 77.6025 13.4649 76.9126 13.5962C73.5456 14.2341 72.1658 16.9906 72.2483 20.0584L72.5718 32.2748H65.4807C65.6211 29.9763 65.7677 27.8578 65.7677 25.547L65.7585 5.42747C65.7585 3.62646 65.5998 2.03607 65.4502 0H72.6207C72.465 2.34438 72.3154 4.24307 72.3185 6.33409L72.3337 15.8734C74.6629 12.3507 77.9718 10.0674 82.0073 10.5161C83.8511 10.7206 85.411 11.7371 86.0978 13.1444C86.9372 14.866 86.6381 16.7861 85.411 18.3246C83.5611 20.6476 80.7741 21.6122 77.8925 22.1006C84.1716 22.9676 83.9824 26.9725 86.8518 31.0874C87.6607 31.0935 88.198 31.5727 88.0453 32.2565C86.5251 32.3969 84.8707 32.516 83.3108 32.4641L83.3138 32.4672Z" fill="currentColor"/>
+          <path d="M21.3497 28.682L20.7056 32.2809L0 32.2748C0.152629 30.3548 0.317467 28.627 0.317467 26.768V5.73578C0.314415 3.96529 0.152629 2.3749 0.0122103 0.463991L8.33963 0.457886C8.17784 2.88773 8.04963 4.95127 8.04963 7.26512V31.179C12.6987 31.2309 16.8075 30.3945 21.3497 28.682Z" fill="currentColor"/>
+          <path d="M29.378 32.9922C26.2735 33.0136 23.8589 31.24 23.3156 28.5415C22.0976 22.4913 28.4042 21.3314 33.7309 19.4144C35.6571 18.7214 37.3208 17.2867 37.5131 15.2323C37.6352 13.9228 37.2078 12.6254 36.2157 11.9874C33.6149 10.3207 31.5148 13.1841 29.7778 15.7574C28.7186 17.3233 26.5055 18.0956 25.0219 16.5785C24.3565 15.9008 24.2222 14.4265 24.329 13.4161C28.4652 10.9893 33.157 9.85675 37.7664 10.8672C41.6035 11.7066 43.8197 14.7226 43.841 18.5413L43.8929 27.4304C43.9021 29.0452 44.479 30.66 44.882 32.2809L37.8061 32.287L37.3452 27.232C35.941 30.4341 33.2242 32.9739 29.381 33.0014L29.378 32.9922ZM31.9024 29.1276C34.3048 29.8419 36.4294 27.9341 36.9819 25.6569C37.5253 23.4254 37.3849 20.9773 37.391 18.9015L32.2626 21.5908C30.8005 22.357 29.7687 23.6941 29.6985 25.1288C29.6252 26.6673 30.1014 28.5934 31.9024 29.1276Z" fill="currentColor"/>
+          <path d="M105.396 28.685C107.417 27.5372 108.598 25.6538 109.209 23.5719L109.859 23.5353C110.503 23.4987 108.98 29.1093 104.471 31.6399C101.04 33.5661 96.8185 33.4775 93.3202 31.3285C90.3165 29.4817 88.3262 26.1086 88.1034 22.2044C87.7493 15.968 92.1633 10.9679 98.4424 10.5069C104.309 10.0765 109.636 13.7823 109.7 19.8203L94.9778 19.8295C95.0449 22.3143 95.805 24.7106 97.2153 26.7436C99.0957 29.4573 102.365 30.4097 105.396 28.6881V28.685ZM102.936 18.6542L102.142 13.6511C101.455 12.5705 100.588 11.6547 99.4467 11.5601C96.4064 11.3067 94.8221 15.0217 94.8801 18.6848L102.933 18.6573L102.936 18.6542Z" fill="currentColor"/>
+          <path d="M47.2813 32.2748L47.5468 21.8992C47.6384 18.2788 47.4766 14.8447 47.2629 11.2243L54.409 11.209C54.2381 13.1596 54.1068 14.8447 54.2442 16.9051C55.7155 12.9063 58.7925 10.2231 63.1058 10.6321C63.7865 11.612 63.759 13.1474 63.1852 14.1853C62.5502 15.3331 61.2559 15.7787 59.6777 15.736C57.4646 15.678 54.5281 16.9174 54.2808 19.4907C53.8657 23.8009 54.1465 28.0928 54.3785 32.2779H47.2843L47.2813 32.2748Z" fill="currentColor"/>
+        </svg>
+      {%- endif -%}
+    </a>
+
+    {%- comment -%}
+      Cart. Stays a real link to /cart so it works with no JS and before the cart
+      drawer component exists; the JS upgrades it to a drawer trigger if one is present.
+    {%- endcomment -%}
+    <a
+      href="{{ routes.cart_url }}"
+      class="site-header__cart-toggle"
+      aria-haspopup="true"
+      aria-expanded="false"
+      aria-controls="cart-drawer"
+      aria-label="{{ cart_label | escape }}"
+    >
+      <svg
+        class="site-header__cart-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M16 11V7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7V11M5 9H19L20 21H4L5 9Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      {%- if section.settings.show_cart_count and cart.item_count > 0 -%}
+        <span class="site-header__cart-count" aria-hidden="true">{{ cart.item_count }}</span>
+      {%- endif -%}
+    </a>
+  </div>
+</header>
+
+{%- comment -%}
+  The menu and cart drawers, as blocks. They render OUTSIDE <header> on purpose: they are
+  role="dialog" overlays, not part of the banner landmark. They were sections once, which
+  meant re-adding and re-configuring them in every template; as blocks of the header they
+  are configured once and travel with the triggers above that open them.
+{%- endcomment -%}
+{% content_for 'blocks' %}
+
+{% schema %}
+{
+  "name": "Header",
+  "tag": "section",
+  "blocks": [
+    { "type": "dev-menu-drawer" },
+    { "type": "dev-cart-drawer" }
+  ],
+  "max_blocks": 2,
+  "presets": [
+    { "name": "Header" }
+  ],
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "image_picker", "id": "logo", "label": "Logo" },
+    { "type": "range", "id": "logo_width", "min": 80, "max": 240, "step": 2, "unit": "px", "label": "Logo width", "default": 140 },
+    { "type": "link_list", "id": "menu", "label": "Menu" },
+    { "type": "checkbox", "id": "show_cart_count", "label": "Show cart count", "default": true },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#4EA448" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 100, "step": 4, "unit": "px", "label": "Padding top", "default": 24 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 100, "step": 4, "unit": "px", "label": "Padding bottom", "default": 24 }
+  ]
+}
+{% endschema %}

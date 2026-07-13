@@ -1,0 +1,20 @@
+{%- comment -%}
+  The secondary (utility) link list — see the note in dev-menu-drawer-nav.liquid for
+  why each list is its own block.
+{%- endcomment -%}
+{%- if block.blocks.size > 0 -%}
+  <ul class="dev-menu-drawer__footer-list" role="list" {{ block.shopify_attributes }}>
+    {% content_for 'blocks' %}
+  </ul>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Footer links",
+  "tag": null,
+  "blocks": [
+    { "type": "dev-menu-drawer-footer-link" }
+  ],
+  "settings": []
+}
+{% endschema %}

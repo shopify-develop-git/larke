@@ -1,0 +1,172 @@
+/* dev-promo-bar.css */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.promo-bar {
+  /* Fixed Figma tokens (--font-*, --spacing-sm, --space-advance, --divider-width,
+     --pad-scale-m, --section-px) are declared in this section's <style> block by
+     dev-promo-bar.liquid — including their mobile overrides, which MUST live there to win
+     the cascade (the <link> to this file is emitted above that block). This file only
+     consumes them. --bg/--color/--accent/--divider-color/--pt/--pb are merchant-controlled
+     and arrive inline on the root wrapper.
+
+     No --container-max by design: full-bleed bar with no capped inner frame (Brief, Note 1).
+     The horizontal inset is entirely --section-px. */
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  /* Figma outer wrapper: padding-top 0, left/right --section-px, bottom --pb.
+     Top padding is deliberately 0 — the divider sits flush at the section's top edge, and
+     the "gap below the divider" is the INNER row's padding-top (--pt). */
+  padding: 0 var(--section-px) var(--pb);
+
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+}
+
+/* --- layout --- */
+
+.promo-bar__inner {
+  /* `flex: 1 0 0` (Figma) so the border-top spans the full width between the section's
+     horizontal padding, while the stars + text stay centred on top of it. Do not
+     left-align, and do not shrink this to its content — the line would shorten with it. */
+  flex: 1 0 0;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+
+  padding-top: var(--pt);
+  border-top: var(--divider-width) solid var(--divider-color);
+
+  white-space: nowrap;
+}
+
+/* --- typography --- */
+
+.promo-bar__stars {
+  margin: 0;
+  flex-shrink: 0;
+
+  /* U+2605 is not in Public Sans (verified against the shipped woff2), so this glyph
+     font-falls-back — exactly as it does in Figma, which sets the same Public Sans face on
+     the node. Leaving the family to var(--font-body) reproduces that fallback rather than
+     forcing a different one. */
+  font-size: var(--font-star-size);
+  font-weight: var(--font-star-weight);
+  line-height: var(--font-body-lh);
+  color: var(--accent);
+}
+
+.promo-bar__rating {
+  margin: 0;
+  flex-shrink: 0;
+
+  /* font-size: 0 is load-bearing — DO NOT REMOVE.
+     The value / separator / label are inline spans, so ANY whitespace between them collapses
+     into a real, rendered space (0.26em ≈ 4px each) and silently adds ~8px of drift the
+     design does not have. Today the `{%- -%}` dash tags in the Liquid already emit the spans
+     with no whitespace between them; this is the second line of defence, so that reordering
+     or reformatting that markup later cannot reintroduce the gap. Each span restores its own
+     size below, leaving the em margins as the only horizontal spacing. Figma's own export
+     does exactly the same thing (`text-[0px]` on this wrapper). */
+  font-size: 0;
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+/* The em margins below re-create the literal space characters Figma used to fake these gaps
+   (` 4.6/5`, `   |   `, `Rated Excellent `). 1 space = 0.26em in Public Sans at every weight.
+   `em` resolves against each span's own font-size, so these shrink correctly on their own
+   when the value/label drop 16px → 14px at mobile. */
+
+.promo-bar__value {
+  font-size: var(--font-rating-size);
+  font-weight: var(--font-rating-weight);
+  line-height: var(--font-body-lh);
+  margin-left: var(--space-advance); /* the single leading space in ` 4.6/5` */
+}
+
+.promo-bar__separator {
+  font-size: var(--font-sep-size);
+  font-weight: var(--font-sep-weight);
+  line-height: var(--font-body-lh);
+  margin-inline: calc(var(--space-advance) * var(--sep-spaces)); /* `   |   ` */
+}
+
+.promo-bar__label {
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
+  line-height: var(--font-body-lh);
+  margin-right: var(--space-advance); /* the trailing space in `Rated Excellent ` */
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+  /* No tablet artboard exists in the Figma file, and nothing needs to change: the bar is a
+     single centred line inside a full-bleed, padding-only box, so it reflows on its own.
+     Nothing is invented here on purpose. */
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  /* Token deltas (--section-px 64→16px, value/label 16→14px) are applied in the <style>
+     block in dev-promo-bar.liquid — see the note at the top of this file. What is left here
+     is the pair that CANNOT be done with a token: --pt and --pb arrive as inline styles on
+     the root, which outrank any stylesheet rule, so they are scaled instead (12 → 8px).
+     Scaling rather than hardcoding 8px keeps a merchant's override alive across the
+     breakpoint. Layout is otherwise unchanged: mobile is the same single row, not a stack. */
+
+  .promo-bar {
+    padding-bottom: calc(var(--pb) * var(--pad-scale-m));
+  }
+
+  .promo-bar__inner {
+    padding-top: calc(var(--pt) * var(--pad-scale-m));
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+  /* The mobile artboard is 375px wide, so the values set at ≤768px already govern this
+     range. No separate ≤480px design exists — nothing to override. */
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+/* This section has no interactive elements — no links, buttons, or controls on either
+   artboard (Brief, Interactivity: none) — so there is no focus state to style. The block is
+   kept so the file matches the standard six-block structure. If a PM later decides the bar
+   should link to a reviews page, the focus-visible rule belongs here. */
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .promo-bar,
+  .promo-bar * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

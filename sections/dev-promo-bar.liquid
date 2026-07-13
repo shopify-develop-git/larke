@@ -1,0 +1,163 @@
+{{ 'dev-promo-bar.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  No JS tag: the Brief's Interactivity section is "none" — a static, single-line trust bar.
+  No slider/accordion/tabs/sticky/modal, and no <a> or cursor-pointer treatment on either
+  artboard, so this section ships zero JavaScript.
+{%- endcomment -%}
+
+{%- comment -%}
+  Fixed design tokens from Figma (45060:1442 desktop / 44796:1888 mobile) — not merchant-controlled.
+
+  WHY THE MOBILE MEDIA QUERY LIVES HERE AND NOT IN THE CSS FILE:
+  `stylesheet_tag` emits its <link> above this <style> block, so at equal specificity
+  (`.promo-bar` = 0,1,0 in both) THIS block wins the cascade. A token redeclared in a
+  media query inside dev-promo-bar.css would therefore be silently overridden by the
+  desktop value below it. Token overrides must stay in this block; the CSS file only
+  ever *consumes* them. (Media queries add no specificity — do not "tidy" this away.)
+{%- endcomment -%}
+<style>
+  .promo-bar {
+    /* Brand params (Brief → Brand Params).
+       --container-max is intentionally absent: the Brief confirms there is no capped inner
+       frame anywhere in this tree — the row is `flex: 1 0 0` and fills the space between the
+       section's own padding. Full-bleed, padding only. Same precedent as dev-site-header.
+       --font-heading is intentionally absent too: this section has no heading-level element
+       (Brief, Note 2), so it must not override the site's global value. */
+    --font-body: 'Public Sans', sans-serif;
+    --section-px: 64px;
+
+    /* Typography — every text node here is a Body style; sizes/weights read off Figma. */
+    --font-star-size: 13px;
+    --font-star-weight: 700;
+    --font-rating-size: 16px;
+    --font-rating-weight: 700;
+    --font-sep-size: 14px;
+    --font-sep-weight: 700;
+    --font-label-size: 16px;
+    --font-label-weight: 500;
+    --font-body-lh: 1.4;
+
+    /* Spacing */
+    --spacing-sm: 4px; /* the inner row's Auto Layout gap (stars ↔ rating text) */
+    --divider-width: 1px;
+
+    /* Figma fakes the gaps *inside* the rating text node with literal space characters
+       (` 4.6/5`, `   |   `, `Rated Excellent `) instead of real spacing — see Brief, Notes.
+       We reproduce them as real margins. Public Sans' space advance is 520/2000 upm =
+       exactly 0.26em in every weight (measured from the shipped woff2), so expressing the
+       margin in `em` reproduces Figma's gap to the pixel *and* rescales itself for free when
+       the font-size drops 16px → 14px at mobile. Do not hardcode these as px. */
+    --space-advance: 0.26em;
+    --sep-spaces: 3; /* `   |   ` — three spaces either side of the pipe */
+
+    /* --pt/--pb are merchant values and arrive inline on the root, so a media query cannot
+       override them. Mobile scales them instead: 12px → 8px = 2/3 (Brief, Auto Layout). */
+    --pad-scale-m: 0.666667;
+  }
+
+  @media (max-width: 768px) {
+    .promo-bar {
+      --section-px: 16px;
+      --font-rating-size: 14px;
+      --font-label-size: 14px;
+      /* Star (13px) and separator (14px) sizes do not change at mobile — Brief, Auto Layout. */
+    }
+  }
+</style>
+
+<div
+  class="promo-bar"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.star_color }};
+    --divider-color: {{ section.settings.divider_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  {%- comment -%}
+    The divider (border-top) belongs to this INNER row, not the outer box: it must span the
+    full width inside the section's horizontal padding while the stars + text sit centred on
+    top of it (Brief, Structural note). Hence `flex: 1 0 0` + `justify-content: center`.
+  {%- endcomment -%}
+  <div class="promo-bar__inner">
+    {%- comment -%}
+      Five solid gold stars, as literal Unicode glyphs (U+2605). This is what the Figma file
+      contains — there is no icon or SVG asset in this section (asset report: `rawImages: []`,
+      no vectors), so a hand-drawn SVG star here would be a fabricated asset, not the design.
+      Decorative: "4.6/5" + "Rated Excellent" already carry the meaning to a screen reader.
+    {%- endcomment -%}
+    <p class="promo-bar__stars" aria-hidden="true">★★★★★</p>
+
+    {%- if section.settings.rating_value != blank or section.settings.rating_label != blank -%}
+      {%- comment -%}
+        .promo-bar__rating is font-size: 0 (see the CSS) so that the collapsed whitespace
+        between these spans has zero width — the gaps come only from the em margins.
+      {%- endcomment -%}
+      <p class="promo-bar__rating">
+        {%- if section.settings.rating_value != blank -%}
+          <span class="promo-bar__value">{{ section.settings.rating_value | escape }}</span>
+        {%- endif -%}
+
+        {%- if section.settings.rating_value != blank and section.settings.rating_label != blank -%}
+          <span class="promo-bar__separator" aria-hidden="true">|</span>
+        {%- endif -%}
+
+        {%- if section.settings.rating_label != blank -%}
+          <span class="promo-bar__label">{{ section.settings.rating_label | escape }}</span>
+        {%- endif -%}
+      </p>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Promo bar",
+  "tag": "section",
+  "presets": [
+    { "name": "Promo bar" }
+  ],
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "text", "id": "rating_value", "label": "Rating value", "default": "4.6/5" },
+    { "type": "text", "id": "rating_label", "label": "Rating label", "default": "Rated Excellent" },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "info": "The Figma frame has no fill — it sits on the page background. Defaults to the same cream as the header above it.",
+      "default": "#FFFCF4"
+    },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "star_color", "label": "Star color", "default": "#F1B500" },
+    { "type": "color", "id": "divider_color", "label": "Divider color", "default": "#C4BCA9" },
+
+    { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "info": "Space between the divider line and the text.",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 12
+    }
+  ]
+}
+{% endschema %}

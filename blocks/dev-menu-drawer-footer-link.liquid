@@ -1,0 +1,21 @@
+{%- if block.settings.label != blank -%}
+  <li class="dev-menu-drawer__footer-item" {{ block.shopify_attributes }}>
+    <a
+      class="dev-menu-drawer__footer-link"
+      href="{{ block.settings.link | default: routes.root_url }}"
+    >
+      {{- block.settings.label | escape -}}
+    </a>
+  </li>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Footer link",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "label", "label": "Label", "default": "FAQs" },
+    { "type": "url", "id": "link", "label": "Link" }
+  ]
+}
+{% endschema %}

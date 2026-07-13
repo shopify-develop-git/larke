@@ -1,0 +1,521 @@
+/* dev-cart-drawer.css
+   Basket overlay. Desktop (45058:2164) is a floating right-hand panel inset 16px from
+   the viewport, all four corners rounded 32px. Mobile (44840:5858) is a bottom sheet:
+   flush to the left, right and bottom edges, only the top corners rounded 16px. That is
+   a genuine structural change between breakpoints, not a fluid scale-down — the two
+   artboards are built differently and the CSS treats them as two shapes.
+
+   Everything visual derives from [data-open] on the root, so forcing the drawer open
+   with `el.dataset.open = 'true'` produces a genuinely open drawer. */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.cart-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  font-family: var(--font-body);
+  color: var(--color);
+
+  /* Closed: no layout shift, nothing focusable, nothing announced. Not `display: none`,
+     because the panel animates in — visibility flips at the end of the transition. */
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+}
+
+.cart-drawer[data-open='true'] {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.3s ease, visibility 0s linear 0s;
+}
+
+/* Lock the page behind the overlay. */
+body[data-cart-drawer-open='true'] {
+  overflow: hidden;
+}
+
+/* --- backdrop --- */
+
+.cart-drawer__backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--backdrop);
+  cursor: pointer;
+}
+
+/* --- panel --- */
+
+.cart-drawer__panel {
+  position: absolute;
+  top: var(--drawer-inset);
+  right: var(--drawer-inset);
+  bottom: var(--drawer-inset);
+
+  display: flex;
+  flex-direction: column;
+  width: var(--container-max);
+  max-width: calc(100% - (var(--drawer-inset) * 2));
+
+  background-color: var(--bg);
+  border-radius: var(--radius-drawer);
+  overflow: hidden;
+
+  transform: translateX(calc(100% + var(--drawer-inset)));
+  transition: transform 0.3s ease;
+}
+
+.cart-drawer[data-open='true'] .cart-drawer__panel {
+  transform: translateX(0);
+}
+
+/* --- header --- */
+
+.cart-drawer__header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-shrink: 0;
+
+  padding-top: var(--pt);
+  padding-right: var(--section-px);
+  padding-bottom: var(--spacing-md);
+  padding-left: var(--section-px);
+
+  border-bottom: 1px solid var(--border-header);
+}
+
+.cart-drawer__heading {
+  flex: 1;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  color: var(--color);
+}
+
+.cart-drawer__close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--color);
+  cursor: pointer;
+}
+
+.cart-drawer__icon {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+/* --- content: the scrolling region ---
+   The footer is pinned to the bottom of the panel in both artboards, sitting under a
+   large empty region. That only holds for N items if this region grows and scrolls,
+   so the footer stays put instead of being pushed off. */
+
+.cart-drawer__content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  padding-top: var(--spacing-lg);
+  padding-right: var(--section-px);
+  padding-bottom: var(--spacing-lg);
+  padding-left: var(--section-px);
+}
+
+.cart-drawer__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cart-drawer__empty {
+  margin: 0;
+  font-size: var(--font-size-option);
+  font-weight: var(--weight-medium);
+  line-height: var(--font-body-lh);
+}
+
+/* --- line item card --- */
+
+.cart-drawer__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background-color: var(--card-bg);
+  border-radius: var(--radius-card);
+}
+
+.cart-drawer__item-detail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.cart-drawer__item-media {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  min-width: 0;
+}
+
+.cart-drawer__item-image {
+  flex-shrink: 0;
+  width: var(--image-size);
+  height: var(--image-size);
+  object-fit: cover;
+  border-radius: var(--radius-image);
+}
+
+.cart-drawer__item-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  min-width: 0;
+}
+
+.cart-drawer__item-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+/* --- line item typography --- */
+
+.cart-drawer__item-title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--font-size-title);
+  font-weight: var(--weight-bold);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+.cart-drawer__item-option {
+  margin: 0;
+  font-size: var(--font-size-option);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+.cart-drawer__item-option-name {
+  font-weight: var(--weight-medium);
+}
+
+.cart-drawer__item-option-value {
+  font-weight: var(--weight-bold);
+}
+
+.cart-drawer__item-price {
+  margin: 0;
+  font-size: var(--font-size-price);
+  font-weight: var(--weight-bold);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+  white-space: nowrap;
+}
+
+.cart-drawer__item-remove {
+  font-size: var(--font-size-remove);
+  font-weight: var(--weight-medium);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* --- feature badges --- */
+
+.cart-drawer__badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  row-gap: var(--spacing-sm);
+  column-gap: var(--spacing-lg);
+
+  margin: 0;
+  padding: 12px;
+  list-style: none;
+
+  background-color: var(--badge-bg);
+  border-radius: var(--radius-badge);
+}
+
+.cart-drawer__badge {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.cart-drawer__badge .cart-drawer__icon {
+  flex-shrink: 0;
+  color: var(--icon-muted);
+}
+
+.cart-drawer__badge-label {
+  font-size: var(--font-size-badge);
+  font-weight: var(--weight-bold);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+/* --- footer: pinned under the scrolling region --- */
+
+.cart-drawer__footer {
+  flex-shrink: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+
+  padding-top: var(--pt);
+  padding-right: var(--section-px);
+  padding-bottom: var(--pb);
+  padding-left: var(--section-px);
+
+  background-color: var(--bg);
+  border-top: 1px solid var(--border-footer);
+}
+
+/* --- checkout button --- */
+
+.cart-drawer__checkout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  min-height: 60px;
+  padding: var(--spacing-md) var(--spacing-lg);
+
+  background-color: var(--accent);
+  border: 1px solid var(--cta-color);
+  border-radius: var(--radius-cta);
+  color: var(--cta-color);
+
+  font-size: var(--font-size-cta);
+  font-weight: var(--weight-bold);
+  line-height: var(--font-body-lh);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.cart-drawer__checkout:hover {
+  opacity: 0.85;
+}
+
+.cart-drawer__checkout .cart-drawer__icon {
+  flex-shrink: 0;
+  color: var(--cta-color);
+}
+
+/* --- payment methods --- */
+
+.cart-drawer__payment {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.cart-drawer__payment-label {
+  margin: 0;
+  font-size: var(--font-size-payment);
+  font-weight: var(--weight-medium);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+.cart-drawer__payment-icons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-xs);
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cart-drawer__payment-item {
+  display: flex;
+  align-items: center;
+  height: 18px;
+}
+
+.cart-drawer__payment-icon {
+  display: block;
+  width: auto;
+  height: 100%;
+  border-radius: var(--radius-payment);
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+  /* The panel keeps its fixed width until the bottom-sheet breakpoint; max-width on
+     .cart-drawer__panel already stops it overflowing a narrow tablet. */
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  /* Bottom sheet: full-bleed left/right/bottom, gap at the top, top corners only.
+     The Figma mobile node gives no panel height (the screenshot could not be fetched —
+     MCP quota); it does pin the footer to the bottom under a large empty region, so the
+     sheet is tall. --sheet-top-gap is the one inferred value here. */
+  .cart-drawer__panel {
+    top: var(--sheet-top-gap);
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    width: 100%;
+    max-width: 100%;
+
+    border-radius: var(--radius-drawer-mobile) var(--radius-drawer-mobile) 0 0;
+    transform: translateY(100%);
+  }
+
+  .cart-drawer[data-open='true'] .cart-drawer__panel {
+    transform: translateY(0);
+  }
+
+  .cart-drawer__header {
+    padding-top: var(--spacing-lg);
+    padding-right: var(--header-px-mobile);
+    padding-left: var(--header-px-mobile);
+    border-bottom-color: var(--border-header-mobile);
+  }
+
+  .cart-drawer__heading {
+    font-size: var(--font-heading-size-mobile);
+  }
+
+  .cart-drawer__content {
+    padding-right: var(--section-px-mobile);
+    padding-left: var(--section-px-mobile);
+  }
+
+  .cart-drawer__item {
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+
+  .cart-drawer__item-image {
+    width: var(--image-size-mobile);
+    height: var(--image-size-mobile);
+  }
+
+  .cart-drawer__item-title {
+    font-size: var(--font-size-title-mobile);
+  }
+
+  .cart-drawer__item-option {
+    font-size: var(--font-size-option-mobile);
+  }
+
+  .cart-drawer__item-remove {
+    font-size: var(--font-size-remove-mobile);
+  }
+
+  .cart-drawer__badges {
+    column-gap: var(--spacing-md);
+  }
+
+  .cart-drawer__footer {
+    padding-top: var(--spacing-lg);
+    padding-right: var(--section-px-mobile);
+    padding-bottom: var(--spacing-lg);
+    padding-left: var(--section-px-mobile);
+  }
+
+  /* Touch targets. The close button is a 24px icon in Figma; give it a 44px hit area
+     without moving the icon by padding it out and pulling the box back in. */
+  .cart-drawer__close {
+    width: 44px;
+    height: 44px;
+    margin: -10px;
+  }
+
+  .cart-drawer__item-remove {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+  /* The badge row is the only thing that can force a horizontal overflow at 320px —
+     let the three chips stack instead of pushing the card wider. */
+  .cart-drawer__badges {
+    column-gap: var(--spacing-sm);
+  }
+
+  .cart-drawer__item-detail {
+    gap: var(--spacing-sm);
+  }
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.cart-drawer__close:focus-visible,
+.cart-drawer__checkout:focus-visible,
+.cart-drawer__item-remove:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.cart-drawer__close:focus:not(:focus-visible),
+.cart-drawer__checkout:focus:not(:focus-visible),
+.cart-drawer__item-remove:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .cart-drawer,
+  .cart-drawer * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

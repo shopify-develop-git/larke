@@ -1,0 +1,349 @@
+/* dev-menu-drawer.css
+   Overlay, not a page section. Hidden + inert by default; opens on [data-open="true"].
+   Two genuinely distinct layout modes (Brief): desktop = floating inset card;
+   mobile = full-bleed panel whose four regions distribute with space-between.
+
+   WHY THE ROOT CLASS IS `dev-menu-drawer` AND NOT `menu-drawer` — DO NOT "TIDY" THIS BACK.
+   Horizon stock owns the `.menu-drawer` class GLOBALLY. snippets/header-drawer.liquid ships a
+   {% stylesheet %} block that Shopify compiles into compiled_assets/styles.css, which loads on
+   every page whether or not the stock drawer renders. Its rule is:
+       .menu-drawer { position: fixed; transform: translateX(-100%); visibility: hidden;
+                      width: var(--drawer-width); left: 0; top: 0; }
+   ...where --drawer-width resolves to 25rem = 400px at >=750px.
+   We never declare width/transform on the root, so those stock values applied unopposed and
+   parked this drawer 400px off-screen — the section rendered a blank page. Stock also owns the
+   whole `menu-drawer__*` child namespace and header-drawer.js queries `.menu-drawer`.
+   The `dev-` prefix is the collision fix. The ROOT ID stays `menu-drawer`: that is the header's
+   aria-controls contract (dev-site-header.liquid), and an id does not collide with stock's class. */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.dev-menu-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: var(--drawer-inset);
+  font-family: var(--font-body);
+  color: var(--color);
+
+  /* Closed: no layout shift (out of flow), nothing focusable, nothing clickable. */
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--transition) ease,
+    visibility var(--transition) ease;
+}
+
+.dev-menu-drawer[data-open='true'] {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* The drawer owns the page scroll while it is open. */
+body[data-menu-drawer-open='true'] {
+  overflow: hidden;
+}
+
+/* --- layout --- */
+
+/* No scrim layer exists in Figma (Brief, Interactivity: NOT FOUND) — colour and
+   opacity are merchant settings rather than invented values. */
+.dev-menu-drawer__backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--backdrop);
+  opacity: var(--backdrop-opacity);
+}
+
+.dev-menu-drawer__panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--container-max);
+  background-color: var(--bg);
+  border-radius: var(--radius);
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+  overflow-y: auto;
+
+  /* Slides from the left: the header's hamburger is the first element in its row. */
+  transform: translateX(calc(-100% - var(--drawer-inset)));
+  transition: transform var(--transition) ease;
+}
+
+.dev-menu-drawer[data-open='true'] .dev-menu-drawer__panel {
+  transform: translateX(0);
+}
+
+/* Header band: 32px panel padding + 38px row + 16px row padding = the 86px "Overlay Top". */
+.dev-menu-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  min-height: var(--header-row-h);
+  padding-bottom: var(--spacing-md);
+  flex: 0 0 auto;
+}
+
+.dev-menu-drawer__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.dev-menu-drawer__stack {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* --- blocks / children --- */
+
+.dev-menu-drawer__nav-list,
+.dev-menu-drawer__footer-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dev-menu-drawer__promo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+  flex: 0 0 auto;
+  border-top: 1px solid var(--border-color);
+  padding-top: var(--spacing-sm);
+  /* Desktop: the 32px below the bar is the panel's own --pb. */
+  padding-bottom: 0;
+}
+
+/* --- typography --- */
+
+/* Transparent in Figma (Brief note #2): kept for assistive tech, never painted. */
+.dev-menu-drawer__title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.dev-menu-drawer__promo-rating,
+.dev-menu-drawer__promo-label,
+.dev-menu-drawer__promo-stars {
+  line-height: var(--font-body-lh);
+}
+
+.dev-menu-drawer__promo-rating {
+  font-size: var(--promo-rating-size);
+  font-weight: var(--promo-rating-weight);
+}
+
+.dev-menu-drawer__promo-label {
+  font-size: var(--promo-rating-size);
+  font-weight: var(--promo-label-weight);
+}
+
+.dev-menu-drawer__promo-stars {
+  color: var(--accent);
+  font-size: var(--promo-stars-size);
+  font-weight: var(--promo-stars-weight);
+}
+
+/* --- buttons / links --- */
+
+.dev-menu-drawer__close {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* 44px touch target without growing the 24x24 box the artboard measures. */
+.dev-menu-drawer__close::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
+}
+
+.dev-menu-drawer__close-icon {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+.dev-menu-drawer__nav-link {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  color: var(--color);
+  text-decoration: none;
+}
+
+.dev-menu-drawer__footer-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: var(--link-row-h);
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+  text-decoration: none;
+}
+
+/* Hover was NOT authored in Figma — this is the codebase's existing link convention
+   (see .site-footer__link), not an invented state. */
+.dev-menu-drawer__nav-link:hover,
+.dev-menu-drawer__footer-link:hover {
+  text-decoration: underline;
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  /* Full-bleed: no outer inset, no rounding, no inner panel width. */
+  .dev-menu-drawer {
+    padding: 0;
+  }
+
+  .dev-menu-drawer__panel {
+    max-width: none;
+    border-radius: 0;
+    padding-left: var(--section-px-mobile);
+    padding-right: var(--section-px-mobile);
+    padding-bottom: var(--pb-mobile);
+    justify-content: space-between;
+    transform: translateX(-100%);
+  }
+
+  .dev-menu-drawer[data-open='true'] .dev-menu-drawer__panel {
+    transform: translateX(0);
+  }
+
+  /* The mobile artboard is a flat column of four regions, not a nested desktop layout:
+     collapsing these two wrappers makes header / nav / footer / promo the panel's real
+     children so space-between distributes the free height between them (Brief: the gap
+     is a byproduct, never a hardcoded 64px). */
+  .dev-menu-drawer__content,
+  .dev-menu-drawer__stack {
+    display: contents;
+  }
+
+  .dev-menu-drawer__header {
+    padding-bottom: 0;
+  }
+
+  .dev-menu-drawer__nav-list {
+    gap: var(--spacing-md);
+  }
+
+  .dev-menu-drawer__nav-link {
+    font-size: var(--font-heading-size-mobile);
+  }
+
+  .dev-menu-drawer__footer-link {
+    min-height: 0;
+  }
+
+  /* 44px touch target without moving the 8px rhythm the artboard measures. */
+  .dev-menu-drawer__footer-link::after {
+    content: '';
+    position: absolute;
+    inset: -11px 0;
+  }
+
+  .dev-menu-drawer__promo {
+    padding-bottom: var(--spacing-sm);
+  }
+
+  .dev-menu-drawer__promo-rating,
+  .dev-menu-drawer__promo-label {
+    font-size: var(--promo-rating-size-mobile);
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.dev-menu-drawer__close:focus-visible,
+.dev-menu-drawer__nav-link:focus-visible,
+.dev-menu-drawer__footer-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.dev-menu-drawer__close:focus:not(:focus-visible),
+.dev-menu-drawer__nav-link:focus:not(:focus-visible),
+.dev-menu-drawer__footer-link:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-menu-drawer,
+  .dev-menu-drawer * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
