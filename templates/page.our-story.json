@@ -119,6 +119,47 @@
         "london"
       ]
     },
+    "dev-values-we-cherish": {
+      "type": "dev-values-we-cherish",
+      "blocks": {
+        "value-sleep": {
+          "type": "value",
+          "settings": {
+            "image": "shopify://shop_images/values-we-cherish-tile-1.png",
+            "image_alt": "A woman in bed hugging a white Larke duvet",
+            "text": "Sleep isn’t just downtime: it’s the most important moment in life."
+          }
+        },
+        "value-simple": {
+          "type": "value",
+          "settings": {
+            "image": "shopify://shop_images/values-we-cherish-tile-2.jpg",
+            "image_alt": "A stack of cut logs seen end-on, showing their tree rings",
+            "text": "All things sleep that feel simple to enjoy — no PhD in sleep required."
+          }
+        },
+        "value-materials": {
+          "type": "value",
+          "settings": {
+            "image": "shopify://shop_images/values-we-cherish-tile-3-desktop.jpg",
+            "image_alt": "Sunlight breaking through a green forest",
+            "text": "And when it comes to materials, choosing responsibly matters to our planet and future."
+          }
+        }
+      },
+      "block_order": [
+        "value-sleep",
+        "value-simple",
+        "value-materials"
+      ],
+      "settings": {
+        "heading": "Values we <em>Cherish</em>.",
+        "background_color": "rgba(0,0,0,0)",
+        "text_color": "#333333",
+        "accent_color": "#A8CF78",
+        "padding_bottom": 0
+      }
+    },
     "dev-journal-cards": {
       "type": "dev-journal-cards",
       "settings": {
@@ -180,6 +221,7 @@
     "dev-our-story-hero",
     "dev-story-slider",
     "dev-proudest-moments",
+    "dev-values-we-cherish",
     "dev-journal-cards"
   ]
 }

@@ -186,7 +186,72 @@
     "our_story": {
       "desktop_node": "45078:8860",
       "mobile_node": "44840:6152",
-      "sections": []
+      "note": "Enumerated from the artboard 2026-07-13. This list was EMPTY before, which is why 'Values we Cherish.' was silently never built — nobody had broken the page into sections. Keep it filled.",
+      "sections": [
+        {
+          "name": "announcement-bar",
+          "shared": true,
+          "figma_name": "Announcement bar",
+          "desktop": "45078:8861",
+          "mobile": null
+        },
+        {
+          "name": "site-header",
+          "shared": true,
+          "figma_name": "Menu - Desktop",
+          "desktop": "45091:16275",
+          "mobile": null
+        },
+        {
+          "name": "promo-bar",
+          "shared": true,
+          "figma_name": "Promo Bar - mobile",
+          "desktop": "45078:8863",
+          "mobile": null
+        },
+        {
+          "name": "our-story-hero",
+          "figma_name": "_Master Hero Media",
+          "desktop": "45078:8864",
+          "mobile": null,
+          "built_as": "dev-tree-fibre-hero with show_underline (same _Master Hero Media component)"
+        },
+        {
+          "name": "story-slider",
+          "figma_name": "Image and Text",
+          "desktop": "45205:1559",
+          "mobile": "44956:8863",
+          "built_as": "dev-story-slider"
+        },
+        {
+          "name": "proudest-moments",
+          "figma_name": "Image and text",
+          "desktop": "45081:9393",
+          "mobile": null,
+          "built_as": "dev-proudest-moments"
+        },
+        {
+          "name": "values-we-cherish",
+          "figma_name": "Image and Text",
+          "desktop": "45081:9421",
+          "mobile": "44847:1038",
+          "built_as": "dev-values-we-cherish"
+        },
+        {
+          "name": "journal-cards",
+          "figma_name": "Image and Text",
+          "desktop": "45081:9314",
+          "mobile": "44847:1162",
+          "built_as": "dev-journal-cards"
+        },
+        {
+          "name": "site-footer",
+          "shared": true,
+          "figma_name": "Footer",
+          "desktop": "45078:9010",
+          "mobile": null
+        }
+      ]
     },
     "tree_fibre": {
       "desktop_node": "45081:9538",
