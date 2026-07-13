@@ -1,0 +1,206 @@
+/* dev-video-story-banner.css */
+
+/* Fixed Figma tokens (--band-h, --font-*, --spacing-*, --button-*, --overlay-*) are
+   declared in the section's <style> block, per the code standards. Merchant-controlled
+   values (--bg/--color/--accent/--pt/--pb) arrive inline on the root wrapper.
+   This file only consumes them. */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.video-story-banner {
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+}
+
+/* No __inner / no max-width: this section is full-bleed edge-to-edge at both
+   breakpoints (--section-px is 0). See Brief note #3. */
+
+/* --- layout --- */
+
+.video-story-banner__band {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* Figma anchors the text stack to the BOTTOM of the band (justify-end) and centres
+     it horizontally (items-center). */
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  /* min-height, not height: renders identically to Figma's fixed 500px at the design's
+     content, but a merchant typing a longer heading grows the band instead of having the
+     text clipped by overflow: hidden. Never a fixed height on a container. */
+  min-height: var(--band-h);
+  overflow: hidden;
+}
+
+.video-story-banner__picture {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+}
+
+.video-story-banner__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Gradient scrim — dark at the bottom (behind the bottom-anchored text), fading to
+   transparent toward the top. Sits above the photo, below the content. */
+.video-story-banner__band::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image: linear-gradient(
+    to top,
+    var(--overlay-start) var(--overlay-start-stop),
+    var(--overlay-end) var(--overlay-end-stop)
+  );
+}
+
+/* --- blocks / children --- */
+
+.video-story-banner__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-lg) var(--spacing-md);
+  text-align: center;
+}
+
+/* --- typography --- */
+
+.video-story-banner__heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  letter-spacing: var(--font-heading-ls);
+  color: var(--color);
+  /* The line break is authored in Figma and carried through as a <br> from the schema
+     field. Never force-wrap it via CSS. */
+  text-wrap: balance;
+}
+
+.video-story-banner__subheading {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+/* --- buttons / links --- */
+
+.video-story-banner__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--button-py) var(--button-px);
+  border-radius: var(--radius-button);
+  background-color: var(--accent);
+  color: var(--button-color);
+  font-family: var(--font-body);
+  font-size: var(--font-button-size);
+  font-weight: var(--font-button-weight);
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+  /* No tablet artboard exists in Figma; desktop layout holds down to the mobile
+     breakpoint. Intentionally empty. */
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .video-story-banner {
+    /* The mobile artboard specifies its own literal top padding (48px), not a scale
+       factor off the desktop value. --pb stays 0 on both breakpoints. */
+    padding-top: var(--pt-mobile);
+  }
+
+  .video-story-banner__content {
+    /* Mobile tile padding is a symmetric 24px on all four sides, vs the desktop's
+       asymmetric 32px block / 24px inline. */
+    padding: var(--spacing-lg-mobile) var(--spacing-md);
+  }
+
+  .video-story-banner__heading {
+    /* Mobile artboard specifies its own type sizes — use those, not a scale factor. */
+    font-size: var(--font-heading-size-mobile);
+    letter-spacing: var(--font-heading-ls-mobile);
+  }
+
+  .video-story-banner__subheading {
+    font-size: var(--font-body-size-mobile);
+  }
+
+  .video-story-banner__button {
+    padding: var(--button-py-mobile) var(--button-px-mobile);
+    font-size: var(--font-button-size-mobile);
+    /* Touch target floor. The design's own 12px + 16px x 1 line-height already clears
+       44px; min-height only guarantees it. */
+    min-height: 44px;
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+  /* The 375px mobile artboard's values already apply from 768px down; nothing changes
+     again below 480px. Intentionally empty. */
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.video-story-banner__button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.video-story-banner__button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .video-story-banner,
+  .video-story-banner * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

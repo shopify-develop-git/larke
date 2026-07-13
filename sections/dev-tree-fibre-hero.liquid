@@ -1,0 +1,243 @@
+{{ 'dev-tree-fibre-hero.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  No JS tag: this section is static — one background photo, one heading, no controls.
+  Loading an empty dev-tree-fibre-hero.js on every page render would buy nothing.
+{%- endcomment -%}
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .tree-fibre-hero {
+    /* Brand params. The faces themselves are loaded theme-wide by snippets/dev-brand-fonts.liquid —
+       this only selects them. --container-max is deliberately absent: the hero is full-bleed, there
+       is no inner max-width frame (same call as dev-hero / dev-site-header). */
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+    --section-px: 64px;
+    --section-px-m: 16px;
+
+    /* The mobile artboard states its own top padding, so it is a fixed token, not a scale
+       factor off --pt. Derived from the artboard: the heading's ink starts at y=46, and the
+       ink-top-to-box-top delta for this face at lh 1.2 is 0.2105em (calibrated on the desktop
+       artboard, where padding is a known 64px and ink starts at y=72 for 38px type).
+       46 - (0.2105 x 28) = 40.1  ->  40px. */
+    --pt-m: 40px;
+
+    /* Typography. Desktop 38px / mobile 28px, both Tiempos Headline Regular at lh 1.2.
+       Mobile size is measured off the artboard: baseline pitch is exactly 34px and
+       34 / 1.2 = 28.3, and the ascender-to-descender ink height (27px) over the desktop's
+       measured 0.974 em ratio gives 27.7 — both round to 28. */
+    --font-heading-size: 38px;
+    --font-heading-size-m: 28px;
+    --font-heading-weight: 400;
+    --font-heading-lh: 1.2;
+
+    /* ---- The emphasised run ("comfortable.") -----------------------------------
+       READ THIS BEFORE CHANGING THE 500.
+       Figma sets this run in Tiempos Headline **Semibold Italic** — i.e. weight 600,
+       italic. There is NO TiemposHeadline-SemiboldItalic.woff2 in assets/: the only
+       italic faces loaded by dev-brand-fonts.liquid are Regular (400) and Medium (500).
+       600 and 700 are upright-only.
+
+       Asking for `font-weight: 600; font-style: italic` therefore does NOT get Semibold
+       Italic — it gets the browser SYNTHESISING an oblique by shearing the upright
+       Semibold. A true Tiempos italic has different letterforms (single-storey 'a',
+       descending 'f', calligraphic entry strokes); a sheared upright has none of them.
+       That is a far larger pixel error than being one weight light, so this uses the
+       nearest REAL italic face — Medium Italic (500) — rather than a faux-oblique 600.
+
+       This is a genuine asset gap, not a design decision. Supply
+       assets/TiemposHeadline-SemiboldItalic.woff2, register it at 600/italic in
+       snippets/dev-brand-fonts.liquid (owned by the shared-chrome lane, not this one),
+       then set --em-weight to 600 and the section is exact. */
+    --em-weight: 500;
+
+    /* Frame — 550px tall on BOTH artboards (1440x550 desktop, 375x550 mobile). */
+    --hero-min-h: 550px;
+    --radius-bottom: 32px;
+
+    /* Desktop text column: w-[480px] on the artboard. */
+    --text-col-w: 480px;
+    --spacing-md: 24px;
+
+    /* ---- Squiggle underline (optional; see `show_underline` in the schema) --------
+       The Our Story hero (45078:8864) is this same _Master Hero Media component, but it
+       underlines its emphasised runs — TWO of them ("starting", "duvets.") — with a hand-drawn
+       stroke. Rather than pin an SVG under one hard-coded word (the mistake baked into dev-hero,
+       where --squiggle-x/-y only ever fit "trees"), the stroke here is a MASK on the <em> itself,
+       so it follows whatever the merchant italicises, however many runs there are.
+
+       Figma exports both strokes with preserveAspectRatio="none" and width="100%" — they are
+       MEANT to stretch to their word, and they do: 145x5 under "starting" (146.106/6.784 of real
+       ink) and 134x5 under "duvets." (135.105/7.653). Different aspect ratios, same stroke idea.
+       So the mask stretches to the <em>'s width and only the HEIGHT is a token.
+
+       The two files are the two real Figma vectors, pasted verbatim; the CSS alternates them per
+       <em> (nth-of-type) so a two-emphasis heading reproduces the artboard exactly.
+
+       Geometry, off the desktop artboard: the anchor box is 5px tall at y=207.06, but Figma
+       overflows the art out of it (inset -24.64% top), so the real ink is 6.78px starting at
+       y=205.83. Heading line 3's box bottom sits at 64 + 3x(38x1.2) = 200.8 — hence a 5px gap. */
+    --squiggle-1: url('{{ 'dev-tree-fibre-hero-underline-1.svg' | asset_url }}');
+    --squiggle-2: url('{{ 'dev-tree-fibre-hero-underline-2.svg' | asset_url }}');
+    --squiggle-h: 6.78px;
+    --squiggle-gap: 5px;
+    --squiggle-h-m: 5px;
+    --squiggle-gap-m: 4px;
+
+    /* Mobile heading wrap guard. The artboard wraps as
+         "Turns out, taking care of" / "our planet never felt more" / "comfortable."
+       The widest line measures 312px of ink, and the string "Turns out, taking care of our"
+       needs ~344.5px — so ANY box width in [314px, 344px) reproduces this wrap, and because
+       the text is centred every width in that band renders pixel-identically. The mobile
+       gutter (16px) puts the box at 343px, which is only 1.4px inside the threshold — close
+       enough that a sub-pixel metrics difference would pull "our" up a line and break the
+       design. 336px sits in the middle of the safe band: same render, no cliff edge. */
+    --heading-max-w-m: 336px;
+
+    /* ---- Background photo framing ----------------------------------------------
+       Percentages of the section box, so the crop holds at every viewport width.
+
+       DESKTOP — Figma's own numbers, used verbatim (w-full, h-[392.68%], top-[-149.98%]).
+       1440 wide x 2159.74 tall = aspect 0.66675, which is exactly the source photo
+       (2731x4096 = 0.66675) — so the fill is a plain cover-by-width with the visible band
+       taken from 51.24% down the photo. No distortion.
+
+       MOBILE — the mobile master crops the SAME photo differently: it is zoomed 1.117x past
+       cover. Solved against the 375x550 artboard by a 2D scale/offset search over the raw
+       source (mean abs error fell from 38.5 to 3.6/255 at the fit, i.e. JPEG noise):
+         displayed 419.0 x 628.5 px, centred horizontally, top -72px
+         -> width  419.0 / 375 = 111.73%
+            height 628.5 / 550 = 114.27%   (419.0 / 0.66675 = 628.5, aspect exact)
+            top    -72   / 550 = -13.09%
+            left   -22   / 375 =  -5.87%   ((419 - 375) / 2 = 22, i.e. dead centre)
+       Both dimensions stay larger than the box at every width, so it always covers.
+       object-fit: cover is belt-and-braces against sub-pixel aspect drift. */
+    --bg-w-d: 100%;
+    --bg-h-d: 392.68%;
+    --bg-top-d: -149.98%;
+    --bg-left-d: 0%;
+
+    --bg-w-m: 111.73%;
+    --bg-h-m: 114.27%;
+    --bg-top-m: -13.09%;
+    --bg-left-m: -5.87%;
+
+    /* ---- Scrim -------------------------------------------------------------------
+       DESKTOP: Figma's gradient, verbatim. At 164.82deg the gradient line runs down-and-right,
+       so the 0.6 black lands top-LEFT, under the heading, and is gone by 48% of the way down.
+
+       MOBILE: there is NO scrim, and that is not an omission. The mobile crop reaches up into
+       the dark treeline at the top of the photo, so the heading already has contrast without
+       one. Measured on the artboard against the aligned source: at y=0 the source reads 14.9
+       and the artboard reads 15.0 — a ratio of 1.00, i.e. zero darkening. A 0.6-alpha scrim
+       would have driven that to ~6. Do not "restore" the desktop gradient here; it would
+       visibly crush a region the design leaves alone. */
+    --overlay-d: linear-gradient(
+      164.8221deg,
+      rgba(0, 0, 0, 0.6) 3.8161%,
+      rgba(0, 0, 0, 0) 48.295%
+    );
+    --overlay-m: none;
+  }
+</style>
+
+{%- liquid
+  assign bg_image = section.settings.background_image
+-%}
+
+<div
+  class="tree-fibre-hero{% if section.settings.show_underline %} tree-fibre-hero--underline{% endif %}"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="tree-fibre-hero__bg-layer">
+    {%- if bg_image != blank -%}
+      {{
+        bg_image
+        | image_url: width: 2000
+        | image_tag:
+          loading: 'eager',
+          fetchpriority: 'high',
+          widths: '400, 600, 800, 1200, 1600, 2000',
+          sizes: '(max-width: 768px) 112vw, 100vw',
+          alt: '',
+          class: 'tree-fibre-hero__bg'
+      }}
+    {%- endif -%}
+
+    <span class="tree-fibre-hero__overlay" aria-hidden="true"></span>
+  </div>
+
+  <div class="tree-fibre-hero__content">
+    {%- if section.settings.heading != blank -%}
+      {%- comment -%} inline_richtext: already safe HTML from Shopify — never escape it. {%- endcomment -%}
+      <h1 class="tree-fibre-hero__heading">{{ section.settings.heading }}</h1>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Tree fibre hero",
+  "tag": "section",
+  "presets": [
+    { "name": "Tree fibre hero" }
+  ],
+  "settings": [
+    { "type": "header", "content": "Content" },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Italicise a word to emphasise it.",
+      "default": "Turns out, taking care of our planet never felt more <em>comfortable.</em>"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_underline",
+      "label": "Underline the emphasised words",
+      "info": "Draws the hand-drawn accent stroke under every italicised run, in the accent colour.",
+      "default": false
+    },
+    { "type": "image_picker", "id": "background_image", "label": "Background image" },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "info": "Sits behind the photo — only visible if no image is set.",
+      "default": "#333333"
+    },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#FFFFFF" },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#A8CF78" },
+
+    { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 64
+    }
+  ]
+}
+{% endschema %}

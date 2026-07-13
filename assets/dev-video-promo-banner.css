@@ -1,0 +1,275 @@
+/* dev-video-promo-banner.css */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.video-promo-banner {
+  background-color: var(--bg);
+  color: var(--color);
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+  font-family: var(--font-body);
+}
+
+/* No __inner / --container-max: the section is full-bleed at both breakpoints
+   (Brief, Note 1). Only the text block is width-constrained — see __text. */
+
+/* --- layout --- */
+
+.video-promo-banner__tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  min-height: var(--tile-min-h);
+  padding: var(--tile-pt) var(--tile-px) var(--tile-pb);
+  overflow: hidden;
+}
+
+.video-promo-banner__media {
+  position: absolute;
+  inset: 0;
+}
+
+.video-promo-banner__poster {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--bg-position);
+}
+
+.video-promo-banner__content {
+  /* z-index on a flex item works without `position`, so the tile stays the containing
+     block for the absolutely-positioned play button at mobile. */
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: 100%;
+}
+
+/* --- blocks / children --- */
+
+.video-promo-banner__play {
+  flex: none;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--play-btn-size);
+  height: var(--play-btn-size);
+  padding: var(--play-btn-padding);
+  border: 0;
+  border-radius: var(--play-btn-radius);
+  background-color: var(--accent);
+  color: var(--cta-text-color);
+  cursor: pointer;
+  appearance: none;
+}
+
+.video-promo-banner__play-icon {
+  display: block;
+  width: var(--play-icon-size);
+  height: var(--play-icon-size);
+}
+
+.video-promo-banner__text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  max-width: var(--text-max);
+  text-align: center;
+}
+
+/* --- typography --- */
+
+.video-promo-banner__heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  color: var(--color);
+}
+
+.video-promo-banner__subheading {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+/* --- buttons / links --- */
+
+.video-promo-banner__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--button-py) var(--button-px);
+  border-radius: var(--button-radius);
+  background-color: var(--accent);
+  color: var(--cta-text-color);
+  font-family: var(--font-body);
+  font-size: var(--font-button-size);
+  font-weight: var(--font-button-weight);
+  line-height: var(--font-button-lh);
+  text-align: center;
+  text-decoration: none;
+}
+
+/* --- modal (video lightbox) --- */
+
+.video-promo-banner__modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--modal-px);
+  background-color: var(--modal-overlay);
+}
+
+.video-promo-banner__modal[hidden] {
+  display: none;
+}
+
+.video-promo-banner__modal-inner {
+  position: relative;
+  width: 100%;
+  max-width: var(--modal-max-w);
+  aspect-ratio: 16 / 9;
+}
+
+.video-promo-banner__video,
+.video-promo-banner__iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.video-promo-banner__modal-close {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--spacing-sm));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  border: 0;
+  border-radius: var(--play-btn-radius);
+  background-color: transparent;
+  color: var(--color);
+  cursor: pointer;
+  appearance: none;
+}
+
+.video-promo-banner__modal-close-icon {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+  /* Layout is fluid full-bleed; no tablet-specific override needed. */
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .video-promo-banner {
+    padding-top: calc(var(--pt) * var(--pt-scale-m)); /* 80px → 48px */
+  }
+
+  .video-promo-banner__tile {
+    padding: var(--tile-p-m);
+    gap: var(--spacing-lg-m);
+  }
+
+  /* Structural delta from the Mobile artboard: the play button leaves the flow and is
+     centred over the tile instead of stacking above the heading (Brief, Auto Layout —
+     mobile). The tile is the containing block because __content is unpositioned. */
+  .video-promo-banner__play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .video-promo-banner__text {
+    max-width: var(--text-max-m);
+  }
+
+  .video-promo-banner__heading {
+    font-size: var(--font-heading-size-m);
+  }
+
+  .video-promo-banner__subheading {
+    font-size: var(--font-body-size-m);
+  }
+
+  .video-promo-banner__button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: var(--button-py-m) var(--button-px-m);
+    font-size: var(--font-button-size-m);
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+  .video-promo-banner__text {
+    max-width: 100%;
+  }
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.video-promo-banner__button:focus-visible,
+.video-promo-banner__play:focus-visible,
+.video-promo-banner__modal-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.video-promo-banner__button:focus:not(:focus-visible),
+.video-promo-banner__play:focus:not(:focus-visible),
+.video-promo-banner__modal-close:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .video-promo-banner,
+  .video-promo-banner * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

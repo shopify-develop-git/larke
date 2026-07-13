@@ -1,0 +1,218 @@
+/* dev-fibre-cta.css */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+/* No background-color on the root: the section is transparent by design and the page
+   background shows through the gutters. --bg belongs to the card. See the Liquid header. */
+.fibre-cta {
+  color: var(--color);
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+  font-family: var(--font-body);
+}
+
+.fibre-cta__inner {
+  max-width: var(--container-max);
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* --- layout --- */
+
+.fibre-cta__card {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  background-color: var(--bg);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+/* Two equal halves: 656px each inside the 1312px card. The media's aspect ratio is what gives
+   the card its 450px height — no fixed height on any container.
+
+   The basis is 50%, not 0. With box-sizing: border-box a flex-basis of 0 cannot hold the text
+   column's own 238px of horizontal padding, so the column's hypothetical size floors at 238px
+   and the free space splits 537/775 instead of 656/656 — which then drags the card down to
+   368px tall. A 50% basis leaves zero free space to mis-split. */
+.fibre-cta__media {
+  flex: 1 1 50%;
+  min-width: 0;
+  aspect-ratio: var(--media-ratio);
+}
+
+.fibre-cta__picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.fibre-cta__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fibre-cta__content {
+  flex: 1 1 50%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--card-pad-y) var(--card-pad-x);
+}
+
+/* --- typography --- */
+
+.fibre-cta__heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  color: var(--color);
+  text-align: center;
+}
+
+/* --- buttons / links --- */
+
+.fibre-cta__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--button-pad-y) var(--button-pad-x);
+  border: 0;
+  border-radius: var(--radius-button);
+  background-color: var(--accent);
+  color: var(--button-color);
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.fibre-cta__button:hover {
+  opacity: 0.85;
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+/* The design has no tablet artboard, so this band (769–1024) is derived, not read off Figma.
+   Desktop (1440) and mobile (375) — the two widths the design does specify — are untouched.
+
+   The row layout is kept, but nothing else can stay at its desktop value. At 769px each column
+   is only ~320px wide; a 119px inset would leave 82px of text, and a 32px heading would wrap to
+   six lines and push the card past the image's height. So padding and type scale linearly with
+   the viewport across the band instead of stepping.
+
+   Every clamp lands on the DESKTOP value at 1024 and the MOBILE value at 769 — the heading hits
+   24px at 769, which is exactly --font-heading-size-m. That makes the type continuous across the
+   768px breakpoint: the layout restacks there, but nothing jumps size.
+
+   These override the PROPERTIES, not the --card-pad-* / --font-heading-size tokens. Overriding
+   the tokens here does nothing: they are declared in the section's inline <style> on `.fibre-cta`,
+   which sits after this stylesheet's <link> in the document. Same selector, same specificity, and
+   a media query adds none — so the inline desktop token wins and the rule silently no-ops. That is
+   exactly what the previous `--card-pad-x: 48px` rule did: the 119px desktop inset survived all the
+   way down to 768px. The mobile block below works for the same reason this one now does — it
+   targets the elements. */
+@media (max-width: 1024px) {
+  .fibre-cta__content {
+    padding: clamp(24px, 3.14vw, 32px) clamp(40px, calc(9.41vw - 32.4px), 64px);
+  }
+
+  .fibre-cta__heading {
+    font-size: clamp(24px, 3.14vw, 32px);
+  }
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .fibre-cta {
+    padding-top: calc(var(--pt) * var(--pt-scale-m));
+    padding-left: var(--section-px-m);
+    padding-right: var(--section-px-m);
+  }
+
+  /* Row → column restack: image on top, text below. */
+  .fibre-cta__card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .fibre-cta__media {
+    flex: 0 0 auto;
+    width: 100%;
+    aspect-ratio: var(--media-ratio-m);
+  }
+
+  .fibre-cta__content {
+    flex: 0 0 auto;
+    gap: var(--spacing-sm);
+    padding: var(--card-pad-m);
+  }
+
+  .fibre-cta__heading {
+    font-size: var(--font-heading-size-m);
+  }
+
+  /* Touch target floor. */
+  .fibre-cta__button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+/* Nothing changes below 480px — the 375 artboard's rules already hold, and the card is
+   fluid (100% of the viewport minus the 16px gutters), so nothing overflows. */
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+/* Outlined in --color, not --accent: --accent IS this button's background, so an accent
+   outline on it would be invisible. */
+.fibre-cta__button:focus-visible,
+.fibre-cta__link:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
+
+.fibre-cta__button:focus:not(:focus-visible),
+.fibre-cta__link:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .fibre-cta,
+  .fibre-cta * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

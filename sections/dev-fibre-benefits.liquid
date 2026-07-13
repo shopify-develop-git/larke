@@ -1,0 +1,262 @@
+{{ 'dev-fibre-benefits.css' | asset_url | stylesheet_tag }}
+{%- comment -%} No JS: the Brief's Interactivity section is "none" — 3 static cards. {%- endcomment -%}
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .fibre-benefits {
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+
+    /* Full-bleed by design. No --container-max: Brief note #1 — the content row is w-full,
+       there is no centred max-width frame in this node (same precedent as dev-trust-badges
+       and dev-site-header). The only horizontal inset is --section-px. */
+    --section-px: 64px;
+    --section-px-mobile: 16px;
+
+    /* Mobile artboard specifies its own top spacer (48px), not a scale factor off desktop. */
+    --pt-mobile: 48px;
+
+    --font-heading-size: 20px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+    --font-body-size: 16px;
+    --font-body-size-mobile: 14px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+
+    --spacing-sm: 4px;  /* heading -> body */
+    --spacing-md: 16px; /* card padding; icon -> text block (desktop); card -> card (mobile) */
+    --spacing-lg: 24px; /* card -> card (desktop); cream-container padding */
+
+    /* Measured off the Figma artboards, not guessed:
+       mobile cards 1 & 2 use a flat 4px gap between every child, card 3 uses 8px between the
+       icon and its heading+body sub-group. Brief note #3 — a real authoring inconsistency in
+       the source file, built as measured rather than silently normalised.
+       (Card-3 mobile height checks out to the pixel only with 8px: 16+48+8+24+4+40+16 = 156.) */
+    --card-icon-gap-mobile: 4px;
+    --card-icon-gap-mobile-alt: 8px;
+
+    /* Layout slot for the icon. Fixed 48x48 on BOTH artboards. */
+    --icon-size: 48px;
+
+    /* Confirmed from the exported artwork itself: every path is #666666 (Neutral/500).
+       Drives currentColor on the two inline icons. */
+    --icon-color: #666666;
+
+    /* Render size == viewBox, so each icon draws at its true Figma size. Verified against the
+       375 artboard at 1:1 (no scaling): the ink bounding boxes measure 46x48 / 43x44 / 48x50.
+       The Brief's "Images" table is the Figma ANCHOR box and understates biodegradable — its
+       art is 50px tall and deliberately overflows the 48px slot by 1px top and bottom. Sizing
+       to the anchor box would letterbox and shrink the art. */
+    --icon-no-chemicals-w: 46px;
+    --icon-no-chemicals-h: 48px;
+    --icon-fsc-certified-w: 43px;
+    --icon-fsc-certified-h: 44px;
+    --icon-biodegradable-w: 48px;
+    --icon-biodegradable-h: 50px;
+  }
+</style>
+
+<div
+  class="fibre-benefits"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --page-bg: {{ section.settings.page_background_color }};
+    --card-bg: {{ section.settings.card_background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+    --card-radius: {{ section.settings.card_radius }}px;
+    --container-radius: {{ section.settings.container_radius }}px;
+  "
+>
+  {%- comment -%}
+    Two nested background layers, exactly as authored (Brief note #2):
+    the root carries the PAGE background and the top spacer; __inner is the cream band.
+    Verified against both artboards — the 80px desktop spacer and the 48px mobile spacer are
+    page-cream (#FFFCF4), NOT band-cream (#FCF5E3); the band starts below them. On mobile the
+    band becomes a 32px-rounded card inset by a 16px gutter; on desktop it is full-bleed and
+    square. Same element, two skins — no CSS trick, a real wrapper with its own 24px padding.
+  {%- endcomment -%}
+  <div class="fibre-benefits__inner">
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign icon_key = block.settings.icon
+        assign icon_mod = block.settings.icon | replace: '_', '-'
+        assign icon_uid = section.id | append: '-' | append: forloop.index
+      -%}
+      <article class="fibre-benefits__card fibre-benefits__card--{{ icon_mod }}" {{ block.shopify_attributes }}>
+        <div class="fibre-benefits__icon fibre-benefits__icon--{{ icon_mod }}">
+          {%- if block.settings.icon_image != blank -%}
+            {%- liquid
+              assign icon_alt = block.settings.icon_image.alt | default: '' | escape
+              assign icon_src = block.settings.icon_image | image_url: width: 144
+            -%}
+            {{
+              icon_src
+              | image_tag:
+                loading: 'lazy',
+                widths: '48, 96, 144',
+                sizes: '48px',
+                alt: icon_alt,
+                class: 'fibre-benefits__icon-img'
+            }}
+          {%- elsif icon_key == 'no_chemicals' -%}
+              <svg class="fibre-benefits__icon-svg" viewBox="0 0 46 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+              <g>
+              <g>
+              <path d="M28.3634 16.3636L27.4283 13.0909M27.4283 13.0909L27.2725 10.3636C25.818 10.7273 22.9089 10.9091 21.2725 10.3636L20.7271 13.0909C21.5582 13.4546 24.0621 13.9636 27.4283 13.0909Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M25.6818 10.3637C25.68 10.4963 25.731 10.6235 25.8248 10.7172C25.9186 10.811 26.0474 10.8637 26.1818 10.8637C26.3163 10.8637 26.4451 10.811 26.5388 10.7172C26.6326 10.6235 26.6837 10.4963 26.6818 10.3637C26.6768 10 26.6718 9.63641 26.6669 9.27277L26.1818 9.75781C26.198 9.75759 26.2142 9.75737 26.2304 9.75715C27.1233 9.7449 28.0162 9.73266 28.9091 9.72042C29.3124 9.725 29.5014 9.36256 29.2816 9.02446C28.5393 7.94353 27.7971 6.86259 27.0549 5.78165C27.0022 5.7003 26.85 5.61497 26.7535 5.6072C24.0237 5.46278 21.2939 5.31836 18.5642 5.17394C18.4259 5.16282 18.2987 5.26381 18.2696 5.39943C18.1003 6.31101 17.9309 7.2226 17.7616 8.13418C17.7213 8.32289 17.858 8.45567 18.0477 8.42028C18.9229 8.24802 19.9569 8.35507 20.5893 8.97189C20.8333 9.21039 21.0009 9.52149 21.0908 9.8637C21.1034 9.91112 21.1345 9.95182 21.1771 9.97695C21.2196 10.0021 21.27 10.0095 21.3176 9.99765C21.3652 9.98576 21.4061 9.95543 21.4318 9.91325C21.4575 9.87108 21.4659 9.8205 21.4546 9.77275C21.4546 9.77275 21.4546 9.77275 21.4546 9.77275C21.3624 9.37596 21.1713 8.98845 20.8786 8.68666C20.1006 7.9052 18.9597 7.78014 17.9523 7.94345L18.2384 8.22955C18.4327 7.32295 18.627 6.41635 18.8213 5.50975L18.5267 5.73524C21.2515 5.95446 23.9763 6.17367 26.7011 6.39288L26.3997 6.21844C27.112 7.31932 27.8243 8.4202 28.5366 9.52108L28.9091 8.82513C28.0162 8.81288 27.1233 8.80064 26.2304 8.7884C26.2142 8.78817 26.198 8.78795 26.1818 8.78773C25.9075 8.79149 25.693 8.99842 25.6968 9.27277C25.6918 9.63641 25.6868 10 25.6818 10.3637Z" fill="currentColor"/>
+              <path d="M17.9998 9.22729C18.1324 9.23185 18.2596 9.18316 18.3534 9.08931C18.4471 8.99562 18.4998 8.86445 18.4998 8.72729C18.4998 8.59013 18.4471 8.45897 18.3534 8.36528C18.2596 8.27143 18.1324 8.22274 17.9998 8.22729C17.7977 8.23608 17.7231 8.29742 17.6618 8.32979C17.5954 8.37136 17.5682 8.39477 17.5268 8.4293C17.4598 8.48697 17.4038 8.54484 17.3558 8.59708C17.257 8.70524 17.1753 8.80748 17.0938 8.91302C15.8833 10.5816 14.93 12.3034 13.9472 14.0412L13.6912 14.4409L14.1816 14.4553C14.5453 14.4429 14.9089 14.4306 15.2725 14.4183L15.3781 14.4219L15.4572 14.3296C16.7029 12.6596 17.9487 10.9896 19.1944 9.31955C19.3417 9.12213 19.4889 8.92471 19.6362 8.72729C19.4759 8.9143 19.3156 9.10131 19.1554 9.28831C17.7995 10.8702 16.4437 12.4522 15.0879 14.0341L15.2725 13.9454C14.9089 13.933 14.5453 13.9207 14.1816 13.9084L14.4161 14.3225C15.4976 12.6771 16.6018 10.9834 17.8278 9.51605C17.905 9.42871 17.9815 9.34645 18.0552 9.27648C18.0902 9.24325 18.1281 9.21031 18.1521 9.19359C18.1537 9.17257 18.2712 9.18378 17.9998 9.22729Z" fill="currentColor"/>
+              <path d="M18.0002 5.64209C18.0406 5.62501 18.0794 5.60155 18.108 5.56842C18.1366 5.5353 18.1526 5.49552 18.1526 5.45459C18.1526 5.41366 18.1366 5.37388 18.108 5.34076C18.0794 5.30762 18.0406 5.28417 18.0002 5.26709C18.0002 5.26709 18.0002 5.26709 18.0002 5.26709C17.9002 5.22542 17.8002 5.18792 17.7002 5.15459C17.3002 5.02126 16.9002 4.95459 16.5002 4.95459C16.2729 4.95459 16.0456 4.95698 15.8184 4.96176L15.3361 4.95162L15.3255 5.45459C15.3408 6.18186 15.3806 6.90914 15.4449 7.63641L15.4151 7.97421L15.8184 8.00986C16.2638 7.97049 16.7093 7.92193 17.1547 7.86419C17.2547 7.85122 17.3547 7.8378 17.4547 7.82391C17.5011 7.81741 17.5456 7.79671 17.5784 7.76221C17.6112 7.72775 17.6297 7.68284 17.6297 7.63641C17.6297 7.58998 17.6112 7.54507 17.5784 7.5106C17.5456 7.4761 17.5011 7.45541 17.4547 7.44891C17.3547 7.43502 17.2547 7.42159 17.1547 7.40863C16.7093 7.35089 16.2638 7.30233 15.8184 7.26296L16.1918 7.63641C16.2561 6.90914 16.2959 6.18186 16.3112 5.45459L15.8184 5.94742C16.0456 5.9522 16.2729 5.95459 16.5002 5.95459C16.9002 5.95459 17.3002 5.88792 17.7002 5.75459C17.8002 5.72126 17.9002 5.68376 18.0002 5.64209Z" fill="currentColor"/>
+              <path d="M18.3579 26.7273C18.3624 26.7747 18.3827 26.8202 18.4174 26.8538C18.4521 26.8874 18.4979 26.9062 18.5454 26.9062C18.5929 26.9062 18.6387 26.8874 18.6734 26.8538C18.7081 26.8202 18.7285 26.7747 18.7329 26.7273C18.7329 26.7273 18.7329 26.7273 18.7329 26.7273C18.7537 26.5036 18.7735 26.28 18.7923 26.0563C18.9412 24.28 19.0244 22.5036 19.0419 20.7273L19.02 20.8733C19.0917 20.6479 19.1624 20.4222 19.232 20.1962C19.8239 18.2723 20.3352 16.3237 20.7659 14.3502C20.8137 14.131 20.8606 13.9114 20.9064 13.6915C20.9161 13.6448 20.9101 13.5953 20.8868 13.553C20.8635 13.5107 20.8252 13.4793 20.7799 13.4653C20.7345 13.4513 20.6852 13.4559 20.6421 13.4778C20.5991 13.4996 20.5662 13.5372 20.548 13.5812C20.548 13.5812 20.548 13.5812 20.548 13.5812C20.4623 13.7888 20.3776 13.9968 20.294 14.205C19.5407 16.0792 18.8681 17.9783 18.2762 19.9021C18.2066 20.1281 18.1382 20.3545 18.0709 20.5812L18.0489 20.7273C18.0664 22.5036 18.1496 24.28 18.2985 26.0563C18.3173 26.28 18.3371 26.5036 18.3579 26.7273Z" fill="currentColor"/>
+              <path d="M18.5454 34.3637C18.4787 34.8874 18.4154 35.4111 18.3554 35.9348C18.2488 36.8657 18.1526 37.7965 18.0671 38.7274L18.0493 38.9209L18.2584 39.11C19.8947 40.4377 21.8891 41.132 24 41.2381C26.1052 41.3118 28.1296 40.5626 29.7684 39.2448C29.8986 39.1365 30.0291 39.0209 30.1611 38.8885L30.4522 38.5993L30.4537 38.1819C30.4375 33.6147 30.1678 29.0475 29.6445 24.4803C29.5845 23.9566 29.5212 23.4329 29.4545 22.9092C29.3878 23.4329 29.3245 23.9566 29.2645 24.4803C28.7412 29.0475 28.4715 33.6147 28.4553 38.1819L28.7479 37.4754C28.6744 37.5482 28.5841 37.6287 28.491 37.7059C27.2457 38.7116 25.6181 39.4076 24 39.4894C22.2674 39.5716 20.3783 39.1874 18.8324 38.3447L19.0238 38.7274C18.9382 37.7965 18.8421 36.8657 18.7354 35.9348C18.6754 35.4111 18.6121 34.8874 18.5454 34.3637Z" fill="currentColor"/>
+              <path d="M10.3638 43.6363C10.9216 43.1364 11.477 42.6341 12.0299 42.1296C17.0065 37.589 21.7857 32.8641 26.3676 27.955C30.9494 23.0459 35.3338 17.9526 39.5209 12.6751C39.9861 12.0887 40.4489 11.5 40.9092 10.9091C40.3514 11.409 39.796 11.9113 39.2431 12.4158C34.2665 16.9564 29.4873 21.6813 24.9054 26.5904C20.3236 31.4995 15.9392 36.5928 11.7521 41.8703C11.2869 42.4567 10.8241 43.0454 10.3638 43.6363Z" fill="currentColor"/>
+              <path d="M6.54541 40.3636C7.10324 39.8637 7.65863 39.3614 8.21158 38.8569C13.1882 34.3163 17.9674 29.5914 22.5492 24.6823C27.131 19.7732 31.5154 14.6799 35.7025 9.40236C36.1677 8.81596 36.6305 8.2273 37.0909 7.63635C36.533 8.13632 35.9776 8.63856 35.4247 9.14308C30.4481 13.6837 25.6689 18.4086 21.0871 23.3177C16.5053 28.2268 12.1208 33.3201 7.93378 38.5976C7.46855 39.184 7.00576 39.7727 6.54541 40.3636Z" fill="currentColor"/>
+              <g>
+              <mask id="path-10-inside-1_28968_22885-{{ icon_uid }}" fill="white">
+              <ellipse cx="22.9091" cy="24" rx="22.9091" ry="24"/>
+              </mask>
+              <path d="M45.8182 24C45.7188 26.4602 45.2671 28.8863 44.4767 31.1835C41.4218 40.4444 32.3384 47.2229 22.9091 46.875C10.9689 46.8446 1.21438 35.6282 1.5 24C1.5 24 1.5 24 1.5 24C1.21438 12.3718 10.9689 1.1554 22.9091 1.125C32.3384 0.777089 41.4219 7.55559 44.4767 16.8165C45.2671 19.1137 45.7188 21.5398 45.8182 24C45.9189 21.5401 45.6569 19.0552 45.0222 16.6513C42.637 6.98318 33.4104 -1.07376 22.9091 -1.125C9.62294 -1.67917 -1.86557 10.8746 -1.5 24C-1.5 24 -1.5 24 -1.5 24C-1.86557 37.1254 9.62293 49.6792 22.9091 49.125C33.4104 49.0738 42.637 41.0168 45.0222 31.3487C45.6569 28.9448 45.9189 26.4599 45.8182 24ZM45.8182 24" fill="currentColor" mask="url(#path-10-inside-1_28968_22885-{{ icon_uid }})"/>
+              </g>
+              </g>
+              </g>
+              </svg>
+          {%- elsif icon_key == 'fsc_certified' -%}
+            {%- comment -%}
+              Asset route, not inline: this Figma export is 8858 B raw — at/over the 8 KB inline
+              threshold, so it ships as a file rather than bloating the template. Keeps its baked
+              #666666 fill, so it does not follow currentColor.
+            {%- endcomment -%}
+            <img
+              class="fibre-benefits__icon-img"
+              src="{{ 'dev-fibre-benefits-fsc-certified.svg' | asset_url }}"
+              width="43"
+              height="44"
+              alt=""
+              loading="lazy"
+            >
+          {%- elsif icon_key == 'biodegradable' -%}
+              <svg class="fibre-benefits__icon-svg" viewBox="0 0 48 50" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+              <g>
+              <g>
+              <path d="M13.4319 41.0682C13.5186 41.1686 13.6415 41.2302 13.7738 41.2393C13.9061 41.2485 14.037 41.2044 14.1374 41.117C14.2378 41.0296 14.2994 40.9061 14.3086 40.7738C14.3177 40.6415 14.2736 40.5113 14.1862 40.4116C14.1862 40.4116 14.1862 40.4116 14.1862 40.4116C13.2975 39.3981 12.5366 38.2629 11.8775 37.0695C9.9068 33.4331 8.7009 29.3259 8.23154 25.2167L8.23275 25.2341C7.9053 20.7773 9.42753 16.0134 13.2449 13.5443C16.9709 11.0534 21.7726 10.4634 26.2171 11.0133L26.2358 10.3497C20.4787 10.9083 14.1867 13.3808 11.4996 18.9079C8.88576 24.4979 11.0208 30.7786 13.6782 35.8509C14.3239 37.0729 15.0258 38.2654 15.7981 39.4741C15.8248 39.5158 15.8671 39.5453 15.9155 39.556C15.964 39.5668 16.0147 39.558 16.0565 39.5314C16.0983 39.5049 16.1279 39.4628 16.1389 39.4144C16.1498 39.366 16.1412 39.3152 16.1148 39.2733C16.1148 39.2733 16.1148 39.2733 16.1148 39.2733C15.3562 38.0667 14.6686 36.878 14.0382 35.6626C11.4308 30.6134 9.44286 24.4309 11.9836 19.1407C14.5627 13.9027 20.6793 11.5119 26.2919 11.0154C26.6854 10.9822 26.7017 10.407 26.3106 10.3518C21.7242 9.75692 16.8021 10.2953 12.8127 12.9059C8.71312 15.4994 7.03921 20.6644 7.35985 25.2775C7.36004 25.281 7.36074 25.2914 7.36107 25.2949C7.81988 29.5664 9.00601 33.7253 11.0277 37.5344C11.7048 38.7822 12.4932 39.981 13.4319 41.0682Z" fill="currentColor"/>
+              <path d="M14.6914 18.0092C14.6914 18.0092 14.6914 18.0092 14.6914 18.0092C15.0769 18.2503 15.4975 18.4609 15.9241 18.6433C19.2359 20.096 23.815 19.9542 26.7391 17.0268L26.4822 17.2119C26.6852 17.1078 26.7808 17.0143 26.8551 16.9501C26.9399 16.8725 26.9847 16.8258 27.0427 16.7649C27.1474 16.6539 27.2377 16.5492 27.3185 16.4548C27.4873 16.2567 27.6376 16.074 27.7929 15.889C30.2092 12.8335 33.5864 10.7533 37.7008 10.4977C38.1545 10.4627 38.6011 10.4438 39.0703 10.4434C38.6199 10.3119 38.1805 10.2038 37.7217 10.1183C33.619 9.18701 28.8544 11.1925 26.2604 14.6039C26.0969 14.7988 25.9421 14.9899 25.7924 15.1712C25.7218 15.2566 25.6462 15.3466 25.5856 15.4141C25.5445 15.4734 25.41 15.5571 25.5982 15.4439L25.3413 15.6291C23.1469 17.9809 19.5549 18.7713 16.027 18.2775C15.5816 18.2143 15.1299 18.1278 14.6914 18.0092Z" fill="currentColor"/>
+              <path d="M9.64746 13.2284C10.0012 12.6689 10.107 11.9805 10.3075 11.3595C11.5397 5.63809 16.5049 2.326 21.9396 2.03208L21.908 2.03485C22.1473 2.01877 22.391 2.00809 22.6314 2.003C28.203 1.90376 33.7535 4.51749 37.774 8.79838C38.2251 9.2766 38.6542 9.76854 39.0703 10.2861C38.766 9.69586 38.4368 9.12519 38.073 8.5639C34.8676 3.52252 28.9304 -0.128713 22.5889 0.00344783C22.3159 0.00923157 22.0385 0.0224714 21.7658 0.0430037L21.7342 0.0457677C15.8016 0.223852 9.90247 5.36083 9.93462 11.2861C9.84967 11.9408 9.87466 12.6245 9.64746 13.2284Z" fill="currentColor"/>
+              <path d="M9.47342 40.703C9.47342 40.703 9.47342 40.703 9.47342 40.703C8.57286 41.5539 7.7228 42.5062 6.6916 43.139C6.35737 43.3324 6.00744 43.4944 5.64761 43.6159C4.1731 44.2254 2.60789 43.498 0.853793 44.2837C0.539194 44.4402 0.270186 44.7858 0.153086 45.0734C0.0227053 45.3617 -0.0269608 45.6838 0.0135348 46.0027C0.149762 46.8222 0.745696 47.2418 1.2116 47.5984C3.24092 48.707 5.20552 48.9151 7.21014 49.3703C9.9776 49.8833 12.6987 49.7194 15.3881 49.5778C19.1297 49.3433 22.8279 48.8565 26.4895 48.4865C28.4633 48.2743 30.2289 48.2513 32.197 48.5095C33.8438 48.6895 35.5007 48.8792 37.1606 49.0523C38.0256 49.1424 38.8904 49.2293 39.7638 49.3043C41.8567 49.3815 44.1878 49.9019 46.4911 48.3555C47.0138 47.9907 47.171 47.4115 47.2122 47.0683C47.2574 46.7032 47.2338 46.415 47.2261 46.1869C47.0955 44.4284 45.892 43.5047 44.9612 42.7714C43.2045 41.4543 41.0534 41.5038 39.4565 41.3069C39.3945 41.3175 39.4534 41.2329 39.6699 41.5155C39.7587 41.6586 39.7554 41.804 39.7492 41.8382C39.7427 41.8789 39.7415 41.8598 39.7562 41.8161C39.8702 41.3809 40.1824 40.8736 39.9853 39.9767C39.3929 38.3116 37.915 38.1251 36.9237 37.8894C35.8835 37.6884 34.7119 37.6768 33.946 37.5583C33.7 37.5046 33.6703 37.5008 33.668 37.5007C33.6666 37.5049 33.6335 37.4871 33.5848 37.4159C33.066 36.6776 32.9635 35.9499 32.3281 34.7902C29.6745 32.945 27.2941 33.085 24.752 32.6358C23.3336 32.4522 22.2509 33.4374 21.4549 34.2263C21.0348 34.6128 20.7171 35.1522 20.3625 35.3554L20.5313 35.3604C20.4113 35.3066 20.2894 35.2572 20.1657 35.2127C19.0205 34.7917 17.7832 34.8649 16.653 35.1358C16.1918 35.2888 15.7602 35.4865 15.3145 35.655C15.3145 35.655 15.3145 35.655 15.3145 35.655C15.772 35.5233 16.2217 35.36 16.6799 35.247C17.8131 35.068 19.0019 35.1 20.0244 35.5654C20.1355 35.6149 20.2446 35.6687 20.3516 35.7264L20.443 35.7672L20.5204 35.7313C21.1412 35.4076 21.3877 34.9346 21.8049 34.6172C22.67 33.8588 23.6481 33.1741 24.6377 33.3865C26.9691 33.8597 29.91 34.4145 31.3579 35.4889C31.6191 36.0302 31.8959 37.2481 32.4524 38.1284C32.5647 38.3134 32.7361 38.5317 33.0005 38.6845C33.2629 38.8385 33.5418 38.8697 33.5882 38.8909C34.8046 39.1375 35.6804 39.1439 36.6204 39.3684C37.5188 39.5501 38.3919 40.0018 38.4162 40.3968C38.4449 40.4274 38.3479 40.834 38.1759 41.27C38.1439 41.3621 38.1006 41.4818 38.079 41.6658C38.0574 41.8422 38.0711 42.1387 38.2372 42.4046C38.6153 42.9367 38.9828 42.931 39.1999 42.9873C41.0751 43.2464 42.7169 43.3279 43.8454 44.2399C44.6617 44.8612 45.3364 45.66 45.315 46.2458C45.3223 46.4993 45.3244 46.6955 45.3057 46.8097C45.286 46.9384 45.2659 46.8568 45.3818 46.7701C44.1508 47.7025 41.9265 47.4573 39.9378 47.3175C39.0855 47.2406 38.2275 47.1526 37.3682 47.0631C35.7174 46.891 34.0641 46.7086 32.4027 46.5409C30.4451 46.2891 28.242 46.3388 26.2881 46.596C22.5729 47.04 18.92 47.6223 15.2628 47.9857C12.623 48.2256 9.95613 48.4833 7.42453 48.1385C5.47538 47.8172 3.30931 47.5915 1.72762 46.8402C1.28396 46.5616 0.877527 46.2166 0.817 45.8806C0.783896 45.7158 0.798135 45.5345 0.858607 45.3723C0.945638 45.1409 1.03264 45.0155 1.21127 44.8994C2.37858 44.1989 4.2715 44.7065 5.78296 43.971C6.15782 43.8129 6.51449 43.6139 6.84753 43.3862C7.8912 42.6285 8.64074 41.6263 9.47342 40.703Z" fill="currentColor"/>
+              </g>
+              </g>
+              </svg>
+          {%- endif -%}
+        </div>
+
+        <div class="fibre-benefits__text">
+          {%- if block.settings.heading != blank -%}
+            {%- comment -%}
+              inline_richtext: already safe HTML from Shopify — never escape it.
+            {%- endcomment -%}
+            <h3 class="fibre-benefits__heading">
+              <span class="fibre-benefits__heading-line">{{ block.settings.heading }}</span>
+              {%- comment -%}
+                Card 2's heading carries an explicit manual line break on the mobile artboard
+                ("Grown sustainably" / "— FSC Certified") that does not exist on desktop, where it
+                is a single unbroken line (Brief: Auto Layout (mobile)). Modelled as a second,
+                optional line rather than a hardcoded <br>: the spans are inline on desktop (the
+                ::before restores the separating space) and block on mobile (forced break).
+                Whitespace is carried by the ::before, never by markup, so dash tags stay safe.
+              {%- endcomment -%}
+              {%- if block.settings.heading_line_2 != blank -%}
+                <span class="fibre-benefits__heading-line fibre-benefits__heading-line--2">{{ block.settings.heading_line_2 }}</span>
+              {%- endif -%}
+            </h3>
+          {%- endif -%}
+          {%- if block.settings.body != blank -%}
+            <p class="fibre-benefits__body">{{ block.settings.body | escape }}</p>
+          {%- endif -%}
+        </div>
+      </article>
+    {%- endfor -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Fibre benefits",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "page_background_color", "label": "Page background", "default": "#FFFCF4", "info": "Sits behind the band — visible in the top spacer, and around the rounded card on mobile." },
+    { "type": "color", "id": "background_color", "label": "Band background", "default": "#FCF5E3" },
+    { "type": "color", "id": "card_background_color", "label": "Card background", "default": "#FFFCF4" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#333333" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 200, "step": 4, "unit": "px", "label": "Padding top", "default": 80 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 200, "step": 4, "unit": "px", "label": "Padding bottom", "default": 0, "info": "0 by design — no bottom spacer exists on either artboard." },
+
+    { "type": "header", "content": "Layout" },
+    { "type": "range", "id": "card_radius", "min": 0, "max": 48, "step": 2, "unit": "px", "label": "Card corner radius", "default": 16 },
+    { "type": "range", "id": "container_radius", "min": 0, "max": 48, "step": 2, "unit": "px", "label": "Band corner radius", "default": 32, "info": "Mobile only. The band is full-bleed and square on desktop." }
+  ],
+  "blocks": [
+    {
+      "type": "benefit_card",
+      "name": "Benefit card",
+      "limit": 3,
+      "settings": [
+        { "type": "header", "content": "Content" },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "default": "no_chemicals",
+          "options": [
+            { "value": "no_chemicals", "label": "No chemicals" },
+            { "value": "fsc_certified", "label": "FSC certified" },
+            { "value": "biodegradable", "label": "Biodegradable" }
+          ]
+        },
+        { "type": "image_picker", "id": "icon_image", "label": "Custom icon image", "info": "Optional. Replaces the built-in icon above." },
+        { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "No chemicals used to grow" },
+        { "type": "inline_richtext", "id": "heading_line_2", "label": "Heading second line", "info": "Optional. Joins the heading on one line on desktop, and breaks onto its own line on mobile." },
+        { "type": "text", "id": "body", "label": "Body", "default": "Zero pesticides or fertilisers." }
+      ]
+    }
+  ],
+  "max_blocks": 3,
+  "presets": [
+    {
+      "name": "Fibre benefits",
+      "blocks": [
+        {
+          "type": "benefit_card",
+          "settings": {
+            "icon": "no_chemicals",
+            "heading": "No chemicals used to grow",
+            "body": "Zero pesticides or fertilisers."
+          }
+        },
+        {
+          "type": "benefit_card",
+          "settings": {
+            "icon": "fsc_certified",
+            "heading": "Grown sustainably",
+            "heading_line_2": "— FSC Certified",
+            "body": "Every tree is traced back to responsibly managed forests."
+          }
+        },
+        {
+          "type": "benefit_card",
+          "settings": {
+            "icon": "biodegradable",
+            "heading": "Too natural for landfills",
+            "body": "Biodegradable, compostable and gone in 130 days."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

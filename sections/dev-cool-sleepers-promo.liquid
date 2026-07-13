@@ -1,0 +1,203 @@
+{{ 'dev-cool-sleepers-promo.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  No JS: the Brief's Interactivity section is "none". The logos strip LOOKS like a
+  marquee (a logo is cropped at the right edge on both artboards) but Figma has it as
+  one flattened rectangle — no component instance, no layers, no controls. Building a
+  marquee on the strength of the screenshot would be inventing a spec. If product wants
+  a real animated "as seen in", that is an explicit PM decision, not an inference here.
+{%- endcomment -%}
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .cool-sleepers-promo {
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+
+    /* No --container-max and no single --section-px: this section has no centred
+       max-width frame, and its horizontal inset differs per element (Brief,
+       Brand Params + Structure). Same precedent as dev-site-header. */
+
+    --font-heading-size: 32px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+    --font-body-size: 18px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+
+    /* The Mobile artboard specifies its own type sizes and paddings — those win
+       over any scale factor (code standards, "Responsive type"). */
+    --font-heading-size-mobile: 24px;
+    --font-body-size-mobile: 16px;
+    --pt-mobile: 48px;
+
+    --spacing-sm: 8px; /* heading → subheading */
+    --spacing-md: 40px; /* heading block → logos → image */
+    --spacing-md-mobile: 24px;
+    --spacing-lg: 54px; /* lifestyle image horizontal inset (desktop only) */
+
+    /* Text frame is a fixed 421.33px centred column on desktop, fluid on mobile. */
+    --text-width: 421.33px;
+    --text-px: 16px;
+
+    /* Radius sits on the "Image and text" frame at both breakpoints even though it
+       has no fill today — preserved so it honours a merchant background (Brief #7). */
+    --radius: 32px;
+    /* The mobile image genuinely loses the radius AND the inset — it is edge-to-edge
+       with square corners. A real breakpoint delta, not a scaled-down desktop (Brief #6). */
+    --radius-image: 32px;
+
+    /* Two intentionally distinct Figma crops per image role, not one source at two
+       sizes (Brief, Images). Aspect ratios are the artboard node dimensions. */
+    --image-aspect: 1332 / 400;
+    --image-aspect-mobile: 375 / 250;
+    --logos-aspect: 1440 / 55;
+    --logos-aspect-mobile: 375 / 55;
+  }
+</style>
+
+{%- liquid
+  assign heading = section.settings.heading
+  assign subheading = section.settings.subheading
+
+  assign logos = section.settings.logos_image
+  assign logos_mobile = section.settings.logos_image_mobile
+  assign lifestyle = section.settings.lifestyle_image
+  assign lifestyle_mobile = section.settings.lifestyle_image_mobile
+
+  assign logos_alt = logos.alt | default: '' | escape
+  assign lifestyle_alt = lifestyle.alt | default: '' | escape
+
+  assign logos_mobile_1x = logos_mobile | image_url: width: 375
+  assign logos_mobile_2x = logos_mobile | image_url: width: 750
+  assign logos_mobile_3x = logos_mobile | image_url: width: 1125
+
+  assign lifestyle_mobile_1x = lifestyle_mobile | image_url: width: 375
+  assign lifestyle_mobile_2x = lifestyle_mobile | image_url: width: 750
+  assign lifestyle_mobile_3x = lifestyle_mobile | image_url: width: 1125
+
+  assign logos_mobile_srcset = logos_mobile_1x | append: ' 375w, ' | append: logos_mobile_2x | append: ' 750w, ' | append: logos_mobile_3x | append: ' 1125w'
+  assign lifestyle_mobile_srcset = lifestyle_mobile_1x | append: ' 375w, ' | append: lifestyle_mobile_2x | append: ' 750w, ' | append: lifestyle_mobile_3x | append: ' 1125w'
+
+  assign lifestyle_sizes = '(max-width: 768px) 100vw, calc(100vw - 108px)'
+-%}
+
+<div
+  class="cool-sleepers-promo"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="cool-sleepers-promo__inner">
+    {%- if heading != blank or subheading != blank -%}
+      <div class="cool-sleepers-promo__text">
+        {%- if heading != blank -%}
+          <h2 class="cool-sleepers-promo__heading">{{ heading }}</h2>
+        {%- endif -%}
+        {%- if subheading != blank -%}
+          <p class="cool-sleepers-promo__subheading">{{ subheading | escape }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if logos != blank -%}
+      <div class="cool-sleepers-promo__logos">
+        <picture>
+          {%- if logos_mobile != blank -%}
+            <source
+              media="(max-width: 768px)"
+              srcset="{{ logos_mobile_srcset }}"
+              sizes="100vw"
+              width="375"
+              height="55"
+            >
+          {%- endif -%}
+          {{
+            logos
+            | image_url: width: 2880
+            | image_tag:
+              loading: 'lazy',
+              widths: '750, 1100, 1440, 2160, 2880',
+              sizes: '100vw',
+              alt: logos_alt,
+              class: 'cool-sleepers-promo__logos-image'
+          }}
+        </picture>
+      </div>
+    {%- endif -%}
+
+    {%- if lifestyle != blank -%}
+      <div class="cool-sleepers-promo__media">
+        <picture>
+          {%- if lifestyle_mobile != blank -%}
+            <source
+              media="(max-width: 768px)"
+              srcset="{{ lifestyle_mobile_srcset }}"
+              sizes="100vw"
+              width="375"
+              height="250"
+            >
+          {%- endif -%}
+          {{
+            lifestyle
+            | image_url: width: 2664
+            | image_tag:
+              loading: 'lazy',
+              widths: '750, 1100, 1332, 1998, 2664',
+              sizes: lifestyle_sizes,
+              alt: lifestyle_alt,
+              class: 'cool-sleepers-promo__image'
+          }}
+        </picture>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "As seen in",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "As seen in" },
+    { "type": "text", "id": "subheading", "label": "Subheading", "default": "Comfort put to the test" },
+    { "type": "image_picker", "id": "logos_image", "label": "Press logos strip (desktop)" },
+    { "type": "image_picker", "id": "logos_image_mobile", "label": "Press logos strip (mobile)" },
+    { "type": "image_picker", "id": "lifestyle_image", "label": "Lifestyle image (desktop)" },
+    { "type": "image_picker", "id": "lifestyle_image_mobile", "label": "Lifestyle image (mobile)" },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "rgba(0,0,0,0)" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#333333" },
+
+    { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 0
+    }
+  ],
+  "presets": [{ "name": "As seen in" }]
+}
+{% endschema %}

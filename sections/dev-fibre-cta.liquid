@@ -1,0 +1,265 @@
+{{ 'dev-fibre-cta.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  Section: "Fibre CTA" (dev name `fibre-cta`).
+  Figma layer: "Frame 6564" — desktop 45086:10217 (1440x530), mobile 44821:6854 (375x495).
+  Page: Tree-Fibre (NOT the homepage).
+
+  No JS: the Brief's Interactivity section is "none". The CTA is a real anchor, exactly as it is
+  in the mobile export (the button component is wrapped in a cursor-pointer link). There is no
+  slider, accordion, tab, sticky or scroll behaviour, so no dev-fibre-cta.js exists.
+
+  No blocks: the Brief is explicit — nothing in this section repeats, and the single CTA button
+  is a design-system component instance that appears exactly once. It is Section Settings, not a
+  block. Do not invent a block type here.
+
+  No inline SVG: this section has zero vector assets. .figma-assets/fibre-cta/ does not exist
+  because asset-prep found nothing to export — the only artwork is the raster card photo.
+
+  BACKGROUND — read before "fixing" this.
+  `--bg` (#FCF5E3, Cream/100) is the CARD's background, not the section's. The section root is
+  deliberately TRANSPARENT so the page background shows through the 64px side gutters and the
+  80px top spacer — same convention as dev-tree-fibre-intro on this page. Painting --bg on the
+  root would flood those gutters cream and fail the pixel diff outright.
+
+  PADDING-BOTTOM IS 0 ON BOTH BREAKPOINTS — confirmed by exact node math, not inferred:
+    desktop 530 = 80 (top spacer) + 450 (card), no remainder
+    mobile  495 = 48 (top padding) + 447 (card), no remainder
+  The visual gap after this section comes from the NEXT section's own top spacer, per this
+  file's spacer-component convention. Do not add a bottom padding value that isn't in the design.
+
+  MOBILE SIDE PADDING IS 16px, NOT 32px.
+  Figma's generated class for the mobile wrapper says px-[32px], but the card's own bounding box
+  (x=16, width=343, inside a 375 frame) requires 16px each side: (375 - 343) / 2 = 16. Absolute
+  node coordinates beat a generated class name. QA asserts 16px.
+
+  TWO IMAGE CROPS, NOT ONE IMAGE SCALED.
+  Figma holds genuinely different crops of the same photograph: desktop 1500x1000 landscape,
+  mobile 1001x1500 portrait. Both are in Shopify Files. Art-directed with <picture> + a media
+  <source> so exactly one file is fetched per viewport — not two images toggled with display:none.
+  If the merchant leaves the mobile picker empty it falls back to the desktop crop.
+{%- endcomment -%}
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .fibre-cta {
+    /* Brand params (Brief → Brand Params table). Faces are loaded by snippets/dev-brand-fonts.liquid. */
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+    --container-max: 1312px;
+    --section-px: 64px;
+    --section-px-m: 16px;
+
+    /* Typography — desktop */
+    --font-heading-size: 32px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+    --font-body-size: 16px;
+    --font-body-weight: 700;
+    --font-body-lh: 1.4;
+
+    /* Typography — mobile: taken from the Mobile artboard (Mobile/Title 3), not a scale factor. */
+    --font-heading-size-m: 24px;
+
+    /* Spacing — desktop. The text column's padding is asymmetric in Figma (32 vertical,
+       119 horizontal); it is NOT a uniform tier, so it does not collapse into --spacing-*. */
+    --spacing-sm: 16px;
+    --spacing-md: 24px;
+    --card-pad-y: 32px;
+    --card-pad-x: 119px;
+
+    /* Spacing — mobile: card padding collapses to a uniform 24px and the text gap drops to 16px. */
+    --card-pad-m: 24px;
+
+    /* Mobile top spacer is 48px against a desktop 80px. Scaling the merchant's own padding_top
+       keeps that relationship intact if they change it. 80 * 0.6 = 48. */
+    --pt-scale-m: 0.6;
+
+    /* Button text is Neutral/700 — the same token as the body text colour, not a separate
+       merchant setting. Fixed relationship in the design. */
+    --button-color: var(--color);
+    --button-pad-y: 12px;
+    --button-pad-x: 18px;
+
+    /* Layout / decoration */
+    --radius-card: 32px;
+    --radius-button: 60px;
+
+    /* The image's own aspect is what sets the card height at each breakpoint:
+       desktop 656x450 inside a 1312 card; mobile 343x250 inside a 343 card. */
+    --media-ratio: 656 / 450;
+    --media-ratio-m: 343 / 250;
+  }
+</style>
+
+{%- liquid
+  # richtext: already-safe HTML from Shopify — never escape it. The <p> wrapper is unwrapped so
+  # the copy stays inline inside the <h2> (same idiom as dev-featured-product).
+  assign heading_html = section.settings.heading | remove: '<p>' | remove: '</p>'
+
+  assign image = section.settings.image
+  assign image_mobile = section.settings.image_mobile
+  if image_mobile == blank
+    assign image_mobile = image
+  endif
+
+  assign image_alt = section.settings.alt_text
+  if image_alt == blank
+    assign image_alt = image.alt
+  endif
+  assign image_alt = image_alt | default: '' | escape
+
+  assign m_343 = image_mobile | image_url: width: 343
+  assign m_500 = image_mobile | image_url: width: 500
+  assign m_686 = image_mobile | image_url: width: 686
+  assign m_1001 = image_mobile | image_url: width: 1001
+  assign mobile_srcset = m_343 | append: ' 343w, ' | append: m_500 | append: ' 500w, ' | append: m_686 | append: ' 686w, ' | append: m_1001 | append: ' 1001w'
+
+  assign button_label = section.settings.button_label
+-%}
+
+<div
+  class="fibre-cta"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="fibre-cta__inner">
+    <div class="fibre-cta__card">
+      {%- if image != blank -%}
+        {%- comment -%}
+          Source fills are 1500x1000 (desktop crop) and 1001x1500 (mobile crop), so those are the
+          largest useful widths. Rendered with object-fit: cover — the Brief says explicitly not to
+          reproduce Figma's literal crop-offset percentages.
+        {%- endcomment -%}
+        <div class="fibre-cta__media">
+          <picture class="fibre-cta__picture">
+            <source
+              media="(max-width: 768px)"
+              srcset="{{ mobile_srcset }}"
+              sizes="calc(100vw - 32px)"
+            >
+            {{
+              image
+              | image_url: width: 1500
+              | image_tag:
+                loading: 'lazy',
+                widths: '400, 600, 800, 1000, 1200, 1500',
+                sizes: '(min-width: 1440px) 656px, (min-width: 769px) calc(50vw - 64px), calc(100vw - 32px)',
+                alt: image_alt,
+                class: 'fibre-cta__image'
+            }}
+          </picture>
+        </div>
+      {%- endif -%}
+
+      <div class="fibre-cta__content">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="fibre-cta__heading">{{ heading_html }}</h2>
+        {%- endif -%}
+
+        {%- if button_label != blank -%}
+          <a
+            class="fibre-cta__button"
+            {% if section.settings.button_link != blank %}
+              href="{{ section.settings.button_link }}"
+            {% else %}
+              href="#"
+              aria-disabled="true"
+            {% endif %}
+          >
+            {{- button_label | escape -}}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Fibre CTA",
+  "tag": "section",
+  "presets": [{ "name": "Fibre CTA" }],
+  "settings": [
+    { "type": "header", "content": "Content" },
+    {
+      "type": "richtext",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Use a line break to split the heading across lines.",
+      "default": "<p>A single, unique and plant-based fibre – redefining what a duvet can do.</p>"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "Landscape crop. Shown beside the text on desktop and tablet."
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Mobile image",
+      "info": "Optional. The design uses a different, taller crop below 768px. Falls back to the image above if left empty."
+    },
+    {
+      "type": "text",
+      "id": "alt_text",
+      "label": "Image alt text",
+      "info": "Optional. Falls back to the alt text set on the image in Files."
+    },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Trial Our Duvet" },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Card background",
+      "info": "The cream card. The section itself stays transparent so the page background shows through.",
+      "default": "#FCF5E3"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "info": "Also used for the button label.",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "info": "The button background, and focus outlines.",
+      "default": "#A8CF78"
+    },
+
+    { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "info": "Scales to 60% of this on mobile (80px → 48px), matching the Mobile artboard.",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "info": "The design has no bottom spacer — the next section's own top spacer carries the gap.",
+      "default": 0
+    }
+  ]
+}
+{% endschema %}

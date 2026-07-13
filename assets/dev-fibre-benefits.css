@@ -1,0 +1,257 @@
+/* dev-fibre-benefits.css */
+
+/* Fixed Figma tokens (--section-px, --spacing-*, --icon-*, type scale) are declared in the
+   section's <style> block, per the code standards. Merchant-controlled values (--bg / --page-bg
+   / --card-bg / --color / --accent / --pt / --pb / --card-radius / --container-radius) arrive
+   inline on the root wrapper. This file only consumes them — no literal colours, fonts, or
+   base paddings here.
+
+   TWO NESTED BACKGROUND LAYERS (Brief note #2). This is the whole shape of the section:
+
+     .fibre-benefits         root — PAGE background + the top spacer (+ the side gutter on mobile)
+       .fibre-benefits__inner  the cream BAND — full-bleed and square on desktop,
+                               a 32px-rounded inset card on mobile
+         .fibre-benefits__card × 3   the white cards
+
+   Verified against both artboards, not inferred: the 80px desktop spacer and the 48px mobile
+   spacer are page-cream (#FFFCF4), NOT band-cream (#FCF5E3) — the band starts below them. That
+   is why --bg lives on __inner and --page-bg on the root, and why the 64px desktop inset is the
+   band's own padding rather than the root's. */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.fibre-benefits {
+  background-color: var(--page-bg);
+  color: var(--color);
+  font-family: var(--font-body);
+  /* No horizontal padding on the root at desktop: the band is full-bleed (cream reaches x=0)
+     and the 64px inset is the band's own padding. --pb is 0 by design — no bottom spacer node
+     exists on either artboard, the band is flush with the section's bottom edge. */
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+}
+
+/* --- layout --- */
+
+.fibre-benefits__inner {
+  /* Full-bleed by design — no --container-max (Brief note #1: the content row is w-full, there
+     is no centred max-width frame in this node). Figma: row / align stretch / gap 24 /
+     padding 24px 64px. Each card is flex:1 0 0, so the three divide the row evenly. */
+  background-color: var(--bg);
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg) var(--section-px);
+  width: 100%;
+}
+
+/* --- blocks / children --- */
+
+.fibre-benefits__card {
+  background-color: var(--card-bg);
+  border-radius: var(--card-radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Figma anchors cards 1 and 3 centre and card 2 top. Card 2 is the tallest, so its content
+     exactly fills the stretched row height and centring is a no-op for it — one rule, identical
+     render, and it stays correct if the copy is edited. */
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  flex: 1 0 0;
+  min-width: 0;
+  text-align: center;
+}
+
+.fibre-benefits__icon {
+  /* currentColor plumbing for the two inline icons. Confirmed #666666 in the exported artwork.
+     The FSC icon ships as an <img> and keeps its baked fill, so it does not follow this. */
+  color: var(--icon-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Fixed 48x48 LAYOUT slot on both artboards. flex:none so the row/column never squeezes it. */
+  width: var(--icon-size);
+  height: var(--icon-size);
+  flex: none;
+}
+
+/* Rendered size == viewBox, so each icon draws at its true Figma size instead of being
+   letterboxed into the anchor box. Measured off the 375 artboard at 1:1: 46x48, 43x44, 48x50.
+   Biodegradable is 50px tall and deliberately OVERFLOWS the 48px slot by 1px top and bottom —
+   the slot keeps its height, so the overflow does not push the card taller. Icons are NOT
+   scaled between breakpoints: identical fixed px on desktop and mobile. */
+.fibre-benefits__icon-svg {
+  display: block;
+}
+
+.fibre-benefits__icon--no-chemicals .fibre-benefits__icon-svg {
+  width: var(--icon-no-chemicals-w);
+  height: var(--icon-no-chemicals-h);
+}
+
+.fibre-benefits__icon--biodegradable .fibre-benefits__icon-svg {
+  width: var(--icon-biodegradable-w);
+  height: var(--icon-biodegradable-h);
+}
+
+/* The FSC icon (asset route) and any merchant-supplied custom icon. The SVG file carries its own
+   43x44 intrinsic size and fits the slot untouched; an arbitrary uploaded image is contained by
+   the slot instead of blowing it out. */
+.fibre-benefits__icon-img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.fibre-benefits__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+/* --- typography --- */
+
+.fibre-benefits__heading {
+  color: var(--color);
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  margin: 0;
+}
+
+/* Desktop: the two heading lines run together as one unbroken line, the ::before supplying the
+   separating space. Mobile flips them to block, reproducing the manual break Figma authors on
+   card 2 only ("Grown sustainably" / "— FSC Certified"). Carrying the space in CSS rather than
+   in markup keeps the Liquid free of whitespace-sensitive tags. */
+.fibre-benefits__heading-line {
+  display: inline;
+}
+
+.fibre-benefits__heading-line--2::before {
+  content: ' ';
+}
+
+.fibre-benefits__body {
+  color: var(--color);
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  margin: 0;
+}
+
+/* --- buttons / links --- */
+/* None — this section has no interactive elements (Brief: Interactivity none). */
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+  /* No tablet artboard exists, so nothing is overridden here on purpose — inventing a reference
+     is worse than no reference. The desktop row survives the width unaided: the cards are
+     flex:1 0 0 / min-width:0, so they divide whatever is left and the copy wraps. No overflow. */
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .fibre-benefits {
+    /* Mobile artboard has its own top spacer (48px), not a scaled desktop value, and its own
+       16px page gutter — which on this breakpoint DOES sit on the root, because the band is no
+       longer full-bleed: it becomes a rounded card inset from the page edge. */
+    padding-top: var(--pt-mobile);
+    padding-left: var(--section-px-mobile);
+    padding-right: var(--section-px-mobile);
+  }
+
+  .fibre-benefits__inner {
+    /* Figma mobile: the band gains a 32px radius and a uniform 24px pad, and the row becomes a
+       column with a 16px gap. This is a real structural change, not a reflow (Brief note #2). */
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    border-radius: var(--container-radius);
+  }
+
+  .fibre-benefits__card {
+    /* Cards are full-width and take their natural height on mobile (measured 132 / 176 / 156px) —
+       no stretch, so justify-content is inert here. */
+    width: 100%;
+    flex: 0 0 auto;
+    gap: var(--card-icon-gap-mobile);
+  }
+
+  .fibre-benefits__card--biodegradable {
+    /* MEASURED, NOT A TYPO. On mobile the biodegradable card puts 8px between its icon and its
+       heading+body group where the other two use 4px (Brief note #3). It is an authoring
+       inconsistency in the Figma file, and it is real: that card's height only resolves to the
+       artboard's 156px with 8px here (16 + 48 + 8 + 24 + 4 + 40 + 16). Built as measured rather
+       than silently normalised — if a pixel diff ever flags this gap, this is why. */
+    gap: var(--card-icon-gap-mobile-alt);
+  }
+
+  .fibre-benefits__heading-line {
+    /* Forces the manual break Figma authors on the mobile artboard. Only card 2 supplies a
+       second line, so only card 2 breaks. */
+    display: block;
+  }
+
+  .fibre-benefits__heading-line--2::before {
+    content: none;
+  }
+
+  .fibre-benefits__body {
+    /* The mobile artboard specifies its own body size (14px), so use it rather than a scale
+       factor. The heading stays 20px on both artboards. */
+    font-size: var(--font-body-size-mobile);
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+  /* Nothing to override. The cards are width:100% inside a fluid band, so below the 375
+     artboard everything shrinks with the viewport instead of forcing a horizontal scroll. */
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+/* No focusable elements in this section; the focus-visible rules are kept so a future link or
+   button inherits the project's outline treatment. */
+.fibre-benefits__link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.fibre-benefits__link:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .fibre-benefits,
+  .fibre-benefits * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

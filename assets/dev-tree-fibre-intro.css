@@ -1,0 +1,238 @@
+/* dev-tree-fibre-intro.css */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+/* The section root carries NO background on purpose: --bg is the CARD's fill (#FCF5E3), and
+   the page behind it is #FFFCF4. Both sampled off the Figma artboard. Painting --bg here would
+   turn the 64px gutters and the 80px top spacer cream and fail the pixel diff. */
+.tree-fibre-intro {
+  /* Half the row gap comes off each column's flex-basis, or the two 50% columns plus the gap
+     overflow the row. Declared here rather than in the section's inline <style> because the
+     inline block only carries Figma tokens — this is a layout constant, not a design value. */
+  --col-basis: calc(50% - (var(--spacing-sm) / 2));
+
+  color: var(--color);
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+  font-family: var(--font-body);
+}
+
+.tree-fibre-intro__inner {
+  max-width: var(--container-max);
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* --- layout --- */
+
+/* Desktop content row (Figma "Frame 2", 45081:10081, 1312x450): two equal children with a 24px
+   gap — (1312 - 24) / 2 = 644 each, which is exactly the image's width.
+   Row height is set by the image, not the card: the media's aspect-ratio resolves to 450px at
+   644px wide, and `align-items: stretch` pulls the card up to match. Using stretch rather than a
+   fixed height means that if the card's text ever needs MORE than 450px (narrow tablets, a longer
+   intro, a larger merchant font) the row grows instead of the text spilling out of the card.
+
+   The columns size off --col-basis, NOT `flex: 1 0 0`. With box-sizing: border-box a flex-basis
+   of 0 cannot hold the card's own 160px of horizontal padding, so the card's hypothetical size
+   floors at 160px and the free space splits unevenly — 724/564 at desktop instead of 644/644.
+   An explicit half-the-row basis leaves no free space to mis-split. */
+.tree-fibre-intro__inner {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: var(--spacing-sm);
+}
+
+/* --- blocks / children --- */
+
+/* Text card. Content is top-aligned: the divider lands at y=283 on the artboard, and
+   flex-start predicts 284 while centring would predict 308 — so flex-start it is. */
+.tree-fibre-intro__card {
+  flex: 1 1 var(--col-basis);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background-color: var(--bg);
+  border-radius: var(--radius);
+}
+
+.tree-fibre-intro__media {
+  flex: 1 1 var(--col-basis);
+  min-width: 0;
+  aspect-ratio: var(--media-ratio);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.tree-fibre-intro__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The divider is a fixed 99x1 rule. flex-shrink: 0 stops the flex column from squashing that
+   1px height, which would silently erase it. */
+.tree-fibre-intro__divider {
+  display: block;
+  flex-shrink: 0;
+  width: var(--divider-w);
+  height: var(--divider-h);
+}
+
+/* --- typography --- */
+
+.tree-fibre-intro__intro {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+/* intro_text is a richtext setting, so Shopify wraps it in <p>. Strip the browser's default
+   paragraph margins so the 40px flex gap is the only spacing that applies. */
+.tree-fibre-intro__intro > :first-child {
+  margin-top: 0;
+}
+
+.tree-fibre-intro__intro > :last-child {
+  margin-bottom: 0;
+}
+
+.tree-fibre-intro__heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  letter-spacing: var(--font-heading-ls);
+  color: var(--color);
+}
+
+/* --- buttons / links --- */
+/* None: this section has no CTA, link or button in the design. */
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+/* The row survives at tablet (2 col → 2 col), but nothing else survives at its desktop value.
+   No tablet artboard exists in Figma, so this band (769–1024) is derived, not read off the design.
+
+   At 1024 each column is ~436px; at 769 it is only ~308px. Against that, the card's 80px padding
+   leaves 276px and then 148px of usable text width, and a 32px heading plus a 20px intro wrap to
+   the point where the card runs far past the image. So padding, gap and type all scale linearly
+   with the viewport across the band rather than stepping once at 1024 and then breaking at 769.
+
+   Every clamp lands on the DESKTOP value at 1024 and the MOBILE value at 769 — heading 26px and
+   intro 18px at 769 are exactly --font-heading-size-m and --font-body-size-m. So type is
+   continuous across the 768px breakpoint: the image drops out there, but nothing changes size.
+
+   The card still ends up taller than the image's natural 644/450 ratio in this band, and that is
+   fine: `align-items: stretch` grows the row and `object-fit: cover` crops the photo to match.
+   Holding the image's exact ratio instead would mean shrinking the intro below its mobile size —
+   tablet text smaller than phone text, which is the worse trade.
+
+   Type is set on the ELEMENTS, not via the --font-*-size tokens. Overriding the tokens here does
+   nothing: they are declared in the section's inline <style> on `.tree-fibre-intro`, which sits
+   after this stylesheet's <link> in the document. Same selector, same specificity, and a media
+   query adds none — so the inline desktop token wins and the rule silently no-ops. */
+@media (max-width: 1024px) {
+  .tree-fibre-intro__card {
+    padding: clamp(32px, calc(6.27vw - 16.25px), 48px);
+    gap: clamp(24px, 3.14vw, 32px);
+  }
+
+  .tree-fibre-intro__heading {
+    font-size: clamp(26px, calc(2.35vw + 7.9px), 32px);
+  }
+
+  .tree-fibre-intro__intro {
+    font-size: clamp(18px, calc(0.78vw + 12px), 20px);
+  }
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+/* The image is ABSENT from the mobile design — confirmed structurally, it has no node in the
+   mobile tree at all. It is not stacked, not resized, not reflowed. `display: none` is therefore
+   what the design actually specifies, not a shortcut for hiding inconvenient content. */
+@media (max-width: 768px) {
+  .tree-fibre-intro {
+    padding-top: calc(var(--pt) * var(--pt-scale-m));
+    padding-left: var(--section-px-m);
+    padding-right: var(--section-px-m);
+  }
+
+  .tree-fibre-intro__inner {
+    flex-direction: column;
+  }
+
+  .tree-fibre-intro__media {
+    display: none;
+  }
+
+  .tree-fibre-intro__card {
+    padding: var(--spacing-lg-m);
+    gap: var(--spacing-md-m);
+  }
+
+  .tree-fibre-intro__intro {
+    font-size: var(--font-body-size-m);
+  }
+
+  .tree-fibre-intro__heading {
+    font-size: var(--font-heading-size-m);
+    letter-spacing: var(--font-heading-ls-m);
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+/* Nothing to change. The 375px artboard IS the mobile design and it is already handled above;
+   the card is fluid (full width minus the 16px gutters) so it holds down to the narrowest
+   viewport without a horizontal scroll. */
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+/* This section has no interactive elements — no button, link, toggle or input anywhere in the
+   design. The rule below is a safety net for merchant-authored links inside the intro richtext,
+   which is the only place focusable content can appear. */
+.tree-fibre-intro__intro a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.tree-fibre-intro__intro a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .tree-fibre-intro,
+  .tree-fibre-intro * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

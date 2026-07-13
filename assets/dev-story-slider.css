@@ -1,0 +1,317 @@
+/* dev-story-slider.css
+   Every token this file consumes is declared in the <style> block of sections/dev-story-slider.liquid
+   (fixed Figma values) or arrives inline on the root (merchant-controlled: --bg / --color / --rail /
+   --progress / --pt / --pb). Nothing here hardcodes a colour, a font family, or a base padding. */
+
+/* =============================================
+   BASE — desktop  (Figma 45205:1559, 1440)
+   ============================================= */
+
+/* NAMING — read before renaming anything here.
+   Horizon compiles every section's {% stylesheet %} block into ONE sheet that loads on EVERY page,
+   even when that stock section never renders. So a `dev-` section that reuses a stock BEM name
+   inherits stock's rules silently. `story-slider` collides with nothing in Horizon (checked
+   against assets/*.css and every stock {% stylesheet %}), which is why it is safe unprefixed.
+   If you rename this block, re-check the collision first — this has already bitten the
+   announcement bar (.announcement-bar__link) and the hero (.hero__*). */
+
+.story-slider {
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+}
+
+/* --- layout --- */
+
+/* No --container-max and no horizontal padding on the wrapper by design: the padding lives on the
+   heading, the track and the controls SEPARATELY, so the track can scroll its tiles out past the
+   right gutter instead of being clipped inside a centred frame. */
+.story-slider__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-section);
+  width: 100%;
+}
+
+/* --- track --- */
+
+/* A plain scroll container, not a JS carousel: touch, trackpad and keyboard already scroll it.
+   The arrows only nudge it and the rail only reports it, so with JS off the section degrades to
+   the mobile behaviour — which IS the design at 375. */
+.story-slider__track {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--gap-tiles);
+  margin: 0;
+  padding: 0 var(--section-px);
+  list-style: none;
+
+  overflow-x: auto;
+  /* `clip`, not `hidden`: `hidden` on the cross axis would silently make this a scroll container
+     vertically too, and the tiles' rounded corners would sit on a scrollable overflow region. */
+  overflow-y: clip;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--section-px);
+  -webkit-overflow-scrolling: touch;
+
+  /* The native bar is replaced by the artboard's own rail (.story-slider__rail). */
+  scrollbar-width: none;
+}
+
+.story-slider__track::-webkit-scrollbar {
+  display: none;
+}
+
+.story-slider__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-tile-inner);
+
+  /* 407px on the artboard. `0 0 auto` — the tile must NOT shrink to fit the viewport; overflowing
+     the row is the entire point of a scroller. */
+  flex: 0 0 var(--tile-w);
+  width: var(--tile-w);
+  scroll-snap-align: start;
+}
+
+/* --- media --- */
+
+/* aspect-ratio rather than the artboard's raw pixel heights (312 / 373), so the crop survives any
+   tile width. At the mobile 260px the two ratios resolve to exactly 312px and 373px — i.e. the
+   mobile artboard's stated heights fall out of the desktop ratios for free. */
+.story-slider__media {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-tile);
+}
+
+.story-slider__media--short {
+  aspect-ratio: var(--ratio-short);
+}
+
+.story-slider__media--tall {
+  aspect-ratio: var(--ratio-tall);
+}
+
+.story-slider__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-tile);
+}
+
+/* --- typography --- */
+
+.story-slider__heading {
+  margin: 0;
+  padding: 0 var(--section-px);
+
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  color: var(--color);
+}
+
+.story-slider__caption {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+.story-slider__caption > * {
+  margin: 0;
+}
+
+/* The opening phrase. richtext gives the merchant <strong>; the artboard sets that run in Public
+   Sans Bold and the remainder in Medium, which is exactly the weight pair below. */
+.story-slider__caption strong,
+.story-slider__caption b {
+  font-weight: var(--font-body-weight-bold);
+}
+
+/* --- controls --- */
+
+.story-slider__controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--gap-controls);
+  padding: 0 var(--section-px);
+}
+
+/* The rail is the scrollbar the track no longer draws. Figma renders it as one 2px round-capped
+   stroke with a hard gradient stop (#262626 to 21.6%, #DADADA after) — a THUMB, not decoration.
+   So the rail is the light half and .story-slider__progress is the dark one, sized and offset from
+   real scroll position by the JS. */
+.story-slider__rail {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  height: var(--progress-h);
+  border-radius: var(--progress-h);
+  background-color: var(--rail);
+  overflow: hidden;
+}
+
+.story-slider__progress {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  display: block;
+
+  /* Seeded so the rail reads correctly before the JS runs (and if it never does). The JS
+     overwrites both on the first frame. */
+  width: 100%;
+  border-radius: var(--progress-h);
+  background-color: var(--progress);
+
+  transform: translateX(0);
+  transition: transform 0.15s ease-out, width 0.15s ease-out;
+}
+
+.story-slider__buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--gap-buttons);
+  flex: 0 0 auto;
+}
+
+/* No fill and no border on the artboard — 19px of padding around a 24px icon IS the button. That
+   also happens to buy a 62px touch target, well clear of the 44px floor. */
+.story-slider__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--button-p);
+  border: 0;
+  border-radius: 60px;
+  background: none;
+  color: var(--color);
+  cursor: pointer;
+  transition: opacity 0.15s ease-out;
+}
+
+.story-slider__button:hover {
+  opacity: 0.7;
+}
+
+/* Both ends of a scroller are reachable states, so the button is disabled rather than hidden —
+   hiding it would reflow the row every time the track hits an end. */
+.story-slider__button[disabled] {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.story-slider__icon {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+/* Nothing to override. The tiles are a fixed 407px and the track scrolls, so a narrower viewport
+   simply reveals fewer of them — which is what a scroller is for. The gutter relief that other
+   sections need here does not apply: shrinking --section-px would only move the first tile. */
+
+@media (max-width: 1024px) {
+}
+
+/* =============================================
+   MOBILE  ≤ 768px  (Figma 44956:8863, 375)
+   ============================================= */
+
+@media (max-width: 768px) {
+  .story-slider__inner {
+    gap: var(--gap-section-m);
+  }
+
+  /* Centred on the mobile artboard, left-aligned on the desktop one. A genuine difference between
+     the two, not a reflow. */
+  .story-slider__heading {
+    padding: 0 var(--section-px-m);
+    font-size: var(--font-heading-size-m);
+    text-align: center;
+  }
+
+  .story-slider__track {
+    gap: var(--gap-tiles-m);
+    padding: 0 var(--section-px-m);
+    scroll-padding-inline: var(--section-px-m);
+  }
+
+  .story-slider__tile {
+    flex-basis: var(--tile-w-m);
+    width: var(--tile-w-m);
+    /* The desktop tile centres its caption under a 407px image; the mobile one aligns it left. */
+    align-items: flex-start;
+  }
+
+  .story-slider__caption {
+    font-size: var(--font-body-size-m);
+  }
+
+  /* The mobile artboard has NO rail and NO arrows — it scrolls natively. Hiding the row is the
+     design, not a fallback: inventing a mobile control treatment would be inventing design. */
+  .story-slider__controls {
+    display: none;
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+/* Nothing to override: the 260px tile and the 16px gutter are already inside the 375 artboard, and
+   the track scrolls, so narrower viewports just show less of the next tile. */
+
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+/* The track is focusable (tabindex=0) so it can be scrolled with the arrow keys without a mouse.
+   That means it needs a visible focus ring of its own. */
+.story-slider__track:focus-visible,
+.story-slider__button:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
+
+.story-slider__track:focus:not(:focus-visible),
+.story-slider__button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .story-slider,
+  .story-slider * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* The arrows scroll smoothly by default; honour the preference and jump instead. */
+  .story-slider__track {
+    scroll-behavior: auto !important;
+  }
+}

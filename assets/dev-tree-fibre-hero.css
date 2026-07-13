@@ -1,0 +1,243 @@
+/* dev-tree-fibre-hero.css */
+
+/* =============================================
+   BASE — desktop  (Figma 45081:9542, 1440x550)
+   ============================================= */
+
+.tree-fibre-hero {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: var(--hero-min-h);
+  overflow: hidden;
+  border-bottom-left-radius: var(--radius-bottom);
+  border-bottom-right-radius: var(--radius-bottom);
+  background-color: var(--bg);
+  color: var(--color);
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+  font-family: var(--font-body);
+}
+
+.tree-fibre-hero *,
+.tree-fibre-hero *::before,
+.tree-fibre-hero *::after {
+  box-sizing: border-box;
+}
+
+/* --- layout --- */
+
+.tree-fibre-hero__bg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-bottom-left-radius: var(--radius-bottom);
+  border-bottom-right-radius: var(--radius-bottom);
+  pointer-events: none;
+}
+
+.tree-fibre-hero__bg {
+  position: absolute;
+  top: var(--bg-top-d);
+  left: var(--bg-left-d);
+  width: var(--bg-w-d);
+  height: var(--bg-h-d);
+  max-width: none;
+  object-fit: cover;
+}
+
+.tree-fibre-hero__overlay {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background-image: var(--overlay-d);
+}
+
+.tree-fibre-hero__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  width: 100%;
+  max-width: var(--text-col-w);
+}
+
+/* --- typography --- */
+
+.tree-fibre-hero__heading {
+  margin: 0;
+  width: 100%;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  color: var(--color);
+  text-align: left;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+}
+
+/* The emphasised run. See the header comment in the .liquid before touching --em-weight:
+   the design's Semibold Italic (600) face is not loaded, so this deliberately resolves to
+   the nearest REAL italic face rather than a synthesised oblique. */
+.tree-fibre-hero__heading em,
+.tree-fibre-hero__heading i {
+  font-style: italic;
+  font-weight: var(--em-weight);
+}
+
+/* --- squiggle underline on the emphasised run (opt-in) --- */
+
+/* Off by default: the Tree Fibre artboard emphasises "comfortable." with NO underline, while the
+   Our Story hero (45078:8864) underlines both of its runs. So this is gated on a modifier the
+   section only adds when `show_underline` is on — turning it on globally would silently redraw a
+   section that already passed QA.
+
+   The stroke rides on the <em> instead of being absolutely positioned under a fixed x/y (the way
+   dev-hero's --squiggle-x/-y is, which is why that one only ever fits the word "trees"). It
+   therefore follows whatever the merchant italicises, and works for one run or five. */
+.tree-fibre-hero--underline .tree-fibre-hero__heading em,
+.tree-fibre-hero--underline .tree-fibre-hero__heading i {
+  position: relative;
+}
+
+.tree-fibre-hero--underline .tree-fibre-hero__heading em::after,
+.tree-fibre-hero--underline .tree-fibre-hero__heading i::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  margin-top: var(--squiggle-gap);
+  height: var(--squiggle-h);
+
+  /* A MASK, not an image. The ink colour is --accent, so the underline tracks the merchant's
+     accent setting and this file still hard-codes no colour. The SVGs are the two Figma vectors
+     verbatim, filled opaque black purely so the mask has an alpha channel to read. */
+  background-color: var(--accent);
+  -webkit-mask-image: var(--squiggle-1);
+  mask-image: var(--squiggle-1);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  pointer-events: none;
+}
+
+/* The artboard draws a visibly DIFFERENT stroke under the second run — not the same one repeated.
+   Alternating by nth-of-type reproduces the two-emphasis heading exactly, and any further runs
+   just keep alternating rather than looking mechanically identical. */
+.tree-fibre-hero--underline .tree-fibre-hero__heading em:nth-of-type(even)::after,
+.tree-fibre-hero--underline .tree-fibre-hero__heading i:nth-of-type(even)::after {
+  -webkit-mask-image: var(--squiggle-2);
+  mask-image: var(--squiggle-2);
+}
+
+/* --- links (inline_richtext may carry one) --- */
+
+.tree-fibre-hero__heading a {
+  color: inherit;
+  text-underline-offset: 0.15em;
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+/* Figma supplies only a 1440 and a 375 artboard, so this band is an interpolation, not a
+   design: keep the desktop treatment (left-aligned, 480px column) and just relieve the
+   64px gutter so the column keeps its full width down to the mobile switch at 768px. */
+@media (max-width: 1024px) {
+  .tree-fibre-hero {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+}
+
+/* =============================================
+   MOBILE  ≤ 768px  (Figma 44847:1594, 375x550)
+   ============================================= */
+
+@media (max-width: 768px) {
+  /* The stroke scales with the type (38px -> 28px), so its ink height and its gap come down with
+     it rather than staying at the desktop 6.78/5. */
+  .tree-fibre-hero--underline .tree-fibre-hero__heading em::after,
+  .tree-fibre-hero--underline .tree-fibre-hero__heading i::after {
+    height: var(--squiggle-h-m);
+    margin-top: var(--squiggle-gap-m);
+  }
+
+  .tree-fibre-hero {
+    align-items: center;
+    padding-top: var(--pt-m);
+    padding-left: var(--section-px-m);
+    padding-right: var(--section-px-m);
+  }
+
+  .tree-fibre-hero__bg {
+    top: var(--bg-top-m);
+    left: var(--bg-left-m);
+    width: var(--bg-w-m);
+    height: var(--bg-h-m);
+  }
+
+  /* No scrim on the mobile artboard — the crop sits in the dark treeline already. */
+  .tree-fibre-hero__overlay {
+    background-image: var(--overlay-m);
+  }
+
+  .tree-fibre-hero__content {
+    align-items: center;
+    max-width: none;
+  }
+
+  .tree-fibre-hero__heading {
+    max-width: var(--heading-max-w-m);
+    margin-inline: auto;
+    font-size: var(--font-heading-size-m);
+    text-align: center;
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+/* The 375 artboard already governs this band — the mobile rules above are the design at
+   375 and they hold down to 320 (the photo's percentage crop keeps covering, and the
+   centred heading keeps its wrap). Nothing to override. */
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.tree-fibre-hero__heading a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.tree-fibre-hero__heading a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .tree-fibre-hero,
+  .tree-fibre-hero * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

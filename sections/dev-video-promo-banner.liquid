@@ -1,0 +1,371 @@
+{{ 'dev-video-promo-banner.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'dev-video-promo-banner.js' | asset_url }}" defer></script>
+{%- comment -%}
+  JS is required: the Brief's Interactivity type is "modal (video playback)" — pattern (a),
+  static poster background + a play button that opens the video in a lightbox.
+{%- endcomment -%}
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .video-promo-banner {
+    /* Brand params (Design Brief → Brand Params table).
+       --container-max is intentionally absent and --section-px is 0: this section is
+       full-bleed at both breakpoints (Brief, Note 1 — the media row starts at x=0 and
+       spans the whole frame). The only width constraint is a max-width on the text block. */
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+    --section-px: 0px;
+
+    /* Typography — desktop */
+    --font-heading-size: 38px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+    --font-body-size: 18px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+    --font-button-size: 18px;
+    --font-button-weight: 700;
+    --font-button-lh: 1.4;
+
+    /* Typography — mobile (from the Mobile artboard, not a scale factor) */
+    --font-heading-size-m: 28px;
+    --font-body-size-m: 16px;
+    --font-button-size-m: 16px;
+
+    /* Spacing */
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 32px;
+    --spacing-lg-m: 24px;
+    --pt-scale-m: 0.6; /* 80px desktop → 48px mobile */
+
+    /* Media tile */
+    --tile-min-h: 500px; /* identical at both breakpoints (Brief, Note 4) */
+    --tile-pt: 32px;
+    --tile-pb: 32px;
+    --tile-px: 24px;
+    --tile-p-m: 24px;
+    --bg-position: center;
+
+    /* Text block */
+    --text-max: 410px;
+    --text-max-m: 327px;
+
+    /* CTA button */
+    --button-px: 24px;
+    --button-py: 18px;
+    --button-px-m: 18px;
+    --button-py-m: 12px;
+    --button-radius: 60px;
+
+    /* Play button */
+    --play-btn-size: 62px;
+    --play-btn-padding: 19px;
+    --play-btn-radius: 60px;
+    --play-icon-size: 24px;
+
+    /* Modal */
+    --modal-overlay: rgba(0, 0, 0, 0.85);
+    --modal-max-w: 960px;
+    --modal-px: 24px;
+  }
+</style>
+
+{%- liquid
+  assign hosted_video = section.settings.video
+  assign external = section.settings.video_external_url
+
+  assign embed_url = ''
+  if external != blank
+    if external.type == 'youtube'
+      assign embed_url = 'https://www.youtube.com/embed/' | append: external.id | append: '?autoplay=1&rel=0'
+    elsif external.type == 'vimeo'
+      assign embed_url = 'https://player.vimeo.com/video/' | append: external.id | append: '?autoplay=1'
+    endif
+  endif
+
+  assign has_video = false
+  if hosted_video != blank or embed_url != blank
+    assign has_video = true
+  endif
+
+  comment
+    Poster fallback. The background image is optional, so when it is empty the banner takes its
+    poster from the video itself rather than rendering an empty tile: an uploaded video carries a
+    preview_image, and YouTube exposes a thumbnail derived from the video id. Vimeo publishes no
+    thumbnail URL that can be built without an API call, so a Vimeo-only banner still needs an image.
+  endcomment
+  assign poster = section.settings.background_poster_image
+  if poster == blank
+    assign poster = hosted_video.preview_image
+  endif
+  assign poster_alt = poster.alt | default: '' | escape
+
+  assign poster_fallback_url = ''
+  if poster == blank and external.type == 'youtube'
+    assign poster_fallback_url = 'https://i.ytimg.com/vi/' | append: external.id | append: '/maxresdefault.jpg'
+  endif
+-%}
+
+<div
+  class="video-promo-banner"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --cta-text-color: {{ section.settings.cta_text_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="video-promo-banner__tile">
+    <div class="video-promo-banner__media">
+      {%- if poster != blank -%}
+        {{
+          poster
+          | image_url: width: 1920
+          | image_tag:
+            loading: 'eager',
+            widths: '400, 600, 800, 1000, 1200, 1600, 1920',
+            sizes: '100vw',
+            alt: poster_alt,
+            class: 'video-promo-banner__poster'
+        }}
+      {%- elsif poster_fallback_url != blank -%}
+        {%- comment -%}
+          Not a Shopify-hosted image, so image_tag cannot build it — the YouTube thumbnail is a
+          plain remote URL. maxresdefault is 1280x720 for every video that has it.
+        {%- endcomment -%}
+        <img
+          class="video-promo-banner__poster"
+          src="{{ poster_fallback_url }}"
+          alt=""
+          width="1280"
+          height="720"
+          loading="eager"
+        >
+      {%- endif -%}
+    </div>
+
+    <div class="video-promo-banner__content">
+      {%- if section.settings.show_play_button -%}
+        <button
+          class="video-promo-banner__play"
+          type="button"
+          aria-label="{{ 'Play video' | escape }}"
+          {% if has_video %}
+            data-video-open
+            aria-haspopup="dialog"
+            aria-expanded="false"
+          {% endif %}
+        >
+          {%- comment -%}
+            "Icon/Outline/play-solid" — exported from Figma (I45031:4301;34806:63342;23710:41236
+            desktop / I44821:5480;44821:5504;34806:63342;23710:41236 mobile) by the Assets stage to
+            .figma-assets/video-promo-banner/play-icon-{desktop,mobile}.svg. Both exports are
+            byte-identical; the path data below is pasted verbatim from them. Verified by
+            `node .claude/tools/svg-fidelity.mjs --section video-promo-banner`.
+            The Figma layer is misnamed "Icon/Outline/plus" — the artwork is a solid play triangle
+            (Brief, Note 2). Rendered 24x24 against a 24x24 viewBox, so the aspect matches exactly.
+            Figma fills it #333333 = Neutral/700 = the --cta-text-color default, so it is bound to
+            currentColor rather than hardcoding the hex (CSS hard rule).
+          {%- endcomment -%}
+          <svg
+            class="video-promo-banner__play-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M16.7519 11.168L7.5547 5.03647C6.89015 4.59343 6 5.06982 6 5.86852V18.1315C6 18.9302 6.89014 19.4066 7.5547 18.9635L16.7519 12.8321C17.3457 12.4362 17.3457 11.5638 16.7519 11.168Z" fill="currentColor"/>
+          </svg>
+        </button>
+      {%- endif -%}
+
+      {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+        <div class="video-promo-banner__text">
+          {%- if section.settings.heading != blank -%}
+            {%- comment -%} inline_richtext: already safe HTML from Shopify — never escape it. {%- endcomment -%}
+            <h2 class="video-promo-banner__heading">{{ section.settings.heading }}</h2>
+          {%- endif -%}
+
+          {%- if section.settings.subheading != blank -%}
+            <p class="video-promo-banner__subheading">{{ section.settings.subheading | escape }}</p>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- comment -%}
+        The CTA is a BLOCK, not a section setting (Brief → Structure: "Merchant-addable
+        element → BLOCK: CTA link button"). Only one exists in the design, so limit: 1.
+      {%- endcomment -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'cta_button' and block.settings.label != blank -%}
+          {%- liquid
+            assign cta_link = block.settings.link
+            if cta_link == blank
+              assign cta_link = routes.root_url
+            endif
+          -%}
+          <a
+            class="video-promo-banner__button"
+            href="{{ cta_link }}"
+            {{ block.shopify_attributes }}
+          >
+            {{- block.settings.label | escape -}}
+          </a>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+
+  {%- if has_video -%}
+    <div
+      class="video-promo-banner__modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="{{ 'Video' | escape }}"
+      data-video-modal
+      hidden
+    >
+      <div class="video-promo-banner__modal-inner">
+        <button
+          class="video-promo-banner__modal-close"
+          type="button"
+          aria-label="{{ 'Close video' | escape }}"
+          data-video-close
+        >
+          <svg
+            class="video-promo-banner__modal-close-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <line x1="5" y1="5" x2="19" y2="19"/>
+            <line x1="19" y1="5" x2="5" y2="19"/>
+          </svg>
+        </button>
+
+        {%- if hosted_video != blank -%}
+          {{
+            hosted_video
+            | video_tag:
+              controls: true,
+              playsinline: true,
+              preload: 'none',
+              class: 'video-promo-banner__video'
+          }}
+        {%- elsif embed_url != blank -%}
+          <iframe
+            class="video-promo-banner__iframe"
+            title="{{ 'Video' | escape }}"
+            data-src="{{ embed_url }}"
+            src="about:blank"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Video promo banner",
+  "tag": "section",
+  "presets": [
+    {
+      "name": "Video promo banner",
+      "blocks": [{ "type": "cta_button" }]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "cta_button",
+      "name": "CTA button",
+      "limit": 1,
+      "settings": [
+        { "type": "text", "id": "label", "label": "Button label", "default": "Our Story" },
+        { "type": "url", "id": "link", "label": "Button link" }
+      ]
+    }
+  ],
+  "max_blocks": 1,
+  "settings": [
+    { "type": "header", "content": "Content" },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Trees into duvets – who would've thought?"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "See the difference in under 60 seconds."
+    },
+    {
+      "type": "image_picker",
+      "id": "background_poster_image",
+      "label": "Background image",
+      "info": "Fills the banner. Leave empty to use the video's own preview frame (uploaded video or YouTube)."
+    },
+    {
+      "type": "video",
+      "id": "video",
+      "label": "Video",
+      "info": "Plays in a lightbox when the play button is clicked."
+    },
+    {
+      "type": "video_url",
+      "id": "video_external_url",
+      "label": "Video link",
+      "accept": ["youtube", "vimeo"],
+      "info": "Used only when no uploaded video is set."
+    },
+    { "type": "checkbox", "id": "show_play_button", "label": "Show play button", "default": true },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "rgba(0,0,0,0)" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#FFFFFF" },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "info": "Button and play button background.",
+      "default": "#FFFCF4"
+    },
+    { "type": "color", "id": "cta_text_color", "label": "Button text color", "default": "#333333" },
+
+    { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 0
+    }
+  ]
+}
+{% endschema %}

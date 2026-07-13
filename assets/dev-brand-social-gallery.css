@@ -1,0 +1,247 @@
+/* dev-brand-social-gallery.css */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.brand-social-gallery {
+  background-color: var(--bg);
+  color: var(--color);
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+  font-family: var(--font-body);
+  font-weight: var(--font-body-weight);
+}
+
+/* No __inner max-width: this section is full-bleed by design (Brief note #1 —
+   no --container-max). The horizontal inset is --section-px only, and it sits on
+   __inner rather than the root so the grid can go edge-to-edge on mobile. */
+.brand-social-gallery__inner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  width: 100%;
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+}
+
+/* --- layout --- */
+
+/* Fixed 327px text column; the grid takes the rest of the row (flex: 1 1 0). */
+.brand-social-gallery__intro {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: var(--social-text-w);
+  max-width: 100%;
+  text-align: center;
+}
+
+.brand-social-gallery__grid {
+  display: flex;
+  flex: 1 1 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--radius-gallery);
+}
+
+/* --- blocks / children --- */
+
+/* Fluid tiles — 4 across at 1440 → (953 - 3×2) / 4 = 236.75px each.
+   Never hardcode 186.5px here: that is the MOBILE tile size and it leaked into the
+   desktop Figma JSX (Brief note #4). Size is derived, not fixed. */
+.brand-social-gallery__tile {
+  flex: 1 0 0;
+  min-width: 0;
+  margin: 0;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.brand-social-gallery__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Profile badge — 48px mark centred in the 58px ring (5px inset each side).
+   The ring gradient and the green/white of the mark are baked into the artwork
+   (Brief note #5); they are not driven by --accent. */
+.brand-social-gallery__badge {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--badge-ring-size);
+  height: var(--badge-ring-size);
+}
+
+.brand-social-gallery__badge-ring {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: var(--badge-ring-size);
+  height: var(--badge-ring-size);
+}
+
+.brand-social-gallery__badge-logo {
+  position: absolute;
+  top: var(--badge-logo-inset);
+  left: var(--badge-logo-inset);
+  display: block;
+  width: var(--badge-logo-size);
+  height: var(--badge-logo-size);
+}
+
+.brand-social-gallery__badge-ring svg,
+.brand-social-gallery__badge-logo svg,
+.brand-social-gallery__badge-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* --- typography --- */
+
+.brand-social-gallery__heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  color: var(--color);
+}
+
+.brand-social-gallery__handle {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+/* --- buttons / links --- */
+/* None — Figma shows no link or button affordance on any tile (Brief: Interactivity none). */
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+/* NOTE: 1400px, not the project's usual 1024. The text column is a FIXED 327px, so every pixel
+   the viewport loses comes out of the grid ALONE — the four tiles are the only elastic thing in
+   the row. Measured: 234px at 1440, 174px at 1201, 149px at 1100, 87px at 850.
+
+   So the row is only viable within ~30px of the artboard: to hold the tiles at their designed
+   ~234px it needs 4x234 + 6 + 327 + 32 + 128 = ~1413px of viewport. Switching at 1024 (or even
+   at 1200) left a wide band of starved tiles AND put a visible jump at the boundary — at 1201
+   the row gave 174px while 1200 gave 237px.
+
+   The switch therefore belongs at 1400, where the row stops being able to do its job.
+   --social-grid-w then caps the stacked grid at the width it has on the 1440 artboard (953px),
+   so the tiles land on ~237px — the SAME size as desktop — instead of ballooning to fill the
+   row. The result is continuous, with no jump: 234px at 1440, 237px from 1400 all the way down
+   to 1104, then 222px at 1024 and 176px at 850, before the designed 2x2 mobile grid below 768.
+
+   Only the AXIS changes here. Tile count, typography and spacing tokens all stay on their
+   desktop values — no invented tablet design. */
+@media (max-width: 1400px) {
+  .brand-social-gallery__inner {
+    flex-direction: column;
+  }
+
+  .brand-social-gallery__grid {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: var(--social-grid-w);
+  }
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  /* Mobile artboard specifies its own top spacer (48px), not a scale factor. */
+  .brand-social-gallery {
+    padding-top: var(--pt-mobile);
+  }
+
+  /* Section padding drops to 0 (Brief note #2): the grid is genuinely edge-to-edge at
+     375px, and the text block is inset only because of its own fixed 327px width. */
+  .brand-social-gallery__inner {
+    flex-direction: column;
+    gap: var(--spacing-lg-mobile);
+    padding-left: var(--section-px-mobile);
+    padding-right: var(--section-px-mobile);
+  }
+
+  .brand-social-gallery__intro {
+    gap: var(--spacing-md-mobile);
+  }
+
+  .brand-social-gallery__heading {
+    font-size: var(--font-heading-size-mobile);
+  }
+
+  .brand-social-gallery__handle {
+    width: var(--social-handle-w-mobile);
+    max-width: 100%;
+    font-size: var(--font-body-size-mobile);
+  }
+
+  /* Full-bleed → square corners, no rounding class on the mobile Grid node. */
+  .brand-social-gallery__grid {
+    flex: 0 0 auto;
+    width: 100%;
+    border-radius: var(--radius-gallery-mobile);
+  }
+
+  /* 2 × 2: (375 - 2px gap) / 2 = 186.5px, exactly the mobile artboard tile. */
+  .brand-social-gallery__tile {
+    flex: 0 0 calc((100% - var(--spacing-sm)) / 2);
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+/* Intentionally empty — the ≤768px rules already describe the 375px artboard, and the
+   text column / handle are capped with max-width: 100% so nothing overflows below it. */
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+/* No interactive elements in this section; these guard any link a merchant nests in
+   the heading or handle text. */
+.brand-social-gallery a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.brand-social-gallery a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-social-gallery,
+  .brand-social-gallery * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

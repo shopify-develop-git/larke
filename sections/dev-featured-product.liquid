@@ -1,0 +1,312 @@
+{{ 'dev-featured-product.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  No JS: the Brief's Interactivity section is "none" — no slider, accordion, tabs, sticky or
+  modal on either breakpoint. Static promotional card; the CTA is a plain link.
+
+  Inline SVG (all 3 icons are < 8KB, per the Assets report → INLINE route). Every `d` below is
+  copied BYTE-FOR-BYTE from the owner's Figma export in .figma-assets/featured-product/
+  (icon-wind.svg, icon-care.svg, icon-organic.svg). Only `stroke` was rewritten to currentColor
+  so the icons inherit --color. Nothing was retyped, rounded or "tidied".
+  Verify with: node .claude/tools/svg-fidelity.mjs --section featured-product
+
+  Note (Brief §5): despite the name, this section has NO dynamic product binding in Figma —
+  no product.title, price or variant picker. Every value is a merchant-edited setting.
+{%- endcomment -%}
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .featured-product {
+    /* Brand params (Design Brief → Brand Params table) */
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+    --container-max: 1312px;
+    --section-px: 64px;
+    --section-px-m: 16px;
+
+    /* Typography — desktop */
+    --font-heading-size: 36px;
+    --font-heading-weight: 500;
+    --font-heading-weight-aside: 400; /* the "(and last)" run — Regular, not Medium */
+    --font-heading-lh: 1.2;
+    --font-body-size: 20px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+    --font-label-size: 14px;
+    --font-label-weight: 700;
+    --font-label-lh: 1.4;
+    --font-button-size: 18px;
+    --font-button-weight: 700;
+    --font-button-lh: 1.4;
+
+    /* Typography — mobile. Only the subheading was confirmed on the mobile artboard
+       (Body/Lg_Body_Medium 18px). Heading size is NOT FOUND in Figma (the mobile node is a
+       collapsed component instance), so it falls back to the code-standards scale factor
+       rather than an invented px value. Label + button sizes are held at their desktop
+       values — the Brief explicitly says not to implement a smaller mobile button size
+       without verifying it. */
+    --font-heading-size-m: calc(var(--font-heading-size) * 0.75);
+    --font-body-size-m: 18px;
+
+    /* Spacing */
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+
+    /* 80px desktop → 48px mobile top spacer, kept proportional to the merchant's padding_top */
+    --pt-scale-m: 0.6;
+
+    /* Layout */
+    --media-w: 655px;
+    --media-h: 511px;
+    --media-ratio: 655 / 511;
+    --content-py: 64px;
+    --text-max: 311px;
+
+    /* The hero is a bleed/crop, not an object-fit: the source is rendered oversized and
+       clipped by the tile. Percentages are read straight off Figma node 45031:3801. */
+    --media-img-w: 102.04%;
+    --media-img-h: 164.06%;
+    --media-img-top: -58.28%;
+    --media-img-left: -1.02%; /* (100% - 102.04%) / 2 — horizontally centred bleed */
+
+    /* Decoration */
+    --radius-card: 32px;
+    --radius-badge: 16px;
+    --radius-button: 60px;
+    --badge-px: 16px;
+    --badge-py: 8px;
+    --button-px: 24px;
+    --button-py: 18px;
+    --icons-px: 16px;
+    --icons-h: 56px;
+    --icons-gap-x: 8px;
+    --icons-gap-y: 16px;
+
+    /* Fixed (non-merchant) colours from the Figma style library */
+    --color-badge-bg: #ffffff;
+    --color-badge-border: #c4bca9;
+    --color-button-bg: #333333;
+    --color-button-text: #ffffff;
+  }
+</style>
+
+{%- liquid
+  assign heading_html = section.settings.heading | remove: '<p>' | remove: '</p>'
+
+  assign button_link = section.settings.button_link
+  if button_link == blank
+    assign button_link = routes.root_url
+  endif
+
+  assign hero = section.settings.product_image
+  assign hero_alt = hero.alt | default: '' | escape
+-%}
+
+<div
+  class="featured-product"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="featured-product__inner">
+    <div class="featured-product__card">
+      {%- if hero != blank -%}
+        <div class="featured-product__media">
+          {{
+            hero
+            | image_url: width: 1400
+            | image_tag:
+              loading: 'lazy',
+              widths: '400, 655, 800, 1000, 1310, 1400',
+              sizes: '(min-width: 769px) 655px, 100vw',
+              alt: hero_alt,
+              class: 'featured-product__image'
+          }}
+        </div>
+      {%- endif -%}
+
+      <div class="featured-product__content">
+        {%- if heading_html != blank -%}
+          <h2 class="featured-product__heading">{{ heading_html }}</h2>
+        {%- endif -%}
+
+        {%- if section.settings.subheading != blank -%}
+          <div class="featured-product__subheading">
+            {{- section.settings.subheading -}}
+          </div>
+        {%- endif -%}
+
+        <div class="featured-product__group">
+          {%- if section.settings.rating_text != blank or section.settings.rating_stars != blank -%}
+            <div class="featured-product__badge">
+              {%- if section.settings.rating_stars != blank -%}
+                <span class="featured-product__stars" aria-hidden="true">
+                  {{- section.settings.rating_stars | escape -}}
+                </span>
+              {%- endif -%}
+              {%- if section.settings.rating_text != blank -%}
+                <span class="featured-product__rating">{{ section.settings.rating_text | escape }}</span>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+          {%- if section.blocks.size > 0 -%}
+            <ul class="featured-product__icons" role="list">
+              {%- for block in section.blocks -%}
+                <li class="featured-product__icon-item" {{ block.shopify_attributes }}>
+                  <span class="featured-product__icon" aria-hidden="true">
+                    {%- case block.settings.icon -%}
+                      {%- when 'wind' -%}
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          focusable="false"
+                        >
+                          <path d="M16.7639 6.5C17.3132 5.88625 18.1115 5.5 19 5.5C20.6569 5.5 22 6.84315 22 8.5C22 10.1569 20.6569 11.5 19 11.5H13M6.7639 4C7.31322 3.38625 8.1115 3 9 3C10.6569 3 12 4.34315 12 6C12 7.65685 10.6569 9 9 9H2M10.7639 20C11.3132 20.6137 12.1115 21 13 21C14.6569 21 16 19.6569 16 18C16 16.3431 14.6569 15 13 15H2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      {%- when 'care' -%}
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          focusable="false"
+                        >
+                          <path d="M6 20.0872H8.61029C8.95063 20.0872 9.28888 20.1277 9.61881 20.2087L12.3769 20.8789C12.9753 21.0247 13.5988 21.0389 14.2035 20.9214L17.253 20.3281C18.0585 20.1712 18.7996 19.7855 19.3803 19.2205L21.5379 17.1217C22.154 16.5234 22.154 15.5524 21.5379 14.9531C20.9832 14.4135 20.1047 14.3527 19.4771 14.8103L16.9626 16.6449C16.6025 16.9081 16.1643 17.0498 15.7137 17.0498H13.2855L14.8311 17.0498C15.7022 17.0498 16.4079 16.3633 16.4079 15.5159V15.2092C16.4079 14.5055 15.9156 13.892 15.2141 13.7219L12.8286 13.1418C12.4404 13.0476 12.0428 13 11.6431 13C10.6783 13 8.93189 13.7988 8.93189 13.7988L6 15.0249M2 14.6L2 20.4C2 20.9601 2 21.2401 2.10899 21.454C2.20487 21.6422 2.35785 21.7951 2.54601 21.891C2.75992 22 3.03995 22 3.6 22H4.4C4.96005 22 5.24008 22 5.45399 21.891C5.64215 21.7952 5.79513 21.6422 5.89101 21.454C6 21.2401 6 20.9601 6 20.4V14.6C6 14.04 6 13.7599 5.89101 13.546C5.79513 13.3579 5.64215 13.2049 5.45399 13.109C5.24008 13 4.96005 13 4.4 13H3.6C3.03995 13 2.75992 13 2.54601 13.109C2.35785 13.2049 2.20487 13.3579 2.10899 13.546C2 13.7599 2 14.04 2 14.6ZM17.1914 3.59227C16.5946 2.34341 15.2186 1.6818 13.8804 2.32039C12.5423 2.95898 11.9722 4.4734 12.5325 5.80284C12.8787 6.62448 13.8707 8.22002 14.5781 9.31905C14.8394 9.72513 14.9701 9.92817 15.161 10.0469C15.3247 10.1488 15.5297 10.2037 15.7224 10.1974C15.9471 10.1899 16.1618 10.0794 16.5911 9.85845C17.7532 9.26033 19.4101 8.37457 20.1208 7.83614C21.2707 6.96494 21.5556 5.36359 20.6947 4.14626C19.8337 2.92892 18.3327 2.80914 17.1914 3.59227Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      {%- when 'organic' -%}
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          focusable="false"
+                        >
+                          <path d="M11.8354 13.6835C11.8354 13.0787 12.1489 11.869 13.4025 10.6594M8.69253 18.5296C8.92609 18.5071 9.14522 18.4738 9.35055 18.4305C16.8247 23.9147 20.9991 6.61679 19.0027 4.72628C17.9738 3.75189 13.1555 6.05194 9.85057 9.17997C8.93064 7.78794 7.93207 6.79999 7.3344 6.76871M7.3344 6.76871C9.34764 6.87406 15.9097 17.8345 8.69253 18.5296C1.493 19.0441 5.32116 6.66336 7.3344 6.76871ZM9.32819 18.2196C7.44774 16.7076 6.86069 14.2746 7.48744 12.4601C6.86069 14.2746 7.48739 16.9962 9.36783 18.5082" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    {%- endcase -%}
+                  </span>
+                  {%- if block.settings.label != blank -%}
+                    <span class="featured-product__icon-label">{{ block.settings.label | escape }}</span>
+                  {%- endif -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+
+          {%- if section.settings.button_label != blank -%}
+            <a class="featured-product__button" href="{{ button_link }}">
+              {{- section.settings.button_label | escape -}}
+            </a>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Featured product",
+  "tag": "section",
+  "presets": [
+    {
+      "name": "Featured product",
+      "blocks": [{ "type": "trust_icon" }, { "type": "trust_icon" }, { "type": "trust_icon" }]
+    }
+  ],
+  "settings": [
+    { "type": "header", "content": "Content" },
+    {
+      "type": "richtext",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Italic text is rendered in the lighter heading weight — used for the \"(and last)\" aside.",
+      "default": "<p>Meet your new<br/><em>(and last)</em> duvet</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading",
+      "info": "Line breaks are preserved.",
+      "default": "<p>Cooler, cosier,<br/>kinder to the planet.</p>"
+    },
+    { "type": "text", "id": "rating_stars", "label": "Rating stars", "default": "★★★★★" },
+    { "type": "text", "id": "rating_text", "label": "Rating text", "default": "Rated 4.9/5* by real sleepers" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop Your Duvet" },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+    { "type": "image_picker", "id": "product_image", "label": "Product image" },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Card background",
+      "info": "The section wrapper itself stays transparent — this fills the rounded card.",
+      "default": "#FCF5E3"
+    },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "info": "Star rating.",
+      "default": "#FAB725"
+    },
+
+    { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "info": "Figma has no bottom spacer on this section — the card sits flush to the section's bottom edge.",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "trust_icon",
+      "name": "Trust icon",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "default": "wind",
+          "options": [
+            { "value": "wind", "label": "Wind (breathable)" },
+            { "value": "care", "label": "Care (easy care)" },
+            { "value": "organic", "label": "Organic (hypoallergenic)" }
+          ]
+        },
+        { "type": "text", "id": "label", "label": "Label", "default": "Breathable" }
+      ]
+    }
+  ],
+  "max_blocks": 3
+}
+{% endschema %}

@@ -1,0 +1,267 @@
+/* dev-journal-cards.css
+   Section "Journal cards" — Our Story page.
+   Figma: desktop 45081:9314 (3-column row) / mobile 44847:1162 (1-column stack).
+   Static: no JS, no slider. The reflow is a pure breakpoint change.
+   ============================================================================= */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.journal-cards {
+  background-color: var(--bg);
+  color: var(--color);
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+  font-family: var(--font-body);
+}
+
+.journal-cards__inner {
+  max-width: var(--container-max);
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* --- layout --- */
+
+/* Outer: heading → cards row, 32px apart (Figma 45081:9316). */
+.journal-cards__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+}
+
+/* The 3 cards. `flex: 1 0 0` + `min-width: 0` reproduces Figma's equal columns exactly and stops a
+   long headline from blowing a column out. Not a grid: Figma's row is a flex row (45081:9318). */
+.journal-cards__list {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.journal-cards__card {
+  flex: 1 0 0;
+  min-width: 0;
+  border-radius: var(--radius-card);
+}
+
+.journal-cards__card-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* --- blocks / children --- */
+
+/* Media wrapper is the badge's positioning context. `overflow: hidden` + the 16px radius is what
+   rounds the badge's top-left corner — the badge itself only declares its bottom-right radius,
+   exactly as in Figma (clip-path, rx=16). Do not drop the overflow. */
+.journal-cards__media {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+/* Figma fakes cover-fit with an oversized source at a negative offset. Per the Brief those crop
+   percentages are an export artifact — plain object-fit: cover is the spec. */
+.journal-cards__image {
+  display: block;
+  width: 100%;
+  height: var(--card-image-h);
+  object-fit: cover;
+  border-radius: var(--radius-card);
+}
+
+/* Flush top-left, hugging its own text (no fixed width — Figma's 131.5 / 80.9 / 127.8px widths are
+   measurements of the labels, not a set size). 4px radius on the bottom-right corner only. */
+.journal-cards__badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--badge-py) var(--badge-px);
+  border-radius: 0 0 var(--radius-badge) 0;
+  background-color: var(--badge-bg);
+  color: var(--badge-color);
+  font-family: var(--font-body);
+  font-size: var(--badge-font-size);
+  font-weight: var(--badge-font-weight);
+  line-height: var(--badge-lh);
+  white-space: nowrap;
+}
+
+/* 16px top/bottom, 0 horizontal — the text runs the full card width under the image. */
+.journal-cards__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--card-content-py) 0;
+}
+
+/* --- typography --- */
+
+.journal-cards__heading {
+  width: 100%;
+  margin: 0;
+  color: var(--color);
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  text-align: left;
+  overflow-wrap: break-word;
+}
+
+/* Uppercased in CSS so the merchant types normal sentence case (Brief, block spec). */
+.journal-cards__meta {
+  margin: 0;
+  color: var(--color);
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  text-transform: uppercase;
+  overflow-wrap: break-word;
+}
+
+/* 20px on BOTH breakpoints — the "Mobile/Title 4" token name is mislabelled upstream. */
+.journal-cards__card-heading {
+  margin: 0;
+  color: var(--color);
+  font-family: var(--font-heading);
+  font-size: var(--card-heading-size);
+  font-weight: var(--card-heading-weight);
+  line-height: var(--card-heading-lh);
+  overflow-wrap: break-word;
+}
+
+/* --- buttons / links --- */
+
+.journal-cards__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cta-icon-gap);
+  color: var(--color);
+  font-family: var(--font-body);
+  font-size: var(--cta-font-size);
+  font-weight: var(--cta-font-weight);
+  line-height: var(--cta-lh);
+  text-decoration: none;
+}
+
+.journal-cards__cta:hover .journal-cards__cta-label {
+  text-decoration: underline;
+}
+
+/* Locked to 24x24 so the icon can never be stretched by the flex row. `stroke: currentColor` in the
+   markup makes it follow --color. */
+.journal-cards__cta-icon {
+  display: block;
+  flex: 0 0 auto;
+  width: var(--cta-icon-size);
+  height: var(--cta-icon-size);
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+/* The design defines only two states (3-col desktop, 1-col mobile) and the Brief calls the change a
+   single breakpoint reflow, so the row stays 3-up here rather than dropping to the generic 2-col
+   step — a 2-col grid would orphan the third card, which the artboard never does. */
+@media (max-width: 1024px) {
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .journal-cards {
+    padding-left: var(--section-px-m);
+    padding-right: var(--section-px-m);
+    /* Mobile artboard measures 40px against desktop's 80px. Scaling the merchant's own value keeps
+       the 2:1 ratio if they change it, instead of hardcoding 40px over their setting. */
+    padding-top: calc(var(--pt) * 0.5);
+  }
+
+  .journal-cards__inner {
+    gap: var(--spacing-lg-m);
+  }
+
+  .journal-cards__heading {
+    font-size: var(--font-heading-size-m);
+    text-align: center;
+  }
+
+  /* 3-column row → vertical stack. This is the whole desktop→mobile delta. */
+  .journal-cards__list {
+    flex-direction: column;
+    gap: var(--spacing-md-m);
+  }
+
+  .journal-cards__card {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .journal-cards__image {
+    height: var(--card-image-h-m);
+  }
+
+  .journal-cards__meta {
+    font-size: var(--font-body-size-m);
+  }
+
+  /* Touch target — the CTA is a bare text link in the design, so grow it vertically without moving
+     the label off its baseline grid. */
+  .journal-cards__cta {
+    min-height: 44px;
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.journal-cards__cta:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.journal-cards__cta:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .journal-cards,
+  .journal-cards * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

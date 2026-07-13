@@ -1,0 +1,235 @@
+{{ 'dev-tree-fibre-intro.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  Section: "Tree fibre intro" (dev name `tree-fibre-intro`).
+  Figma layer: "Image and text" — desktop 45081:10079 (1440x530), mobile 44850:1731 (375x306).
+  Page: Tree-Fibre (NOT the homepage).
+
+  No JS: the Brief's Interactivity section is "none" — a static two-panel content block.
+  No slider, accordion, tab, sticky or scroll behaviour, so no dev-tree-fibre-intro.js exists.
+
+  BACKGROUND — read before "fixing" this.
+  `--bg` (#FCF5E3, Cream/100) is the CARD's background, not the section's. The section root is
+  deliberately TRANSPARENT so the page background (#FFFCF4, Cream/50) shows through the 64px
+  side gutters and the 80px top spacer. Sampled straight off the Figma artboard:
+    page (10,10)   -> #FFFCF4
+    card (300,120) -> #FCF5E3
+  Painting --bg on the root would flood those gutters cream and fail the pixel diff outright.
+
+  MOBILE — the image is ABSENT, not reflowed.
+  The image block (45081:10088) has no counterpart anywhere in the mobile tree — it is not
+  stacked under the text, it simply does not exist there. So it is hidden at <=768px rather
+  than being wrapped or re-ordered. (Open question for PM: hard breakpoint rule, as built here,
+  or a merchant-facing "show image on mobile" toggle? The design says hard rule; built as designed.)
+
+  DIVIDER — 99x1 rule, inlined from .figma-assets/tree-fibre-intro/divider-desktop.svg.
+  The Figma export is a stroked <line>, NOT a <path d>. Its `stroke="#333333"` and geometry
+  (y1=0.5 x2=99 y2=0.5, viewBox 0 0 99 1) are reproduced VERBATIM below. Figma's export also
+  carried ancestor-context artefacts (a full-canvas page rect, the card rect, a clip-path) which
+  are export scaffolding, not the divider's own geometry — asset-prep flagged these explicitly and
+  they are correctly omitted.
+  The Brief warned the rule "renders visibly lighter" and might carry an unread opacity. It does
+  not: sampling the artboard at the divider row (y=283, x=144..242) returns a solid #333333 for
+  all 99 px. No opacity is applied and none is invented here.
+{%- endcomment -%}
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .tree-fibre-intro {
+    /* Brand params (Brief → Brand Params table). Faces are loaded by snippets/dev-brand-fonts.liquid. */
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+    --container-max: 1312px;
+    --section-px: 64px;
+    --section-px-m: 16px;
+
+    /* Typography — desktop */
+    --font-heading-size: 32px;
+    --font-heading-weight: 400;
+    --font-heading-lh: 1.2;
+    --font-heading-ls: normal;
+    --font-body-size: 20px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+
+    /* Typography — mobile: taken from the Mobile artboard, not a scale factor.
+       The 0.5px heading letter-spacing is mobile-only and desktop's is unset — a deliberate
+       discrepancy read off the layer data (Brief, Note 3). Preserved, not normalised. */
+    --font-heading-size-m: 26px;
+    --font-heading-ls-m: 0.5px;
+    --font-body-size-m: 18px;
+
+    /* Spacing — desktop */
+    --spacing-sm: 24px; /* row gap: text card ↔ image */
+    --spacing-md: 40px; /* card internal gap: intro → divider → heading */
+    --spacing-lg: 80px; /* card padding, all sides */
+
+    /* Spacing — mobile */
+    --spacing-md-m: 24px; /* card internal gap */
+    --spacing-lg-m: 24px; /* card padding, all sides */
+
+    /* Mobile top spacer is 48px against a desktop 80px. Scaling the merchant's own padding_top
+       keeps that relationship intact if they change it. 80 * 0.6 = 48. */
+    --pt-scale-m: 0.6;
+
+    /* Layout / decoration */
+    --radius: 32px;
+    --media-ratio: 644 / 450; /* the image's fixed 450px height is what sets the desktop row height */
+    --divider-w: 99px;
+    --divider-h: 1px;
+  }
+</style>
+
+{%- liquid
+  # richtext: already-safe HTML from Shopify — never escape it. The <p> wrapper is unwrapped so
+  # the copy stays inline inside the <h2> (same idiom as dev-featured-product).
+  assign heading_html = section.settings.heading | remove: '<p>' | remove: '</p>'
+
+  assign image = section.settings.image
+  assign image_alt = section.settings.alt_text
+  if image_alt == blank
+    assign image_alt = image.alt
+  endif
+  assign image_alt = image_alt | default: '' | escape
+-%}
+
+<div
+  class="tree-fibre-intro"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="tree-fibre-intro__inner">
+    <div class="tree-fibre-intro__card">
+      {%- if section.settings.intro_text != blank -%}
+        <div class="tree-fibre-intro__intro">
+          {{- section.settings.intro_text -}}
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.show_divider -%}
+        {%- comment -%}
+          Verbatim geometry from .figma-assets/tree-fibre-intro/divider-desktop.svg.
+          Do not retype, round, or "tidy" these coordinates.
+        {%- endcomment -%}
+        <svg
+          class="tree-fibre-intro__divider"
+          width="99"
+          height="1"
+          viewBox="0 0 99 1"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <line y1="0.5" x2="99" y2="0.5" stroke="#333333"/>
+        </svg>
+      {%- endif -%}
+
+      {%- if section.settings.heading != blank -%}
+        <h2 class="tree-fibre-intro__heading">{{ heading_html }}</h2>
+      {%- endif -%}
+    </div>
+
+    {%- if image != blank -%}
+      {%- comment -%}
+        Desktop/tablet only — hidden at <=768px, where the design has no image at all.
+        Source fill is 1058x844, so 1058 is the largest useful width; it renders at 644px
+        with object-fit: cover.
+      {%- endcomment -%}
+      <div class="tree-fibre-intro__media">
+        {{
+          image
+          | image_url: width: 1058
+          | image_tag:
+            loading: 'lazy',
+            widths: '400, 600, 800, 1000, 1058',
+            sizes: '(min-width: 1440px) 644px, (min-width: 769px) 48vw, 100vw',
+            alt: image_alt,
+            class: 'tree-fibre-intro__image'
+        }}
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Tree fibre intro",
+  "tag": "section",
+  "presets": [{ "name": "Tree fibre intro" }],
+  "settings": [
+    { "type": "header", "content": "Content" },
+    {
+      "type": "richtext",
+      "id": "intro_text",
+      "label": "Intro text",
+      "default": "<p>For decades, tree-fibre has been the go-to material for breathability -from performance sportswear to luxury fashion.</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Use a line break to split the heading across two lines.",
+      "default": "<p>So, we asked -<br/>why not duvets?</p>"
+    },
+    { "type": "checkbox", "id": "show_divider", "label": "Show divider line", "default": true },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "Shown beside the text on desktop and tablet. The design has no image on mobile, so it is hidden below 768px."
+    },
+    {
+      "type": "text",
+      "id": "alt_text",
+      "label": "Image alt text",
+      "info": "Optional. Falls back to the alt text set on the image in Files."
+    },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Card background",
+      "info": "The cream card behind the text. The section itself stays transparent so the page background shows through.",
+      "default": "#FCF5E3"
+    },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "info": "Focus outlines only — this section has no accent colour in the design.",
+      "default": "#333333"
+    },
+
+    { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "info": "Scales to 60% of this on mobile (80px → 48px), matching the Mobile artboard.",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "info": "The design has no bottom spacer — the next section's own top spacer carries the gap.",
+      "default": 0
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,222 @@
+/* dev-cool-sleepers-promo.css */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+/* Fixed Figma tokens (--font-*, --spacing-*, --radius*, --*-aspect) are declared in the
+   section's <style> block, per the code standards. Merchant-controlled values
+   (--bg/--color/--accent/--pt/--pb) arrive inline on the root wrapper. This file only
+   consumes them. */
+
+.cool-sleepers-promo {
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+
+  /* Figma implements the 80px top offset as a sibling spacer instance sitting OUTSIDE
+     the "Image and text" frame; real padding is the correct equivalent (Brief, Auto
+     Layout). Padding-bottom is 0 by design — the section ends flush with the bottom of
+     the image, verified by exact math in the Brief (674 = 80 + 594, no remainder). */
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+
+  /* No horizontal padding on the root: each child sets its own inset (the text frame
+     16px, the logos strip 0, the image 54px on desktop / 0 on mobile). There is no
+     single --section-px for this section and inventing one would be wrong. */
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* --- layout --- */
+
+.cool-sleepers-promo__inner {
+  /* Full-bleed by design — no --container-max (Brief: no centred content frame narrower
+     than the section exists). */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  width: 100%;
+
+  /* Present on the "Image and text" frame at both breakpoints even though it carries no
+     fill today. Kept so it is honoured the moment a merchant sets a background (Brief #7). */
+  border-radius: var(--radius);
+}
+
+/* --- blocks / children --- */
+
+.cool-sleepers-promo__text {
+  /* Fixed 421.33px centred column on desktop; the 16px inset is the frame's own padding. */
+  width: var(--text-width);
+  max-width: 100%;
+  padding-left: var(--text-px);
+  padding-right: var(--text-px);
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  text-align: center;
+}
+
+.cool-sleepers-promo__logos {
+  /* Full 1440px bleed — zero horizontal inset at both breakpoints. */
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.cool-sleepers-promo__logos picture {
+  display: block;
+  width: 100%;
+}
+
+.cool-sleepers-promo__logos-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: var(--logos-aspect);
+  object-fit: cover;
+}
+
+.cool-sleepers-promo__media {
+  /* Desktop: the image is an inset card — 54px each side, so it renders 1332 wide inside
+     the 1440 frame. Mobile drops this inset entirely (see the mobile block). */
+  width: 100%;
+  padding-left: var(--spacing-lg);
+  padding-right: var(--spacing-lg);
+  box-sizing: border-box;
+}
+
+.cool-sleepers-promo__media picture {
+  display: block;
+  width: 100%;
+}
+
+.cool-sleepers-promo__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: var(--image-aspect);
+  object-fit: cover;
+  border-radius: var(--radius-image);
+}
+
+/* --- typography --- */
+
+.cool-sleepers-promo__heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  color: var(--color);
+}
+
+.cool-sleepers-promo__subheading {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+/* --- buttons / links --- */
+/* None — this section has no interactive elements (Brief: Interactivity none). */
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+  /* No tablet artboard exists, so there is no ground truth to build against. The desktop
+     rules are fluid (percentage widths + aspect-ratio), so they scale down cleanly; the
+     only guard needed is that the fixed text column never exceeds the viewport, which
+     max-width: 100% already handles. */
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .cool-sleepers-promo {
+    /* The Mobile artboard specifies its own top offset (48px spacer), not a scaled
+       desktop value. Padding-bottom stays 0 — verified by math (460 = 48 + 412). */
+    padding-top: var(--pt-mobile);
+  }
+
+  .cool-sleepers-promo__inner {
+    gap: var(--spacing-md-mobile);
+    align-items: flex-start;
+  }
+
+  .cool-sleepers-promo__text {
+    /* Fluid full width minus the same 16px frame inset; text stays visually centred. */
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cool-sleepers-promo__heading {
+    font-size: var(--font-heading-size-mobile);
+  }
+
+  .cool-sleepers-promo__subheading {
+    font-size: var(--font-body-size-mobile);
+  }
+
+  .cool-sleepers-promo__logos-image {
+    aspect-ratio: var(--logos-aspect-mobile);
+  }
+
+  .cool-sleepers-promo__media {
+    /* Genuine breakpoint delta (Brief #6): the image goes from an inset, rounded card on
+       desktop to edge-to-edge with square corners on mobile. Do not re-inset or re-round. */
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .cool-sleepers-promo__image {
+    aspect-ratio: var(--image-aspect-mobile);
+    border-radius: 0;
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+  /* Nothing to change: every rule below 768px is already fluid (100% widths, zero
+     horizontal inset on the media, aspect-ratio driven heights), so there is no
+     horizontal overflow at 480px or below. */
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.cool-sleepers-promo__link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.cool-sleepers-promo__link:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .cool-sleepers-promo,
+  .cool-sleepers-promo * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

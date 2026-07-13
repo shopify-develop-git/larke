@@ -1,0 +1,208 @@
+{{ 'dev-video-story-banner.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  No JS tag: this section has zero interactivity (Design Brief → Interactivity: "none").
+
+  Despite the Figma layer name "Video section" and the build name "video-story-banner",
+  there is NO <video>, NO play/pause control and NO autoplay/loop flag anywhere in the
+  node tree at either breakpoint (Brief notes #1 and Interactivity, confirmed against
+  both the full node tree and the rendered screenshots). The background is a static
+  <img> with object-fit: cover behind a fixed dark-to-transparent gradient scrim.
+  Do not "fix" this by adding a <video> — the Brief explicitly forbids it.
+{%- endcomment -%}
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .video-story-banner {
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+
+    /* Full-bleed by design. The Brief found NO inner content frame narrower than the
+       section at either breakpoint (the row and the image tile are both w-full), so
+       there is no --container-max, and --section-px reads 0 from this section's own
+       layer tree. The header's 64px/16px gutter is a per-section finding for its nav —
+       deliberately NOT reused here (Brief note #3). */
+    --section-px: 0px;
+
+    /* Mobile artboard specifies its own literal padding, not a scale factor. */
+    --pt-mobile: 48px;
+
+    /* Content band. Figma's promo-tile master carries aspect-[375/465], but the parent
+       row overrides it with h-[500px] + overflow-clip, so 500px is the real render
+       height at BOTH breakpoints — it is not a scaled value (Brief note #4). */
+    --band-h: 500px;
+
+    /* Typography */
+    --font-heading-size: 48px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+    --font-heading-ls: 0px;
+    --font-body-size: 18px;
+    --font-body-lh: 1.4;
+    --font-body-weight: 500;
+    --font-button-size: 18px;
+    --font-button-weight: 700;
+
+    --font-heading-size-mobile: 32px;
+    --font-heading-ls-mobile: 0.5px;
+    --font-body-size-mobile: 16px;
+    --font-button-size-mobile: 16px;
+
+    /* Spacing */
+    --spacing-sm: 16px;
+    --spacing-md: 24px;
+    --spacing-lg: 32px;
+    --spacing-lg-mobile: 24px;
+
+    /* Button */
+    --button-px: 24px;
+    --button-py: 18px;
+    --button-px-mobile: 18px;
+    --button-py-mobile: 12px;
+    --radius-button: 60px;
+    --button-color: #333333;
+
+    /* Gradient scrim. Figma reports 0.9336deg (desktop) / 3.5805deg (mobile) — the same
+       visual intent, re-derived by Figma against each tile's aspect ratio. Implemented as
+       a straight top-fade at both breakpoints, per the Brief's explicit instruction. */
+    --overlay-start: rgba(0, 0, 0, 0.6);
+    --overlay-end: rgba(0, 0, 0, 0);
+    --overlay-start-stop: 7.8467%;
+    --overlay-end-stop: 59.448%;
+  }
+</style>
+
+{%- liquid
+  assign image_desktop = section.settings.image
+  assign image_mobile = section.settings.image_mobile
+
+  assign alt_desktop = image_desktop.alt | default: '' | escape
+  assign src_desktop = image_desktop | image_url: width: 2400
+
+  assign src_mobile_1x = image_mobile | image_url: width: 480
+  assign src_mobile_2x = image_mobile | image_url: width: 960
+  assign src_mobile_3x = image_mobile | image_url: width: 1440
+  assign srcset_mobile = src_mobile_1x | append: ' 480w, ' | append: src_mobile_2x | append: ' 960w, ' | append: src_mobile_3x | append: ' 1440w'
+
+  assign heading_html = section.settings.heading | remove: '<p>' | remove: '</p>'
+-%}
+
+<div
+  class="video-story-banner"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="video-story-banner__band">
+    {%- if image_desktop != blank -%}
+      <picture class="video-story-banner__picture">
+        {%- if image_mobile != blank -%}
+          {%- comment -%}
+            Art-directed crop, not one image resized: the desktop and mobile fills are two
+            DISTINCT source photos in Figma (different asset hashes) — desktop is a
+            ground-level moss/trunk shot, mobile an aerial forest canopy. <picture> so the
+            browser fetches only the one it needs.
+          {%- endcomment -%}
+          <source
+            media="(max-width: 768px)"
+            srcset="{{ srcset_mobile }}"
+            sizes="100vw"
+            width="{{ image_mobile.width }}"
+            height="{{ image_mobile.height }}"
+          >
+        {%- endif -%}
+        {{
+          src_desktop
+          | image_tag:
+            loading: 'eager',
+            widths: '750, 1100, 1500, 1780, 2000, 2400',
+            sizes: '100vw',
+            alt: alt_desktop,
+            class: 'video-story-banner__image'
+        }}
+      </picture>
+    {%- endif -%}
+
+    <div class="video-story-banner__content">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="video-story-banner__heading">{{ heading_html }}</h2>
+      {%- endif -%}
+
+      {%- if section.settings.subheading != blank -%}
+        <p class="video-story-banner__subheading">{{ section.settings.subheading | escape }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.button_label != blank -%}
+        {%- comment -%}
+          Figma authors this as a plain <div> on desktop and an <a> on mobile, neither with an
+          href — a Figma-authoring inconsistency, not responsive behaviour (Brief note #2).
+          Implemented as one <a> at both breakpoints; button_link is a real merchant field.
+        {%- endcomment -%}
+        <a
+          class="video-story-banner__button"
+          {%- if section.settings.button_link != blank %} href="{{ section.settings.button_link }}"{% endif -%}
+        >
+          {{- section.settings.button_label | escape -}}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Video story banner",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    {
+      "type": "richtext",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Press Shift + Enter for a manual line break — the design shows this on two lines.",
+      "default": "<p>Tree-mendous<br/>since day one.</p>"
+    },
+    { "type": "text", "id": "subheading", "label": "Subheading", "default": "See how it all began." },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Our Story" },
+    { "type": "url", "id": "button_link", "label": "Button link", "info": "Point this at the Our Story page." },
+    { "type": "image_picker", "id": "image", "label": "Background image (desktop)" },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Background image (mobile)",
+      "info": "A separate art-directed crop. Shown at 768px and below."
+    },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFFFF" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#FFFFFF" },
+    { "type": "color", "id": "accent_color", "label": "Button color", "default": "#A8CF78" },
+
+    { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 0
+    }
+  ],
+  "presets": [{ "name": "Video story banner" }]
+}
+{% endschema %}

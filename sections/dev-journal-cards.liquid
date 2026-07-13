@@ -1,0 +1,287 @@
+{{ 'dev-journal-cards.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Section: "Journal cards" (dev name `journal-cards`).
+  Figma layer: "Image and Text" — desktop 45081:9314, mobile 44847:1162.
+  Page: Our Story (NOT the homepage).
+
+  No JS. The Brief's Interactivity section is "none": three static cards, a row on desktop and a
+  plain stack on mobile. The desktop→mobile change is a CSS breakpoint reflow, NOT a slider —
+  confirmed by identical block content and order on both artboards. Do not add a carousel here.
+
+  BACKGROUND — read before "fixing" this.
+  The section frame in Figma carries NO fill. The cream tone in the screenshot is the page canvas
+  (#FFFCF4) showing through, not this section's own background. `background_color` therefore
+  defaults to transparent (rgba(0,0,0,0)) and the section inherits the page. Painting a cream hex
+  on the root would double-paint the canvas and is exactly the "read the value, don't guess it"
+  trap the Brief calls out.
+
+  BADGE BACKGROUND — the one value the Brief did not carry.
+  The Brief tokenised the badge TEXT colour (#000000, distinct from --color #333333) but listed no
+  badge background. Rather than invent one, it was read back off the Figma node: every _Master
+  Badges instance (45081:9323 / 9333 / 9342) is `bg-[rgba(255,255,255,0.9)]` — a 90% white scrim,
+  which is what keeps "Guest Review" legible over a photo. That measured value is used below.
+
+  BADGE CORNER — 4px on the BOTTOM-RIGHT only (`rounded-br`), not all four corners.
+  The badge sits flush in the top-left of the image. Its other three corners are not square by
+  accident: the media wrapper is `overflow: hidden` with a 16px radius, so the badge's top-left is
+  clipped by the image's own rounding. That is how Figma composes it (clip-path, rx=16) and why the
+  badge only ever declares one radius.
+
+  ZERO BOTTOM PADDING is measured, not forgotten.
+  Desktop frame = 494.17px = 80px top spacer + 414.17px content, no remainder; the mobile frame has
+  no bottom spacer either. This file's convention is "top spacer only, the next section supplies the
+  gap". --pb defaults to 0 on purpose — QA should assert 0, not symmetry with --pt.
+
+  CARD HEADLINE is 20px on BOTH breakpoints. The variable is named "Mobile/Title 4" in the Figma
+  library, but get_variable_defs returns that same token on the desktop node too. The name is
+  mislabelled upstream; the value is uniform. There is no "Desktop/Title 4" to go looking for.
+
+  ARROW ICON — inlined verbatim from .figma-assets/journal-cards/cta-icon-arrow-right.svg.
+  The `d` is byte-for-byte the owner's export; only `stroke` was swapped to `currentColor` so the
+  arrow tracks --color. The viewBox origin (99 0) is a crop window onto the button's 123x24 export,
+  which is how the icon resolves in-context — it isolates the 24x24 icon WITHOUT touching a single
+  coordinate in `d`. Rendered box 24x24 == viewBox 24x24, so the aspect is 1:1 and nothing is
+  drawn at half scale. Verified by `node .claude/tools/svg-fidelity.mjs --section journal-cards`.
+{%- endcomment -%}
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .journal-cards {
+    /* Brand params (Brief → Brand Params). Faces are loaded by snippets/dev-brand-fonts.liquid. */
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+    /* The Figma content frame is 1440 − 2×64 = 1312, i.e. it is the section's padding box, not an
+       independent cap. Per the Brief's container caveat this is 100%, not a hardcoded 1312px. */
+    --container-max: 100%;
+    --section-px: 64px;
+    --section-px-m: 16px;
+
+    /* Typography — desktop */
+    --font-heading-size: 32px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+    --font-body-size: 14px;
+    --font-body-weight: 400;
+    --font-body-lh: 1.4;
+
+    /* Typography — mobile: read off the Mobile artboard, not a scale factor. */
+    --font-heading-size-m: 24px;
+    --font-body-size-m: 12px;
+
+    /* Card */
+    --card-heading-size: 20px;
+    --card-heading-weight: 500;
+    --card-heading-lh: 1.2;
+    --card-image-h: 220px;
+    --card-image-h-m: 150px;
+    --card-content-py: 16px;
+    --radius-card: 16px;
+
+    /* Badge */
+    --badge-bg: rgba(255, 255, 255, 0.9);
+    --badge-color: #000000;
+    --badge-font-size: 13px;
+    --badge-font-weight: 500;
+    --badge-lh: 1.4;
+    --badge-px: 12px;
+    --badge-py: 6px;
+    --radius-badge: 4px;
+
+    /* CTA */
+    --cta-font-size: 16px;
+    --cta-font-weight: 700;
+    --cta-lh: 1.4;
+    --cta-icon-gap: 4px;
+    --cta-icon-size: 24px;
+
+    /* Spacing */
+    --spacing-sm: 12px;
+    --spacing-md: 24px;
+    --spacing-lg: 32px;
+    --spacing-md-m: 16px;
+    --spacing-lg-m: 24px;
+  }
+</style>
+
+<div
+  class="journal-cards"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="journal-cards__inner">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="journal-cards__heading">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <ul class="journal-cards__list" role="list">
+        {%- for block in section.blocks -%}
+          <li class="journal-cards__card" {{ block.shopify_attributes }}>
+            <article class="journal-cards__card-inner">
+              {%- if block.settings.image != blank -%}
+                {%- liquid
+                  assign card_image = block.settings.image
+                  assign card_alt = card_image.alt | default: block.settings.heading | strip_html | escape
+                  assign card_image_src = card_image | image_url: width: 1200
+                -%}
+                <div class="journal-cards__media">
+                  {{
+                    card_image_src
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '343, 400, 600, 800, 1000, 1200',
+                      sizes: '(min-width: 769px) 33vw, 100vw',
+                      alt: card_alt,
+                      class: 'journal-cards__image'
+                  }}
+
+                  {%- if block.settings.badge_label != blank -%}
+                    <span class="journal-cards__badge">{{ block.settings.badge_label | escape }}</span>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+
+              <div class="journal-cards__content">
+                {%- if block.settings.meta_text != blank -%}
+                  <p class="journal-cards__meta">{{ block.settings.meta_text | escape }}</p>
+                {%- endif -%}
+
+                {%- if block.settings.heading != blank -%}
+                  <h3 class="journal-cards__card-heading">{{ block.settings.heading }}</h3>
+                {%- endif -%}
+
+                {%- if block.settings.button_label != blank -%}
+                  {%- assign card_link = block.settings.button_link | default: '#' -%}
+                  <a class="journal-cards__cta" href="{{ card_link }}">
+                    <span class="journal-cards__cta-label">{{ block.settings.button_label | escape }}</span>
+                    {%- comment -%}
+                      Path data verbatim from .figma-assets/journal-cards/cta-icon-arrow-right.svg.
+                    {%- endcomment -%}
+                    <svg
+                      class="journal-cards__cta-icon"
+                      width="24"
+                      height="24"
+                      viewBox="99 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="M116 16L120 12L116 8M120 12L102 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                {%- endif -%}
+              </div>
+            </article>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Journal cards",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "The coded language of bedding — Uncoded"
+    },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "info": "Transparent by default — the design has no fill here and inherits the page background.",
+      "default": "rgba(0,0,0,0)"
+    },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "info": "Used for focus outlines. The design has no accent distinct from the text colour.",
+      "default": "#333333"
+    },
+
+    { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "info": "Halved on mobile (80 → 40), matching the mobile artboard.",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "info": "The design has no bottom spacer — the next section supplies the gap.",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "journal_card",
+      "name": "Journal card",
+      "limit": 3,
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        {
+          "type": "text",
+          "id": "badge_label",
+          "label": "Badge label",
+          "info": "Small overlay label on the image, e.g. \"Guest Review\".",
+          "default": "Guest Review"
+        },
+        {
+          "type": "text",
+          "id": "meta_text",
+          "label": "Meta text",
+          "info": "Shown in uppercase automatically — type it normally.",
+          "default": "4 min read ㆍBy Priya s"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "label": "Article title",
+          "default": "My first night using the tree-mendous duvet"
+        },
+        { "type": "text", "id": "button_label", "label": "Button label", "default": "Read Article" },
+        { "type": "url", "id": "button_link", "label": "Button link" }
+      ]
+    }
+  ],
+  "max_blocks": 3,
+  "presets": [
+    {
+      "name": "Journal cards",
+      "blocks": [
+        { "type": "journal_card" },
+        { "type": "journal_card" },
+        { "type": "journal_card" }
+      ]
+    }
+  ]
+}
+{% endschema %}

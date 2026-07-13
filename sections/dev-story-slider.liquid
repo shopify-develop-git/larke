@@ -1,0 +1,226 @@
+{{ 'dev-story-slider.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'dev-story-slider.js' | asset_url }}" defer></script>
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .story-slider {
+    /* Brand params. The faces are loaded theme-wide by snippets/dev-brand-fonts.liquid; this
+       only selects them. No --container-max: the track is deliberately full-bleed so tiles can
+       scroll out past the right gutter — the only inset is --section-px. */
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+    --section-px: 64px;
+    --section-px-m: 16px;
+
+    /* Typography. Desktop/Title 3 -> Mobile/Title 3 (32 -> 24); the mobile artboard states its
+       own size, so it wins over a scale factor. Captions are Body/Lg (18) -> Body/Md (16). */
+    --font-heading-size: 32px;
+    --font-heading-size-m: 24px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+
+    --font-body-size: 18px;
+    --font-body-size-m: 16px;
+    --font-body-weight: 500;
+    --font-body-weight-bold: 700;
+    --font-body-lh: 1.4;
+
+    /* Rhythm. Desktop stacks heading / track / controls at 32; the mobile artboard uses 26 and
+       has no controls row at all. */
+    --gap-section: 32px;
+    --gap-section-m: 26px;
+    --gap-tiles: 24px;
+    --gap-tiles-m: 16px;
+    --gap-tile-inner: 16px;
+
+    /* Tile. 407px on the 1440 artboard, 260px on the 375 one — both fixed, neither derived. */
+    --tile-w: 407px;
+    --tile-w-m: 260px;
+    --radius-tile: 32px;
+
+    /* The two image crops alternate down the track. Carried as aspect-ratios rather than the
+       artboard's raw pixel heights (312px / 373px) so the tile keeps its crop at ANY tile width
+       — mobile reuses the same two ratios at 260px wide and lands on exactly 312 and 373. */
+    --ratio-short: 260 / 312;
+    --ratio-tall: 260 / 373;
+
+    /* Controls (6704:28706). The buttons carry no fill or border on the artboard — 19px of
+       padding around a 24px icon is the whole button, which also buys a 62px touch target. */
+    --gap-controls: 32px;
+    --gap-buttons: 8px;
+    --button-p: 19px;
+    --icon-size: 24px;
+    --icon-stroke: 1.4;
+
+    /* The progress rail is a 2px round-capped line. Figma draws it as a single stroke with a
+       hard gradient stop — #262626 up to 21.6%, #DADADA after — i.e. it is a scrollbar THUMB,
+       not decoration. So the fill below is computed from real scroll position by the JS, and
+       21.6% is just the mock's own scroll offset. */
+    --progress-h: 2px;
+  }
+</style>
+
+{%- liquid
+  assign slide_count = 0
+  for block in section.blocks
+    if block.settings.image != blank or block.settings.text != blank
+      assign slide_count = slide_count | plus: 1
+    endif
+  endfor
+-%}
+
+{%- if slide_count > 0 -%}
+  <div
+    class="story-slider"
+    style="
+      --bg: {{ section.settings.background_color }};
+      --color: {{ section.settings.text_color }};
+      --rail: {{ section.settings.rail_color }};
+      --progress: {{ section.settings.progress_color }};
+      --pt: {{ section.settings.padding_top }}px;
+      --pb: {{ section.settings.padding_bottom }}px;
+    "
+  >
+    <div class="story-slider__inner">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="story-slider__heading">{{ section.settings.heading | escape }}</h2>
+      {%- endif -%}
+
+      {%- comment -%}
+        The track is a plain scroll container, not a JS-driven carousel. Keyboard, trackpad and
+        touch already scroll it natively; the arrows below only nudge it, and the rail only
+        reports where it is. That means the section still works with JS off — it degrades to the
+        mobile behaviour, which IS the design at 375.
+      {%- endcomment -%}
+      <ul class="story-slider__track" data-story-slider-track tabindex="0">
+        {%- for block in section.blocks -%}
+          {%- if block.settings.image == blank and block.settings.text == blank -%}
+            {%- continue -%}
+          {%- endif -%}
+
+          <li class="story-slider__tile" {{ block.shopify_attributes }}>
+            <div class="story-slider__media story-slider__media--{{ block.settings.crop }}">
+              {%- if block.settings.image != blank -%}
+                {%- assign tile_src = block.settings.image | image_url: width: 814 -%}
+                {{
+                  tile_src
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '260, 407, 520, 814',
+                    sizes: '(max-width: 768px) 260px, 407px',
+                    alt: block.settings.image_alt,
+                    class: 'story-slider__image'
+                }}
+              {%- endif -%}
+            </div>
+
+            {%- if block.settings.text != blank -%}
+              {%- comment -%} richtext: already safe HTML from Shopify — never escape it. {%- endcomment -%}
+              <div class="story-slider__caption">{{ block.settings.text }}</div>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      {%- comment -%}
+        Controls exist only on the desktop artboard — the mobile one scrolls natively with no
+        rail and no arrows, so the CSS hides this whole row at ≤768px rather than inventing a
+        mobile treatment for it.
+      {%- endcomment -%}
+      <div class="story-slider__controls">
+        <div class="story-slider__rail">
+          <span class="story-slider__progress" data-story-slider-progress></span>
+        </div>
+
+        <div class="story-slider__buttons">
+          <button
+            type="button"
+            class="story-slider__button"
+            data-story-slider-prev
+            aria-label="{{ section.settings.prev_label | escape }}"
+          >
+            {%- comment -%} Icon/Outline/arrow-narrow-left, pasted verbatim from the Figma export;
+              only stroke #333333 -> currentColor, so it follows --color. {%- endcomment -%}
+            <svg class="story-slider__icon" viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden="true" focusable="false">
+<path d="M7 8L3 12L7 16M3 12L21 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+          </button>
+
+          <button
+            type="button"
+            class="story-slider__button"
+            data-story-slider-next
+            aria-label="{{ section.settings.next_label | escape }}"
+          >
+            <svg class="story-slider__icon" viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden="true" focusable="false">
+<path d="M17 16L21 12L17 8M21 12L3 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Story slider",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Where it all began...." },
+    { "type": "text", "id": "prev_label", "label": "Previous button label (screen readers only)", "default": "Previous slide" },
+    { "type": "text", "id": "next_label", "label": "Next button label (screen readers only)", "default": "Next slide" },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "rail_color", "label": "Scroll rail", "default": "#DADADA" },
+    { "type": "color", "id": "progress_color", "label": "Scroll progress", "default": "#262626" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding top", "default": 80 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding bottom", "default": 0 }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "text", "id": "image_alt", "label": "Image alt text" },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Caption",
+          "info": "Bold the opening phrase — the artboard sets it in Public Sans Bold and the rest in Medium.",
+          "default": "<p><strong>Our story began in 2024,</strong><br>with our founder Reuven Sherman setting out to find the very best in natural sleep.</p>"
+        },
+        {
+          "type": "select",
+          "id": "crop",
+          "label": "Image crop",
+          "info": "The artboard alternates the two down the track.",
+          "default": "short",
+          "options": [
+            { "value": "short", "label": "Short (260:312)" },
+            { "value": "tall", "label": "Tall (260:373)" }
+          ]
+        }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "Story slider",
+      "blocks": [
+        { "type": "slide", "settings": { "crop": "short" } },
+        { "type": "slide", "settings": { "crop": "tall" } },
+        { "type": "slide", "settings": { "crop": "short" } },
+        { "type": "slide", "settings": { "crop": "tall" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

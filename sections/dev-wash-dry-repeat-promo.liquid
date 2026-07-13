@@ -1,0 +1,274 @@
+{{ 'dev-wash-dry-repeat-promo.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  Wash Dry Repeat Promo — desktop 45031:4009 / mobile 44821:5279 ("Image and text").
+
+  No JS: the Brief's Interactivity section is "none". Static cream promo card — no slider,
+  no accordion, no sticky, no scroll behaviour on either breakpoint.
+
+  No inline SVG: this section has no vector artwork in Figma. The Brief's Images table lists
+  exactly two raster tiles and nothing else, and .figma-assets/wash-dry-repeat-promo/ is empty.
+  Nothing was inlined, nothing was hand-authored, and no icon was invented to fill a gap.
+
+  Structural delta desktop → mobile (a real DOM reorder, not just a stack):
+  on desktop the CTA sits INSIDE the text column, under the subheading. On mobile it is
+  promoted to a sibling of the card and rendered AFTER the image row:
+      desktop: [ text column: heading block + CTA ] [ image row ]
+      mobile:  heading block → image row → CTA
+  The CTA exists exactly once in the DOM. `.text-col` becomes `display: contents` at ≤768px,
+  so its children become direct flex items of the card and `order` places the CTA last. One
+  anchor, one tab stop, one accessible name — no duplicated markup to keep in sync.
+{%- endcomment -%}
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .wash-dry-repeat-promo {
+    /* Brand params (Design Brief → Brand Params table) */
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+    --container-max: 1312px;
+    --section-px: 64px;
+    --section-px-m: 16px;
+
+    /* Typography — desktop (Desktop/Title 3, Body/Lg_Body_Medium) */
+    --font-heading-size: 32px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+    --font-body-size: 18px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+
+    /* Typography — mobile: the Mobile artboard's own tokens, not a scale factor */
+    --font-heading-size-m: 24px;
+    --font-body-size-m: 16px;
+
+    /* CTA — Public Sans Bold (700), the only bold weight in the section */
+    --font-cta-size: 18px;
+    --font-cta-size-m: 16px;
+    --font-cta-weight: 700;
+    --font-cta-lh: 1.4;
+
+    /* Spacing */
+    --spacing-sm: 16px; /* heading → subheading (desktop) */
+    --spacing-sm-m: 8px; /* heading → subheading (mobile) — a real token change, not a scale */
+    --spacing-md: 24px; /* text column → CTA (desktop) / card content gap (mobile) */
+    --spacing-lg: 64px; /* text column → image row (desktop only; no mobile equivalent) */
+    --tile-gap: 32px;
+    --tile-gap-m: 16px;
+
+    /* 80px desktop → 48px mobile, kept proportional to the merchant's padding_top */
+    --pt-scale-m: 0.6;
+
+    /* Layout */
+    --card-padding: 32px;
+    --card-padding-m: 24px;
+    /* The card's two columns on the 1440 artboard: 1312 (container) − 64 (card padding)
+       − 64 (gap) = 1184, split 544 / 640. Both are flex BASES, not fixed widths — see the CSS.
+       They sum exactly to the card's content box at 1440, so the artboard matches to the pixel,
+       and below it the two columns shrink in proportion instead of the text absorbing all of it. */
+    --text-col-width: 544px;
+    --tiles-width: 640px;
+    --tile-aspect: 305.26 / 412; /* ~0.7409 — identical at both breakpoints (scaled, not re-cropped) */
+
+    /* Decoration */
+    --radius-card: 32px;
+    --radius-tile: 16px;
+    --radius-cta: 60px; /* pill */
+    --tile-border-width: 1px;
+    --cta-py: 18px;
+    --cta-px: 24px;
+    --cta-py-m: 12px;
+    --cta-px-m: 18px;
+    --cta-text: #ffffff;
+  }
+</style>
+
+<div
+  class="wash-dry-repeat-promo"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="wash-dry-repeat-promo__inner">
+    <div class="wash-dry-repeat-promo__card">
+      <div class="wash-dry-repeat-promo__text-col">
+        {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+          <div class="wash-dry-repeat-promo__heading-block">
+            {%- if section.settings.heading != blank -%}
+              <h2 class="wash-dry-repeat-promo__heading">{{ section.settings.heading }}</h2>
+            {%- endif -%}
+
+            {%- if section.settings.subheading != blank -%}
+              <div class="wash-dry-repeat-promo__subheading">{{ section.settings.subheading }}</div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.cta_label != blank -%}
+          <a
+            class="wash-dry-repeat-promo__cta"
+            {% if section.settings.cta_link != blank %}
+              href="{{ section.settings.cta_link }}"
+            {% else %}
+              href="#"
+              aria-disabled="true"
+            {% endif %}
+          >
+            {{- section.settings.cta_label | escape -}}
+          </a>
+        {%- endif -%}
+      </div>
+
+      {%- if section.blocks.size > 0 -%}
+        <div class="wash-dry-repeat-promo__tiles">
+          {%- for block in section.blocks -%}
+            {%- liquid
+              comment
+                Every image_tag argument below is a plain key: value. Filter chains are resolved
+                to variables here first — an unresolved pipe inside image_tag is a Liquid error.
+              endcomment
+              assign tile_alt = block.settings.alt_text
+              if tile_alt == blank
+                assign tile_alt = block.settings.image.alt
+              endif
+              assign tile_alt = tile_alt | escape
+
+              assign tile_src = block.settings.image | image_url: width: 800
+            -%}
+
+            {%- comment -%}
+              --tile-border-color is a per-block TOKEN, not an inline style rule: it only names a
+              colour. Every layout and decoration property still lives in the CSS file, which reads
+              it as var(--tile-border-color, var(--accent)) — so an untouched block falls back to
+              the section's accent (Cream/300). Shopify offers no other way to carry a per-block
+              colour into CSS.
+            {%- endcomment -%}
+            <div
+              class="wash-dry-repeat-promo__tile"
+              {% if block.settings.border_color != blank %}
+                style="--tile-border-color: {{ block.settings.border_color }};"
+              {% endif %}
+              {{ block.shopify_attributes }}
+            >
+              {%- if block.settings.image != blank -%}
+                {{
+                  tile_src
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '280, 400, 560, 640, 800',
+                    sizes: '(min-width: 769px) 304px, 40vw',
+                    alt: tile_alt,
+                    class: 'wash-dry-repeat-promo__image'
+                }}
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Wash dry repeat promo",
+  "tag": "section",
+  "presets": [
+    {
+      "name": "Wash dry repeat promo",
+      "blocks": [{ "type": "image_tile" }, { "type": "image_tile" }]
+    }
+  ],
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Naturally Better." },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "<p>From trees, to the most breathable duvet.</p>"
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Button label",
+      "default": "Start your 60-night trial"
+    },
+    { "type": "url", "id": "cta_link", "label": "Button link" },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Card background",
+      "info": "The cream card. The section itself is transparent and shows the page background.",
+      "default": "#FCF5E3"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "info": "Also the button background — in this design they are the same value (Neutral 700).",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "info": "The 1px border around each image tile.",
+      "default": "#C4BCA9"
+    },
+
+    { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "info": "Scales to 60% on mobile (80px → 48px).",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "info": "0 by default: the Figma frame has no bottom spacer — the card is flush with the frame's bottom edge and the next section supplies its own top gap. Raise it if this section ends a page.",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image_tile",
+      "name": "Image tile",
+      "limit": 2,
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        {
+          "type": "text",
+          "id": "alt_text",
+          "label": "Alt text",
+          "info": "Optional. Overrides the alt text set on the image in Shopify Files."
+        },
+        {
+          "type": "color",
+          "id": "border_color",
+          "label": "Border color",
+          "info": "Optional. Leave blank to use the section's accent color.",
+          "default": "#C4BCA9"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 2
+}
+{% endschema %}

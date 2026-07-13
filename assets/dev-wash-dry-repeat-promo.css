@@ -1,0 +1,262 @@
+/* dev-wash-dry-repeat-promo.css */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+/* The section root is deliberately WITHOUT a background-color. The Figma wrapper
+   ("Image and text", 45031:4009 / 44821:5279) carries no fill — the only cream surface is the
+   card inside it, so --bg (Cream/100 #FCF5E3) is applied to .wash-dry-repeat-promo__card below.
+   Painting the root cream would produce a full-bleed cream strip the artboard does not have. */
+.wash-dry-repeat-promo {
+  color: var(--color);
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+  font-family: var(--font-body);
+}
+
+.wash-dry-repeat-promo__inner {
+  max-width: var(--container-max);
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* --- layout --- */
+
+/* Card (45031:4011): one row — [text column, flex:1][image row, fixed 640px] — vertically
+   centred, 32px padding, 32px radius, 64px gap. Inside a 1312px container the text column
+   resolves to 1312 − 64 (card padding) − 64 (gap) − 640 (image row) = 544px. */
+.wash-dry-repeat-promo__card {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--card-padding);
+  background-color: var(--bg);
+  border-radius: var(--radius-card);
+}
+
+/* Text column (45031:4012): heading block + CTA, centred. On mobile this wrapper dissolves
+   (display: contents) so the CTA can reorder below the images — see the MOBILE block. */
+/* The basis is the column's Figma width (544px), NOT 0. With `flex: 1 1 0` the text column had
+   no size of its own, so it simply absorbed whatever the fixed 640px image row left over — and
+   every pixel the viewport lost came out of the text alone: 544px at 1440, but ~192px at 1100,
+   where "Naturally Better." broke onto two lines and the CTA onto two more. Giving both columns
+   their real Figma basis (544 / 640) makes them shrink in proportion instead, so the card holds
+   its designed 46/54 split at every width. At 1440 the bases sum exactly to the card's content
+   box, so nothing shrinks and the artboard still matches to the pixel. */
+.wash-dry-repeat-promo__text-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex: 1 1 var(--text-col-width);
+  min-width: 0;
+}
+
+/* Heading block (45031:4013): align-items:flex-start in Figma, but both children fill the
+   column and their text is centred — so the copy reads centred within the 544px column. */
+.wash-dry-repeat-promo__heading-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  width: 100%;
+  text-align: center;
+}
+
+/* Image row (45031:4016): 640px on the artboard, two equal tiles with a 32px gap → 304px each.
+   `0 1` not `0 0`: it never grows past 640, but it now takes its share of the shrink instead of
+   forcing the whole loss onto the text column. The tiles keep their aspect-ratio, so they scale
+   rather than crop. */
+.wash-dry-repeat-promo__tiles {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--tile-gap);
+  flex: 0 1 var(--tiles-width);
+  min-width: 0;
+}
+
+/* --- blocks / children --- */
+
+/* The tile is the bordered, rounded frame; the photo fills it. aspect-ratio (not a fixed
+   height) keeps the ~0.7409 crop at every width, which is what the design does — the same
+   crop scaled down on mobile, never re-cropped. */
+.wash-dry-repeat-promo__tile {
+  flex: 1 1 0;
+  min-width: 0;
+  aspect-ratio: var(--tile-aspect);
+  border: var(--tile-border-width) solid var(--tile-border-color, var(--accent));
+  border-radius: var(--radius-tile);
+  overflow: hidden;
+}
+
+.wash-dry-repeat-promo__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- typography --- */
+
+.wash-dry-repeat-promo__heading {
+  width: 100%;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  overflow-wrap: break-word;
+}
+
+.wash-dry-repeat-promo__subheading {
+  width: 100%;
+}
+
+.wash-dry-repeat-promo__subheading,
+.wash-dry-repeat-promo__subheading p {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  overflow-wrap: break-word;
+}
+
+/* --- buttons / links --- */
+
+/* Pill CTA. Its background is --color: in this design the button fill and the body text are the
+   same token (Neutral/700 #333333) — there is no separate accent fill anywhere in the section. */
+.wash-dry-repeat-promo__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: var(--cta-py) var(--cta-px);
+  border-radius: var(--radius-cta);
+  background-color: var(--color);
+  color: var(--cta-text);
+
+  font-family: var(--font-body);
+  font-size: var(--font-cta-size);
+  font-weight: var(--font-cta-weight);
+  line-height: var(--font-cta-lh);
+  text-align: center;
+  text-decoration: none;
+
+  transition: filter 0.2s ease;
+}
+
+.wash-dry-repeat-promo__cta:hover {
+  filter: brightness(0.9);
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+/* Nothing to override. This block used to re-declare the image row as `flex: 1 1 0` to stop it
+   starving the text — but it only did so below 1024px, which left 1025–1400 (where the text
+   column collapsed to ~192px) untouched, and it split the card 50/50 rather than the designed
+   46/54. Both columns now carry their Figma basis in the BASE rules, so the proportion holds
+   continuously from 1440 down to the 768px stack. */
+@media (max-width: 1024px) {
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+/* The Mobile artboard (375px, 44821:5279): the card flips row → column and the CTA moves out
+   of the text column to sit AFTER the image row. */
+@media (max-width: 768px) {
+  .wash-dry-repeat-promo {
+    padding-top: calc(var(--pt) * var(--pt-scale-m));
+    padding-left: var(--section-px-m);
+    padding-right: var(--section-px-m);
+  }
+
+  .wash-dry-repeat-promo__card {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--card-padding-m);
+  }
+
+  /* The reorder. display:contents removes the text column from the box tree, so its children
+     (heading block, CTA) become direct flex items of the card and can be ordered around the
+     image row. The CTA is never duplicated — one anchor, one tab stop. */
+  .wash-dry-repeat-promo__text-col {
+    display: contents;
+  }
+
+  .wash-dry-repeat-promo__heading-block {
+    order: 1;
+    gap: var(--spacing-sm-m);
+  }
+
+  .wash-dry-repeat-promo__tiles {
+    order: 2;
+    flex: 0 0 auto;
+    width: 100%;
+    gap: var(--tile-gap-m);
+  }
+
+  .wash-dry-repeat-promo__cta {
+    order: 3;
+    padding: var(--cta-py-m) var(--cta-px-m);
+    font-size: var(--font-cta-size-m);
+    min-height: 44px; /* touch target */
+  }
+
+  .wash-dry-repeat-promo__heading {
+    font-size: var(--font-heading-size-m);
+  }
+
+  .wash-dry-repeat-promo__subheading,
+  .wash-dry-repeat-promo__subheading p {
+    font-size: var(--font-body-size-m);
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+  /* No change: the 375px Mobile artboard already falls inside the 768px block above, and those
+     values ARE the design. The tiles are flex:1 of a fluid card, so nothing overflows. */
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.wash-dry-repeat-promo__cta:focus-visible,
+.wash-dry-repeat-promo a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.wash-dry-repeat-promo__cta:focus:not(:focus-visible),
+.wash-dry-repeat-promo a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .wash-dry-repeat-promo,
+  .wash-dry-repeat-promo * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

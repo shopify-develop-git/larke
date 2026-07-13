@@ -1,0 +1,215 @@
+/* dev-trust-badges.css */
+
+/* Fixed Figma tokens (--section-px, --spacing-*, --icon-*, --badge-width, type scale)
+   are declared in the section's <style> block, per the code standards. Merchant-controlled
+   values (--bg / --color / --accent / --pt / --pb) arrive inline on the root wrapper.
+   This file only consumes them — no literal colours, fonts, or base paddings here. */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.trust-badges {
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+  /* --pb is 0 by design: Brief note #1 — no bottom spacer node exists on either
+     artboard, the badge row is flush with the section's bottom edge. */
+  padding: var(--pt) var(--section-px) var(--pb) var(--section-px);
+}
+
+/* --- layout --- */
+
+.trust-badges__inner {
+  /* Full-bleed by design — no --container-max (Brief note #3: no centred max-width
+     frame exists in this section). The horizontal inset is --section-px only.
+     Figma: Frame 6565, row / justify-center / align-center / gap 32.
+
+     nowrap, NOT wrap. The three cards are 343px each and the gaps 32px, so the row needs
+     1093px + 128px of section padding = 1221px of viewport. `flex-wrap: wrap` meant that
+     below 1221px the third card dropped onto its own line — a 2+1 layout nobody designed,
+     which is what the whole tablet range actually rendered. Wrapping wins over shrinking in
+     flexbox, so the cards never got the chance to narrow. With nowrap they shrink together
+     (see __badge) and the row survives intact down to the 768px stack. */
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-lg);
+  width: 100%;
+}
+
+/* --- blocks / children --- */
+
+.trust-badges__badge {
+  /* Fixed 343px card on both artboards (Brief note #6) — that is the flex-basis, so at 1440
+     the three cards measure exactly 343px and the artboard still matches. `0 1` lets them
+     shrink (never grow past 343) once the row is narrower than 1221px, so the tablet range
+     gets three narrower cards instead of a broken 2+1 wrap. min-width:0 is required — without
+     it the min-content width of the description text would refuse to shrink and overflow. */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex: 0 1 var(--badge-width);
+  min-width: 0;
+  max-width: 100%;
+  text-align: center;
+}
+
+.trust-badges__icon {
+  /* currentColor plumbing for the two inline icons. Confirmed #666666 in the
+     exported artwork. The warranty icon ships as an <img> and keeps its baked
+     fill, so it does not follow this. */
+  color: var(--icon-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Icons are NOT scaled between breakpoints (Brief note #4) — identical fixed px
+   boxes at 1440 and at 375. Rendered size == viewBox, so the art draws at its
+   true Figma size instead of being letterboxed into the smaller anchor box. */
+.trust-badges__icon-svg,
+.trust-badges__icon-img {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+.trust-badges__icon--warranty .trust-badges__icon-svg,
+.trust-badges__icon--warranty .trust-badges__icon-img {
+  width: var(--icon-warranty-w);
+  height: var(--icon-warranty-h);
+}
+
+.trust-badges__icon--trial .trust-badges__icon-svg,
+.trust-badges__icon--trial .trust-badges__icon-img {
+  width: var(--icon-trial-w);
+  height: var(--icon-trial-h);
+}
+
+.trust-badges__icon--delivery .trust-badges__icon-svg,
+.trust-badges__icon--delivery .trust-badges__icon-img {
+  width: var(--icon-delivery-w);
+  height: var(--icon-delivery-h);
+}
+
+.trust-badges__text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: 100%;
+}
+
+/* --- typography --- */
+
+.trust-badges__heading {
+  /* Desktop heading has no colour override in Figma — it inherits the wrapper's
+     Neutral/700. Mobile does override it (see MOBILE block, Brief note #2). */
+  color: var(--color);
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  margin: 0;
+}
+
+.trust-badges__description {
+  color: var(--color);
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  margin: 0;
+}
+
+/* --- buttons / links --- */
+/* None — this section has no interactive elements (Brief: Interactivity none). */
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+  /* Nothing to override. The row is nowrap and the cards are `flex: 0 1 343px`, so they
+     narrow together across the whole tablet range and stay on one line. The previous
+     comment here claimed "the row wraps on its own... no overrides needed" — that WAS the
+     bug: what it wrapped into was an undesigned 2+1 layout. */
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .trust-badges {
+    /* Mobile artboard has its own top spacer (48px), not a scaled desktop value.
+       Bottom stays 0 — no bottom spacer exists on the mobile artboard either. */
+    padding-top: var(--pt-mobile);
+  }
+
+  .trust-badges__inner {
+    /* Figma mobile: Frame 6565 flips row -> column, gap stays 32px. */
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  .trust-badges__badge {
+    /* The row's `flex: 0 1 343px` basis resolves against the MAIN axis, which is now vertical —
+       left as-is it would cap each card's HEIGHT at 343px. Back to auto sizing, with the card's
+       Figma width restored explicitly. */
+    flex: 0 0 auto;
+    width: var(--badge-width);
+  }
+
+  .trust-badges__heading {
+    /* Genuine desktop/mobile difference in the source file: the mobile heading
+       carries an explicit literal black, the desktop one does not (Brief note #2).
+       Implemented as read — flagged to PM rather than silently normalised. */
+    color: var(--heading-color-mobile);
+    font-size: var(--font-heading-size-mobile);
+  }
+
+  .trust-badges__description {
+    font-size: var(--font-body-size-mobile);
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+  /* Card is width:343px / max-width:100%, so it shrinks with the viewport below
+     the 375 artboard instead of forcing a horizontal scroll. Nothing to override. */
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+/* No focusable elements in this section; the focus-visible rules are kept so a
+   future link or button inherits the project's outline treatment. */
+.trust-badges__link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.trust-badges__link:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .trust-badges,
+  .trust-badges * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

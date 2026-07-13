@@ -1,0 +1,240 @@
+/* dev-proudest-moments.css */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+/* The section root is deliberately WITHOUT a background-color. The Figma wrapper
+   ("Image and text", 45081:9393 / 44847:974) carries no fill — the only cream surface is the
+   card inside it, so --bg (Cream/100 #FCF5E3) is applied to .proudest-moments__card below.
+   Painting the root cream would produce a full-bleed cream strip the artboard does not have. */
+.proudest-moments {
+  color: var(--color);
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+  font-family: var(--font-body);
+}
+
+.proudest-moments__inner {
+  max-width: var(--container-max);
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* --- layout --- */
+
+/* Card (45081:9395): a single row — [233px heading column][items row, flex:1] — vertically
+   centred, 40px/24px padding, 32px radius. */
+.proudest-moments__card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--card-py) var(--card-px);
+  background-color: var(--bg);
+  border-radius: var(--radius-card);
+}
+
+.proudest-moments__heading-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 0 0 var(--heading-col-width);
+  width: var(--heading-col-width);
+}
+
+/* Items group (45081:9402): 4 equal flex items, top-aligned. */
+.proudest-moments__items {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* --- blocks / children --- */
+
+/* Every proof point carries the divider on desktop; on mobile the first one loses it
+   (see the MOBILE block — a real structural change in the design, not an oversight). */
+.proudest-moments__item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  flex: 1 0 0;
+  min-width: 0;
+  padding-top: var(--item-pt);
+  border-top: var(--divider-width) solid var(--accent);
+}
+
+/* --- typography --- */
+
+.proudest-moments__heading {
+  width: 100%;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  letter-spacing: var(--letter-spacing);
+  overflow-wrap: break-word;
+}
+
+/* The manual line break sits on a different word per breakpoint, so both wordings are in the
+   DOM and exactly one is rendered. display:none also hides the inactive one from screen
+   readers, so the heading is announced once. */
+.proudest-moments__heading-text {
+  display: block;
+}
+
+.proudest-moments__heading-text--mobile {
+  display: none;
+}
+
+.proudest-moments__item-heading {
+  width: 100%;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-block-heading-size);
+  font-weight: var(--font-block-heading-weight);
+  line-height: var(--font-block-heading-lh);
+  letter-spacing: var(--letter-spacing);
+  overflow-wrap: break-word;
+}
+
+.proudest-moments__item-body {
+  width: 100%;
+}
+
+.proudest-moments__item-body,
+.proudest-moments__item-body p {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  letter-spacing: var(--letter-spacing);
+  overflow-wrap: break-word;
+}
+
+/* --- buttons / links --- */
+/* None: this section has no CTA, link, or button anywhere in the design. */
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+/* Not an artboard — a robustness step. Four 22px headings beside a 233px column get unreadably
+   narrow below ~1100px, so the proof points wrap 2-up. Card stays a row; spacing tokens unchanged. */
+@media (max-width: 1024px) {
+  .proudest-moments__items {
+    flex-wrap: wrap;
+  }
+
+  .proudest-moments__item {
+    flex: 1 1 calc(50% - (var(--spacing-lg) / 2));
+  }
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+/* The Mobile artboard (375px, 44847:974): the card flips row → column, the heading stacks
+   full width above the items, and the items stack. */
+@media (max-width: 768px) {
+  .proudest-moments {
+    padding-top: calc(var(--pt) * var(--pt-scale-m));
+    padding-left: var(--section-px-m);
+    padding-right: var(--section-px-m);
+  }
+
+  .proudest-moments__card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .proudest-moments__heading-col {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .proudest-moments__heading {
+    font-size: var(--font-heading-size-m);
+  }
+
+  .proudest-moments__heading-text--desktop {
+    display: none;
+  }
+
+  .proudest-moments__heading-text--mobile {
+    display: block;
+  }
+
+  .proudest-moments__items {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    flex: 0 0 auto;
+    gap: var(--spacing-lg);
+  }
+
+  .proudest-moments__item {
+    flex: 0 0 auto;
+    width: 100%;
+    gap: var(--spacing-sm-m);
+  }
+
+  /* Structural, not cosmetic: on the Mobile artboard the first proof point (44847:1004) has no
+     divider — it keeps its 24px padding-top but the rule above it is gone. Items 2–4 keep theirs. */
+  .proudest-moments__item:first-child {
+    border-top: none;
+  }
+
+  .proudest-moments__item-heading {
+    font-size: var(--font-block-heading-size-m);
+  }
+
+  .proudest-moments__item-body,
+  .proudest-moments__item-body p {
+    font-size: var(--font-body-size-m);
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+  /* No change: the 375px Mobile artboard already falls inside the 768px block above, and those
+     values ARE the design. Nothing left to scale. */
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+/* No buttons or links in the design; this covers any link a merchant adds via the richtext field. */
+.proudest-moments a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.proudest-moments a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .proudest-moments,
+  .proudest-moments * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

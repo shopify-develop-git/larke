@@ -1,0 +1,232 @@
+{{ 'dev-as-seen-in.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  Section: "As seen in" (dev name `as-seen-in`).
+  Figma layer: "Image and text (2)" — desktop 45031:4035, mobile 44821:5419.
+  The Figma layer is a generic reusable image+text promo, NOT literally a press-logo
+  strip; the dev name is the one assigned by the Brief. Kept here for traceability.
+
+  No JS: the Brief's Interactivity section is "none". Both tiles are static (no slider,
+  no dots, no overlay at either breakpoint) and the CTA is a plain link.
+
+  No inline SVG, and not a single hand-authored path element: this section has no vector
+  artwork in Figma. Its only assets are the two raster promo photos, already hosted in
+  Shopify Files. There is consequently no .figma-assets/as-seen-in/ ground truth for
+  svg-fidelity to check — the correct response to which is to ship zero vectors, not to
+  invent one that would pass.
+{%- endcomment -%}
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .as-seen-in {
+    /* Brand params (Brief → Brand Params table) */
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+    --container-max: 1312px;
+    --section-px: 64px;
+    --section-px-m: 16px;
+
+    /* Typography — desktop */
+    --font-heading-size: 32px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+    --font-body-size: 18px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+    --font-button-size: 18px;
+    --font-button-weight: 700;
+    --font-button-lh: 1.4;
+
+    /* Typography — mobile: taken from the Mobile artboard, not a scale factor */
+    --font-heading-size-m: 24px;
+    --font-body-size-m: 16px;
+    --font-button-size-m: 16px;
+
+    /* Spacing — desktop */
+    --spacing-sm: 16px; /* heading → body */
+    --spacing-md: 24px; /* text block → CTA */
+    --spacing-lg: 32px; /* tile → tile */
+
+    /* Spacing — mobile */
+    --spacing-sm-m: 8px; /* heading → body */
+    --spacing-md-m: 24px; /* stack gap: text → images → CTA */
+    --spacing-lg-m: 16px; /* tile → tile */
+
+    /* Mobile top padding is 48px against a desktop 80px. Scaling the merchant's own
+       padding_top keeps that relationship if they change it. 80 * 0.6 = 48. */
+    --pt-scale-m: 0.6;
+
+    /* Layout */
+    --images-w: 640px; /* fixed image group (Figma 45031:4043), flush left */
+    --tile-ratio: 304 / 412; /* 2 tiles + a 32px gap = 640px exactly */
+    --tile-h-m: 220px; /* mobile tiles are a fixed height on the Mobile artboard */
+    --text-max: 341px; /* fixed text width, centred inside the flex-1 column */
+
+    /* Decoration */
+    --radius-image: 16px;
+    --radius-button: 60px;
+    --border-image: 1px; /* desktop only — mobile tiles have no border (Brief, Note 4) */
+    --button-px: 24px;
+    --button-py: 18px;
+    --button-px-m: 18px;
+    --button-py-m: 12px;
+  }
+</style>
+
+{%- liquid
+  assign button_link = section.settings.button_link
+  if button_link == blank
+    assign button_link = routes.root_url
+  endif
+-%}
+
+<div
+  class="as-seen-in"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="as-seen-in__inner">
+    {%- if section.blocks.size > 0 -%}
+      <div class="as-seen-in__images">
+        {%- for block in section.blocks -%}
+          <figure class="as-seen-in__tile" {{ block.shopify_attributes }}>
+            {%- if block.settings.image != blank -%}
+              {%- liquid
+                assign image = block.settings.image
+                assign image_alt = block.settings.alt_text
+                if image_alt == blank
+                  assign image_alt = image.alt
+                endif
+                assign image_alt = image_alt | default: '' | escape
+              -%}
+              {{
+                image
+                | image_url: width: 640
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '164, 240, 304, 328, 480, 608, 640',
+                  sizes: '(min-width: 1025px) 304px, (min-width: 769px) 25vw, calc(50vw - 24px)',
+                  alt: image_alt,
+                  class: 'as-seen-in__image'
+              }}
+            {%- endif -%}
+          </figure>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    {%- comment -%}
+      Desktop: this column sits right of the image group. Mobile: it becomes
+      `display: contents` so the heading/body and the CTA can sit either side of the
+      image row in the single-column stack (Brief, Note 2 — a real reorder, not a
+      reflow). One DOM, two layouts, no duplicated markup.
+    {%- endcomment -%}
+    <div class="as-seen-in__content">
+      {%- if section.settings.heading != blank or section.settings.body_text != blank -%}
+        <div class="as-seen-in__text">
+          {%- if section.settings.heading != blank -%}
+            <h2 class="as-seen-in__heading">{{ section.settings.heading }}</h2>
+          {%- endif -%}
+
+          {%- if section.settings.body_text != blank -%}
+            <div class="as-seen-in__body">
+              {{- section.settings.body_text -}}
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.button_label != blank -%}
+        <a class="as-seen-in__button" href="{{ button_link }}">
+          {{- section.settings.button_label | escape -}}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "As seen in",
+  "tag": "section",
+  "presets": [
+    {
+      "name": "As seen in",
+      "blocks": [{ "type": "image_tile" }, { "type": "image_tile" }]
+    }
+  ],
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Wash. Dry. Repeat." },
+    {
+      "type": "richtext",
+      "id": "body_text",
+      "label": "Body text",
+      "info": "Line breaks are preserved.",
+      "default": "<p>Fuss-free comfort.<br/>Fresh again by bedtime.</p>"
+    },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Discover Tree-Fibre" },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "info": "Transparent by default — the section inherits the page background.",
+      "default": "rgba(0,0,0,0)"
+    },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "info": "Image border. Desktop only.",
+      "default": "#C4BCA9"
+    },
+
+    { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image_tile",
+      "name": "Image tile",
+      "limit": 2,
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        {
+          "type": "text",
+          "id": "alt_text",
+          "label": "Alt text",
+          "info": "Falls back to the image's own alt text."
+        }
+      ]
+    }
+  ],
+  "max_blocks": 2
+}
+{% endschema %}

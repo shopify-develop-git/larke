@@ -1,0 +1,239 @@
+{{ 'dev-proudest-moments.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  Our Proudest Moments — desktop 45081:9393 / mobile 44847:974 ("Image and text").
+
+  No JS: the Brief's Interactivity section is "none". Static cream card, no slider, no toggle.
+
+  No SVG, no images: this section has no vector or raster artwork in Figma (the Images table in
+  the Brief is empty, and the asset stage returned NO_RASTER_IMAGES). There is therefore no
+  .figma-assets/proudest-moments/ ground truth — and, deliberately, not one hand-authored <path>.
+
+  Two hidden layers inside the desktop node (a "Frame 2" of _Master Promo tiles, and a "buttons"
+  instance) are leftovers from the master component this frame was duplicated from. They are
+  invisible in the design and are NOT built here.
+{%- endcomment -%}
+
+{%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
+<style>
+  .proudest-moments {
+    /* Brand params (Design Brief → Brand Params table) */
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+    --container-max: 1312px;
+    --section-px: 64px;
+    --section-px-m: 16px;
+
+    /* Typography — desktop (Desktop/Title 2, Desktop/Title 4, Body/Lg_Body_Medium) */
+    --font-heading-size: 38px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+    --font-block-heading-size: 22px;
+    --font-block-heading-weight: 500;
+    --font-block-heading-lh: 1.2;
+    --font-body-size: 18px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+    --letter-spacing: 0;
+
+    /* Typography — mobile (Mobile/Title2, Mobile/Title 4, Body/Md_Body_Medium — the Mobile
+       artboard's own tokens, not a scale factor) */
+    --font-heading-size-m: 28px;
+    --font-block-heading-size-m: 20px;
+    --font-body-size-m: 16px;
+
+    /* Spacing */
+    --spacing-sm: 8px; /* proof point: heading → body (desktop) */
+    --spacing-sm-m: 4px; /* proof point: heading → body (mobile) — a real token change, not a scale */
+    --spacing-md: 16px; /* heading column ↔ items group */
+    --spacing-lg: 24px; /* proof point → proof point */
+    --item-pt: 24px; /* padding above each proof point, under its divider */
+
+    /* 80px desktop → 48px mobile, kept proportional to the merchant's padding_top */
+    --pt-scale-m: 0.6;
+
+    /* Layout */
+    --heading-col-width: 233px; /* desktop only — the column stacks full width on mobile */
+
+    /* Decoration */
+    --radius-card: 32px;
+    --card-px: 24px;
+    --card-py: 40px;
+    --divider-width: 1px;
+  }
+</style>
+
+{%- liquid
+  comment
+    The heading carries a MANUAL line break in Figma, and the break lands on a different word at
+    each breakpoint: desktop is "Our / Proudest Moments" (45081:9397), mobile is "Our Proudest /
+    Moments" (44847:978). One string cannot express both, so the mobile wording is its own setting;
+    CSS shows exactly one of the two. Left blank, mobile falls back to the desktop heading.
+  endcomment
+  assign heading_desktop = section.settings.heading | remove: '<p>' | remove: '</p>'
+  assign heading_mobile_source = section.settings.heading_mobile
+  if heading_mobile_source == blank
+    assign heading_mobile_source = section.settings.heading
+  endif
+  assign heading_mobile = heading_mobile_source | remove: '<p>' | remove: '</p>'
+-%}
+
+<div
+  class="proudest-moments"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="proudest-moments__inner">
+    <div class="proudest-moments__card">
+      {%- if section.settings.heading != blank -%}
+        <div class="proudest-moments__heading-col">
+          <h2 class="proudest-moments__heading">
+            <span class="proudest-moments__heading-text proudest-moments__heading-text--desktop">
+              {{- heading_desktop -}}
+            </span>
+            <span class="proudest-moments__heading-text proudest-moments__heading-text--mobile">
+              {{- heading_mobile -}}
+            </span>
+          </h2>
+        </div>
+      {%- endif -%}
+
+      {%- if section.blocks.size > 0 -%}
+        <div class="proudest-moments__items">
+          {%- for block in section.blocks -%}
+            <div class="proudest-moments__item" {{ block.shopify_attributes }}>
+              {%- if block.settings.heading != blank -%}
+                <h3 class="proudest-moments__item-heading">{{ block.settings.heading }}</h3>
+              {%- endif -%}
+
+              {%- if block.settings.body != blank -%}
+                <div class="proudest-moments__item-body">{{ block.settings.body }}</div>
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Proudest moments",
+  "tag": "section",
+  "presets": [
+    {
+      "name": "Proudest moments",
+      "blocks": [
+        {
+          "type": "proof_point",
+          "settings": {
+            "heading": "Vegan Certified",
+            "body": "<p>From the UK’s oldest Vegan Society.</p>"
+          }
+        },
+        {
+          "type": "proof_point",
+          "settings": {
+            "heading": "Zero plastic packaging",
+            "body": "<p>Now our standard.</p>"
+          }
+        },
+        {
+          "type": "proof_point",
+          "settings": {
+            "heading": "Natural made simple",
+            "body": "<p>Fuss-free, everyday ease in our lives.</p>"
+          }
+        },
+        {
+          "type": "proof_point",
+          "settings": {
+            "heading": "Designed in London",
+            "body": "<p>Crafted in the EU.</p>"
+          }
+        }
+      ]
+    }
+  ],
+  "settings": [
+    { "type": "header", "content": "Content" },
+    {
+      "type": "richtext",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Line breaks are preserved. Used on desktop and tablet.",
+      "default": "<p>Our<br>Proudest Moments</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "heading_mobile",
+      "label": "Heading (mobile)",
+      "info": "Same words, different line break. Leave blank to reuse the desktop heading.",
+      "default": "<p>Our Proudest<br>Moments</p>"
+    },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Card background",
+      "info": "The cream card. The section itself is transparent and shows the page background.",
+      "default": "#FCF5E3"
+    },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "info": "The 1px divider above each proof point.",
+      "default": "#C4BCA9"
+    },
+
+    { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "info": "Scales to 60% on mobile (80px → 48px).",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "info": "0 by default — the next section supplies its own top gap.",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "proof_point",
+      "name": "Proof point",
+      "limit": 4,
+      "settings": [
+        { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Vegan Certified" },
+        {
+          "type": "richtext",
+          "id": "body",
+          "label": "Text",
+          "default": "<p>From the UK’s oldest Vegan Society.</p>"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 4
+}
+{% endschema %}
