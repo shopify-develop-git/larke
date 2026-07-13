@@ -110,7 +110,41 @@
     "main_product": {
       "type": "dev-main-product",
       "name": "Main product",
-      "settings": {}
+      "settings": {
+        "tagline": "Breathable. Love-able. Washable.",
+        "subtitle": "Vegan-certified natural comfort for everyday sleepers.",
+        "cta_label": "Add to Order",
+        "sold_out_label": "Sold out",
+        "show_rating": true,
+        "rating_value": 4.9,
+        "rating_label": "4.9/5",
+        "badge_text": "Smooth & Breezy",
+        "seal_alt": "Good Housekeeping Institute approved",
+        "option_1_link_label": "Size Guide",
+        "option_2_link_label": "What’s the difference?",
+        "compare_heading": "Still undecided?",
+        "compare_label": "See how our duvet compares",
+        "background_color": "#fffcf4",
+        "text_color": "#333333",
+        "accent_color": "#a8cf78",
+        "star_color": "#f1b500",
+        "surface_color": "#fffcf4",
+        "card_color": "#fcf5e3",
+        "border_color": "#c4bca9"
+      },
+      "blocks": {
+        "acc-love": {
+          "type": "accordion",
+          "settings": {
+            "heading": "Why you’ll love it",
+            "body": "<ul><li>Awarded <strong>Best Lightweight Duvet</strong> by Good Housekeeping 2025.</li><li>Smooth, soft-to-the-touch <strong>300TC cotton</strong> outer shell</li><li>Moisture-wicking, sweat beating 100% <strong>eucalyptus tree-fibre filling</strong>.</li><li>Vegan approved by the UK’s oldest vegan society.</li><li>Made in the EU.</li></ul>",
+            "open_by_default": true
+          }
+        }
+      },
+      "block_order": [
+        "acc-love"
+      ]
     }
   },
   "order": [

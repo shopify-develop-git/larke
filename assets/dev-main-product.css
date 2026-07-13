@@ -532,3 +532,167 @@
     flex-basis: calc(50% - var(--variant-gap));
   }
 }
+
+/* ---- Still undecided ----------------------------------------------------
+   45174:5990 — a cream card with an outlined circular icon and a two-line link. */
+
+.dev-main-product__compare {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--group-gap);
+  padding: var(--group-gap);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background-color: var(--card-bg);
+  color: var(--color);
+  text-decoration: none;
+}
+
+.dev-main-product__compare-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding: var(--group-gap);
+  border: 1px solid var(--border-color);
+  border-radius: var(--arrow-radius);
+  background-color: var(--surface);
+}
+
+.dev-main-product__compare-icon svg,
+.dev-main-product__compare-arrow svg {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+.dev-main-product__compare-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dev-main-product__compare-heading {
+  font-size: var(--font-sub-size);
+  font-weight: var(--w-bold);
+  line-height: var(--font-body-lh);
+}
+
+.dev-main-product__compare-row {
+  display: flex;
+  align-items: center;
+  gap: var(--variant-gap);
+}
+
+.dev-main-product__compare-link {
+  font-size: var(--font-label-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+.dev-main-product__compare:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
+
+/* ---- Accordions --------------------------------------------------------- */
+
+.dev-main-product__accordions {
+  display: flex;
+  flex-direction: column;
+}
+
+.dev-main-product__acc {
+  padding-top: var(--pt);
+  border-top: 1px solid var(--border-color);
+}
+
+.dev-main-product__acc-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--group-gap);
+  cursor: pointer;
+  list-style: none;
+}
+
+/* Safari draws its own disclosure triangle through ::-webkit-details-marker, and it ignores
+   list-style: none. Both are needed or the artboard's chevron sits next to a stray arrow. */
+.dev-main-product__acc-summary::-webkit-details-marker {
+  display: none;
+}
+
+.dev-main-product__acc-title {
+  flex: 1 1 0;
+  min-width: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-title-4-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+.dev-main-product__acc-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.dev-main-product__acc-chevron {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  transition: transform var(--transition) ease;
+}
+
+/* Figma swaps chevron-down for chevron-up. One glyph, rotated — a second SVG would be the same
+   path drawn twice and one more thing to keep in step. */
+.dev-main-product__acc[open] .dev-main-product__acc-chevron {
+  transform: rotate(180deg);
+}
+
+.dev-main-product__acc-body {
+  padding-top: var(--gallery-gap);
+  font-size: var(--font-sub-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+}
+
+.dev-main-product__acc-body p {
+  margin: 0;
+}
+
+.dev-main-product__acc-body ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--thumb-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The bullet is a 6px dot 12px clear of the text (Figma's marker is a 6x22 box with a r=3 circle
+   centred in it), so it is drawn rather than left to the UA's list marker. */
+.dev-main-product__acc-body li {
+  position: relative;
+  padding-left: 18px;
+}
+
+.dev-main-product__acc-body li::before {
+  content: '';
+  position: absolute;
+  top: calc((1.4em - 6px) / 2);
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentcolor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-main-product__acc-chevron {
+    transition: none;
+  }
+}

@@ -15,6 +15,8 @@
     /* Desktop/Title 3 vs Mobile/Title 3 — the mobile artboard states its own size. */
     --font-title-size: 32px;
     --font-title-size-mobile: 24px;
+    /* Desktop/Title 4 — the accordion headings. */
+    --font-title-4-size: 22px;
     --font-heading-weight: 500;
     --font-heading-lh: 1.2;
 
@@ -99,6 +101,8 @@
     --accent: {{ section.settings.accent_color }};
     --star-color: {{ section.settings.star_color }};
     --surface: {{ section.settings.surface_color }};
+    --card-bg: {{ section.settings.card_color }};
+    --border-color: {{ section.settings.border_color }};
     --rating-pct: {{ rating_pct }}%;
   "
   data-main-product
@@ -339,6 +343,63 @@
           <span class="dev-main-product__cta-price" data-cta-price>{{ current.price | money }}</span>
         </button>
       {%- endform -%}
+
+      {%- comment -%} ---------- Still undecided ---------- {%- endcomment -%}
+      {%- if section.settings.compare_heading != blank -%}
+        <a class="dev-main-product__compare" href="{{ section.settings.compare_link | default: '#' }}">
+          <span class="dev-main-product__compare-icon" aria-hidden="true">
+            {%- comment -%} Exported from Figma (Icon/Outline/scale) — path data verbatim. {%- endcomment -%}
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+              <path d="M3 6L6 7M6 7L3 16C4.77253 17.3334 7.22866 17.3334 9.00119 16M6 7L9.00006 16M6 7L12 5M18 7L21 6M18 7L15 16C16.7725 17.3334 19.2287 17.3334 21.0012 16M18 7L21.0001 16M18 7L12 5M12 3V5M12 21V5M12 21H9M12 21H15" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+            </svg>
+          </span>
+
+          <span class="dev-main-product__compare-text">
+            <span class="dev-main-product__compare-heading">{{ section.settings.compare_heading | escape }}</span>
+            <span class="dev-main-product__compare-row">
+              <span class="dev-main-product__compare-link">{{ section.settings.compare_label | escape }}</span>
+              <span class="dev-main-product__compare-arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                  <path d="M17 16L21 12L17 8M21 12L3 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </span>
+          </span>
+        </a>
+      {%- endif -%}
+
+      {%- comment -%}
+        ---------- Accordions ----------
+        <details>/<summary>, not a div plus a click handler. It opens with no JS, it is keyboard
+        operable and announced correctly by screen readers for free, and Ctrl+F on the page can
+        still find the text inside a closed panel.
+      {%- endcomment -%}
+      {%- assign rows = section.blocks | where: 'type', 'accordion' -%}
+      {%- if rows.size > 0 -%}
+        <div class="dev-main-product__accordions">
+          {%- for block in rows -%}
+            <details
+              class="dev-main-product__acc"
+              {% if block.settings.open_by_default %}open{% endif %}
+              {{ block.shopify_attributes }}
+            >
+              <summary class="dev-main-product__acc-summary">
+                <span class="dev-main-product__acc-title">{{ block.settings.heading }}</span>
+                <span class="dev-main-product__acc-icon" aria-hidden="true">
+                  {%- comment -%} Figma flips chevron-down to chevron-up when the row opens. {%- endcomment -%}
+                  <svg class="dev-main-product__acc-chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                    <path d="M19 9L12 16L5 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </summary>
+
+              {%- if block.settings.body != blank -%}
+                <div class="dev-main-product__acc-body">{{ block.settings.body }}</div>
+              {%- endif -%}
+            </details>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
     </div>
   </div>
 
@@ -390,15 +451,38 @@
     { "type": "text", "id": "option_2_link_label", "label": "Link 2 label", "default": "What’s the difference?" },
     { "type": "url", "id": "option_2_link", "label": "Link 2" },
 
+    { "type": "header", "content": "Still undecided" },
+    { "type": "text", "id": "compare_heading", "label": "Heading", "default": "Still undecided?" },
+    { "type": "text", "id": "compare_label", "label": "Link text", "default": "See how our duvet compares" },
+    { "type": "url", "id": "compare_link", "label": "Link" },
+
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
     { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
     { "type": "color", "id": "accent_color", "label": "Accent (chips & button)", "default": "#A8CF78" },
     { "type": "color", "id": "star_color", "label": "Star color", "default": "#F1B500" },
-    { "type": "color", "id": "surface_color", "label": "Arrow buttons", "default": "#FFFCF4" }
+    { "type": "color", "id": "surface_color", "label": "Arrow buttons", "default": "#FFFCF4" },
+    { "type": "color", "id": "card_color", "label": "Card background", "default": "#FCF5E3" },
+    { "type": "color", "id": "border_color", "label": "Borders & dividers", "default": "#C4BCA9" }
+  ],
+  "blocks": [
+    {
+      "type": "accordion",
+      "name": "Accordion",
+      "settings": [
+        { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Why you’ll love it" },
+        { "type": "richtext", "id": "body", "label": "Body", "default": "<ul><li>Awarded <strong>Best Lightweight Duvet</strong> by Good Housekeeping 2025.</li></ul>", "info": "Use a bullet list — the dots are styled to the artboard." },
+        { "type": "checkbox", "id": "open_by_default", "label": "Open by default", "default": false }
+      ]
+    }
   ],
   "presets": [
-    { "name": "Main product" }
+    {
+      "name": "Main product",
+      "blocks": [
+        { "type": "accordion", "settings": { "open_by_default": true } }
+      ]
+    }
   ]
 }
 {% endschema %}
