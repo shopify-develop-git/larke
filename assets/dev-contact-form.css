@@ -73,9 +73,15 @@
 
 .dev-contact-form__field {
   display: flex;
+  flex-direction: column;
+}
+
+/* Only the two fields sharing a row split it. Putting flex: 1 1 0 on every field also hit the
+   full-width message field, whose parent is a COLUMN flex — there the flex basis applies to the
+   HEIGHT, which is not what it was meant to do. */
+.dev-contact-form__row > .dev-contact-form__field {
   flex: 1 1 0;
   min-width: 0;
-  flex-direction: column;
 }
 
 /* The artboard labels every field with a placeholder only. A placeholder is not an accessible
@@ -93,7 +99,21 @@
   border: 0;
 }
 
-.dev-contact-form__input {
+/* The parent class is repeated ON PURPOSE — do not "simplify" this to a single class.
+   Horizon's base.css:1280 carries
+
+       textarea,
+       input:not([type='checkbox'], [type='radio']) {
+         background-color: var(--color-input-background);
+         border-color:     var(--color-input-border);
+       }
+
+   and `input:not([attr])` scores (0,1,1) — HIGHER than a lone class (0,1,0). With one class these
+   two inputs got their fill and border colour from the merchant's colour palette instead of the
+   design, while the textarea (a bare element selector, (0,0,1)) correctly kept ours. Two classes
+   score (0,2,0) and win. That stock sheet loads on every page even though no stock section renders
+   here, so nothing in this file hints the rule exists. */
+.dev-contact-form .dev-contact-form__input {
   width: 100%;
   height: var(--field-h);
   margin: 0;
@@ -112,11 +132,11 @@
   appearance: none;
 }
 
-.dev-contact-form__input--textarea {
+.dev-contact-form .dev-contact-form__input--textarea {
   resize: vertical;
 }
 
-.dev-contact-form__input::placeholder {
+.dev-contact-form .dev-contact-form__input::placeholder {
   color: var(--field-placeholder);
   opacity: 1;
 }

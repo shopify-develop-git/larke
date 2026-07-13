@@ -31,19 +31,26 @@
     --section-py-mobile: 16px;
     --stack-gap-mobile: 24px;
 
-    /* The Figma "Input Fields" component exposes no layout of its own, so these two are
-       measured off the 1:1 render (45246:3826): 58px tall with a 1px stroke, and the
-       placeholder's first ink at x=20. 18px block padding is what makes 58px with a
-       16px/1.4 line. Radius fitted to the corner arc — 4px, not the footer input's 8px. */
+    /* The Figma "Input Fields" component exposes no layout of its own, so these are measured off
+       the 1:1 render (45246:3826): 58px tall, 1px #666666 stroke, transparent fill, text 18px from
+       the top edge and 20px from the left. Radius fitted to the corner arc — 4px, NOT the footer
+       input's 8px.
+
+       The padding is 1px short of those insets ON PURPOSE. Figma draws a stroke INSIDE the box, so
+       its 18/20px padding is measured from the outer edge. CSS puts the border OUTSIDE the padding,
+       so border + padding must add up to the Figma inset: 1 + 17 = 18, 1 + 19 = 20. Using 18/20
+       directly makes every field 2px too big and shifts the text 1px. */
     --field-h: 58px;
-    --field-pad: 18px 20px;
+    --field-pad: 17px 19px;
     --field-radius: 4px;
     --field-border-w: 1px;
 
     --field-gap: 8px;
     --form-gap: 16px;
 
-    --button-pad: 12px 18px;
+    /* Same inside-stroke correction: the button is 148x46 with a 1px white stroke and its label
+       12px/18px from the outer edge, so 1 + 11 = 12 and 1 + 17 = 18. */
+    --button-pad: 11px 17px;
     --button-radius: 60px;
     --button-border-w: 1px;
   }
