@@ -8,285 +8,468 @@
  * ------------------------------------------------------------
  */{
   "sections": {
-    "dev_sleep_grows_on_trees": {
-      "type": "dev-sleep-grows-on-trees",
+    "main": {
+      "type": "product-information",
       "blocks": {
-        "card_1": {
-          "type": "card",
+        "disclosures_g9mWze": {
+          "type": "disclosures",
+          "name": "t:names.disclosures",
           "settings": {
-            "image_side": "left",
-            "heading": "<p>Over-heaters, cool sleepers. <br/>Sorted.</p>",
-            "text": "<p>Tree-fibre adapts effortlessly to heat at night, keeping you cool and cosy.</p>",
-            "alt_text": "A woman asleep under a Larke duvet",
-            "image": "shopify://shop_images/sleep-grows-on-trees-cool-sleepers.png"
-          }
+            "heading": "Disclosures",
+            "heading_preset": "h5",
+            "open_by_default": false,
+            "icon": "caret",
+            "disclosure_heading_preset": "h6",
+            "text_color": "",
+            "dividers": true,
+            "divider_color": "{{ settings.color_palette.color2 }}",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
         },
-        "card_2": {
-          "type": "card",
+        "media-gallery": {
+          "type": "_product-media-gallery",
+          "static": true,
           "settings": {
-            "image_side": "right",
-            "heading": "<p>Say bye to clumping.</p>",
-            "text": "<p>Our innovative sea-shell inspired stitching, firmly holds all filling.</p>",
-            "alt_text": "A Larke duvet on a bed beside a bright window",
-            "image": "shopify://shop_images/sleep-grows-on-trees-no-clumping.png"
-          }
+            "media_presentation": "grid",
+            "media_columns": "two",
+            "image_gap": 4,
+            "large_first_image": false,
+            "icons_style": "none",
+            "slideshow_controls_style": "counter",
+            "slideshow_mobile_controls_style": "dots",
+            "thumbnail_position": "right",
+            "thumbnail_width": 44,
+            "thumbnail_radius": 0,
+            "aspect_ratio": "adapt",
+            "constrain_to_viewport": true,
+            "media_fit": "contain",
+            "media_radius": 0,
+            "extend_media": false,
+            "zoom": true,
+            "video_loop": false,
+            "hide_variants": true,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
         },
-        "card_3": {
-          "type": "card",
+        "product-details": {
+          "type": "_product-details",
+          "static": true,
           "settings": {
-            "image_side": "left",
-            "heading": "<p>Washing, Drying - <br/>Sorted.</p>",
-            "text": "<p>Wash and drying machine friendly. Feels softer and more luxurious after each wash.</p>",
-            "alt_text": "A hand smoothing a freshly washed Larke duvet",
-            "image": "shopify://shop_images/sleep-grows-on-trees-washing-drying.png"
-          }
+            "width": "fill",
+            "custom_width": 100,
+            "width_mobile": "fill",
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "details_position": "flex-start",
+            "gap": 28,
+            "sticky_details_desktop": true,
+            "background_media": "none",
+            "background_color": "",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_color": "",
+            "border_radius": 0,
+            "padding-block-start": 24,
+            "padding-block-end": 24,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "group_icgrde": {
+              "type": "group",
+              "name": "Header",
+              "settings": {
+                "content_direction": "column",
+                "vertical_on_mobile": true,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "center",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "center",
+                "gap": 12,
+                "width": "fill",
+                "custom_width": 100,
+                "width_mobile": "fill",
+                "custom_width_mobile": 100,
+                "height": "fit",
+                "custom_height": 100,
+                "background_media": "none",
+                "background_color": "",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_color": "",
+                "border_radius": 0,
+                "open_in_new_tab": false,
+                "placeholder": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "text_xrnftG": {
+                  "type": "text",
+                  "name": "Product title",
+                  "settings": {
+                    "text": "<h1>{{ closest.product.title }}</h1>",
+                    "width": "100%",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "h3",
+                    "font": "var(--font-primary--family)",
+                    "font_size": "1rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "price_tVjtKg": {
+                  "type": "price",
+                  "settings": {
+                    "show_sale_price_first": true,
+                    "show_installments": false,
+                    "show_tax_info": false,
+                    "type_preset": "paragraph",
+                    "width": "100%",
+                    "alignment": "left",
+                    "font": "var(--font-body--family)",
+                    "font_size": "1rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "text_color": "",
+                    "padding-block-start": 4,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "text_xrnftG",
+                "price_tVjtKg"
+              ]
+            },
+            "divider_VJhene": {
+              "type": "_divider",
+              "name": "t:names.divider",
+              "settings": {
+                "thickness": 1,
+                "corner_radius": "square",
+                "divider_color": "{{ settings.color_palette.color2 }}",
+                "width_percent": 100,
+                "padding-block-start": 0,
+                "padding-block-end": 0
+              },
+              "blocks": {}
+            },
+            "variant_picker_R3rGDr": {
+              "type": "variant-picker",
+              "settings": {
+                "variant_style": "buttons",
+                "show_swatches": false,
+                "option_label_text_color": "",
+                "variant_style_class": "default",
+                "custom_variant_background": "{{ settings.color_palette.background }}",
+                "custom_variant_text": "{{ settings.color_palette.foreground }}",
+                "custom_variant_border": "{{ settings.color_palette.foreground }}",
+                "selected_variant_style_class": "default",
+                "custom_selected_variant_background": "{{ settings.color_palette.foreground }}",
+                "custom_selected_variant_text": "{{ settings.color_palette.background }}",
+                "custom_selected_variant_border": "{{ settings.color_palette.foreground }}",
+                "alignment": "left",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "buy_buttons_eYQEYi": {
+              "type": "buy-buttons",
+              "settings": {
+                "stacking": true,
+                "text_color": "",
+                "show_pickup_availability": false,
+                "gift_card_form": true,
+                "recipient_button_style": "default",
+                "recipient_button_background": "{{ settings.color_palette.background }}",
+                "recipient_button_text": "{{ settings.color_palette.foreground }}",
+                "recipient_button_border": "{{ settings.color_palette.foreground }}",
+                "selected_recipient_button_style": "default",
+                "selected_recipient_button_background": "{{ settings.color_palette.foreground }}",
+                "selected_recipient_button_text": "{{ settings.color_palette.background }}",
+                "selected_recipient_button_border": "{{ settings.color_palette.foreground }}",
+                "input_style": "default",
+                "input_background_color": "{{ settings.color_palette.background }}",
+                "input_text_color": "{{ settings.color_palette.foreground }}",
+                "input_border_color": "{{ settings.color_palette.foreground }}",
+                "border_width": 1,
+                "border_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "quantity": {
+                  "type": "quantity",
+                  "static": true,
+                  "settings": {
+                    "input_style": "default",
+                    "input_background_color": "{{ settings.color_palette.background }}",
+                    "input_text_color": "{{ settings.color_palette.foreground }}",
+                    "input_border_color": "{{ settings.color_palette.foreground }}",
+                    "border_width": 1,
+                    "border_radius": 0
+                  },
+                  "blocks": {}
+                },
+                "add-to-cart": {
+                  "type": "add-to-cart",
+                  "static": true,
+                  "settings": {
+                    "style_class": "button",
+                    "custom_button_background": "{{ settings.color_palette.foreground }}",
+                    "custom_button_text": "{{ settings.color_palette.background }}",
+                    "custom_button_border": "{{ settings.color_palette.background }}"
+                  },
+                  "blocks": {}
+                },
+                "accelerated-checkout": {
+                  "type": "accelerated-checkout",
+                  "static": true,
+                  "settings": {},
+                  "blocks": {}
+                }
+              },
+              "block_order": []
+            },
+            "text_aEtTtq": {
+              "type": "text",
+              "name": "Product description",
+              "settings": {
+                "text": "{{ closest.product.description }}",
+                "width": "100%",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "rte",
+                "font": "var(--font-primary--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "text_color": "",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "group_icgrde",
+            "divider_VJhene",
+            "variant_picker_R3rGDr",
+            "buy_buttons_eYQEYi",
+            "text_aEtTtq"
+          ]
         }
       },
       "block_order": [
-        "card_1",
-        "card_2",
-        "card_3"
+        "disclosures_g9mWze"
       ],
       "settings": {
-        "heading": "<p>Turns out great <br/>sleep grows on trees</p>",
-        "background_color": "#FCF5E3",
-        "text_color": "#333333",
-        "accent_color": "#333333",
-        "padding_top": 80,
-        "padding_bottom": 0
+        "content_width": "content-center-aligned",
+        "desktop_media_position": "left",
+        "equal_columns": false,
+        "limit_details_width": false,
+        "gap": 48,
+        "enable_sticky_add_to_cart": true,
+        "background_color": "{{ settings.color_palette.background }}",
+        "padding-block-start": 0,
+        "padding-block-end": 0
       }
     },
-    "dev_naturally_best_sleep": {
-      "type": "dev-naturally-best-sleep",
-      "settings": {
-        "heading": "<p>Naturally the best sleep of your life.</p>",
-        "button_label": "Start your 60-nights",
-        "button_link": "",
-        "text_color": "#333333",
-        "accent_color": "#333333",
-        "padding_top": 80,
-        "padding_bottom": 0
-      }
-    },
-    "dev_pdp_guarantees": {
-      "type": "dev-pdp-guarantees",
+    "product_recommendations_qggXJq": {
+      "type": "product-recommendations",
       "blocks": {
-        "badge_1": {
-          "type": "badge",
+        "text_cbcgyb": {
+          "type": "text",
+          "name": "t:names.header",
           "settings": {
-            "heading": "5-year warranty",
-            "text": "Sleep sound knowing you’re covered"
-          }
+            "text": "<h3>You may also like </h3>",
+            "width": "fit-content",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "h4",
+            "font": "var(--font-primary--family)",
+            "font_size": "1rem",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "text_color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
         },
-        "badge_2": {
-          "type": "badge",
+        "static-product-card": {
+          "type": "_product-card",
+          "name": "t:names.product_card",
+          "static": true,
           "settings": {
-            "heading": "60-night trial",
-            "text": "Every tree is traced back to responsibly managed forests."
-          }
-        },
-        "badge_3": {
-          "type": "badge",
-          "settings": {
-            "heading": "Free delivery",
-            "text": "Cosy comfort delivered across UK"
-          }
+            "product_card_gap": 8,
+            "background_color": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_color": "",
+            "border_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 8,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "product_card_gallery_DNizbJ": {
+              "type": "_product-card-gallery",
+              "name": "t:names.product_card_media",
+              "settings": {
+                "image_ratio": "adapt",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_color": "",
+                "border_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "product_title_M7MJkb": {
+              "type": "product-title",
+              "name": "t:names.product_title",
+              "settings": {
+                "width": "100%",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "text_color": "",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 4,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "price_gLWgA6": {
+              "type": "price",
+              "settings": {
+                "show_sale_price_first": true,
+                "show_installments": false,
+                "show_tax_info": false,
+                "type_preset": "h6",
+                "width": "100%",
+                "alignment": "left",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "text_color": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "product_card_gallery_DNizbJ",
+            "product_title_M7MJkb",
+            "price_gLWgA6"
+          ]
         }
       },
       "block_order": [
-        "badge_1",
-        "badge_2",
-        "badge_3"
+        "text_cbcgyb"
       ],
+      "name": "t:names.product_recommendations",
       "settings": {
-        "background_color": "#FCF5E3",
-        "badge_color": "#FFFCF4",
-        "text_color": "#333333",
-        "accent_color": "#333333",
-        "padding_top": 80,
-        "padding_bottom": 64
+        "product": "{{ closest.product }}",
+        "recommendation_type": "related",
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "max_products": 4,
+        "columns": 4,
+        "mobile_columns": "2",
+        "columns_gap": 12,
+        "rows_gap": 24,
+        "icons_style": "arrow",
+        "icons_shape": "none",
+        "section_width": "page-width",
+        "gap": 28,
+        "background_color": "{{ settings.color_palette.background }}",
+        "padding-block-start": 48,
+        "padding-block-end": 48
       }
-    },
-    "main_product": {
-      "type": "dev-main-product",
-      "name": "Main product",
-      "settings": {
-        "tagline": "Breathable. Love-able. Washable.",
-        "subtitle": "Vegan-certified natural comfort for everyday sleepers.",
-        "cta_label": "Add to Order",
-        "sold_out_label": "Sold out",
-        "show_rating": true,
-        "rating_value": 4.9,
-        "rating_label": "4.9/5",
-        "badge_text": "Smooth & Breezy",
-        "seal_alt": "Good Housekeeping Institute approved",
-        "option_1_link_label": "Size Guide",
-        "option_2_link_label": "What’s the difference?",
-        "compare_heading": "Still undecided?",
-        "compare_label": "See how our duvet compares",
-        "background_color": "#fffcf4",
-        "text_color": "#333333",
-        "accent_color": "#a8cf78",
-        "star_color": "#f1b500",
-        "surface_color": "#fffcf4",
-        "card_color": "#fcf5e3",
-        "border_color": "#c4bca9",
-        "pc_heading": "Sleep r<em>emarkable.</em>",
-        "pc_subheading": "Without any compromises",
-        "pc_link_label": "See how we’re different",
-        "size_guide_title": "Size Guide",
-        "unit_metric": "CM",
-        "unit_imperial": "IN",
-        "guide_footer": "<p>Still got questions?<br><strong>Click here</strong> to chat with us</p>",
-        "tog_guide_title": "Seasons Guide",
-        "tog_heading": "What’s the difference?",
-        "tog_label_temp": "Temperature:",
-        "tog_label_feel": "How it feels over you:",
-        "tog_label_best": "Best for:"
-      },
-      "blocks": {
-        "acc-love": {
-          "type": "accordion",
-          "settings": {
-            "heading": "Why you’ll love it",
-            "open_by_default": true,
-            "body": "<ul><li>Awarded <strong>Best Lightweight Duvet</strong> by Good Housekeeping 2025.</li><li>Smooth, soft-to-the-touch <strong>300TC cotton</strong> outer shell</li><li>Moisture-wicking, sweat beating 100% <strong>eucalyptus tree-fibre filling</strong>.</li><li>Vegan approved by the UK’s oldest vegan society.</li><li>Made in the EU.</li></ul>"
-          }
-        },
-        "acc-faqs": {
-          "type": "accordion",
-          "settings": {
-            "heading": "FAQs",
-            "open_by_default": false,
-            "body": "<p><strong>I’ve got allergies – will we be friends?</strong><br>Absolutely. Tree-fibre is naturally hypoallergenic and safe for sensitive sleepers whilst also free from added synthetics.</p><p><strong>Does tree-fibre smell?</strong><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean commodo vitae dolor sit amet iaculis.</p><p><strong>What if I regret it?</strong><br>You won’t hurt our feelings.<br>Try it for 60-nights, if it’s not the one – you’ll get a full refund with zero fuss.</p><p><strong>Will I find wood chips inside my duvet?</strong><br>No bark, splinters or crunchy surprises here.<br>Just soft, tree-fibre that feels as light as pure down.</p>"
-          }
-        },
-        "acc-care": {
-          "type": "accordion",
-          "settings": {
-            "heading": "Care",
-            "open_by_default": false,
-            "body": "<ul><li>Air regularly</li><li>Wash at 30 degrees on gentle cycle</li><li>Air dry preferred or tumble dry on low</li><li>Use mild detergent. Avoid bleach and softeners</li></ul>",
-            "button_label": "How to wash"
-          }
-        },
-        "acc-cert": {
-          "type": "accordion",
-          "settings": {
-            "heading": "Certifications",
-            "open_by_default": false,
-            "body": "",
-            "cert_1_logo": "vegan",
-            "cert_1_text": "Certified by The Vegan Society — made for every kind of sleeper",
-            "cert_2_logo": "fsc",
-            "cert_2_text": "FSC approved – sourced from responsibly managed trees.",
-            "cert_3_logo": "oeko",
-            "cert_3_text": "OEKO TEX approved – tested for harmful substances. Safe on all skins."
-          }
-        },
-        "pc-care": {
-          "type": "compare_row",
-          "settings": {
-            "icon": "care",
-            "label": "Easier to care for"
-          }
-        },
-        "pc-warranty": {
-          "type": "compare_row",
-          "settings": {
-            "icon": "warranty",
-            "label": "Longer warranties"
-          }
-        },
-        "pc-trial": {
-          "type": "compare_row",
-          "settings": {
-            "icon": "trial",
-            "label": "Longer trial periods"
-          }
-        },
-        "size-1": {
-          "type": "size_row",
-          "settings": {
-            "label": "Single",
-            "value_cm": "135 cm x 200 cm",
-            "value_in": "53 in x 79 in"
-          }
-        },
-        "size-2": {
-          "type": "size_row",
-          "settings": {
-            "label": "Double",
-            "value_cm": "200 cm x 200 cm",
-            "value_in": "79 in x 79 in"
-          }
-        },
-        "size-3": {
-          "type": "size_row",
-          "settings": {
-            "label": "King",
-            "value_cm": "230 cm x 220 cm",
-            "value_in": "91 in x 87 in"
-          }
-        },
-        "size-4": {
-          "type": "size_row",
-          "settings": {
-            "label": "Super King",
-            "value_cm": "260 cm x 220 cm",
-            "value_in": "102 in x 87 in"
-          }
-        },
-        "tog-1": {
-          "type": "tog_card",
-          "settings": {
-            "heading": "Lightweight",
-            "temperature": "Our coolest: 2/10 on the warmth scale.",
-            "feel": "Think cloud-like comfort – (cool and forever light).",
-            "chips": "Hot sleepers, Warm bedrooms."
-          }
-        },
-        "tog-2": {
-          "type": "tog_card",
-          "settings": {
-            "heading": "All-Season",
-            "temperature": "The middle ground: 5/10 warmth. Balanced and reliable.",
-            "feel": "Stays cool when you warm up, and cosy when the room cools down.",
-            "chips": "Couples, Temperature-changing rooms"
-          }
-        },
-        "tog-3": {
-          "type": "tog_card",
-          "settings": {
-            "heading": "Heavyweight",
-            "temperature": "Our warmest: 8/10 warmth – turn the cosy setting to high.",
-            "feel": "A warm, cocooning feel with extra weight – cosy, never stuffy.",
-            "chips": "Cold sleepers, Cooler homes"
-          }
-        }
-      },
-      "block_order": [
-        "acc-love",
-        "acc-faqs",
-        "acc-care",
-        "acc-cert",
-        "pc-care",
-        "pc-warranty",
-        "pc-trial",
-        "size-1",
-        "size-2",
-        "size-3",
-        "size-4",
-        "tog-1",
-        "tog-2",
-        "tog-3"
-      ]
     }
   },
   "order": [
-    "main_product",
-    "dev_sleep_grows_on_trees",
-    "dev_naturally_best_sleep",
-    "dev_pdp_guarantees"
+    "main",
+    "product_recommendations_qggXJq"
   ]
 }
