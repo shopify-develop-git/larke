@@ -68,6 +68,14 @@
     --modal-overlay: rgba(0, 0, 0, 0.85);
     --modal-max-w: 960px;
     --modal-px: 24px;
+
+    /* Motion. The same asymmetry the PDP's guide drawers use: the lightbox takes its time arriving
+       and leaves briskly, which is what makes it read as an object rather than a div being shown.
+       The JS reads these back out (parseFloat on the computed value), so keep them in ms. */
+    --modal-in: 480ms;
+    --modal-out: 300ms;
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
   }
 </style>
 
@@ -221,13 +229,16 @@
   </div>
 
   {%- if has_video -%}
-    <div
+    {%- comment -%}
+      A native <dialog>, opened with showModal(). It is not a div wearing role="dialog": the element
+      brings the focus trap, Escape, the ::backdrop layer and inertness of the page behind it for
+      free, all of which the hand-rolled version was missing — from the old modal you could Tab
+      straight out of the video and onto the page underneath.
+    {%- endcomment -%}
+    <dialog
       class="video-promo-banner__modal"
-      role="dialog"
-      aria-modal="true"
       aria-label="{{ 'Video' | escape }}"
       data-video-modal
-      hidden
     >
       <div class="video-promo-banner__modal-inner">
         <button
@@ -252,6 +263,15 @@
           </svg>
         </button>
 
+        {%- comment -%}
+          `image_size` sets the poster. Without it video_tag reaches for Shopify's own preview
+          thumbnail at its `_small` cut — a ~100px image stretched across a 960px player, which is
+          why the first frame arrived visibly blurry. 1280x is the widest the player is ever drawn.
+
+          preload stays `none`: this sits below the fold on the homepage and the source is a 4.5Mbps
+          HD file, so every visitor should not pay for it. The JS warms it on intent instead — the
+          moment the pointer or focus reaches the play button — so the click still plays at once.
+        {%- endcomment -%}
         {%- if hosted_video != blank -%}
           {{
             hosted_video
@@ -259,6 +279,7 @@
               controls: true,
               playsinline: true,
               preload: 'none',
+              image_size: '1280x',
               class: 'video-promo-banner__video'
           }}
         {%- elsif embed_url != blank -%}
@@ -272,7 +293,7 @@
           ></iframe>
         {%- endif -%}
       </div>
-    </div>
+    </dialog>
   {%- endif -%}
 </div>
 
