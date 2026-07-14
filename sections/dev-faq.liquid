@@ -1,0 +1,164 @@
+{{ 'dev-faq.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'dev-faq.js' | asset_url }}" defer></script>
+
+{%- comment -%}
+  Section: "FAQ" (dev name `faq`). Page: /pages/faq.
+
+  THERE IS NO FAQ ARTBOARD. The Figma file has Homepage, Our Story, Tree-Fibre, Contact, Delivery,
+  Shipping and PDP — and no FAQ. So this section is not pixel-verified against a reference the way
+  its siblings were, and nobody should go looking for the mock that "must" exist.
+
+  What it is instead: the accordion from `Accordions - Desktop` (45068:1975), the component already
+  built into dev-main-product, reused so the page reads as part of the site. Its 944px width is the
+  one measured value taken from Figma here.
+
+  The rows are <details>/<summary>, not a div plus a click handler. They open with no JS, they are
+  keyboard operable and announced correctly by screen readers for free, and Ctrl+F on the page can
+  still find the text inside a closed panel. dev-faq.js only upgrades them.
+
+  The ~40 lines of accordion JS are duplicated from dev-main-product rather than shared. The
+  standard is three files per section; coupling two sections through a shared asset to save forty
+  lines would cost more than the duplication does.
+{%- endcomment -%}
+
+{%- comment -%} Fixed design tokens — not merchant-controlled {%- endcomment -%}
+<style>
+  .dev-faq {
+    --font-body: 'Public Sans', sans-serif;
+    --font-heading: 'Test Tiempos Headline', serif;
+
+    /* The width of the Accordions - Desktop artboard (45068:1975). A question is a line of prose:
+       run it to the 1312px page container and it becomes a hard read. */
+    --container-max: 944px;
+    --section-px: 64px;
+    --section-px-mobile: 16px;
+
+    --font-heading-size: 32px;
+    --font-heading-size-mobile: 24px;
+    /* Desktop/Title 4 — the same step the PDP's accordion headings sit on. */
+    --font-question-size: 22px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+
+    --font-answer-size: 18px;
+    --font-answer-size-mobile: 16px;
+    --font-body-lh: 1.4;
+    --w-medium: 500;
+
+    --head-gap: 40px;
+    --icon-size: 24px;
+
+    /* 24px on the artboard, in three places: under the divider, between question and answer, and
+       between one row's answer and the next divider. */
+    --acc-gap: 24px;
+
+    /* One curve for the accordion, both directions — opening on one curve and closing on another
+       looks restless when a row closes while its neighbour opens. The JS reads --acc-dur back out
+       of here (parseFloat on the computed value), so keep it in ms. */
+    --acc-dur: 300ms;
+    --acc-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  }
+</style>
+
+<div
+  class="dev-faq"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --border-color: {{ section.settings.border_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+  data-faq
+>
+  <div class="dev-faq__inner">
+    {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+      <div class="dev-faq__head">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="dev-faq__heading">{{ section.settings.heading }}</h2>
+        {%- endif -%}
+
+        {%- if section.settings.subheading != blank -%}
+          <p class="dev-faq__subheading">{{ section.settings.subheading }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- assign questions = section.blocks | where: 'type', 'question' -%}
+    {%- if questions.size > 0 -%}
+      <div class="dev-faq__list" data-faq-group>
+        {%- for block in questions -%}
+          <details
+            class="dev-faq__item"
+            data-faq-item
+            {% if block.settings.open_by_default %}open{% endif %}
+            {{ block.shopify_attributes }}
+          >
+            <summary class="dev-faq__summary">
+              <h3 class="dev-faq__question">{{ block.settings.heading | escape }}</h3>
+              <span class="dev-faq__icon" aria-hidden="true">
+                {%- comment -%} One glyph, rotated when the row opens — a second SVG would be the same path drawn twice. {%- endcomment -%}
+                <svg class="dev-faq__chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                  <path d="M19 9L12 16L5 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </summary>
+
+            {%- if block.settings.body != blank -%}
+              <div class="dev-faq__answer">{{ block.settings.body }}</div>
+            {%- endif -%}
+          </details>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "FAQ",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Frequently Asked Questions" },
+    { "type": "text", "id": "subheading", "label": "Subheading" },
+
+    { "type": "header", "content": "Colors" },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "info": "Transparent by default — the section inherits the page canvas.",
+      "default": "rgba(0,0,0,0)"
+    },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "accent_color", "label": "Accent", "default": "#4EA448" },
+    { "type": "color", "id": "border_color", "label": "Divider", "default": "#C4BCA9" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 160, "step": 4, "unit": "px", "label": "Padding top", "default": 80 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 160, "step": 4, "unit": "px", "label": "Padding bottom", "default": 80 }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Question" },
+        { "type": "richtext", "id": "body", "label": "Answer" },
+        { "type": "checkbox", "id": "open_by_default", "label": "Open by default", "default": false }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ",
+      "blocks": [
+        { "type": "question", "settings": { "heading": "How soon will my order arrive?" } },
+        { "type": "question", "settings": { "heading": "How much does delivery cost?" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
