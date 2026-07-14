@@ -105,7 +105,7 @@
           <h2 class="cool-sleepers-promo__heading">{{ heading }}</h2>
         {%- endif -%}
         {%- if subheading != blank -%}
-          <p class="cool-sleepers-promo__subheading">{{ subheading | escape }}</p>
+          <p class="cool-sleepers-promo__subheading">{{ subheading }}</p>
         {%- endif -%}
       </div>
     {%- endif -%}
@@ -190,7 +190,7 @@
   "settings": [
     { "type": "header", "content": "Content" },
     { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "As seen in" },
-    { "type": "text", "id": "subheading", "label": "Subheading", "default": "Comfort put to the test" },
+    { "type": "inline_richtext", "id": "subheading", "label": "Subheading", "default": "Comfort put to the test" },
     { "type": "image_picker", "id": "lifestyle_image", "label": "Lifestyle image (desktop)" },
     { "type": "image_picker", "id": "lifestyle_image_mobile", "label": "Lifestyle image (mobile)" },
 

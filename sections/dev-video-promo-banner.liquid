@@ -199,7 +199,7 @@
           {%- endif -%}
 
           {%- if section.settings.subheading != blank -%}
-            <p class="video-promo-banner__subheading">{{ section.settings.subheading | escape }}</p>
+            <p class="video-promo-banner__subheading">{{ section.settings.subheading }}</p>
           {%- endif -%}
         </div>
       {%- endif -%}
@@ -328,7 +328,7 @@
       "default": "Trees into duvets – who would've thought?"
     },
     {
-      "type": "text",
+      "type": "inline_richtext",
       "id": "subheading",
       "label": "Subheading",
       "default": "See the difference in under 60 seconds."

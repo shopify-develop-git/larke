@@ -147,7 +147,7 @@
             <h2 class="site-footer__heading">{{ section.settings.newsletter_heading }}</h2>
           {%- endif -%}
           {%- if section.settings.newsletter_subheading != blank -%}
-            <p class="site-footer__subheading">{{ section.settings.newsletter_subheading | escape }}</p>
+            <p class="site-footer__subheading">{{ section.settings.newsletter_subheading }}</p>
           {%- endif -%}
         </div>
       {%- endif -%}
@@ -472,7 +472,7 @@
   "settings": [
     { "type": "header", "content": "Content" },
     { "type": "inline_richtext", "id": "newsletter_heading", "label": "Newsletter heading", "default": "Be the first to know." },
-    { "type": "text", "id": "newsletter_subheading", "label": "Newsletter subheading", "default": "Stay in touch – only for the good stuff like new launches and offers." },
+    { "type": "inline_richtext", "id": "newsletter_subheading", "label": "Newsletter subheading", "default": "Stay in touch – only for the good stuff like new launches and offers." },
     { "type": "text", "id": "newsletter_placeholder", "label": "Email placeholder", "default": "Your Email" },
     { "type": "text", "id": "newsletter_button_label", "label": "Newsletter button label", "default": "Subscribe" },
     { "type": "text", "id": "brand_tagline", "label": "Brand tagline", "default": "Nature-based sleep for the everyday." },

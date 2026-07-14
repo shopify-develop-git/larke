@@ -96,7 +96,7 @@
             {{ block.shopify_attributes }}
           >
             <summary class="dev-faq__summary">
-              <h3 class="dev-faq__question">{{ block.settings.heading | escape }}</h3>
+              <h3 class="dev-faq__question">{{ block.settings.heading }}</h3>
               <span class="dev-faq__icon" aria-hidden="true">
                 {%- comment -%} One glyph, rotated when the row opens — a second SVG would be the same path drawn twice. {%- endcomment -%}
                 <svg class="dev-faq__chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
@@ -148,7 +148,7 @@
   "settings": [
     { "type": "header", "content": "Content" },
     { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Frequently Asked Questions" },
-    { "type": "text", "id": "subheading", "label": "Subheading" },
+    { "type": "inline_richtext", "id": "subheading", "label": "Subheading" },
 
     { "type": "header", "content": "Colors" },
     {
@@ -171,7 +171,7 @@
       "type": "question",
       "name": "Question",
       "settings": [
-        { "type": "text", "id": "heading", "label": "Question" },
+        { "type": "inline_richtext", "id": "heading", "label": "Question" },
         { "type": "richtext", "id": "body", "label": "Answer" },
         { "type": "checkbox", "id": "open_by_default", "label": "Open by default", "default": false }
       ]

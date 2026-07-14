@@ -132,7 +132,7 @@
       {%- endif -%}
 
       {%- if section.settings.subheading != blank -%}
-        <p class="video-story-banner__subheading">{{ section.settings.subheading | escape }}</p>
+        <p class="video-story-banner__subheading">{{ section.settings.subheading }}</p>
       {%- endif -%}
 
       {%- if section.settings.button_label != blank -%}
@@ -165,7 +165,7 @@
       "info": "Press Shift + Enter for a manual line break — the design shows this on two lines.",
       "default": "<p>Tree-mendous<br/>since day one.</p>"
     },
-    { "type": "text", "id": "subheading", "label": "Subheading", "default": "See how it all began." },
+    { "type": "inline_richtext", "id": "subheading", "label": "Subheading", "default": "See how it all began." },
     { "type": "text", "id": "button_label", "label": "Button label", "default": "Our Story" },
     { "type": "url", "id": "button_link", "label": "Button link", "info": "Point this at the Our Story page." },
     { "type": "image_picker", "id": "image", "label": "Background image (desktop)" },
