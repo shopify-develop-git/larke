@@ -115,6 +115,32 @@
   </div>
 </div>
 
+{%- comment -%}
+  schema.org/FAQPage, built from the same blocks the section renders — so the structured data cannot
+  drift from what is on the page. `strip_html` on the answer because the spec wants text, not markup;
+  `json` on both because a merchant's apostrophe would otherwise break the document.
+{%- endcomment -%}
+{%- if questions.size > 0 -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {%- for block in questions -%}
+          {
+            "@type": "Question",
+            "name": {{ block.settings.heading | strip_html | json }},
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": {{ block.settings.body | strip_html | strip_newlines | json }}
+            }
+          }{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      ]
+    }
+  </script>
+{%- endif -%}
+
 {% schema %}
 {
   "name": "FAQ",
