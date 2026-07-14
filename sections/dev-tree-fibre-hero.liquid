@@ -156,7 +156,7 @@
     would push its subject off the top. The modifier below drops the crop and lets it simply cover.
 {%- endcomment -%}
 <div
-  class="tree-fibre-hero{% if section.settings.show_underline %} tree-fibre-hero--underline{% endif %}{% if bg_mobile != blank %} tree-fibre-hero--mobile-bg{% endif %}"
+  class="tree-fibre-hero{% if section.settings.show_underline %} tree-fibre-hero--underline{% endif %}{% if section.settings.stretch_background %} tree-fibre-hero--stretch-bg{% endif %}{% if bg_mobile != blank %} tree-fibre-hero--mobile-bg{% endif %}"
   style="
     --bg: {{ section.settings.background_color }};
     --color: {{ section.settings.text_color }};
@@ -245,7 +245,14 @@
       "type": "image_picker",
       "id": "background_image_mobile",
       "label": "Background image (mobile)",
-      "info": "Optional. Left empty, mobile re-crops the desktop image the way the artboard does. Set one and it is shown as-is, cropped to fill."
+      "info": "Optional. Left empty, mobile shows the desktop image. Set one and it is shown as-is, cropped to fill — never stretched, even with the setting below on."
+    },
+    {
+      "type": "checkbox",
+      "id": "stretch_background",
+      "label": "Stretch the background to the Figma crop",
+      "info": "Off, the photo simply fills the frame. On, it is blown up to ~393% of the frame's height and pulled up out of it — the trick that lets ONE image supply both the desktop slice and a different mobile slice. Those offsets were measured against the original photo, so a different picture will land somewhere else.",
+      "default": false
     },
 
     { "type": "header", "content": "Colors" },

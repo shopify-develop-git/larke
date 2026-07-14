@@ -57,34 +57,44 @@
   z-index: 0;
 }
 
+/* DEFAULT: the photo simply fills its box. Any image behaves predictably here, which is what a
+   merchant dropping in their own picture expects. */
 .hero__bg {
   position: absolute;
   display: block;
-  /* The photo is deliberately larger than its box and offset — these are Figma's own fill
-     transforms (see the derivation in dev-hero.liquid). object-fit guards the aspect. */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 
   /* Horizon's base.css resets `img, picture, video, canvas, svg { max-width: 100% }`. That cap
-     silently clamps any fill wider than its box: the mobile crop asks for 113.45% and got 100%,
-     and the -6.73% left offset then dragged the too-narrow photo off the right edge, exposing
-     --bg in a 32.9px strip. The desktop crop is exactly 100% wide, which is why it never showed
-     there. Both offsets below are >100% by design, so the cap has to go. */
+     silently clamps any fill wider than its box: the stretched mobile crop asks for 113.45% and got
+     100%, and the -6.73% left offset then dragged the too-narrow photo off the right edge, exposing
+     --bg in a 32.9px strip. The stretch offsets below are >100% by design, so the cap has to go. */
   max-width: none;
-}
-
-.hero__bg--desktop {
-  width: var(--bg-w-d);
-  height: var(--bg-h-d);
-  top: var(--bg-top-d);
-  left: var(--bg-left-d);
 }
 
 .hero__bg--mobile {
   display: none;
-  width: var(--bg-w-m);
-  height: var(--bg-h-m);
+}
+
+/* OPT-IN: Figma's own fill transforms (derivation in dev-hero.liquid). The photo is blown up to
+   ~393% of the frame's height and dragged up out of it, so one source file yields the desktop slice
+   and, at the mobile sizes below, a different slice for the phone. It reproduces the artboard
+   exactly and it only works for the photo it was measured against — hence a toggle, not a default. */
+.hero--stretch-bg .hero__bg--desktop {
+  top: var(--bg-top-d);
+  left: var(--bg-left-d);
+  width: var(--bg-w-d);
+  height: var(--bg-h-d);
+}
+
+.hero--stretch-bg .hero__bg--mobile {
   top: var(--bg-top-m);
   left: var(--bg-left-m);
+  width: var(--bg-w-m);
+  height: var(--bg-h-m);
 }
 
 .hero__overlay {

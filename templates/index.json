@@ -6,6 +6,7 @@
         "heading": "<p>Not just any<br/>ordinary duvet</p>",
         "subtext": "<p>This one begins with <em>trees</em>.</p>",
         "cta_label": "Discover Our Duvet",
+        "stretch_background": true,
         "cta_link": "/products/natural-duvet",
         "background_image": "shopify://shop_images/hero-bg.jpg",
         "background_image_mobile": "shopify://shop_images/hero-bg.jpg",

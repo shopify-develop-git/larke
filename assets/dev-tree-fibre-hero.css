@@ -41,14 +41,27 @@
   pointer-events: none;
 }
 
+/* DEFAULT: the photo simply fills its box. Any image behaves predictably here, which is what a
+   merchant dropping in their own picture expects. */
 .tree-fibre-hero__bg {
   position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+
+/* OPT-IN: Figma's own fill transform. The photo is blown up to ~393% of the frame's height and
+   dragged up out of it, so one source file yields the desktop slice and — at the mobile sizes
+   further down — a different slice for the phone. It reproduces the artboard exactly and only works
+   for the photo it was measured against, hence a toggle rather than a default. */
+.tree-fibre-hero--stretch-bg .tree-fibre-hero__bg {
   top: var(--bg-top-d);
   left: var(--bg-left-d);
   width: var(--bg-w-d);
   height: var(--bg-h-d);
-  max-width: none;
-  object-fit: cover;
 }
 
 .tree-fibre-hero__overlay {
@@ -182,10 +195,10 @@
     padding-right: var(--section-px-m);
   }
 
-  /* The DESKTOP photo, re-framed for the mobile frame: a 111.73% x 114.27% overflow crop that
-     reaches up into the dark treeline (which is also why there is no scrim below). This is the
-     artboard's own construction and stays the default. */
-  .tree-fibre-hero__bg {
+  /* The stretched DESKTOP photo, re-framed for the mobile frame: a 111.73% x 114.27% overflow crop
+     that reaches up into the dark treeline (which is also why there is no scrim below). Only when
+     the stretch is on — without it the base `cover` above already holds at every width. */
+  .tree-fibre-hero--stretch-bg .tree-fibre-hero__bg {
     top: var(--bg-top-m);
     left: var(--bg-left-m);
     width: var(--bg-w-m);
@@ -193,8 +206,9 @@
   }
 
   /* A dedicated mobile image, though, was chosen FOR this frame. Re-applying the crop above would
-     blow it up to 112% and shove its subject 13% off the top of the screen — so the crop comes off
-     and the picture simply covers. object-fit: cover on the base rule does the rest. */
+     blow it up to 112% and shove its subject 13% off the top of the screen. So it never gets the
+     crop — not even with the stretch on, which is why this rule sits BELOW that one: same
+     specificity, and the later rule wins. */
   .tree-fibre-hero--mobile-bg .tree-fibre-hero__bg {
     top: 0;
     left: 0;

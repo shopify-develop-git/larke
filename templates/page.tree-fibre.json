@@ -5,6 +5,7 @@
       "settings": {
         "heading": "Turns out, taking care of our planet never felt more <em>comfortable.</em>",
         "background_image": "shopify://shop_images/tree-fibre-hero-bg.jpg",
+        "stretch_background": true,
         "background_color": "#333333",
         "text_color": "#FFFFFF",
         "accent_color": "#A8CF78",
