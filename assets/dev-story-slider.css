@@ -236,6 +236,11 @@
    ============================================= */
 
 @media (max-width: 768px) {
+  /* 80px on the desktop artboard, 40px on the mobile one. */
+  .story-slider {
+    padding-top: calc(var(--pt) * var(--pt-scale-m));
+  }
+
   .story-slider__inner {
     gap: var(--gap-section-m);
   }

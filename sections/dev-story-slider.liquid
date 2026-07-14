@@ -57,6 +57,11 @@
        not decoration. So the fill below is computed from real scroll position by the JS, and
        21.6% is just the mock's own scroll offset. */
     --progress-h: 2px;
+
+    /* Mobile lead-in: 40px on the artboard, against 80px on desktop. Expressed as a RATIO of the
+       merchant's own padding rather than a flat 40px, so their slider still does something on a
+       phone — the same idiom as the eleven other sections here. At the default 80 it lands on 40. */
+    --pt-scale-m: 0.5;
   }
 </style>
 
