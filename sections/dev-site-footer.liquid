@@ -153,7 +153,15 @@
       {%- endif -%}
 
       {%- assign newsletter_id = 'site-footer-email-' | append: section.id -%}
-      {%- form 'customer', class: 'site-footer__form' -%}
+      {%- comment -%}
+        A form id of our own, not Shopify's default. Left alone, {% form 'customer' %} renders
+        id="contact_form" — the SAME id {% form 'contact' %} gives the contact section, so on
+        /pages/contact two elements shared it. Shopify builds the post-submit anchor out of the
+        form's id, so the browser jumped to whichever came first in the DOM (the contact form),
+        and a footer signup threw the visitor to the top of the page, never showing them the
+        confirmation. Naming it moves this form's anchor with it.
+      {%- endcomment -%}
+      {%- form 'customer', id: 'newsletter_form', class: 'site-footer__form' -%}
         <input type="hidden" name="contact[tags]" value="newsletter">
         <div class="site-footer__form-row">
           <label class="site-footer__visually-hidden" for="{{ newsletter_id }}">

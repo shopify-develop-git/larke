@@ -46,8 +46,10 @@
             "link_2_url": "/pages/about?view=delivery",
             "link_3_label": "Returns",
             "link_3_url": "/pages/about?view=delivery",
-            "link_4_label": "Contact",
-            "link_4_url": "/pages/contact"
+            "link_4_label": "Shipping",
+            "link_4_url": "/pages/about?view=shipping",
+            "link_5_label": "Contact",
+            "link_5_url": "/pages/contact"
           }
         }
       },

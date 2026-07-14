@@ -88,7 +88,6 @@
         {%- liquid
           assign img = block.settings.image
           assign img_alt = block.settings.image_alt | strip_html | escape
-          assign fallback = 'dev-three-step-' | append: forloop.index | append: '.webp'
         -%}
         <li
           class="dev-three-step__card{% if forloop.first %} dev-three-step__card--active{% endif %}"
@@ -118,19 +117,6 @@
                   alt: img_alt,
                   class: 'dev-three-step__image'
               }}
-            {%- elsif forloop.index <= 3 -%}
-              {%- comment -%}
-                Fallback to the artboard photo bundled with the theme, so the section renders (and can
-                be pixel-diffed) with zero setup. A merchant image always wins over it.
-              {%- endcomment -%}
-              <img
-                class="dev-three-step__image"
-                src="{{ fallback | asset_url }}"
-                alt="{{ img_alt }}"
-                width="1000"
-                height="800"
-                loading="lazy"
-              >
             {%- endif -%}
           </div>
         </li>
