@@ -144,8 +144,10 @@
           {%- if block.settings.rating_value != blank -%}
             <span class="dev-menu-drawer__promo-rating">{{ block.settings.rating_value | escape }}</span>
           {%- endif -%}
-          {%- comment -%} Static glyphs, per Brief — not a data-driven rating widget. {%- endcomment -%}
-          <span class="dev-menu-drawer__promo-stars" aria-hidden="true">★★★★★</span>
+          {%- if block.settings.show_rating_stars -%}
+            {%- comment -%} Static glyphs, per Brief — not a data-driven rating widget. {%- endcomment -%}
+            <span class="dev-menu-drawer__promo-stars" aria-hidden="true">★★★★★</span>
+          {%- endif -%}
           {%- if block.settings.rating_label != blank -%}
             <span class="dev-menu-drawer__promo-label">{{ block.settings.rating_label | escape }}</span>
           {%- endif -%}
@@ -167,6 +169,7 @@
     { "type": "header", "content": "Content" },
     { "type": "text", "id": "drawer_heading", "label": "Drawer title (screen readers only)", "default": "Menu", "info": "Not visible — the Figma title layer is transparent. It names the dialog for assistive tech." },
     { "type": "checkbox", "id": "show_rating_bar", "label": "Show rating bar", "default": true },
+    { "type": "checkbox", "id": "show_rating_stars", "label": "Show rating stars", "default": true, "info": "Hides only the stars — the rating value and label stay." },
     { "type": "text", "id": "rating_value", "label": "Rating value", "default": "4.6/5" },
     { "type": "text", "id": "rating_label", "label": "Rating label", "default": "Rated Excellent" },
 

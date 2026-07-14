@@ -81,9 +81,29 @@
        read back out of here by the JS (parseFloat on the computed value), so keep it in ms. */
     --guide-in: 480ms;
     --guide-out: 300ms;
-    --acc-dur: 340ms;
     --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
     --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+
+    /* One curve for the accordion, both directions. Opening on one curve and closing on another
+       looked restless when a row closed while its neighbour opened — two motions disagreeing. */
+    --acc-dur: 320ms;
+    /* Deliberately an even curve, not a snappy one. A steep ease-out puts ~70% of the travel into
+       the first fifth of the time, and on a row 450px tall that lands as a jolt no matter how long
+       the tail is. This accelerates and decelerates by roughly the same amount. */
+    --acc-ease: cubic-bezier(0.4, 0, 0.2, 1);
+    /* 24px on the artboard, in three places: under the divider, between the heading and the copy,
+       and between one row's copy and the next divider. Measured off 45060:2564. */
+    --acc-gap: 24px;
+
+    /* The spacer the artboard drops in above the price-comparison card (45068:2384). */
+    --pc-lead: 48px;
+
+    /* The hand-drawn stroke under the italic run of the price-comparison heading. A MASK on the
+       <em>, the same construction as dev-hero, dev-tree-fibre-hero and dev-values-we-cherish, so it
+       follows whatever the merchant italicises instead of being pinned to "emarkable." */
+    --underline: url('{{ 'dev-main-product-underline.svg' | asset_url }}');
+    --underline-h: 5.9px;
+    --underline-gap: -1px;
   }
 </style>
 
@@ -274,10 +294,12 @@
               4.9/5 is FOUR full stars and one 90% full — the artboard clips the fifth with a
               gradient. Painting five solid stars would be a nicer number than the product has.
             {%- endcomment -%}
-            <span class="dev-main-product__stars" role="img" aria-label="{{ rating }} / 5">
-              <span class="dev-main-product__stars-base" aria-hidden="true">★★★★★</span>
-              <span class="dev-main-product__stars-fill" aria-hidden="true">★★★★★</span>
-            </span>
+            {%- if section.settings.show_rating_stars -%}
+              <span class="dev-main-product__stars" role="img" aria-label="{{ rating }} / 5">
+                <span class="dev-main-product__stars-base" aria-hidden="true">★★★★★</span>
+                <span class="dev-main-product__stars-fill" aria-hidden="true">★★★★★</span>
+              </span>
+            {%- endif -%}
             {%- if section.settings.rating_link != blank -%}
               <a class="dev-main-product__rating-link" href="{{ section.settings.rating_link }}">
                 {{- section.settings.rating_label | escape -}}
@@ -473,15 +495,31 @@
                       assign cert_logo = block.settings[logo_key]
                     -%}
                     {%- if cert_text != blank -%}
+                      {%- comment -%}
+                        Each mark keeps its OWN shape. They were all being handed the same 48x58 box,
+                        which is the FSC tree's shape — so the OEKO seal, a circle 48x48 on the
+                        artboard, was stretched 21% taller and came out an oval. Width is shared (48
+                        on all three); height is not. The pair also reserves the row's space before
+                        the file arrives, so nothing jumps as the accordion opens.
+                      {%- endcomment -%}
+                      {%- liquid
+                        case cert_logo
+                          when 'vegan'
+                            assign cert_file = 'dev-main-product-cert-vegan.webp'
+                            assign cert_h = 52
+                          when 'fsc'
+                            assign cert_file = 'dev-main-product-cert-fsc.svg'
+                            assign cert_h = 58
+                          when 'oeko'
+                            assign cert_file = 'dev-main-product-cert-oeko.svg'
+                            assign cert_h = 48
+                          else
+                            assign cert_file = blank
+                        endcase
+                      -%}
                       <li class="dev-main-product__cert">
-                        {%- if cert_logo != blank and cert_logo != 'none' -%}
-                          {%- assign cert_src = 'dev-main-product-cert-' | append: cert_logo -%}
-                          {%- if cert_logo == 'vegan' -%}
-                            {%- assign cert_src = cert_src | append: '.webp' -%}
-                          {%- else -%}
-                            {%- assign cert_src = cert_src | append: '.svg' -%}
-                          {%- endif -%}
-                          <img class="dev-main-product__cert-logo" src="{{ cert_src | asset_url }}" alt="" width="48" height="58" loading="lazy" aria-hidden="true">
+                        {%- if cert_file != blank -%}
+                          <img class="dev-main-product__cert-logo" src="{{ cert_file | asset_url }}" alt="" width="48" height="{{ cert_h }}" loading="lazy" aria-hidden="true">
                         {%- endif -%}
                         <span class="dev-main-product__cert-text">{{ cert_text }}</span>
                       </li>
@@ -511,17 +549,15 @@
                 Figma turns italic mid-word — "Sleep r" then "emarkable." in italic. Kept as
                 inline_richtext so the merchant owns where the italic starts, rather than hardcoding
                 a split nobody could guess from the copy.
+
+                The stroke under it is drawn by CSS, as a mask on the <em>. It used to be an <img>
+                sitting here, absolutely positioned at top: 33px / left: 76px — the coordinates of
+                "emarkable." in the default copy. So the setting invited the merchant to move the
+                italic split ("that split is yours to move") while the underline stayed nailed where
+                the artboard had put it. It now goes wherever the italic goes.
               {%- endcomment -%}
               <h2 class="dev-main-product__pc-title">
                 {{ section.settings.pc_heading }}
-                <img
-                  class="dev-main-product__pc-underline"
-                  src="{{ 'dev-main-product-underline.svg' | asset_url }}"
-                  alt=""
-                  width="147"
-                  height="6"
-                  aria-hidden="true"
-                >
               </h2>
             {%- endif -%}
 
@@ -706,6 +742,7 @@
 
     { "type": "header", "content": "Rating" },
     { "type": "checkbox", "id": "show_rating", "label": "Show rating", "default": true },
+    { "type": "checkbox", "id": "show_rating_stars", "label": "Show rating stars", "default": true, "info": "Hides only the stars — the rating label stays." },
     { "type": "range", "id": "rating_value", "min": 0, "max": 5, "step": 0.1, "label": "Rating", "default": 4.9, "info": "Fills the stars proportionally — 4.9 leaves the fifth star 90% full, as drawn." },
     { "type": "text", "id": "rating_label", "label": "Rating label", "default": "4.9/5" },
     { "type": "url", "id": "rating_link", "label": "Rating link", "info": "Point it at the reviews section." },

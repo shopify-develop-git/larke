@@ -33,3 +33,18 @@ PDP, Our Story, Tree Fibre, Delivery & Returns, Contact, Shipping — page nodes
 
 Basket, Menu drawer, Size Guide, Seasons/Tog Guide, Review Summary, Compare, Accordions — built after
 the pages that use them.
+
+## Sections with no Figma artboard
+
+Not part of the page-by-page Figma decomposition above or its PM/2-dev/2-QA pixel-diff workflow —
+there is nothing in Figma to decompose or diff. Built and verified directly against a written
+design spec instead.
+
+| Section | Status | Figma (desktop / mobile) | Interactive | Max diff | Rounds | Updated |
+|---|---|---|---|---|---|---|
+| dev-faq | ✅ shipped | none — no FAQ artboard exists; accordion follows `Accordions - Desktop` 45068:1975 | yes — accordion | n/a (no artboard to diff) | n/a | 2026-07-14 |
+
+**dev-faq** — `/pages/faq?view=faq` (not yet the clean `/pages/faq`; the template is deliberately
+unassigned in the admin — see `docs/sections/dev-faq.md`). Full detail, including the accordion
+JS's intentional duplication from `dev-main-product.js` and the heading font's missing `?` glyph:
+`docs/sections/dev-faq.md`.

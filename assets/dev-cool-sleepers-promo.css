@@ -61,24 +61,67 @@
   text-align: center;
 }
 
+/* --- press logo marquee --- */
+
+/* Full 1440px bleed — zero horizontal inset at both breakpoints. The overflow clip is
+   what turns two tracks into an endless strip: the second one is only ever seen as it
+   slides in behind the first. */
 .cool-sleepers-promo__logos {
-  /* Full 1440px bleed — zero horizontal inset at both breakpoints. */
   width: 100%;
   padding-left: 0;
   padding-right: 0;
+  overflow: hidden;
 }
 
-.cool-sleepers-promo__logos picture {
-  display: block;
-  width: 100%;
+/* Holds exactly two identical tracks and shifts by half its own width. -50% is one whole
+   track, so the moment the animation restarts, track 2 is sitting precisely where track 1
+   began — the reset is invisible and nothing has to be measured in JS. */
+.cool-sleepers-promo__marquee {
+  display: flex;
+  width: max-content;
+  animation: cool-sleepers-marquee var(--marquee-duration, 30s) linear infinite;
 }
 
-.cool-sleepers-promo__logos-image {
+/* A courtesy, not a control: hovering lets someone actually read a logo. */
+.cool-sleepers-promo__marquee:hover {
+  animation-play-state: paused;
+}
+
+/* The half-gap of padding at each end matters. Two tracks butted together put a half-gap
+   against a half-gap, so the joins between sets are the same 83px as the gaps within a
+   set — otherwise the seam shows up as a visible hitch every loop. */
+.cool-sleepers-promo__track {
+  display: flex;
+  align-items: center;
+  gap: var(--logo-gap);
+  height: var(--logos-height);
+  margin: 0;
+  padding: 0 calc(var(--logo-gap) / 2);
+  list-style: none;
+}
+
+.cool-sleepers-promo__logo {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+/* Height is driven per logo (Figma gives each its own optical size); width follows from
+   the aspect ratio. Fixing width instead would squash the stacked Refinery29 mark. */
+.cool-sleepers-promo__logo-image {
   display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: var(--logos-aspect);
-  object-fit: cover;
+  width: auto;
+  height: var(--logo-height, 21px);
+}
+
+@keyframes cool-sleepers-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .cool-sleepers-promo__media {
@@ -169,10 +212,6 @@
     font-size: var(--font-body-size-mobile);
   }
 
-  .cool-sleepers-promo__logos-image {
-    aspect-ratio: var(--logos-aspect-mobile);
-  }
-
   .cool-sleepers-promo__media {
     /* Genuine breakpoint delta (Brief #6): the image goes from an inset, rounded card on
        desktop to edge-to-edge with square corners on mobile. Do not re-inset or re-round. */
@@ -218,5 +257,27 @@
   .cool-sleepers-promo * {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+
+  /* The blanket rule above is wrong for a marquee: crushing the duration to 0.01ms does
+     not stop an infinite animation, it spins it. Kill the animation outright instead, drop
+     the seam-filler track, and let the single remaining set centre itself — scrollable by
+     hand if it overflows. */
+  .cool-sleepers-promo__marquee {
+    animation: none !important;
+    width: 100%;
+  }
+
+  .cool-sleepers-promo__track[aria-hidden='true'] {
+    display: none;
+  }
+
+  .cool-sleepers-promo__track {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .cool-sleepers-promo__logos {
+    overflow-x: auto;
   }
 }

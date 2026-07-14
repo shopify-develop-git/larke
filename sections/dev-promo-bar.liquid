@@ -88,7 +88,9 @@
       no vectors), so a hand-drawn SVG star here would be a fabricated asset, not the design.
       Decorative: "4.6/5" + "Rated Excellent" already carry the meaning to a screen reader.
     {%- endcomment -%}
-    <p class="promo-bar__stars" aria-hidden="true">★★★★★</p>
+    {%- if section.settings.show_rating_stars -%}
+      <p class="promo-bar__stars" aria-hidden="true">★★★★★</p>
+    {%- endif -%}
 
     {%- if section.settings.rating_value != blank or section.settings.rating_label != blank -%}
       {%- comment -%}
@@ -121,6 +123,7 @@
   ],
   "settings": [
     { "type": "header", "content": "Content" },
+    { "type": "checkbox", "id": "show_rating_stars", "label": "Show rating stars", "default": true },
     { "type": "text", "id": "rating_value", "label": "Rating value", "default": "4.6/5" },
     { "type": "text", "id": "rating_label", "label": "Rating label", "default": "Rated Excellent" },
 

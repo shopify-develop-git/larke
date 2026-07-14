@@ -169,19 +169,38 @@
 
 /* --- decorative squiggle --- */
 
-.hero__squiggle {
+/* The stroke rides on the <em>, so it follows whatever the merchant italicises. It used to be a
+   free-standing <svg> at left: 195.48px — the spot where the word "trees" lands in the default copy.
+   Italicise any other word and the old one stayed put, underlining nothing. See dev-hero.liquid.
+
+   Gated on the modifier so `show_underline_accent` still turns it off. */
+.hero--underline .hero__subtext em,
+.hero--underline .hero__subtext i {
+  position: relative;
+}
+
+.hero--underline .hero__subtext em::after,
+.hero--underline .hero__subtext i::after {
+  content: '';
   position: absolute;
-  left: var(--squiggle-x);
-  bottom: var(--squiggle-y);
+  left: 0;
+  right: 0;
+  top: 100%;
+  margin-top: var(--underline-gap);
+  height: var(--underline-h);
 
-  /* Rendered aspect (50.07 / 5.89 = 8.5) MUST equal the viewBox aspect (51 / 6 = 8.5).
-     Do not size this to Figma's 49x3 anchor box, and do not add preserveAspectRatio="none"
-     — see the long note in dev-hero.liquid. QA fails >2% aspect deviation. */
-  width: var(--squiggle-w);
-  height: var(--squiggle-h);
+  /* A MASK, not an image. The ink is --accent, so the stroke tracks the merchant's accent setting
+     and this file still hardcodes no colour. The asset is the Figma vector verbatim, filled opaque
+     black purely so the mask has an alpha channel to read. */
+  background-color: var(--accent);
+  -webkit-mask-image: var(--underline);
+  mask-image: var(--underline);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 
-  color: var(--accent); /* the path is fill="currentColor" */
-  filter: var(--squiggle-shadow); /* text-shadow does not reach SVG */
+  filter: var(--squiggle-shadow); /* text-shadow does not reach a masked box */
   pointer-events: none;
 }
 
@@ -270,9 +289,12 @@
     font-weight: var(--em-weight-m); /* Bold Italic on mobile — Brief, Note 3 */
   }
 
-  .hero__squiggle {
-    left: var(--squiggle-x-m);
-    bottom: var(--squiggle-y-m);
+  /* Override the PROPERTY, not the token: the tokens live in the section's inline <style> block,
+     which a media query in this file cannot outrank. */
+  .hero--underline .hero__subtext em::after,
+  .hero--underline .hero__subtext i::after {
+    margin-top: var(--underline-gap-m);
+    height: var(--underline-h-m);
   }
 
   /* Touch target: the CTA is already 61px tall (25.2 line + 36 padding); this is a floor,

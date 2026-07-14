@@ -395,7 +395,7 @@
     // set inline and cleared on landing, so the open row can still overflow naturally if it must.
     details.style.overflow = 'hidden';
 
-    const anim = details.animate({ height: [from + 'px', to + 'px'] }, { duration: duration(details), easing: easing(details, to > from) });
+    const anim = details.animate({ height: [from + 'px', to + 'px'] }, { duration: duration(details), easing: easing(details) });
 
     running.set(details, anim);
 
@@ -435,16 +435,17 @@
     );
   }
 
-  // The duration and the curves live in the section's token block, so the motion of the accordion
-  // and the motion of the drawers cannot drift apart.
+  // The duration and the curve live in the section's token block, so the height animation here and
+  // the content fade in the CSS cannot drift apart.
   function duration(details) {
     if (prefersReducedMotion()) return 0;
-    return parseFloat(window.getComputedStyle(details).getPropertyValue('--acc-dur')) || 340;
+    return parseFloat(window.getComputedStyle(details).getPropertyValue('--acc-dur')) || 300;
   }
 
-  function easing(details, opening) {
-    const token = opening ? '--ease-out' : '--ease-in';
-    return window.getComputedStyle(details).getPropertyValue(token).trim() || 'ease';
+  // The same curve opening and closing. A row that closes on a different curve from the row opening
+  // beside it makes the pair look like they are arguing.
+  function easing(details) {
+    return window.getComputedStyle(details).getPropertyValue('--acc-ease').trim() || 'ease';
   }
 
   function prefersReducedMotion() {

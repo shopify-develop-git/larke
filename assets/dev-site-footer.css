@@ -64,7 +64,15 @@
   min-width: 0;
 }
 
+/* position: relative is load-bearing, not cosmetic. The visually-hidden label below is
+   position: absolute; without a positioned ancestor its containing block is the initial one
+   (<html>), so it escapes .page-wrapper's overflow clipping and lands ~5850px down the <html>
+   box — making <html> programmatically scrollable despite its overflow: hidden. Shopify posts
+   this form to /contact#contact_form, so on success the browser jumps to that anchor, runs out
+   of scroll inside .page-wrapper, and scrolls <html> the rest of the way — leaving a few hundred
+   px of dead space under the footer that no scrollbar can undo. Containing the label kills it. */
 .site-footer__form-row {
+  position: relative;
   display: flex;
   flex-direction: row;
   align-items: flex-start;

@@ -300,16 +300,24 @@
 
 /* A <legend> will not lay out as a flex/grid child in every engine, so the row inside it does the
    work and the legend itself just carries the semantics. */
+/* margin-bottom, NOT the fieldset's `gap`. A rendered <legend> is not a flex item — the browser
+   lifts it out of the fieldset's formatting context and paints it over the top border — so the
+   gap: var(--group-gap) on .dev-main-product__group never reached it, and the chips sat flush
+   against the label instead of the artboard's 16px below it. */
 .dev-main-product__legend {
   display: block;
   width: 100%;
+  margin-bottom: var(--group-gap);
   padding: 0;
 }
 
+/* The artboard's label row is 26 tall around a 22 line of text. The 4px is under the row, where the
+   "Size Guide" underline sits — drop it and the chips creep up under the link. */
 .dev-main-product__legend-row {
   display: flex;
   align-items: flex-start;
   gap: var(--variant-gap);
+  padding-bottom: 4px;
 }
 
 .dev-main-product__legend-text {
@@ -366,9 +374,12 @@
   border: 0;
 }
 
+/* Shrink, never grow. Two 226px chips plus the 8px gap fill the 460 column exactly, so growing was
+   invisible until an option had an ODD number of values — then the last chip, alone on its row,
+   stretched to the full 460. On the artboard it is 226 like every other one. */
 .dev-main-product__chip {
   display: flex;
-  flex: 1 1 var(--chip-w, 226px);
+  flex: 0 1 var(--chip-w, 226px);
   align-items: center;
   justify-content: center;
   max-width: 100%;
@@ -479,7 +490,11 @@
     gap: 0;
   }
 
+  /* position: static undoes the desktop's sticky. Stacked into one column, a sticky gallery has
+     nothing to sit BESIDE — it just pins the image to the top of the screen and lets the whole buy
+     column scroll out from under it. Sticky only means anything while there are two columns. */
   .dev-main-product__gallery {
+    position: static;
     flex-direction: column;
     width: 100%;
     padding-top: 0;
@@ -552,11 +567,14 @@
 /* ---- Still undecided ----------------------------------------------------
    45174:5990 — a cream card with an outlined circular icon and a two-line link. */
 
+/* Figma strokes INSIDE the box, CSS adds the border outside it — so the artboard's 16px inset costs
+   15px of padding plus the 1px rule, or every bordered box comes out 2px fat. The card is 88 on the
+   artboard and was 92; the round icon inside it is 56 and was 58. Same mistake, twice, nested. */
 .dev-main-product__compare {
   display: flex;
   align-items: flex-start;
   gap: var(--group-gap);
-  padding: var(--group-gap);
+  padding: calc(var(--group-gap) - 1px);
   border: 1px solid var(--border-color);
   border-radius: 16px;
   background-color: var(--card-bg);
@@ -569,7 +587,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  padding: var(--group-gap);
+  padding: calc(var(--group-gap) - 1px);
   border: 1px solid var(--border-color);
   border-radius: var(--arrow-radius);
   background-color: var(--surface);
@@ -615,21 +633,35 @@
 
 /* ---- Accordions --------------------------------------------------------- */
 
+/* The gap IS the artboard's bottom spacing. Each row draws its own divider as a top border, so the
+   space between one row's last line of copy and the next divider is the space BETWEEN the rows —
+   not padding inside them. Which is also why the last row has no trailing gap on the artboard, and
+   gets none here. Stacked flush (what this was), an open row's copy ran straight into the next
+   divider with nothing under it. */
+/* The 24px lead-in is the artboard's, not a guess: frame 6571 runs 833..1382 and its first row does
+   not start until y=24. So the first divider sits 24px below the column's own 32px gap, not on it. */
 .dev-main-product__accordions {
   display: flex;
   flex-direction: column;
+  gap: var(--acc-gap);
+  padding-top: var(--acc-gap);
 }
 
 .dev-main-product__acc {
-  padding-top: var(--pt);
+  padding-top: var(--acc-gap);
   border-top: 1px solid var(--border-color);
 }
 
+/* padding: 0 is load-bearing. Horizon's base.css carries a BARE `summary { padding: var(--padding-sm) }`
+   and it loads on every page, so it lands on these rows and nothing in this file was refusing it:
+   11.2px top and bottom, on every row, pushing the heading 43px off the divider where the artboard
+   wants 24. A dev-prefixed class does not protect against an element selector. */
 .dev-main-product__acc-summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--group-gap);
+  padding: 0;
   cursor: pointer;
   list-style: none;
 }
@@ -660,7 +692,7 @@
   display: block;
   width: var(--icon-size);
   height: var(--icon-size);
-  transition: transform var(--acc-dur) var(--ease-out);
+  transition: transform var(--acc-dur) var(--acc-ease);
 }
 
 /* Figma swaps chevron-down for chevron-up. One glyph, rotated — a second SVG would be the same
@@ -714,38 +746,22 @@
   background-color: currentcolor;
 }
 
-/* The row does not merely get taller — its contents rise into the gap the height animation opens.
-   Height on its own reads as a shutter coming up; with this it reads as copy arriving.
-   `both` matters on the way out: the fill holds the panel at opacity 0 for the last frames of the
-   collapse, so the text is gone before the row is. The JS clears data-acc-state when the height
-   animation lands, which drops both rules and returns the row to its natural, un-animated state. */
+/* The copy fades up out of nothing as the row opens — opacity ONLY. It used to slide as well, and
+   with the row itself already growing underneath it that was two movements fighting over the same
+   text. The row grows; the words appear. Nothing else moves.
+   Closing has no rule at all: the shrinking row clips the copy away from the bottom, which is
+   already the right gesture. Fading it out on top of that only made it flicker. */
 .dev-main-product__acc[data-acc-state='opening'] > :not(summary) {
-  animation: dev-main-product-acc-in var(--acc-dur) var(--ease-out) both;
-}
-
-.dev-main-product__acc[data-acc-state='closing'] > :not(summary) {
-  animation: dev-main-product-acc-out calc(var(--acc-dur) * 0.6) var(--ease-in) both;
+  animation: dev-main-product-acc-in calc(var(--acc-dur) * 0.75) var(--acc-ease) both;
 }
 
 @keyframes dev-main-product-acc-in {
   from {
     opacity: 0;
-    transform: translateY(-8px);
   }
 
   to {
     opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes dev-main-product-acc-out {
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
   }
 }
 
@@ -762,10 +778,13 @@
 
 /* ---- Price comparison (45068:2385) -------------------------------------- */
 
+/* The artboard puts a "Section padding - M" spacer — 48px — above this card, inside its frame and
+   outside the card's own fill. So the card clears the accordions by 32 + 48, not by 32. */
 .dev-main-product__pc {
   display: flex;
   flex-direction: column;
   gap: var(--gallery-gap);
+  margin-top: var(--pc-lead);
   padding: var(--gallery-gap);
   border-radius: 16px;
   background-color: var(--card-bg);
@@ -821,8 +840,10 @@
 }
 
 /* Figma rules off between the rows, not above the first one. */
+/* Same inside-stroke arithmetic: the artboard's divided row is 72 tall — 24 above the icon, rule
+   included. The rule is 1px of that 24, not 1px on top of it. */
 .dev-main-product__pc-row + .dev-main-product__pc-row {
-  padding-top: var(--gallery-gap);
+  padding-top: calc(var(--gallery-gap) - 1px);
   border-top: 1px solid var(--border-color);
 }
 
@@ -860,7 +881,8 @@
   align-self: flex-start;
   align-items: center;
   gap: var(--variant-gap);
-  padding-bottom: 4px;
+  /* 28 on the artboard: a 24px icon over a 4px gap that already contains the rule. */
+  padding-bottom: 3px;
   border-bottom: 1px solid var(--border-color);
   color: var(--color);
   font-size: var(--font-label-size);

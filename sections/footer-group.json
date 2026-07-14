@@ -41,7 +41,7 @@
           "settings": {
             "title": "Help Centre",
             "link_1_label": "FAQs",
-            "link_1_url": "/pages/faq",
+            "link_1_url": "/pages/faq?view=faq",
             "link_2_label": "Delivery",
             "link_2_url": "/pages/about?view=delivery",
             "link_3_label": "Returns",

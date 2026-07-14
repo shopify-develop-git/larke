@@ -1,12 +1,3 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "sections": {
     "dev-hero": {
@@ -217,8 +208,6 @@
       "settings": {
         "heading": "As seen in",
         "subheading": "Comfort put to the test",
-        "logos_image": "shopify://shop_images/cool-sleepers-promo-logos-desktop.png",
-        "logos_image_mobile": "shopify://shop_images/cool-sleepers-promo-logos-mobile.png",
         "lifestyle_image": "shopify://shop_images/cool-sleepers-promo-lifestyle-desktop.png",
         "lifestyle_image_mobile": "shopify://shop_images/cool-sleepers-promo-lifestyle-mobile.png",
         "background_color": "rgba(0,0,0,0)",
@@ -226,7 +215,56 @@
         "accent_color": "#333333",
         "padding_top": 80,
         "padding_bottom": 0
-      }
+      },
+      "blocks": {
+        "logo-vogue": {
+          "type": "logo",
+          "settings": {
+            "image": "shopify://shop_images/press-vogue.svg",
+            "alt_text": "Vogue",
+            "logo_height": 21
+          }
+        },
+        "logo-mail-online": {
+          "type": "logo",
+          "settings": {
+            "image": "shopify://shop_images/press-mail-online.svg",
+            "alt_text": "Mail Online",
+            "logo_height": 17
+          }
+        },
+        "logo-refinery29": {
+          "type": "logo",
+          "settings": {
+            "image": "shopify://shop_images/press-refinery29.svg",
+            "alt_text": "Refinery29",
+            "logo_height": 39
+          }
+        },
+        "logo-grazia": {
+          "type": "logo",
+          "settings": {
+            "image": "shopify://shop_images/press-grazia.svg",
+            "alt_text": "Grazia",
+            "logo_height": 21
+          }
+        },
+        "logo-womens-health": {
+          "type": "logo",
+          "settings": {
+            "image": "shopify://shop_images/press-womens-health.svg",
+            "alt_text": "Women's Health",
+            "logo_height": 21
+          }
+        }
+      },
+      "block_order": [
+        "logo-vogue",
+        "logo-mail-online",
+        "logo-refinery29",
+        "logo-grazia",
+        "logo-womens-health"
+      ]
     },
     "dev-brand-social-gallery": {
       "type": "dev-brand-social-gallery",

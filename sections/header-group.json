@@ -44,7 +44,7 @@
           "type": "link",
           "settings": {
             "label": "FAQs",
-            "url": "/pages/faq",
+            "url": "/pages/faq?view=faq",
             "position": "right"
           }
         },
@@ -120,7 +120,7 @@
                   "type": "dev-menu-drawer-footer-link",
                   "settings": {
                     "label": "FAQs",
-                    "link": "/pages/faq"
+                    "link": "/pages/faq?view=faq"
                   }
                 },
                 "footer-link-2": {

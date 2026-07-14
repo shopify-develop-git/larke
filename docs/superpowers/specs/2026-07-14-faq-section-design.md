@@ -86,13 +86,17 @@ The two real questions, with two corrections and nothing invented:
 
 ## Routing
 
-`templates/page.faq.json` is an alternate template, so it must be assigned to the FAQ page in the
-Shopify admin (Pages → FAQ → Theme template → `faq`). That is done through the Chrome extension;
-there is no API token in this project and never will be.
+`templates/page.faq.json` is an alternate template. It is reached with **`/pages/faq?view=faq`**,
+and the header and footer links point there.
 
-Until it is assigned, `/pages/faq?view=faq` renders the template — which is how it gets previewed
-and verified before touching the admin. Once assigned, the clean `/pages/faq` serves it and the
-existing header and footer links resolve to it unchanged.
+**It is deliberately NOT assigned to the page in the admin.** The obvious move — Pages → FAQ →
+Theme template → `faq` — sets `template_suffix` on the *page*, and that field belongs to the store,
+not to a theme. `wearelarke.com` is a live, public storefront running a **different** theme, one
+that has no `page.faq` template. Setting the suffix would therefore reach across into production
+and put a real customer-facing page at risk for no gain here. The owner's call was to leave it.
+
+When our theme is published, assigning the template is one click in the admin, and the `?view=faq`
+query can come off the two links at the same time.
 
 ## Verification
 
@@ -101,6 +105,19 @@ existing header and footer links resolve to it unchanged.
 - With JS disabled the rows still open — the `<details>` fallback.
 - `shopify theme check` reports no new offences.
 - After the admin assignment, the clean `/pages/faq` returns 200 and renders the section.
+
+## Known limitation: the heading font has no `?`
+
+The Tiempos Headline files in `assets/` are the free **trial** cut — all six weights carry the same
+66-glyph subset: `, - . 0-9 A-Z a-z`. There is no question mark in them, so every question heading
+on this page renders its `?` in a fallback serif. No CSS can fix this; the glyph does not exist in
+the file.
+
+`snippets/dev-brand-fonts.liquid` already warns that these files must be swapped for the licensed
+release before production. This section is simply the first place the missing glyphs became
+visible. The same subset also breaks the PDP's `What's the difference?` and `Why you'll love it`,
+and the homepage's `(and last)` — apostrophes, exclamation marks, parentheses and colons are all
+absent too. Dropping in the licensed woff2 files under the same six names fixes all of it at once.
 
 ## Out of scope
 

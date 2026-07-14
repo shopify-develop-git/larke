@@ -140,10 +140,17 @@
           </div>
         {%- endif -%}
 
+        {%- liquid
+          assign show_stars = false
+          if section.settings.show_rating_stars and section.settings.rating_stars != blank
+            assign show_stars = true
+          endif
+        -%}
+
         <div class="featured-product__group">
-          {%- if section.settings.rating_text != blank or section.settings.rating_stars != blank -%}
+          {%- if section.settings.rating_text != blank or show_stars -%}
             <div class="featured-product__badge">
-              {%- if section.settings.rating_stars != blank -%}
+              {%- if show_stars -%}
                 <span class="featured-product__stars" aria-hidden="true">
                   {{- section.settings.rating_stars | escape -}}
                 </span>
@@ -240,6 +247,7 @@
       "info": "Line breaks are preserved.",
       "default": "<p>Cooler, cosier,<br/>kinder to the planet.</p>"
     },
+    { "type": "checkbox", "id": "show_rating_stars", "label": "Show rating stars", "default": true },
     { "type": "text", "id": "rating_stars", "label": "Rating stars", "default": "★★★★★" },
     { "type": "text", "id": "rating_text", "label": "Rating text", "default": "Rated 4.9/5* by real sleepers" },
     { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop Your Duvet" },
