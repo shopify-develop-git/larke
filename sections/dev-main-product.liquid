@@ -111,6 +111,11 @@
   assign product_media = product.media
   assign current = product.selected_or_first_available_variant
 
+  # The size guide is the PRODUCT's, not the template's. It used to live in section blocks, which
+  # meant a second duvet needed a second product template just to carry four different numbers.
+  # Now every product points at a size_guide metaobject entry, and many can share one.
+  assign size_guide = product.metafields.larke.size_guide.value
+
   assign rating = section.settings.rating_value
   assign rating_pct = rating | times: 20.0
   if rating_pct > 100
@@ -330,10 +335,18 @@
         {%- for option in product.options_with_values -%}
           {%- liquid
             assign selected = option.selected_value
+
+            # The Size Guide hangs off the option its OWN entry says it explains (size_guide.option_name),
+            # not off "whichever option happens to be first". Position was a lie the moment a product
+            # ordered its options differently — the size guide would open beside the warmth chips.
+            # A product with no guide entry gets no link and no drawer. Nothing to explain, nothing to open.
+            assign guide = ''
             assign link_label = ''
-            if forloop.first
-              assign link_label = section.settings.option_1_link_label
+            if size_guide != blank and size_guide.option_name.value == option.name
+              assign guide = 'size'
+              assign link_label = size_guide.link_label.value
             elsif forloop.index == 2
+              assign guide = 'tog'
               assign link_label = section.settings.option_2_link_label
             endif
           -%}
@@ -349,10 +362,6 @@
                   cmd-click open a blank tab.
                 {%- endcomment -%}
                 {%- if link_label != blank -%}
-                  {%- assign guide = 'size' -%}
-                  {%- if forloop.index == 2 -%}
-                    {%- assign guide = 'tog' -%}
-                  {%- endif -%}
                   <button
                     type="button"
                     class="dev-main-product__legend-link"
@@ -597,10 +606,9 @@
     section owns the triggers — the same reason the menu and cart drawers are blocks of the header.
     Closed server-side with inert + aria-hidden so they are never focusable before the JS runs.
   {%- endcomment -%}
-  {%- assign size_rows = section.blocks | where: 'type', 'size_row' -%}
   {%- assign tog_cards = section.blocks | where: 'type', 'tog_card' -%}
 
-  {%- if size_rows.size > 0 -%}
+  {%- if size_guide != blank and size_guide.rows.value.size > 0 -%}
     <div id="guide-size" class="dev-main-product__guide" role="dialog" aria-modal="true" aria-labelledby="guide-size-title" data-guide="size" data-open="false" aria-hidden="true" inert>
       <div class="dev-main-product__guide-backdrop" data-guide-close></div>
       {%- comment -%}
@@ -611,7 +619,7 @@
       {%- endcomment -%}
       <div class="dev-main-product__guide-panel" data-guide-panel tabindex="-1">
         <div class="dev-main-product__guide-head">
-          <h2 class="dev-main-product__guide-title" id="guide-size-title">{{ section.settings.size_guide_title }}</h2>
+          <h2 class="dev-main-product__guide-title" id="guide-size-title">{{ size_guide.title.value | escape }}</h2>
           <button type="button" class="dev-main-product__guide-close" data-guide-close aria-label="{{ 'actions.close' | t | escape }}">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
               <path d="M7 17L17 7M7 7L17 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -625,24 +633,82 @@
               CM / IN is a real toggle, not two links. Both values are already in the DOM — a unit
               switch that had to fetch anything would be absurd.
             {%- endcomment -%}
-            <div class="dev-main-product__units" role="group" aria-label="{{ section.settings.size_guide_title | strip_html | escape }}">
+            <div class="dev-main-product__units" role="group" aria-label="{{ size_guide.title.value | escape }}">
               <button type="button" class="dev-main-product__unit dev-main-product__unit--active" data-unit="cm" aria-pressed="true">{{ section.settings.unit_metric | escape }}</button>
               <button type="button" class="dev-main-product__unit" data-unit="in" aria-pressed="false">{{ section.settings.unit_imperial | escape }}</button>
             </div>
 
+            {%- comment -%}
+              The rows come from the size_guide metaobject, one size_guide_row each. Every duvet can
+              point at the SAME entry — the guide is a fact about the product line, not about the
+              template it happens to be rendered in.
+
+              Inches are DERIVED, never typed. The entry stores a real dimension (width x length) and
+              the imperial column is computed from it, so the two columns cannot drift apart the way
+              two hand-typed text fields eventually do. The artboard's numbers fall out exactly:
+              135->53, 200->79, 230->91, 220->87, 260->102.
+            {%- endcomment -%}
             <dl class="dev-main-product__size-rows">
-              {%- for block in size_rows -%}
-                <div class="dev-main-product__size-row" {{ block.shopify_attributes }}>
-                  <dt class="dev-main-product__size-label">{{ block.settings.label | escape }}</dt>
-                  <dd class="dev-main-product__size-value" data-unit-value="cm">{{ block.settings.value_cm | escape }}</dd>
-                  <dd class="dev-main-product__size-value" data-unit-value="in" hidden>{{ block.settings.value_in | escape }}</dd>
+              {%- for row in size_guide.rows.value -%}
+                {%- liquid
+                  assign w = row.width.value
+                  assign l = row.length.value
+
+                  # Normalise to centimetres first. The merchant picks the unit from a dropdown, so
+                  # "cm" is a convention, not a guarantee — a row typed in mm must not render 1350cm.
+                  # Shopify has used both short ("cm") and long ("CENTIMETERS") unit names; match both.
+                  assign wu = w.unit | downcase
+                  assign w_scale = 1.0
+                  if wu == 'mm' or wu == 'millimeters'
+                    assign w_scale = 0.1
+                  elsif wu == 'm' or wu == 'meters'
+                    assign w_scale = 100.0
+                  elsif wu == 'in' or wu == 'inches'
+                    assign w_scale = 2.54
+                  elsif wu == 'ft' or wu == 'feet'
+                    assign w_scale = 30.48
+                  elsif wu == 'yd' or wu == 'yards'
+                    assign w_scale = 91.44
+                  endif
+
+                  assign lu = l.unit | downcase
+                  assign l_scale = 1.0
+                  if lu == 'mm' or lu == 'millimeters'
+                    assign l_scale = 0.1
+                  elsif lu == 'm' or lu == 'meters'
+                    assign l_scale = 100.0
+                  elsif lu == 'in' or lu == 'inches'
+                    assign l_scale = 2.54
+                  elsif lu == 'ft' or lu == 'feet'
+                    assign l_scale = 30.48
+                  elsif lu == 'yd' or lu == 'yards'
+                    assign l_scale = 91.44
+                  endif
+
+                  assign w_cm = w.value | times: w_scale
+                  assign l_cm = l.value | times: l_scale
+
+                  assign w_cm_out = w_cm | round
+                  assign l_cm_out = l_cm | round
+                  assign w_in_out = w_cm | divided_by: 2.54 | round
+                  assign l_in_out = l_cm | divided_by: 2.54 | round
+                -%}
+                <div class="dev-main-product__size-row">
+                  <dt class="dev-main-product__size-label">{{ row.label.value | escape }}</dt>
+                  <dd class="dev-main-product__size-value" data-unit-value="cm">{{ w_cm_out }} cm x {{ l_cm_out }} cm</dd>
+                  <dd class="dev-main-product__size-value" data-unit-value="in" hidden>{{ w_in_out }} in x {{ l_in_out }} in</dd>
                 </div>
               {%- endfor -%}
             </dl>
           </div>
 
-          {%- if section.settings.guide_footer != blank -%}
-            <div class="dev-main-product__guide-foot">{{ section.settings.guide_footer }}</div>
+          {%- comment -%}
+            metafield_tag, not a bare print. A rich_text_field's value is an AST — {"type":"root",
+            "children":[...]} — and BOTH `{{ field }}` and `{{ field.value }}` dump that JSON onto
+            the page as text. metafield_tag is the filter that walks the AST and renders real HTML.
+          {%- endcomment -%}
+          {%- if size_guide.footer != blank -%}
+            <div class="dev-main-product__guide-foot">{{ size_guide.footer | metafield_tag }}</div>
           {%- endif -%}
         </div>
       </div>
@@ -754,15 +820,13 @@
     { "type": "text", "id": "seal_alt", "label": "Approval seal alt text", "default": "Good Housekeeping Institute approved" },
 
     { "type": "header", "content": "Option links" },
-    { "type": "paragraph", "content": "The small underlined controls beside the first and second option labels. They open the Size guide and the Seasons guide — they are buttons, not links, because they open a dialog on this page rather than navigating." },
-    { "type": "text", "id": "option_1_link_label", "label": "Link 1 label", "default": "Size Guide" },
-    { "type": "text", "id": "option_2_link_label", "label": "Link 2 label", "default": "What’s the difference?" },
+    { "type": "paragraph", "content": "The Size Guide link and its drawer are no longer set here — they come from the product's Size guide metafield (larke.size_guide). Point a product at a Size guide entry and the link appears beside the option that entry names; leave it empty and there is no link and no drawer." },
+    { "type": "text", "id": "option_2_link_label", "label": "Seasons link label", "default": "What’s the difference?" },
 
     { "type": "header", "content": "Guides" },
-    { "type": "inline_richtext", "id": "size_guide_title", "label": "Size guide title", "default": "Size Guide" },
+    { "type": "paragraph", "content": "CM / IN are the toggle's labels — interface, not content, so they stay in the theme. The size guide's title, rows and footer live on the metaobject entry." },
     { "type": "text", "id": "unit_metric", "label": "Metric unit", "default": "CM" },
     { "type": "text", "id": "unit_imperial", "label": "Imperial unit", "default": "IN" },
-    { "type": "richtext", "id": "guide_footer", "label": "Size guide footer", "default": "<p>Still got questions? <strong>Click here</strong> to chat with us</p>" },
     { "type": "inline_richtext", "id": "tog_guide_title", "label": "Seasons guide title", "default": "Seasons Guide" },
     { "type": "inline_richtext", "id": "tog_heading", "label": "Seasons guide heading", "default": "What\u2019s the difference?" },
     { "type": "text", "id": "tog_label_temp", "label": "Label: temperature", "default": "Temperature:" },
@@ -814,15 +878,6 @@
           { "value": "none", "label": "None" }, { "value": "vegan", "label": "The Vegan Society" },
           { "value": "fsc", "label": "FSC" }, { "value": "oeko", "label": "OEKO-TEX" } ] },
         { "type": "inline_richtext", "id": "cert_3_text", "label": "Text 3" }
-      ]
-    },
-    {
-      "type": "size_row",
-      "name": "Size row",
-      "settings": [
-        { "type": "text", "id": "label", "label": "Size", "default": "Single" },
-        { "type": "text", "id": "value_cm", "label": "Value (cm)", "default": "135 cm x 200 cm" },
-        { "type": "text", "id": "value_in", "label": "Value (in)", "default": "53 in x 79 in" }
       ]
     },
     {

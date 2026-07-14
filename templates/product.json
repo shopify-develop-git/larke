@@ -120,7 +120,6 @@
         "rating_label": "4.9/5",
         "badge_text": "Smooth & Breezy",
         "seal_alt": "Good Housekeeping Institute approved",
-        "option_1_link_label": "Size Guide",
         "option_2_link_label": "What’s the difference?",
         "compare_heading": "Still undecided?",
         "compare_label": "See how our duvet compares",
@@ -136,10 +135,8 @@
         "pc_subheading": "Without any compromises",
         "pc_link_label": "See how we’re different",
         "pc_link": "/pages/about?view=tree-fibre",
-        "size_guide_title": "Size Guide",
         "unit_metric": "CM",
         "unit_imperial": "IN",
-        "guide_footer": "<p>Still got questions?<br><strong>Click here</strong> to chat with us</p>",
         "tog_guide_title": "Seasons Guide",
         "tog_heading": "What’s the difference?",
         "tog_label_temp": "Temperature:",
@@ -208,38 +205,6 @@
             "label": "Longer trial periods"
           }
         },
-        "size-1": {
-          "type": "size_row",
-          "settings": {
-            "label": "Single",
-            "value_cm": "135 cm x 200 cm",
-            "value_in": "53 in x 79 in"
-          }
-        },
-        "size-2": {
-          "type": "size_row",
-          "settings": {
-            "label": "Double",
-            "value_cm": "200 cm x 200 cm",
-            "value_in": "79 in x 79 in"
-          }
-        },
-        "size-3": {
-          "type": "size_row",
-          "settings": {
-            "label": "King",
-            "value_cm": "230 cm x 220 cm",
-            "value_in": "91 in x 87 in"
-          }
-        },
-        "size-4": {
-          "type": "size_row",
-          "settings": {
-            "label": "Super King",
-            "value_cm": "260 cm x 220 cm",
-            "value_in": "102 in x 87 in"
-          }
-        },
         "tog-1": {
           "type": "tog_card",
           "settings": {
@@ -276,10 +241,6 @@
         "pc-care",
         "pc-warranty",
         "pc-trial",
-        "size-1",
-        "size-2",
-        "size-3",
-        "size-4",
         "tog-1",
         "tog-2",
         "tog-3"
