@@ -1,0 +1,467 @@
+/* dev-reviews.css — the Judge.me review widget, restyled to 45068:2448 (desktop) / 44797:4034 (mobile).
+
+   We do not own one tag of this markup. Everything below overrides Judge.me's stylesheets, which
+   their loader injects at RUNTIME from the judgeme_core app embed — so they land AFTER every sheet
+   the theme emits, and an equally specific rule of ours would lose on source order no matter where
+   we put it. The .dev-reviews wrapper is what makes this survivable: it buys one class of weight on
+   every selector, so we win on specificity rather than on order.
+
+   !important appears only where Judge.me sets the property as an INLINE style attribute, which no
+   selector can outweigh. Each one is marked. It is a debt, not a habit.
+
+   TWO THINGS ON THE ARTBOARD THAT CSS CANNOT MAKE, because they are data and not style:
+     - The heading reads "Customer Reviews"; the artboard says "Rated Excellent". That string is a
+       Judge.me app setting.
+     - "Review Summary" and its paragraph are not in the widget's DOM at all — that is Judge.me's AI
+       summary feature and it has to be switched on in the app.
+   Neither is faked here. A stylesheet that invents copy is a stylesheet that lies.
+
+   Where the Figma read and the rendered artboard disagreed, the RENDER won — it is what the design
+   actually draws. Both disagreements are noted at the rule. */
+
+/* ---- Shell -------------------------------------------------------------- */
+
+.dev-reviews {
+  padding: var(--pt) var(--section-px) var(--pb);
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+}
+
+/* 644 wide and centred on a 1440 artboard — deliberately NOT the 1312 page container. The reviews
+   column has its own, narrower measure; letting it run to the page width is the single fastest way
+   to stop looking like the design. */
+.dev-reviews__inner {
+  max-width: var(--reviews-max);
+  margin-inline: auto;
+}
+
+/* ---- The app's own furniture, which the artboard has no place for -------- */
+
+/* Every one of these is .jdgm-widget-deep on purpose, and hiding them is not cosmetic — it is
+   structural. `display: contents` on the card's wrappers (below) promotes EVERY descendant into the
+   card's grid. Anything still visible that we have not given a grid-area to gets AUTO-PLACED into a
+   cell of its own, so a single hide rule losing the cascade does not merely leave a stray icon on
+   the page — it silently adds a row to the card and pushes the layout apart. They must all win. */
+.dev-reviews .jdgm-widget .jdgm-gallery-wrapper,
+.dev-reviews .jdgm-widget .jdgm-medals-wrapper,
+.dev-reviews .jdgm-widget .jdgm-rev-widg__sort-wrapper,
+.dev-reviews .jdgm-widget .jdgm-verified-checkmark,
+.dev-reviews .jdgm-widget .jdgm-rev-widg__summary-average,
+.dev-reviews .jdgm-widget .jdgm-rev__icon,
+.dev-reviews .jdgm-widget .jdgm-rev__actions,
+.dev-reviews .jdgm-widget .jdgm-row-product,
+.dev-reviews .jdgm-widget .jdgm-row-extra,
+.dev-reviews .jdgm-widget .jdgm-rev__br,
+.dev-reviews .jdgm-widget .jdgm-rev__custom-form,
+.dev-reviews .jdgm-widget .jdgm-rev__social,
+.dev-reviews .jdgm-widget .jdgm-rev__votes {
+  display: none;
+}
+
+/* The "See all reviews" filter row is ALSO a .jdgm-histogram__row, so our own row rule was styling
+   it as a grid and its ::before was printing attr(data-rating) — which on this row is the literal
+   string "null". Four classes deep so it outranks our own row rule, not just theirs. */
+.dev-reviews .jdgm-widget .jdgm-histogram__row.jdgm-histogram__clear-filter {
+  display: none;
+}
+
+/* Judge.me writes this badge's border, padding and colour into a style="" attribute on the element,
+   so no class selector can reach it at any specificity. This is the !important that is earned. */
+.dev-reviews .jdgm-rev__transparency-badge-wrapper,
+.dev-reviews .jdgm-rev__transparency-badge {
+  display: none !important;
+}
+
+/* ---- Stars ---------------------------------------------------------------
+   A star is a glyph in Judge.me's own icon font, painted by a ::before. So it takes `color` like any
+   other text — nothing to mask, nothing to swap. Their default is teal; the brand's is gold.
+
+   Three classes deep, not two: Judge.me's own `.jdgm-review-widget .jdgm-star` is already (0,2,0),
+   which ties with `.dev-reviews .jdgm-star` — and a tie is a loss, because their <style> is injected
+   after ours. Adding .jdgm-widget breaks the tie on weight rather than on order. */
+
+.dev-reviews .jdgm-widget .jdgm-star {
+  color: var(--star-color);
+}
+
+.dev-reviews .jdgm-widget .jdgm-star.jdgm--off {
+  color: var(--track-color);
+}
+
+/* ---- Header --------------------------------------------------------------
+   Title, five stars, review count — each centred, 24px between the header and the histogram. */
+
+.dev-reviews .jdgm-rev-widg__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 0 24px;
+}
+
+.dev-reviews .jdgm-rev-widg__title {
+  margin: 0 0 8px;
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--color);
+  text-align: center;
+}
+
+.dev-reviews .jdgm-row-stars,
+.dev-reviews .jdgm-rev-widg__summary,
+.dev-reviews .jdgm-rev-widg__summary-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* 116px across for five stars on the artboard — 23px apiece. The glyph scales with font-size. */
+.dev-reviews .jdgm-rev-widg__summary-stars {
+  margin-bottom: 8px;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.dev-reviews .jdgm-rev-widg__summary-text {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--color);
+}
+
+/* ---- Histogram -----------------------------------------------------------
+   The artboard's row is: rating NUMBER, one star, the bar, the count.
+   The DOM's row is FIVE stars, the bar, the count — and no number anywhere.
+
+   The number is recovered from data-rating, which Judge.me already writes on the row, and the four
+   stars the design does not want are hidden. The first star of every row is always the lit one (a
+   5-star row is five-on; a 1-star row is one-on and four-off), so keeping only the first needs no
+   colour forcing — it is gold in every row by construction. */
+
+.dev-reviews .jdgm-histogram {
+  display: flex;
+  flex-direction: column;
+  width: 343px;
+  max-width: 100%;
+  margin: 0 auto 24px;
+}
+
+/* .jdgm-widget again, for the same reason as the stars: Judge.me puts a 10px margin under every row,
+   and the artboard has none — the 26px pitch IS the row height. A two-class selector tied with
+   theirs and lost on order. */
+.dev-reviews .jdgm-widget .jdgm-histogram__row {
+  display: grid;
+  grid-template-columns: 14px auto 260px 1fr;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  margin: 0;
+  padding: 0;
+}
+
+/* The rating number. line-height 1 is deliberate and comes from the artboard — every other 16px
+   Public Sans run in this block is 1.4, this one is not. */
+.dev-reviews .jdgm-histogram__row::before {
+  content: attr(data-rating);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color);
+  text-align: right;
+}
+
+.dev-reviews .jdgm-histogram__star {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* !important, and it is earned: Judge.me declares `.jdgm-star { display: inline !important }`, and
+   only an !important can outrank an !important. This is the second and last one in this file. */
+.dev-reviews .jdgm-histogram__star .jdgm-star:not(:first-child) {
+  display: none !important;
+}
+
+.dev-reviews .jdgm-histogram__bar {
+  width: 260px;
+  height: 6px;
+  margin: 0;
+  background-color: var(--track-color);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+/* The fill's width is an inline style the widget computes from the real counts — the one
+   declaration in this file we must NOT touch. That is why the fill is a child of the track rather
+   than a background on it. */
+.dev-reviews .jdgm-histogram__bar-content {
+  height: 100%;
+  background-color: var(--star-color);
+  border-radius: 3px;
+}
+
+.dev-reviews .jdgm-histogram__frequency {
+  padding-left: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--color);
+  text-align: left;
+}
+
+/* ---- Review card ---------------------------------------------------------
+   The hard part. The artboard wants:
+
+       [ stars   author .................. Verified ]
+       [ title                                      ]
+       [ body                                       ]
+       [ 18 months ago                              ]
+
+   The DOM nests those five things three levels deep and in the wrong order: the timestamp sits
+   beside the stars inside .jdgm-row-rating, and "Verified" sits inside the author's own span. No
+   amount of `order` reaches across nesting.
+
+   `display: contents` is the move. It dissolves a wrapper's box and promotes its children into the
+   grandparent's layout, so with it on the header and its rows, all five pieces become direct grid
+   items of the card and grid-template-areas can put each where the artboard has it. */
+
+.dev-reviews .jdgm-rev-widg__reviews {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Radius 12, not the 16 the Figma export claims. Measured off the rendered artboard: the card
+   reaches its full 644 width 11px below its top edge, which is the radius by definition. The render
+   is what the design draws, so the render wins. */
+.dev-reviews .jdgm-rev {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    'stars author verified'
+    'content content content'
+    'time time time'
+    'reply reply reply';
+  align-items: center;
+  margin: 0;
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background-color: var(--card-bg);
+}
+
+/* Judge.me rules a line above every review. The artboard separates them with a gap and a card edge
+   instead, so the divider becomes the card's own top border and nothing else. */
+.dev-reviews .jdgm-widget .jdgm-rev.jdgm-divider-top {
+  border-top: 1px solid var(--border-color);
+}
+
+/* Judge.me rules a faint green hairline above three of its rows (rgba(68,166,68,.1) — their brand
+   green at 10%). None of them is on the artboard, and .jdgm-row-media holds nothing but the photo
+   gallery and the medals, both of which are already hidden, so the row is a border with no content. */
+.dev-reviews .jdgm-widget .jdgm-row-media {
+  display: none;
+}
+
+.dev-reviews .jdgm-widget .jdgm-rev-widg__body,
+.dev-reviews .jdgm-widget .jdgm-rev-widg__reviews,
+.dev-reviews .jdgm-widget .jdgm-row-actions,
+.dev-reviews .jdgm-widget .jdgm-paginate {
+  border: 0;
+  padding: 0;
+}
+
+.dev-reviews .jdgm-rev__header,
+.dev-reviews .jdgm-row-rating,
+.dev-reviews .jdgm-row-profile,
+.dev-reviews .jdgm-rev__author-wrapper,
+.dev-reviews .jdgm-rev__buyer-badge-wrapper {
+  display: contents;
+}
+
+.dev-reviews .jdgm-rev__rating {
+  grid-area: stars;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.dev-reviews .jdgm-rev__author {
+  grid-area: author;
+  margin-left: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--color);
+}
+
+/* The word "Verified" is Judge.me's own ::before on this span. We are reshaping the box it sits in,
+   not inventing the word. Its border is #333333 — the TEXT colour, not the card's border colour.
+   That is a deliberate distinction on the artboard, so --border-color is not used here. */
+.dev-reviews .jdgm-rev__buyer-badge {
+  grid-area: verified;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border: 1px solid var(--color);
+  border-radius: 8px;
+  background-color: var(--card-bg);
+  color: var(--color);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.dev-reviews .jdgm-rev__content {
+  grid-area: content;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* 20px at BOTH breakpoints — the only text in the card that does not step down on mobile. Confirmed
+   against two separate bound variables in Figma, so it is a real read, not an oversight. */
+.dev-reviews .jdgm-rev__title {
+  display: block;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--color);
+}
+
+.dev-reviews .jdgm-rev__body {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--color);
+}
+
+.dev-reviews .jdgm-rev__body p {
+  margin: 0;
+}
+
+/* Its OWN row. It was sharing the content cell with `align-self: end`, and a grid cell is not a
+   stack — two items in one cell simply overlap, so the date printed straight through the last line
+   of the review. */
+.dev-reviews .jdgm-widget .jdgm-rev__timestamp {
+  grid-area: time;
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--color);
+}
+
+/* The merchant's replies are NOT on the artboard — but they are real words this shop wrote to a real
+   customer, and deleting them to match a mock is destroying content, not styling it. They stay,
+   quiet, under the review they answer. */
+.dev-reviews .jdgm-widget .jdgm-rev__reply {
+  grid-area: reply;
+  margin: 16px 0 0;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--border-color);
+  background: none;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--color);
+}
+
+.dev-reviews .jdgm-widget .jdgm-rev__replier-wrapper {
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+.dev-reviews .jdgm-widget .jdgm-rev__reply-content p {
+  margin: 0 0 8px;
+}
+
+.dev-reviews .jdgm-widget .jdgm-rev__reply-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* ---- Load more -----------------------------------------------------------
+   Judge.me ships a solid green square. The artboard has an outlined, cream-filled button.
+
+   Radius 24, not the 60 the Figma export claims: a 60px radius on a 61px-tall box would clamp to a
+   full pill, and the rendered artboard is not a pill — it reaches full width 25px below its top
+   edge, and its top row is 168 of 214 wide. Both numbers say 24. */
+
+.dev-reviews .jdgm-paginate {
+  display: flex;
+  justify-content: center;
+  margin-top: 64px;
+}
+
+.dev-reviews .jdgm-paginate__load-more.jdgm-btn.jdgm-btn--solid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 24px;
+  border: 1px solid var(--color);
+  border-radius: 24px;
+  background-color: var(--card-bg);
+  color: var(--color);
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: normal;
+  text-transform: none;
+  cursor: pointer;
+}
+
+.dev-reviews .jdgm-paginate__load-more.jdgm-btn.jdgm-btn--solid:hover {
+  background-color: var(--bg);
+}
+
+/* ---- Mobile (<=768) — 44797:4034 ----------------------------------------
+   Not a scaled-down desktop: the rhythm changes shape. Desktop groups the header, histogram and
+   cards at 24px and then leaves 64px before the button; mobile is a flat 24px all the way through,
+   including before the button. The card also tightens — 16px of padding instead of 24, and 8px
+   between cards instead of 16. */
+
+@media (max-width: 768px) {
+  /* The PROPERTIES, not the --pt/--pb tokens: those are written into the element's style="" attribute
+     from the section settings, and an inline style outranks any stylesheet rule. Overriding
+     padding-block directly is the only thing that reaches them. */
+  .dev-reviews {
+    padding-block: var(--pt-mobile) var(--pb-mobile);
+    padding-inline: var(--section-px-mobile);
+  }
+
+  .dev-reviews .jdgm-rev-widg__title {
+    font-size: 24px;
+  }
+
+  .dev-reviews .jdgm-rev-widg__reviews {
+    gap: 8px;
+  }
+
+  .dev-reviews .jdgm-rev {
+    padding: 16px;
+  }
+
+  .dev-reviews .jdgm-rev__body {
+    font-size: 16px;
+  }
+
+  .dev-reviews .jdgm-paginate {
+    margin-top: 24px;
+  }
+
+  .dev-reviews .jdgm-paginate__load-more.jdgm-btn.jdgm-btn--solid {
+    padding: 12px 18px;
+    font-size: 16px;
+  }
+}

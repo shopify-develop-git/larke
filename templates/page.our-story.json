@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "dev-our-story-hero": {
@@ -5,10 +14,12 @@
       "settings": {
         "heading": "We believe every sleep should feel extraordinary, <em>starting</em> with <em>duvets.</em>",
         "show_underline": true,
-        "background_image": "shopify://shop_images/our-story-hero-bg.png",
+        "background_image": "shopify://shop_images/master_hero_media.webp",
+        "background_image_mobile": "shopify://shop_images/hero_media_m.webp",
+        "stretch_background": false,
         "background_color": "#333333",
-        "text_color": "#FFFFFF",
-        "accent_color": "#A8CF78",
+        "text_color": "#ffffff",
+        "accent_color": "#a8cf78",
         "padding_top": 64,
         "padding_bottom": 64
       }
@@ -63,9 +74,9 @@
         "heading": "Where it all began....",
         "prev_label": "Previous slide",
         "next_label": "Next slide",
-        "background_color": "#FFFCF4",
+        "background_color": "#fffcf4",
         "text_color": "#333333",
-        "rail_color": "#DADADA",
+        "rail_color": "#dadada",
         "progress_color": "#262626",
         "padding_top": 80,
         "padding_bottom": 0
@@ -73,15 +84,6 @@
     },
     "dev-proudest-moments": {
       "type": "dev-proudest-moments",
-      "settings": {
-        "heading": "<p>Our<br/>Proudest Moments</p>",
-        "heading_mobile": "<p>Our Proudest<br/>Moments</p>",
-        "background_color": "#FCF5E3",
-        "text_color": "#333333",
-        "accent_color": "#C4BCA9",
-        "padding_top": 80,
-        "padding_bottom": 0
-      },
       "blocks": {
         "vegan": {
           "type": "proof_point",
@@ -117,7 +119,16 @@
         "packaging",
         "natural",
         "london"
-      ]
+      ],
+      "settings": {
+        "heading": "<p>Our<br/>Proudest Moments</p>",
+        "heading_mobile": "<p>Our Proudest<br/>Moments</p>",
+        "background_color": "#fcf5e3",
+        "text_color": "#333333",
+        "accent_color": "#c4bca9",
+        "padding_top": 80,
+        "padding_bottom": 0
+      }
     },
     "dev-values-we-cherish": {
       "type": "dev-values-we-cherish",
@@ -156,25 +167,13 @@
         "heading": "Values we <em>Cherish</em>.",
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#333333",
-        "accent_color": "#A8CF78",
+        "accent_color": "#a8cf78",
+        "padding_top": 80,
         "padding_bottom": 0
       }
     },
     "dev-journal-cards": {
       "type": "dev-journal-cards",
-      "settings": {
-        "heading": "The coded language of bedding — Uncoded",
-        "blog": "news",
-        "articles_count": 3,
-        "button_label": "Read Article",
-        "read_time_label": "min read",
-        "author_prefix": "By",
-        "background_color": "rgba(0,0,0,0)",
-        "text_color": "#333333",
-        "accent_color": "#333333",
-        "padding_top": 80,
-        "padding_bottom": 0
-      },
       "blocks": {
         "card_1": {
           "type": "journal_card",
@@ -214,7 +213,20 @@
         "card_1",
         "card_2",
         "card_3"
-      ]
+      ],
+      "settings": {
+        "heading": "The coded language of bedding — Uncoded",
+        "blog": "news",
+        "articles_count": 3,
+        "button_label": "Read Article",
+        "read_time_label": "min read",
+        "author_prefix": "By",
+        "background_color": "rgba(0,0,0,0)",
+        "text_color": "#333333",
+        "accent_color": "#333333",
+        "padding_top": 80,
+        "padding_bottom": 0
+      }
     }
   },
   "order": [

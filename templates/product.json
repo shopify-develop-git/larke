@@ -6,39 +6,167 @@
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
  * ------------------------------------------------------------
- */{
+ */
+{
   "sections": {
+    "main_product": {
+      "type": "dev-main-product",
+      "blocks": {
+        "compare": {
+          "type": "compare",
+          "settings": {
+            "heading": "Still undecided?",
+            "label": "See how our duvet compares",
+            "link": "#compare"
+          }
+        },
+        "acc-love": {
+          "type": "accordion",
+          "settings": {
+            "heading": "Why you’ll love it",
+            "body": "<ul><li>Awarded <strong>Best Lightweight Duvet</strong> by Good Housekeeping 2025.</li><li>Smooth, soft-to-the-touch <strong>300TC cotton</strong> outer shell</li><li>Moisture-wicking, sweat beating 100% <strong>eucalyptus tree-fibre filling</strong>.</li><li>Vegan approved by the UK’s oldest vegan society.</li><li>Made in the EU.</li></ul>",
+            "open_by_default": true,
+            "button_label": "",
+            "button_link": "",
+            "cert_1_logo": "none",
+            "cert_1_text": "",
+            "cert_2_logo": "none",
+            "cert_2_text": "",
+            "cert_3_logo": "none",
+            "cert_3_text": ""
+          }
+        },
+        "acc-faqs": {
+          "type": "accordion",
+          "settings": {
+            "heading": "FAQs",
+            "body": "<p><strong>I’ve got allergies – will we be friends?</strong><br>Absolutely. Tree-fibre is naturally hypoallergenic and safe for sensitive sleepers whilst also free from added synthetics.</p><p><strong>Does tree-fibre smell?</strong><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean commodo vitae dolor sit amet iaculis.</p><p><strong>What if I regret it?</strong><br>You won’t hurt our feelings.<br>Try it for 60-nights, if it’s not the one – you’ll get a full refund with zero fuss.</p><p><strong>Will I find wood chips inside my duvet?</strong><br>No bark, splinters or crunchy surprises here.<br>Just soft, tree-fibre that feels as light as pure down.</p>",
+            "open_by_default": false,
+            "button_label": "",
+            "button_link": "",
+            "cert_1_logo": "none",
+            "cert_1_text": "",
+            "cert_2_logo": "none",
+            "cert_2_text": "",
+            "cert_3_logo": "none",
+            "cert_3_text": ""
+          }
+        },
+        "acc-care": {
+          "type": "accordion",
+          "settings": {
+            "heading": "Care",
+            "body": "<ul><li>Air regularly</li><li>Wash at 30 degrees on gentle cycle</li><li>Air dry preferred or tumble dry on low</li><li>Use mild detergent. Avoid bleach and softeners</li></ul>",
+            "open_by_default": false,
+            "button_label": "How to wash",
+            "button_link": "/blogs/news/step-by-step-of-how-to-wash-your-tree-duvet",
+            "cert_1_logo": "none",
+            "cert_1_text": "",
+            "cert_2_logo": "none",
+            "cert_2_text": "",
+            "cert_3_logo": "none",
+            "cert_3_text": ""
+          }
+        },
+        "acc-cert": {
+          "type": "accordion",
+          "settings": {
+            "heading": "Certifications",
+            "body": "",
+            "open_by_default": false,
+            "button_label": "",
+            "button_link": "",
+            "cert_1_logo": "vegan",
+            "cert_1_text": "Certified by The Vegan Society — made for every kind of sleeper",
+            "cert_2_logo": "fsc",
+            "cert_2_text": "FSC approved – sourced from responsibly managed trees.",
+            "cert_3_logo": "oeko",
+            "cert_3_text": "OEKO TEX approved – tested for harmful substances. Safe on all skins."
+          }
+        },
+        "pc": {
+          "type": "price_comparison",
+          "settings": {
+            "heading": "Sleep r<em>emarkable.</em>",
+            "subheading": "Without any compromises",
+            "row_1_icon": "care",
+            "row_1_label": "Easier to care for",
+            "row_2_icon": "warranty",
+            "row_2_label": "Longer warranties",
+            "row_3_icon": "trial",
+            "row_3_label": "Longer trial periods",
+            "link_label": "See how we’re different",
+            "link": "/pages/about?view=tree-fibre"
+          }
+        }
+      },
+      "block_order": [
+        "compare",
+        "acc-love",
+        "acc-faqs",
+        "acc-care",
+        "acc-cert",
+        "pc"
+      ],
+      "name": "Main product",
+      "settings": {
+        "tagline": "Breathable. Love-able. Washable.",
+        "subtitle": "Vegan-certified natural comfort for everyday sleepers.",
+        "cta_label": "Add to Order",
+        "sold_out_label": "Sold out",
+        "show_rating": true,
+        "show_rating_stars": true,
+        "rating_value": 4.9,
+        "rating_label": "4.9/5",
+        "rating_link": "",
+        "badge_text": "Smooth & Breezy",
+        "show_seal": true,
+        "seal_alt": "Good Housekeeping Institute approved",
+        "unit_metric": "CM",
+        "unit_imperial": "IN",
+        "tog_label_temp": "Temperature:",
+        "tog_label_feel": "How it feels over you:",
+        "tog_label_best": "Best for:",
+        "background_color": "#fffcf4",
+        "text_color": "#333333",
+        "accent_color": "#a8cf78",
+        "star_color": "#f1b500",
+        "surface_color": "#fffcf4",
+        "card_color": "#fcf5e3",
+        "border_color": "#c4bca9"
+      }
+    },
     "dev_sleep_grows_on_trees": {
       "type": "dev-sleep-grows-on-trees",
       "blocks": {
         "card_1": {
           "type": "card",
           "settings": {
+            "image": "shopify://shop_images/sleep-grows-on-trees-cool-sleepers.png",
+            "alt_text": "A woman asleep under a Larke duvet",
             "image_side": "left",
             "heading": "<p>Over-heaters, cool sleepers. <br/>Sorted.</p>",
-            "text": "<p>Tree-fibre adapts effortlessly to heat at night, keeping you cool and cosy.</p>",
-            "alt_text": "A woman asleep under a Larke duvet",
-            "image": "shopify://shop_images/sleep-grows-on-trees-cool-sleepers.png"
+            "text": "<p>Tree-fibre adapts effortlessly to heat at night, keeping you cool and cosy.</p>"
           }
         },
         "card_2": {
           "type": "card",
           "settings": {
+            "image": "shopify://shop_images/sleep-grows-on-trees-no-clumping.png",
+            "alt_text": "A Larke duvet on a bed beside a bright window",
             "image_side": "right",
             "heading": "<p>Say bye to clumping.</p>",
-            "text": "<p>Our innovative sea-shell inspired stitching, firmly holds all filling.</p>",
-            "alt_text": "A Larke duvet on a bed beside a bright window",
-            "image": "shopify://shop_images/sleep-grows-on-trees-no-clumping.png"
+            "text": "<p>Our innovative sea-shell inspired stitching, firmly holds all filling.</p>"
           }
         },
         "card_3": {
           "type": "card",
           "settings": {
+            "image": "shopify://shop_images/sleep-grows-on-trees-washing-drying.png",
+            "alt_text": "A hand smoothing a freshly washed Larke duvet",
             "image_side": "left",
             "heading": "<p>Washing, Drying - <br/>Sorted.</p>",
-            "text": "<p>Wash and drying machine friendly. Feels softer and more luxurious after each wash.</p>",
-            "alt_text": "A hand smoothing a freshly washed Larke duvet",
-            "image": "shopify://shop_images/sleep-grows-on-trees-washing-drying.png"
+            "text": "<p>Wash and drying machine friendly. Feels softer and more luxurious after each wash.</p>"
           }
         }
       },
@@ -49,7 +177,7 @@
       ],
       "settings": {
         "heading": "<p>Turns out great <br/>sleep grows on trees</p>",
-        "background_color": "#FCF5E3",
+        "background_color": "#fcf5e3",
         "text_color": "#333333",
         "accent_color": "#333333",
         "padding_top": 80,
@@ -99,119 +227,47 @@
         "badge_3"
       ],
       "settings": {
-        "background_color": "#FCF5E3",
-        "badge_color": "#FFFCF4",
+        "background_color": "#fcf5e3",
+        "badge_color": "#fffcf4",
         "text_color": "#333333",
         "accent_color": "#333333",
         "padding_top": 80,
         "padding_bottom": 64
       }
     },
-    "main_product": {
-      "type": "dev-main-product",
-      "name": "Main product",
-      "settings": {
-        "tagline": "Breathable. Love-able. Washable.",
-        "subtitle": "Vegan-certified natural comfort for everyday sleepers.",
-        "cta_label": "Add to Order",
-        "sold_out_label": "Sold out",
-        "show_rating": true,
-        "rating_value": 4.9,
-        "rating_label": "4.9/5",
-        "badge_text": "Smooth & Breezy",
-        "seal_alt": "Good Housekeeping Institute approved",
-        "background_color": "#fffcf4",
-        "text_color": "#333333",
-        "accent_color": "#a8cf78",
-        "star_color": "#f1b500",
-        "surface_color": "#fffcf4",
-        "card_color": "#fcf5e3",
-        "border_color": "#c4bca9",
-        "unit_metric": "CM",
-        "unit_imperial": "IN",
-        "tog_label_temp": "Temperature:",
-        "tog_label_feel": "How it feels over you:",
-        "tog_label_best": "Best for:"
-      },
+    "dev_reviews": {
+      "type": "dev-reviews",
       "blocks": {
-        "compare": {
-          "type": "compare",
+        "judge_me_reviews_review_widget_RXkthF": {
+          "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
           "settings": {
-            "heading": "Still undecided?",
-            "label": "See how our duvet compares",
-            "link": "#compare"
-          }
-        },
-        "acc-love": {
-          "type": "accordion",
-          "settings": {
-            "heading": "Why you’ll love it",
-            "open_by_default": true,
-            "body": "<ul><li>Awarded <strong>Best Lightweight Duvet</strong> by Good Housekeeping 2025.</li><li>Smooth, soft-to-the-touch <strong>300TC cotton</strong> outer shell</li><li>Moisture-wicking, sweat beating 100% <strong>eucalyptus tree-fibre filling</strong>.</li><li>Vegan approved by the UK’s oldest vegan society.</li><li>Made in the EU.</li></ul>"
-          }
-        },
-        "acc-faqs": {
-          "type": "accordion",
-          "settings": {
-            "heading": "FAQs",
-            "open_by_default": false,
-            "body": "<p><strong>I’ve got allergies – will we be friends?</strong><br>Absolutely. Tree-fibre is naturally hypoallergenic and safe for sensitive sleepers whilst also free from added synthetics.</p><p><strong>Does tree-fibre smell?</strong><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean commodo vitae dolor sit amet iaculis.</p><p><strong>What if I regret it?</strong><br>You won’t hurt our feelings.<br>Try it for 60-nights, if it’s not the one – you’ll get a full refund with zero fuss.</p><p><strong>Will I find wood chips inside my duvet?</strong><br>No bark, splinters or crunchy surprises here.<br>Just soft, tree-fibre that feels as light as pure down.</p>"
-          }
-        },
-        "acc-care": {
-          "type": "accordion",
-          "settings": {
-            "heading": "Care",
-            "open_by_default": false,
-            "body": "<ul><li>Air regularly</li><li>Wash at 30 degrees on gentle cycle</li><li>Air dry preferred or tumble dry on low</li><li>Use mild detergent. Avoid bleach and softeners</li></ul>",
-            "button_label": "How to wash",
-            "button_link": "/blogs/news/step-by-step-of-how-to-wash-your-tree-duvet"
-          }
-        },
-        "acc-cert": {
-          "type": "accordion",
-          "settings": {
-            "heading": "Certifications",
-            "open_by_default": false,
-            "body": "",
-            "cert_1_logo": "vegan",
-            "cert_1_text": "Certified by The Vegan Society — made for every kind of sleeper",
-            "cert_2_logo": "fsc",
-            "cert_2_text": "FSC approved – sourced from responsibly managed trees.",
-            "cert_3_logo": "oeko",
-            "cert_3_text": "OEKO TEX approved – tested for harmful substances. Safe on all skins."
-          }
-        },
-        "pc": {
-          "type": "price_comparison",
-          "settings": {
-            "heading": "Sleep r<em>emarkable.</em>",
-            "subheading": "Without any compromises",
-            "row_1_icon": "care",
-            "row_1_label": "Easier to care for",
-            "row_2_icon": "warranty",
-            "row_2_label": "Longer warranties",
-            "row_3_icon": "trial",
-            "row_3_label": "Longer trial periods",
-            "link_label": "See how we’re different",
-            "link": "/pages/about?view=tree-fibre"
+            "review_data": "sample_data",
+            "max_width": 1200,
+            "show_shop_reviews": false,
+            "empty_state": "empty_widget"
           }
         }
       },
       "block_order": [
-        "compare",
-        "acc-love",
-        "acc-faqs",
-        "acc-care",
-        "acc-cert",
-        "pc"
-      ]
+        "judge_me_reviews_review_widget_RXkthF"
+      ],
+      "settings": {
+        "background_color": "#FFFCF4",
+        "text_color": "#333333",
+        "card_color": "#FCF5E3",
+        "border_color": "#C4BCA9",
+        "star_color": "#F1B500",
+        "track_color": "#D8D1C0",
+        "padding_top": 80,
+        "padding_bottom": 80
+      }
     }
   },
   "order": [
     "main_product",
     "dev_sleep_grows_on_trees",
     "dev_naturally_best_sleep",
-    "dev_pdp_guarantees"
+    "dev_pdp_guarantees",
+    "dev_reviews"
   ]
 }
