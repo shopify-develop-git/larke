@@ -273,6 +273,19 @@ body[data-cart-drawer-open='true'] {
   color: var(--icon-muted);
 }
 
+/* A merchant's own artwork, standing in for the bundled icon. Same 24px box so a mixed row — one
+   badge on an uploaded mark, the next on a theme icon — still lines up. object-fit: contain because
+   the upload's aspect ratio is the merchant's business, not ours: a wide logo letterboxes rather
+   than being squashed into a square. No colour is applied — an <img> cannot take currentColor, and
+   pretending otherwise is what would make an uploaded badge look broken next to a themed one. */
+.cart-drawer__badge-image {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  max-width: none;
+  object-fit: contain;
+}
+
 .cart-drawer__badge-label {
   font-size: var(--font-size-badge);
   font-weight: var(--weight-bold);
@@ -334,10 +347,12 @@ body[data-cart-drawer-open='true'] {
 
 /* --- payment methods --- */
 
+/* Centred, not end-aligned. The block is width:100%, so it fills the footer and the footer's own
+   align-items:center never gets a say — the alignment has to be set here, on its own axis. */
 .cart-drawer__payment {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   gap: var(--spacing-sm);
   width: 100%;
 }
@@ -354,7 +369,7 @@ body[data-cart-drawer-open='true'] {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   gap: var(--spacing-xs);
 
   margin: 0;

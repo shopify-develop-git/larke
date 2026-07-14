@@ -354,9 +354,18 @@
   white-space: nowrap;
 }
 
+/* A two-column GRID, not wrapping flex — because that is what the artboard is: chips are always two
+   to a row, and an option with an odd number of values leaves the last cell empty rather than
+   stretching the last chip across the row.
+
+   Flex could not do both. With flex-wrap, the browser wraps BEFORE it shrinks: at the tablet's
+   380px column two 226px chips no longer fit, so instead of squeezing to 186 each they each went to
+   their own line and sat there at 226 with a dead 154px gutter beside them. Letting them grow
+   instead made the lone odd chip stretch to the full 460 on desktop. The grid has neither problem —
+   the cell width is the answer at every viewport, and no chip needs a basis at all. */
 .dev-main-product__chips {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--variant-gap);
 }
 
@@ -374,15 +383,12 @@
   border: 0;
 }
 
-/* Shrink, never grow. Two 226px chips plus the 8px gap fill the 460 column exactly, so growing was
-   invisible until an option had an ODD number of values — then the last chip, alone on its row,
-   stretched to the full 460. On the artboard it is 226 like every other one. */
+/* The chip fills its grid cell — no basis, no growing, no shrinking. It is still a flex container
+   itself, but only to centre its own label. */
 .dev-main-product__chip {
   display: flex;
-  flex: 0 1 var(--chip-w, 226px);
   align-items: center;
   justify-content: center;
-  max-width: 100%;
   padding: var(--variant-pad);
   border: var(--variant-border-w) solid var(--accent);
   border-radius: var(--variant-radius);
@@ -442,6 +448,27 @@
   cursor: not-allowed;
 }
 
+/* The CTA is disabled for the moment the add is in flight, which already dims it — this stops the
+   cursor from also promising it is clickable while nothing can be clicked. */
+.dev-main-product__cta[aria-busy='true'] {
+  cursor: progress;
+}
+
+/* Only rendered when there is something to say — `hidden` on the element, no empty gap otherwise.
+   Not on the artboard because the artboard has no failing state; a rejected add still needs to
+   say why, or it looks identical to a successful one. */
+.dev-main-product__cta-error {
+  margin: var(--variant-gap) 0 0;
+  color: #b3261e;
+  font-size: var(--font-label-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+}
+
+.dev-main-product__cta-error[hidden] {
+  display: none;
+}
+
 .dev-main-product__cta-divider {
   width: 1px;
   height: var(--cta-divider-h);
@@ -455,12 +482,23 @@
   outline-offset: 2px;
 }
 
-/* ---- Tablet (769–1200) — no Figma reference: don't overflow, don't crush the buy column. */
+/* ---- Tablet (769–1200) ---------------------------------------------------
+   There is no Figma artboard between 768 and 1440, so this range is a judgement, not a trace. The
+   rule it follows: keep the two columns, but stop the desktop's fixed numbers from eating the
+   viewport. At 1024 the artboard's 64px gutters plus a 96px column gap spend 224px — a fifth of the
+   screen — on nothing, which is what squeezed the image down to 390px wide beside a buy column that
+   still insisted on 380. */
 
 @media (max-width: 1200px) {
+  /* The PROPERTY, not the --section-px token. The token is declared in the section's own <style>
+     block, which the browser sees AFTER this file — an equally specific rule here would lose. */
+  .dev-main-product {
+    padding: 0 32px;
+  }
+
   .dev-main-product__inner {
-    --col-gap: 40px;
-    --buy-w: 380px;
+    --col-gap: 32px;
+    --buy-w: 400px;
   }
 
   .dev-main-product__stage {
@@ -472,6 +510,43 @@
   .dev-main-product__slides {
     height: auto;
     aspect-ratio: 668 / 640;
+  }
+}
+
+/* ---- Small tablet (769–1024) ---------------------------------------------
+   The thumbnail rail costs the image 86px of width it can no longer spare, so it goes under the
+   image and becomes a strip — the same move the mobile artboard makes, one breakpoint early. The
+   image gets the whole column back, and the sticky gallery is finally tall enough that scrolling
+   past it does not leave half the screen empty. */
+
+@media (max-width: 1024px) {
+  /* The buy column gives ground too. Held at 400 it took more than half of what was left at 800px
+     and starved the image down to 304 wide — the product, on a product page, smaller than the form
+     next to it. At 360 the two columns are roughly even all the way down to 769. */
+  .dev-main-product__inner {
+    --buy-w: 360px;
+  }
+
+  .dev-main-product__gallery {
+    flex-direction: column;
+    gap: var(--thumb-gap);
+  }
+
+  .dev-main-product__stage {
+    order: 1;
+    width: 100%;
+  }
+
+  .dev-main-product__thumbs {
+    order: 2;
+    flex-direction: row;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .dev-main-product__thumbs::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -559,9 +634,6 @@
     font-size: var(--font-sub-size-mobile);
   }
 
-  .dev-main-product__chip {
-    flex-basis: calc(50% - var(--variant-gap));
-  }
 }
 
 /* ---- Still undecided ----------------------------------------------------

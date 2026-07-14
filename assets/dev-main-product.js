@@ -452,3 +452,132 @@
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
 })();
+
+/* ---- Add to cart --------------------------------------------------------- */
+(function () {
+  /* Adding a duvet should open the basket, not throw the buyer onto /cart and make them find
+     their way back to the product they were still comparing.
+
+     The form still works with JS off: it is a real <form action="/cart/add">, and the native POST
+     still adds the item and lands on the cart page. Everything below is an upgrade on top of that,
+     never a replacement for it — so the buy button can never become a button that does nothing. */
+  const DRAWER_SELECTOR = 'div.cart-drawer';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-main-product]').forEach((root) => initAddToCart(root));
+  });
+
+  function initAddToCart(root) {
+    const form = root.querySelector('.dev-main-product__form');
+    const button = root.querySelector('[data-add]');
+    const error = root.querySelector('[data-cta-error]');
+    if (!form || !button) return;
+
+    // No drawer on this page? Leave the form entirely alone. Hijacking the submit and then having
+    // nowhere to show the result is strictly worse than the plain page load we started with.
+    if (!document.querySelector(DRAWER_SELECTOR)) return;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (button.disabled) return;
+
+      hideError(error);
+      busy(button, true);
+
+      try {
+        const response = await fetch(root.dataset.cartAddUrl, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: new FormData(form),
+        });
+
+        if (!response.ok) {
+          // A rejected add is a real answer, not a failure of the mechanism — show Shopify's own
+          // reason and stay on the page. Falling back to a native submit here would just replay
+          // the same rejection as a full page load.
+          const body = await response.json().catch(() => ({}));
+          showError(error, body.description || body.message);
+          return;
+        }
+
+        await refresh(root);
+        openDrawer();
+      } catch (e) {
+        // The request never completed — the network, not the cart, said no. Hand the buyer back to
+        // the form that works without any of this.
+        form.submit();
+      } finally {
+        busy(button, false);
+      }
+    });
+  }
+
+  /* The drawer is rendered by a BLOCK of the header, and Shopify's Section Rendering API does not
+     render `content_for 'blocks'` — ?sections=dev-site-header comes back with the cart button and
+     no drawer at all. So the fresh markup is pulled from a real page render instead. The cart page
+     is the cheapest one that carries the header, and asking the cart for the cart is honest. */
+  async function refresh(root) {
+    const response = await fetch(root.dataset.cartUrl, { headers: { Accept: 'text/html' } });
+    if (!response.ok) return;
+
+    const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
+
+    // div.cart-drawer, NOT #cart-drawer: Horizon's stock <theme-drawer> claims the same id on the
+    // same page, so an id lookup is a coin toss decided by document order.
+    const fresh = doc.querySelector(DRAWER_SELECTOR);
+    const live = document.querySelector(DRAWER_SELECTOR);
+    if (fresh && live) {
+      const next = fresh.querySelector('.cart-drawer__content');
+      const current = live.querySelector('.cart-drawer__content');
+      // Only the content is swapped. The drawer's listeners sit on its ROOT and are delegated, so
+      // replacing what is inside it cannot unbind the close button, the backdrop or the focus trap.
+      if (next && current) current.replaceWith(next);
+    }
+
+    const toggle = document.querySelector('.site-header__cart-toggle');
+    const freshToggle = doc.querySelector('.site-header__cart-toggle');
+    if (toggle && freshToggle) {
+      // The count badge only exists once the cart is non-empty, so the whole inside is swapped
+      // rather than a number written into an element that may not be there yet. The element itself
+      // survives — the header's click handler is delegated from the section, but aria-controls and
+      // aria-expanded live on this node and must not be rebuilt out from under it.
+      toggle.innerHTML = freshToggle.innerHTML;
+      toggle.setAttribute('aria-label', freshToggle.getAttribute('aria-label') || '');
+    }
+  }
+
+  /* Open it the way the header does, not by reaching into the drawer's internals: write the state
+     onto the trigger, then announce it. The drawer reads the trigger's aria-expanded to decide
+     which way to go, so setting one without the other leaves the cart button one click out of step
+     — the next click would "close" an already-closed drawer and look dead. */
+  function openDrawer() {
+    const trigger = document.querySelector('[aria-controls="cart-drawer"]');
+
+    if (trigger) {
+      trigger.setAttribute('aria-expanded', 'true');
+      document.dispatchEvent(new CustomEvent('site-header:cart-toggle'));
+      return;
+    }
+
+    // No trigger (a header without the cart button): the drawer derives everything from [data-open].
+    const drawer = document.querySelector(DRAWER_SELECTOR);
+    if (drawer) drawer.dataset.open = 'true';
+  }
+
+  function busy(button, on) {
+    button.disabled = on;
+    button.setAttribute('aria-busy', String(on));
+  }
+
+  function showError(el, message) {
+    if (!el) return;
+    el.textContent = message || '';
+    el.hidden = !message;
+  }
+
+  function hideError(el) {
+    if (!el) return;
+    el.textContent = '';
+    el.hidden = true;
+  }
+})();

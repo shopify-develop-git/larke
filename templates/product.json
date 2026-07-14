@@ -120,10 +120,6 @@
         "rating_label": "4.9/5",
         "badge_text": "Smooth & Breezy",
         "seal_alt": "Good Housekeeping Institute approved",
-        "option_2_link_label": "What’s the difference?",
-        "compare_heading": "Still undecided?",
-        "compare_label": "See how our duvet compares",
-        "compare_link": "#compare",
         "background_color": "#fffcf4",
         "text_color": "#333333",
         "accent_color": "#a8cf78",
@@ -131,19 +127,21 @@
         "surface_color": "#fffcf4",
         "card_color": "#fcf5e3",
         "border_color": "#c4bca9",
-        "pc_heading": "Sleep r<em>emarkable.</em>",
-        "pc_subheading": "Without any compromises",
-        "pc_link_label": "See how we’re different",
-        "pc_link": "/pages/about?view=tree-fibre",
         "unit_metric": "CM",
         "unit_imperial": "IN",
-        "tog_guide_title": "Seasons Guide",
-        "tog_heading": "What’s the difference?",
         "tog_label_temp": "Temperature:",
         "tog_label_feel": "How it feels over you:",
         "tog_label_best": "Best for:"
       },
       "blocks": {
+        "compare": {
+          "type": "compare",
+          "settings": {
+            "heading": "Still undecided?",
+            "label": "See how our duvet compares",
+            "link": "#compare"
+          }
+        },
         "acc-love": {
           "type": "accordion",
           "settings": {
@@ -184,66 +182,29 @@
             "cert_3_text": "OEKO TEX approved – tested for harmful substances. Safe on all skins."
           }
         },
-        "pc-care": {
-          "type": "compare_row",
+        "pc": {
+          "type": "price_comparison",
           "settings": {
-            "icon": "care",
-            "label": "Easier to care for"
-          }
-        },
-        "pc-warranty": {
-          "type": "compare_row",
-          "settings": {
-            "icon": "warranty",
-            "label": "Longer warranties"
-          }
-        },
-        "pc-trial": {
-          "type": "compare_row",
-          "settings": {
-            "icon": "trial",
-            "label": "Longer trial periods"
-          }
-        },
-        "tog-1": {
-          "type": "tog_card",
-          "settings": {
-            "heading": "Lightweight",
-            "temperature": "Our coolest: 2/10 on the warmth scale.",
-            "feel": "Think cloud-like comfort – (cool and forever light).",
-            "chips": "Hot sleepers, Warm bedrooms."
-          }
-        },
-        "tog-2": {
-          "type": "tog_card",
-          "settings": {
-            "heading": "All-Season",
-            "temperature": "The middle ground: 5/10 warmth. Balanced and reliable.",
-            "feel": "Stays cool when you warm up, and cosy when the room cools down.",
-            "chips": "Couples, Temperature-changing rooms"
-          }
-        },
-        "tog-3": {
-          "type": "tog_card",
-          "settings": {
-            "heading": "Heavyweight",
-            "temperature": "Our warmest: 8/10 warmth – turn the cosy setting to high.",
-            "feel": "A warm, cocooning feel with extra weight – cosy, never stuffy.",
-            "chips": "Cold sleepers, Cooler homes"
+            "heading": "Sleep r<em>emarkable.</em>",
+            "subheading": "Without any compromises",
+            "row_1_icon": "care",
+            "row_1_label": "Easier to care for",
+            "row_2_icon": "warranty",
+            "row_2_label": "Longer warranties",
+            "row_3_icon": "trial",
+            "row_3_label": "Longer trial periods",
+            "link_label": "See how we’re different",
+            "link": "/pages/about?view=tree-fibre"
           }
         }
       },
       "block_order": [
+        "compare",
         "acc-love",
         "acc-faqs",
         "acc-care",
         "acc-cert",
-        "pc-care",
-        "pc-warranty",
-        "pc-trial",
-        "tog-1",
-        "tog-2",
-        "tog-3"
+        "pc"
       ]
     }
   },

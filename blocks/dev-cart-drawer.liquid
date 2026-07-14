@@ -101,11 +101,17 @@
   It lives as a block of dev-site-header (rather than a section of its own) so one
   configuration serves every template, and so it always ships with the trigger that
   opens it. position:fixed is unaffected — no ancestor creates a containing block.
+
+  The cart routes ride on the root as data attributes rather than being hardcoded in the
+  JS (the same contract dev-main-product uses): a localised storefront serves them under
+  a locale prefix, and "/cart/change.js" would 404 there.
 {%- endcomment -%}
 <div
   id="cart-drawer"
   class="cart-drawer"
   data-open="{{ is_open }}"
+  data-cart-change-url="{{ routes.cart_change_url }}"
+  data-cart-url="{{ routes.cart_url }}"
   {%- unless block.settings.open_on_load %} aria-hidden="true" inert{% endunless %}
   style="
     --bg: {{ block.settings.background_color }};
@@ -148,37 +154,6 @@
       </button>
     </div>
 
-    {%- comment -%}
-      The badge row is painted on EVERY line-item card, but `content_for 'blocks'` may be
-      emitted only ONCE per block — and `block.shopify_attributes` may appear only once per
-      block in the document, or the theme editor gets duplicate block ids and click-to-select
-      breaks. So: the first card renders the real Feature badge blocks (editable); every
-      other card renders an identical, attribute-free copy built from block.blocks. Both
-      draw their artwork from the same snippet.
-    {%- endcomment -%}
-    {%- capture badges_editable -%}
-      {%- if block.blocks.size > 0 -%}
-        <ul class="cart-drawer__badges">
-          {% content_for 'blocks' %}
-        </ul>
-      {%- endif -%}
-    {%- endcapture -%}
-
-    {%- capture badges_plain -%}
-      {%- if block.blocks.size > 0 -%}
-        <ul class="cart-drawer__badges">
-          {%- for badge in block.blocks -%}
-            {%- if badge.settings.label != blank -%}
-              <li class="cart-drawer__badge">
-                {%- render 'dev-cart-drawer-badge-icon', icon: badge.settings.icon -%}
-                <span class="cart-drawer__badge-label">{{ badge.settings.label | escape }}</span>
-              </li>
-            {%- endif -%}
-          {%- endfor -%}
-        </ul>
-      {%- endif -%}
-    {%- endcapture -%}
-
     <div class="cart-drawer__content">
       {%- if cart.item_count > 0 -%}
         <ul class="cart-drawer__items">
@@ -218,13 +193,63 @@
 
                 <div class="cart-drawer__item-actions">
                   <p class="cart-drawer__item-price">{{ item.line_price | money }}</p>
-                  <a class="cart-drawer__item-remove" href="{{ item.url_to_remove }}">
+                  {%- comment -%}
+                    Still a real link to /cart/change, so removing a line works with JS off — it
+                    just costs a page load and lands on /cart, which is the browser doing exactly
+                    what the link says. The JS upgrades it into a cart change made in place; it is
+                    an upgrade on the link, never a replacement for it.
+
+                    It removes BY KEY, not by line number. The line number in url_to_remove is a
+                    position, and positions shift the moment anything above them is removed — the
+                    key names this line whatever happens to the ones around it.
+                  {%- endcomment -%}
+                  <a
+                    class="cart-drawer__item-remove"
+                    href="{{ item.url_to_remove }}"
+                    data-cart-remove
+                    data-line-key="{{ item.key }}"
+                  >
                     {{- block.settings.remove_label | escape -}}
                   </a>
                 </div>
               </div>
 
-              {%- if forloop.first -%}{{ badges_editable }}{%- else -%}{{ badges_plain }}{%- endif -%}
+              {%- comment -%}
+                The badges belong to the PRODUCT on this line, not to the drawer. They used to be
+                blocks of this drawer, which meant one hardcoded row painted onto every line in the
+                basket: add a pillow next to the duvet and the pillow would claim to be a
+                hypoallergenic tree-fibre duvet too. Now each line reads its own product's badges,
+                and a product with none simply shows none.
+
+                An uploaded image wins over the icon. The bundled icons are inline SVG on
+                currentColor — they inherit the drawer's text colour, which an <img> cannot do — so
+                the icon stays the default and the image is the override, not the other way round.
+              {%- endcomment -%}
+              {%- assign badges = item.product.metafields.larke.cart_badges.value -%}
+              {%- if badges.size > 0 -%}
+                <ul class="cart-drawer__badges">
+                  {%- for badge in badges -%}
+                    {%- if badge.label.value != blank -%}
+                      <li class="cart-drawer__badge">
+                        {%- if badge.image.value != blank -%}
+                          <img
+                            class="cart-drawer__badge-image"
+                            src="{{ badge.image.value | image_url: width: 72 }}"
+                            alt=""
+                            width="24"
+                            height="24"
+                            loading="lazy"
+                            aria-hidden="true"
+                          >
+                        {%- else -%}
+                          {%- render 'dev-cart-drawer-badge-icon', icon: badge.icon.value -%}
+                        {%- endif -%}
+                        <span class="cart-drawer__badge-label">{{ badge.label.value | escape }}</span>
+                      </li>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
             </li>
           {%- endfor -%}
         </ul>
@@ -371,11 +396,9 @@
 {
   "name": "Cart drawer",
   "tag": null,
-  "blocks": [
-    { "type": "dev-cart-drawer-badge" }
-  ],
   "settings": [
     { "type": "header", "content": "Content" },
+    { "type": "paragraph", "content": "The feature badges under each line are no longer configured here. They come from the product's Cart badges metafield (larke.cart_badges), so each line in the basket shows its OWN product's badges. Each badge entry carries a label plus either one of the theme's icons or an uploaded image." },
     { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Your Order" },
     { "type": "text", "id": "close_label", "label": "Close button label (screen readers only)", "default": "Close basket" },
     { "type": "text", "id": "remove_label", "label": "Remove link label", "default": "Remove" },

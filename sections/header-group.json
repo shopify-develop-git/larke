@@ -162,34 +162,6 @@
         },
         "cart-drawer": {
           "type": "dev-cart-drawer",
-          "blocks": {
-            "badge-1": {
-              "type": "dev-cart-drawer-badge",
-              "settings": {
-                "icon": "wind",
-                "label": "Breathable"
-              }
-            },
-            "badge-2": {
-              "type": "dev-cart-drawer-badge",
-              "settings": {
-                "icon": "care",
-                "label": "Easy care"
-              }
-            },
-            "badge-3": {
-              "type": "dev-cart-drawer-badge",
-              "settings": {
-                "icon": "organic",
-                "label": "Hypoallergenic"
-              }
-            }
-          },
-          "block_order": [
-            "badge-1",
-            "badge-2",
-            "badge-3"
-          ],
           "settings": {}
         }
       },
