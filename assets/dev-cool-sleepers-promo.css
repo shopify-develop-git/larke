@@ -73,9 +73,16 @@
   overflow: hidden;
 }
 
-/* Holds exactly two identical tracks and shifts by half its own width. -50% is one whole
-   track, so the moment the animation restarts, track 2 is sitting precisely where track 1
-   began — the reset is invisible and nothing has to be measured in JS. */
+/* Shifts by exactly ONE copy of the track, so the moment the animation restarts the next copy is
+   sitting precisely where the first one began and the reset is invisible.
+
+   The distance is a PIXEL value measured by the JS, not -50% of the marquee. -50% is one whole
+   track only while there are exactly two of them — and two are only ever enough if a single track
+   is at least as wide as the frame. Five logos are 839px against a 1512px viewport, so the old
+   -50% dragged 673px of empty space into view on every loop.
+
+   --marquee-shift defaults to 0, so with no JS the strip simply stands still rather than sliding
+   into a gap. */
 .cool-sleepers-promo__marquee {
   display: flex;
   width: max-content;
@@ -120,7 +127,7 @@
   }
 
   to {
-    transform: translateX(-50%);
+    transform: translateX(calc(-1 * var(--marquee-shift, 0px)));
   }
 }
 

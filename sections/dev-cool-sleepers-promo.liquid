@@ -1,4 +1,5 @@
 {{ 'dev-cool-sleepers-promo.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'dev-cool-sleepers-promo.js' | asset_url }}" defer></script>
 
 {%- comment -%}
   The logos strip IS a marquee. Figma has it flattened into one rectangle, so the
@@ -112,45 +113,43 @@
 
     {%- if section.blocks.size > 0 -%}
       {%- comment -%}
-        The track is rendered twice. Copy 1 carries the block attributes and the real alt
-        text; copy 2 is the seam-filler — aria-hidden, alt="", and no shopify_attributes,
-        so it is invisible to screen readers and to the theme editor alike.
+        ONE track is rendered. The seam-filler copies are cloned by the JS, because how many are
+        needed is a fact about the BROWSER, not about the template.
+
+        This used to render exactly two copies and shift by -50%, i.e. by one whole track. That is
+        seamless only while a single track is at least as wide as the frame. It is not: five logos
+        measure 839px against a 1512px viewport, so on every reset the strip ended after 839px and
+        673px of empty space slid into view. It was never endless — it just looked endless on the
+        artboard, where the logos happened to fill the width.
+
+        The JS measures the real track and clones it until the copies behind the first one cover the
+        frame, then tells the CSS to shift by exactly one copy. With no JS the strip stands still —
+        the animation is driven by --marquee-shift, which defaults to 0.
       {%- endcomment -%}
       <div
         class="cool-sleepers-promo__logos"
         style="--marquee-duration: {{ section.settings.marquee_duration }}s;"
+        data-marquee-root
       >
-        <div class="cool-sleepers-promo__marquee">
-          {%- for copy in (1..2) -%}
-            <ul
-              class="cool-sleepers-promo__track"
-              {% if copy == 2 %}
-                aria-hidden="true"
-              {% endif %}
-            >
-              {%- for block in section.blocks -%}
-                {%- if block.settings.image != blank -%}
-                  {%- liquid
-                    assign logo_alt = ''
-                    if copy == 1
-                      assign logo_alt = block.settings.alt_text | default: block.settings.image.alt | default: '' | escape
-                    endif
-                  -%}
-                  <li
-                    class="cool-sleepers-promo__logo"
-                    style="--logo-height: {{ block.settings.logo_height }}px;"
-                    {% if copy == 1 %}{{ block.shopify_attributes }}{% endif %}
-                  >
-                    {{
-                      block.settings.image
-                      | image_url: width: 600
-                      | image_tag: loading: 'lazy', alt: logo_alt, class: 'cool-sleepers-promo__logo-image'
-                    }}
-                  </li>
-                {%- endif -%}
-              {%- endfor -%}
-            </ul>
-          {%- endfor -%}
+        <div class="cool-sleepers-promo__marquee" data-marquee>
+          <ul class="cool-sleepers-promo__track" data-marquee-track>
+            {%- for block in section.blocks -%}
+              {%- if block.settings.image != blank -%}
+                {%- assign logo_alt = block.settings.alt_text | default: block.settings.image.alt | default: '' | escape -%}
+                <li
+                  class="cool-sleepers-promo__logo"
+                  style="--logo-height: {{ block.settings.logo_height }}px;"
+                  {{ block.shopify_attributes }}
+                >
+                  {{
+                    block.settings.image
+                    | image_url: width: 600
+                    | image_tag: loading: 'lazy', alt: logo_alt, class: 'cool-sleepers-promo__logo-image'
+                  }}
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
         </div>
       </div>
     {%- endif -%}
