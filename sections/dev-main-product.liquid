@@ -75,6 +75,15 @@
     --cta-divider-h: 28px;
 
     --transition: 200ms;
+
+    /* Motion. Asymmetric on purpose: a drawer takes its time arriving and leaves briskly, which is
+       what makes it feel like an object rather than a div being toggled. The accordion duration is
+       read back out of here by the JS (parseFloat on the computed value), so keep it in ms. */
+    --guide-in: 480ms;
+    --guide-out: 300ms;
+    --acc-dur: 340ms;
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
   }
 </style>
 
@@ -256,7 +265,8 @@
     </div>
 
     {%- comment -%} ---------- Buy column ---------- {%- endcomment -%}
-    <div class="dev-main-product__buy">
+    {%- comment -%} `id` is the anchor target for on-page CTAs elsewhere on the PDP. {%- endcomment -%}
+    <div id="buy" class="dev-main-product__buy">
       <div class="dev-main-product__head">
         {%- if section.settings.show_rating -%}
           <div class="dev-main-product__rating">
@@ -410,13 +420,19 @@
         <details>/<summary>, not a div plus a click handler. It opens with no JS, it is keyboard
         operable and announced correctly by screen readers for free, and Ctrl+F on the page can
         still find the text inside a closed panel.
+
+        The JS upgrades it: it animates the height and closes the open row when another is opened.
+        Deliberately NOT the native `name` attribute, which would give exclusivity for free — the
+        browser slams the sibling shut the instant we set .open on the new row, killing the closing
+        animation mid-flight. Exclusivity is worth owning so it can be animated.
       {%- endcomment -%}
       {%- assign rows = section.blocks | where: 'type', 'accordion' -%}
       {%- if rows.size > 0 -%}
-        <div class="dev-main-product__accordions">
+        <div class="dev-main-product__accordions" data-acc-group>
           {%- for block in rows -%}
             <details
               class="dev-main-product__acc"
+              data-acc
               {% if block.settings.open_by_default %}open{% endif %}
               {{ block.shopify_attributes }}
             >
@@ -487,7 +503,8 @@
       {%- comment -%} ---------- Price comparison (45068:2385) ---------- {%- endcomment -%}
       {%- assign compare_rows = section.blocks | where: 'type', 'compare_row' -%}
       {%- if compare_rows.size > 0 -%}
-        <div class="dev-main-product__pc">
+        {%- comment -%} `id` is the anchor target for the "Still undecided?" link in the buy column. {%- endcomment -%}
+        <div id="compare" class="dev-main-product__pc">
           <div class="dev-main-product__pc-head">
             {%- if section.settings.pc_heading != blank -%}
               {%- comment -%}
@@ -550,7 +567,13 @@
   {%- if size_rows.size > 0 -%}
     <div id="guide-size" class="dev-main-product__guide" role="dialog" aria-modal="true" aria-labelledby="guide-size-title" data-guide="size" data-open="false" aria-hidden="true" inert>
       <div class="dev-main-product__guide-backdrop" data-guide-close></div>
-      <div class="dev-main-product__guide-panel">
+      {%- comment -%}
+        tabindex="-1": on open the JS focuses THE PANEL, not the first control inside it. Focusing a
+        control while the panel is still translated off-screen makes the browser scroll it into view
+        — it scrolls the overflow:hidden container, the drawer snaps into place, and only then does
+        the transform start. That snap was the whole "horrible animation".
+      {%- endcomment -%}
+      <div class="dev-main-product__guide-panel" data-guide-panel tabindex="-1">
         <div class="dev-main-product__guide-head">
           <h2 class="dev-main-product__guide-title" id="guide-size-title">{{ section.settings.size_guide_title | escape }}</h2>
           <button type="button" class="dev-main-product__guide-close" data-guide-close aria-label="{{ 'actions.close' | t | escape }}">
@@ -593,7 +616,13 @@
   {%- if tog_cards.size > 0 -%}
     <div id="guide-tog" class="dev-main-product__guide" role="dialog" aria-modal="true" aria-labelledby="guide-tog-title" data-guide="tog" data-open="false" aria-hidden="true" inert>
       <div class="dev-main-product__guide-backdrop" data-guide-close></div>
-      <div class="dev-main-product__guide-panel">
+      {%- comment -%}
+        tabindex="-1": on open the JS focuses THE PANEL, not the first control inside it. Focusing a
+        control while the panel is still translated off-screen makes the browser scroll it into view
+        — it scrolls the overflow:hidden container, the drawer snaps into place, and only then does
+        the transform start. That snap was the whole "horrible animation".
+      {%- endcomment -%}
+      <div class="dev-main-product__guide-panel" data-guide-panel tabindex="-1">
         <div class="dev-main-product__guide-head">
           <h2 class="dev-main-product__guide-title" id="guide-tog-title">{{ section.settings.tog_guide_title | escape }}</h2>
           <button type="button" class="dev-main-product__guide-close" data-guide-close aria-label="{{ 'actions.close' | t | escape }}">

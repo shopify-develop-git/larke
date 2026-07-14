@@ -61,7 +61,7 @@
       "settings": {
         "heading": "<p>Naturally the best sleep of your life.</p>",
         "button_label": "Start your 60-nights",
-        "button_link": "",
+        "button_link": "#buy",
         "text_color": "#333333",
         "accent_color": "#333333",
         "padding_top": 80,
@@ -124,6 +124,7 @@
         "option_2_link_label": "What’s the difference?",
         "compare_heading": "Still undecided?",
         "compare_label": "See how our duvet compares",
+        "compare_link": "#compare",
         "background_color": "#fffcf4",
         "text_color": "#333333",
         "accent_color": "#a8cf78",
@@ -134,6 +135,7 @@
         "pc_heading": "Sleep r<em>emarkable.</em>",
         "pc_subheading": "Without any compromises",
         "pc_link_label": "See how we’re different",
+        "pc_link": "/pages/about?view=tree-fibre",
         "size_guide_title": "Size Guide",
         "unit_metric": "CM",
         "unit_imperial": "IN",
@@ -167,7 +169,8 @@
             "heading": "Care",
             "open_by_default": false,
             "body": "<ul><li>Air regularly</li><li>Wash at 30 degrees on gentle cycle</li><li>Air dry preferred or tumble dry on low</li><li>Use mild detergent. Avoid bleach and softeners</li></ul>",
-            "button_label": "How to wash"
+            "button_label": "How to wash",
+            "button_link": "/blogs/news/step-by-step-of-how-to-wash-your-tree-duvet"
           }
         },
         "acc-cert": {

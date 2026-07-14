@@ -81,7 +81,7 @@
         "image_mobile": "shopify://shop_images/fibre-cta-card-image-mobile.jpg",
         "alt_text": "",
         "button_label": "Trial Our Duvet",
-        "button_link": "",
+        "button_link": "/products/natural-duvet",
         "background_color": "#FCF5E3",
         "text_color": "#333333",
         "accent_color": "#A8CF78",

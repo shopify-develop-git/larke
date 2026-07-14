@@ -16,7 +16,7 @@
           "type": "link",
           "settings": {
             "label": "Delivery",
-            "url": "/pages/delivery",
+            "url": "/pages/about?view=delivery",
             "position": "left"
           }
         },
@@ -24,7 +24,7 @@
           "type": "link",
           "settings": {
             "label": "Returns",
-            "url": "/pages/returns",
+            "url": "/pages/about?view=delivery",
             "position": "left"
           }
         },
@@ -44,7 +44,7 @@
           "type": "link",
           "settings": {
             "label": "FAQs",
-            "url": "/pages/faqs",
+            "url": "/pages/faq",
             "position": "right"
           }
         },
@@ -88,21 +88,21 @@
                   "type": "dev-menu-drawer-nav-link",
                   "settings": {
                     "label": "Shop Our Duvet",
-                    "link": "/collections/all"
+                    "link": "/products/natural-duvet"
                   }
                 },
                 "nav-link-2": {
                   "type": "dev-menu-drawer-nav-link",
                   "settings": {
                     "label": "Our Story",
-                    "link": "/pages/our-story"
+                    "link": "/pages/about?view=our-story"
                   }
                 },
                 "nav-link-3": {
                   "type": "dev-menu-drawer-nav-link",
                   "settings": {
                     "label": "Discover Tree-Fibre",
-                    "link": "/pages/tree-fibre"
+                    "link": "/pages/about?view=tree-fibre"
                   }
                 }
               },
@@ -120,21 +120,21 @@
                   "type": "dev-menu-drawer-footer-link",
                   "settings": {
                     "label": "FAQs",
-                    "link": "/pages/faqs"
+                    "link": "/pages/faq"
                   }
                 },
                 "footer-link-2": {
                   "type": "dev-menu-drawer-footer-link",
                   "settings": {
                     "label": "Delivery",
-                    "link": "/pages/delivery"
+                    "link": "/pages/about?view=delivery"
                   }
                 },
                 "footer-link-3": {
                   "type": "dev-menu-drawer-footer-link",
                   "settings": {
                     "label": "Returns",
-                    "link": "/pages/returns"
+                    "link": "/pages/about?view=delivery"
                   }
                 },
                 "footer-link-4": {

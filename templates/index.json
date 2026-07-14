@@ -15,7 +15,7 @@
         "heading": "<p>Not just any<br/>ordinary duvet</p>",
         "subtext": "<p>This one begins with <em>trees</em>.</p>",
         "cta_label": "Discover Our Duvet",
-        "cta_link": "shopify://collections/all",
+        "cta_link": "/products/natural-duvet",
         "background_image": "shopify://shop_images/hero-bg.jpg",
         "background_image_mobile": "shopify://shop_images/hero-bg.jpg",
         "show_underline_accent": true,
@@ -96,7 +96,7 @@
         "heading": "Naturally Better.",
         "subheading": "<p>From trees, to the most breathable duvet.</p>",
         "cta_label": "Start your 60-night trial",
-        "cta_link": "/collections/all",
+        "cta_link": "/products/natural-duvet",
         "background_color": "#fcf5e3",
         "text_color": "#333333",
         "accent_color": "#c4bca9",
@@ -130,7 +130,7 @@
         "heading": "Wash. Dry. Repeat.",
         "body_text": "<p>Fuss-free comfort.<br/>Fresh again by bedtime.</p>",
         "button_label": "Discover Tree-Fibre",
-        "button_link": "",
+        "button_link": "/pages/about?view=tree-fibre",
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#333333",
         "accent_color": "#c4bca9",
@@ -145,7 +145,7 @@
           "type": "cta_button",
           "settings": {
             "label": "Our Story",
-            "link": ""
+            "link": "/pages/about?view=our-story"
           }
         }
       },
@@ -203,7 +203,7 @@
         "rating_stars": "★★★★★",
         "rating_text": "Rated 4.9/5* by real sleepers",
         "button_label": "Shop Your Duvet",
-        "button_link": "",
+        "button_link": "/products/natural-duvet",
         "product_image": "shopify://shop_images/featured-product-hero.jpg",
         "background_color": "#fcf5e3",
         "text_color": "#333333",
@@ -284,7 +284,7 @@
         "heading": "<p>Tree-mendous<br/>since day one.</p>",
         "subheading": "See how it all began.",
         "button_label": "Our Story",
-        "button_link": "/pages/our-story",
+        "button_link": "/pages/about?view=our-story",
         "image": "shopify://shop_images/our-story-video-banner-bg.jpg",
         "image_mobile": "shopify://shop_images/our-story-video-banner-bg.jpg",
         "background_color": "#ffffff",

@@ -660,13 +660,20 @@
   display: block;
   width: var(--icon-size);
   height: var(--icon-size);
-  transition: transform var(--transition) ease;
+  transition: transform var(--acc-dur) var(--ease-out);
 }
 
 /* Figma swaps chevron-down for chevron-up. One glyph, rotated — a second SVG would be the same
    path drawn twice and one more thing to keep in step. */
 .dev-main-product__acc[open] .dev-main-product__acc-chevron {
   transform: rotate(180deg);
+}
+
+/* A closing row keeps [open] until its height animation lands (the content has to stay in the DOM
+   to be animated out of), so the chevron has to be told to turn back NOW rather than at the end.
+   Same specificity as the [open] rule above — it wins on source order, so it must stay below it. */
+.dev-main-product__acc[data-acc-state='closing'] .dev-main-product__acc-chevron {
+  transform: none;
 }
 
 .dev-main-product__acc-body {
@@ -707,9 +714,49 @@
   background-color: currentcolor;
 }
 
+/* The row does not merely get taller — its contents rise into the gap the height animation opens.
+   Height on its own reads as a shutter coming up; with this it reads as copy arriving.
+   `both` matters on the way out: the fill holds the panel at opacity 0 for the last frames of the
+   collapse, so the text is gone before the row is. The JS clears data-acc-state when the height
+   animation lands, which drops both rules and returns the row to its natural, un-animated state. */
+.dev-main-product__acc[data-acc-state='opening'] > :not(summary) {
+  animation: dev-main-product-acc-in var(--acc-dur) var(--ease-out) both;
+}
+
+.dev-main-product__acc[data-acc-state='closing'] > :not(summary) {
+  animation: dev-main-product-acc-out calc(var(--acc-dur) * 0.6) var(--ease-in) both;
+}
+
+@keyframes dev-main-product-acc-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes dev-main-product-acc-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .dev-main-product__acc-chevron {
     transition: none;
+  }
+
+  /* The JS drops the height animation to 0ms on its own; this kills the content's fade to match. */
+  .dev-main-product__acc[data-acc-state] > :not(summary) {
+    animation: none;
   }
 }
 
@@ -931,13 +978,17 @@
   inset: 0;
   background-color: rgb(51 51 51 / 40%);
   opacity: 0;
-  transition: opacity var(--transition) ease;
+  transition: opacity var(--guide-out) var(--ease-in);
 }
 
 .dev-main-product__guide[data-open='true'] .dev-main-product__guide-backdrop {
   opacity: 1;
+  transition: opacity var(--guide-in) var(--ease-out);
 }
 
+/* The closed state carries the LEAVING transition and the open state the ARRIVING one, so the two
+   directions can differ. `ease` on a 568px slide reads as a panel being dragged; the decelerating
+   curve below lets it arrive under its own weight and settle, which is the whole illusion. */
 .dev-main-product__guide-panel {
   position: absolute;
   top: 16px;
@@ -951,11 +1002,48 @@
   background-color: var(--bg);
   overflow: hidden;
   transform: translateX(calc(100% + 16px));
-  transition: transform var(--transition) ease;
+  opacity: 0;
+  will-change: transform;
+  transition:
+    transform var(--guide-out) var(--ease-in),
+    opacity calc(var(--guide-out) / 2) linear var(--guide-out);
+}
+
+/* The panel is the focus target on open (see the section's tabindex="-1"). It is a container, not a
+   control — the ring belongs on what the user tabs to next, not on the box that just slid in. */
+.dev-main-product__guide-panel:focus {
+  outline: none;
 }
 
 .dev-main-product__guide[data-open='true'] .dev-main-product__guide-panel {
   transform: translateX(0);
+  opacity: 1;
+  transition:
+    transform var(--guide-in) var(--ease-out),
+    opacity calc(var(--guide-in) / 3) linear;
+}
+
+/* The contents ride in a beat behind the panel — the drawer arrives, then its contents catch up.
+   Without it a fully-formed panel slides in as one flat slab. */
+.dev-main-product__guide[data-open='true'] .dev-main-product__guide-head,
+.dev-main-product__guide[data-open='true'] .dev-main-product__guide-body {
+  animation: dev-main-product-guide-content var(--guide-in) var(--ease-out) both;
+}
+
+.dev-main-product__guide[data-open='true'] .dev-main-product__guide-body {
+  animation-delay: 60ms;
+}
+
+@keyframes dev-main-product-guide-content {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .dev-main-product__guide-head {
@@ -1179,5 +1267,47 @@
 
   .dev-main-product__guide[data-open='true'] .dev-main-product__guide-panel {
     transform: translateY(0);
+  }
+
+  /* The sheet rises from the bottom here, so its contents rise with it. Keeping the desktop
+     keyframe would have the copy sliding in sideways out of a panel travelling upwards. */
+  .dev-main-product__guide[data-open='true'] .dev-main-product__guide-head,
+  .dev-main-product__guide[data-open='true'] .dev-main-product__guide-body {
+    animation-name: dev-main-product-guide-content-up;
+  }
+}
+
+@keyframes dev-main-product-guide-content-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* No motion means no motion: the drawer must still open, it simply must not travel to get there.
+   Everything below kills the movement and keeps the state change. */
+@media (prefers-reduced-motion: reduce) {
+  .dev-main-product__guide-backdrop,
+  .dev-main-product__guide[data-open='true'] .dev-main-product__guide-backdrop,
+  .dev-main-product__guide-panel,
+  .dev-main-product__guide[data-open='true'] .dev-main-product__guide-panel {
+    transition: opacity 1ms linear;
+  }
+
+  /* Opacity alone hides the closed panel — NOT visibility, and not display. The note at the top of
+     this block explains what happens to a panel that has no painted frame to animate from. */
+  .dev-main-product__guide-panel,
+  .dev-main-product__guide[data-open='true'] .dev-main-product__guide-panel {
+    transform: none;
+  }
+
+  .dev-main-product__guide[data-open='true'] .dev-main-product__guide-head,
+  .dev-main-product__guide[data-open='true'] .dev-main-product__guide-body {
+    animation: none;
   }
 }

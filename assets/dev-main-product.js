@@ -193,20 +193,62 @@
       lastTrigger = trigger || null;
       if (trigger) trigger.setAttribute('aria-expanded', 'true');
 
-      const first = guide.querySelector(FOCUSABLE);
-      if (first) first.focus();
+      lockScroll();
+
+      // THE fix for the jerky open. Focusing a control inside the panel — which at this instant is
+      // still translated a full panel-width off-screen — makes the browser scroll it into view. It
+      // scrolls the overflow:hidden container, the drawer lands in place with no animation at all,
+      // and the transform then runs from an already-visible position. So: focus the panel itself,
+      // and forbid the scroll. Tab from there still walks into the close button.
+      const panel = guide.querySelector('[data-guide-panel]');
+      const target = panel || guide;
+      target.focus({ preventScroll: true });
+
+      // Belt and braces: any scroll a previous open leaked into the container would offset the
+      // panel for the whole of this animation.
+      guide.scrollLeft = 0;
+      guide.scrollTop = 0;
     }
 
     function close(guide) {
       guide.dataset.open = 'false';
       guide.setAttribute('aria-hidden', 'true');
 
+      unlockScroll();
+
       // Focus leaves BEFORE inert goes on, or the browser is left with focus inside an inert subtree.
       if (lastTrigger) {
         lastTrigger.setAttribute('aria-expanded', 'false');
-        lastTrigger.focus();
+        lastTrigger.focus({ preventScroll: true });
       }
       guide.setAttribute('inert', '');
+    }
+
+    /* The page behind an open drawer must not scroll — a modal whose backdrop scrolls under the
+       finger is the other half of "it feels cheap". Removing the scrollbar reflows the page by its
+       width, which would shove the whole layout sideways at the exact moment the drawer slides in,
+       so the width is paid back as padding. */
+    function lockScroll() {
+      const body = document.body;
+      if (body.dataset.mainProductLock === 'true') return;
+
+      const gap = window.innerWidth - document.documentElement.clientWidth;
+      body.dataset.mainProductLock = 'true';
+      body.dataset.mainProductOverflow = body.style.overflow;
+      body.dataset.mainProductPadding = body.style.paddingRight;
+      body.style.overflow = 'hidden';
+      if (gap > 0) body.style.paddingRight = gap + 'px';
+    }
+
+    function unlockScroll() {
+      const body = document.body;
+      if (body.dataset.mainProductLock !== 'true') return;
+
+      body.style.overflow = body.dataset.mainProductOverflow || '';
+      body.style.paddingRight = body.dataset.mainProductPadding || '';
+      delete body.dataset.mainProductLock;
+      delete body.dataset.mainProductOverflow;
+      delete body.dataset.mainProductPadding;
     }
 
     root.querySelectorAll('[data-guide-open]').forEach((trigger) => {
@@ -265,5 +307,147 @@
         });
       });
     });
+  }
+})();
+
+/* ---- Accordions ---------------------------------------------------------- */
+(function () {
+  // Height is animated with the Web Animations API rather than a CSS transition, because there is
+  // nothing to transition BETWEEN: <details> has no intermediate height. It is `auto` or it is the
+  // summary, and `auto` is not an animatable value. So each open measures the real end height and
+  // animates to it in pixels, then hands the element back to `auto` — a row whose content reflows
+  // (a font landing, an image loading) is never left frozen at a stale pixel height.
+  const running = new WeakMap();
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-main-product]').forEach((root) => initAccordions(root));
+  });
+
+  function initAccordions(root) {
+    root.querySelectorAll('[data-acc-group]').forEach((group) => {
+      const items = Array.from(group.querySelectorAll('[data-acc]'));
+      if (items.length === 0) return;
+
+      items.forEach((details) => {
+        const summary = details.querySelector('summary');
+        if (!summary) return;
+
+        summary.addEventListener('click', (event) => {
+          // The browser's own toggle is instant and unstoppable. Take it over: we open and close.
+          event.preventDefault();
+
+          if (isOpen(details)) {
+            collapse(details);
+            return;
+          }
+
+          // One row at a time. Whatever is open closes on the way — collapsed with the same
+          // animation as a click on its own summary, not slammed shut.
+          items.forEach((other) => {
+            if (other !== details && isOpen(other)) collapse(other);
+          });
+
+          expand(details);
+        });
+      });
+    });
+  }
+
+  // A row that is mid-collapse still carries `open` — the content has to stay in the DOM to be
+  // animated out of. Reading `.open` alone would call a click on a closing row "close it again",
+  // and the row would never come back. What the user sees is what counts: a closing row is closed.
+  function isOpen(details) {
+    return details.open && details.dataset.accState !== 'closing';
+  }
+
+  function expand(details) {
+    const from = current(details);
+    stop(details);
+
+    details.open = true;
+    details.dataset.accState = 'opening';
+
+    // Read the natural height while nothing is pinning it. This is the only honest measurement:
+    // scrollHeight excludes the border, and the row is border-box.
+    const to = details.getBoundingClientRect().height;
+
+    animate(details, from, to, () => {
+      delete details.dataset.accState;
+    });
+  }
+
+  function collapse(details) {
+    const from = current(details);
+    stop(details);
+
+    details.dataset.accState = 'closing';
+
+    animate(details, from, closedHeight(details), () => {
+      // .open comes off only at the END. It is what keeps the content in the DOM to be animated out
+      // of — drop it up front and the row would vanish and then politely animate an empty box.
+      details.open = false;
+      delete details.dataset.accState;
+    });
+  }
+
+  function animate(details, from, to, done) {
+    // overflow: hidden is what does the clipping while the box is shorter than its content. It is
+    // set inline and cleared on landing, so the open row can still overflow naturally if it must.
+    details.style.overflow = 'hidden';
+
+    const anim = details.animate({ height: [from + 'px', to + 'px'] }, { duration: duration(details), easing: easing(details, to > from) });
+
+    running.set(details, anim);
+
+    anim.addEventListener('finish', () => {
+      running.delete(details);
+      details.style.overflow = '';
+      details.style.height = '';
+      done();
+    });
+  }
+
+  // Cancel any animation still in flight, having already read the height it had reached. Without
+  // this, a fast second click animates from the row's resting height and the panel visibly snaps
+  // back before it starts moving.
+  function stop(details) {
+    const anim = running.get(details);
+    if (!anim) return;
+    anim.cancel();
+    running.delete(details);
+  }
+
+  function current(details) {
+    return details.getBoundingClientRect().height;
+  }
+
+  // The row at rest: summary, plus the row's own padding and borders. Everything else is content.
+  function closedHeight(details) {
+    const summary = details.querySelector('summary');
+    const styles = window.getComputedStyle(details);
+
+    return (
+      summary.getBoundingClientRect().height +
+      parseFloat(styles.paddingTop) +
+      parseFloat(styles.paddingBottom) +
+      parseFloat(styles.borderTopWidth) +
+      parseFloat(styles.borderBottomWidth)
+    );
+  }
+
+  // The duration and the curves live in the section's token block, so the motion of the accordion
+  // and the motion of the drawers cannot drift apart.
+  function duration(details) {
+    if (prefersReducedMotion()) return 0;
+    return parseFloat(window.getComputedStyle(details).getPropertyValue('--acc-dur')) || 340;
+  }
+
+  function easing(details, opening) {
+    const token = opening ? '--ease-out' : '--ease-in';
+    return window.getComputedStyle(details).getPropertyValue(token).trim() || 'ease';
+  }
+
+  function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
 })();
