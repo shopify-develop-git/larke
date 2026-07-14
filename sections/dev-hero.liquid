@@ -131,6 +131,9 @@
        0deg — a bottom-anchored scrim, not a deliberate tilt. At 0deg the two breakpoints
        become the same gradient, so there is one token, not two. */
     --overlay: linear-gradient(0deg, rgba(0, 0, 0, 0.4) 6.42%, rgba(0, 0, 0, 0) 60.23%);
+
+    /* Fixed, like every other button on the site. No section lets a merchant recolour one. */
+    --cta-text: #333333;
   }
 </style>
 
@@ -158,7 +161,6 @@
     --bg: {{ section.settings.background_color }};
     --color: {{ section.settings.text_color }};
     --accent: {{ section.settings.accent_color }};
-    --cta-text: {{ section.settings.cta_text_color }};
     --pt: {{ section.settings.padding_top }}px;
     --pb: {{ section.settings.padding_bottom }}px;
   "
@@ -275,7 +277,6 @@
     },
     { "type": "color", "id": "text_color", "label": "Text color", "default": "#FFFFFF" },
     { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#A8CF78" },
-    { "type": "color", "id": "cta_text_color", "label": "Button text color", "default": "#333333" },
 
     { "type": "header", "content": "Spacing" },
     {

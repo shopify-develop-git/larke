@@ -34,10 +34,12 @@
     --section-px: 64px;
     --section-px-m: 16px;
 
-    /* The artboards state their own top spacers (Section padding: 80 desktop, 48 mobile) —
-       fixed tokens, not a scale factor. --pb is 0 on both: no bottom spacer node exists, the
-       next section supplies the gap. Same convention as dev-journal-cards. */
-    --pt: 80px;
+    /* The artboards state their own top spacers (Section padding: 80 desktop, 48 mobile) — fixed
+       tokens, not a scale factor. Desktop --pt is the merchant's, like every other section; the
+       mobile spacer stays pinned to the artboard's 48 rather than deriving from it, because 48 is
+       not a ratio of 80 (dev-journal-cards halves its --pt; here that would give 40 and move a
+       signed-off breakpoint). --pb is 0: no bottom spacer node exists, the next section supplies
+       the gap. */
     --pt-m: 48px;
 
     /* Typography. Desktop/Title 3 -> Mobile/Title 3 (32 -> 24); captions Body/Lg -> Body/Md. */
@@ -102,6 +104,7 @@
       --bg: {{ section.settings.background_color }};
       --color: {{ section.settings.text_color }};
       --accent: {{ section.settings.accent_color }};
+      --pt: {{ section.settings.padding_top }}px;
       --pb: {{ section.settings.padding_bottom }}px;
     "
   >
@@ -177,6 +180,17 @@
     { "type": "color", "id": "accent_color", "label": "Underline color", "default": "#A8CF78" },
 
     { "type": "header", "content": "Spacing" },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "info": "Desktop only — the mobile spacer is pinned to the artboard's 48px.",
+      "default": 80
+    },
     {
       "type": "range",
       "id": "padding_bottom",

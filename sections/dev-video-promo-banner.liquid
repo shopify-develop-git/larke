@@ -57,6 +57,8 @@
     --button-px-m: 18px;
     --button-py-m: 12px;
     --button-radius: 60px;
+    /* Fixed, like every other button on the site. No section lets a merchant recolour one. */
+    --cta-text-color: #333333;
 
     /* Play button */
     --play-btn-size: 62px;
@@ -121,7 +123,6 @@
     --bg: {{ section.settings.background_color }};
     --color: {{ section.settings.text_color }};
     --accent: {{ section.settings.accent_color }};
-    --cta-text-color: {{ section.settings.cta_text_color }};
     --pt: {{ section.settings.padding_top }}px;
     --pb: {{ section.settings.padding_bottom }}px;
   "
@@ -364,7 +365,6 @@
       "info": "Button and play button background.",
       "default": "#FFFCF4"
     },
-    { "type": "color", "id": "cta_text_color", "label": "Button text color", "default": "#333333" },
 
     { "type": "header", "content": "Spacing" },
     {

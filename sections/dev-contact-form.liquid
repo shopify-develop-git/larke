@@ -64,13 +64,14 @@
     --button-pad: 11px 17px;
     --button-radius: 60px;
     --button-border-w: 1px;
+
+    /* The Figma fill is a translucent dark neutral, not a solid: #343434 at 66%. Fixed, like every
+       other button on the site — no section lets a merchant recolour one, and this one used to be
+       the exception with three settings for it. */
+    --button-bg: rgba(52, 52, 52, 0.66);
+    --button-color: #ffffff;
   }
 </style>
-
-{%- liquid
-  assign button_alpha = section.settings.button_opacity | divided_by: 100.0
-  assign button_fill = section.settings.button_color | color_modify: 'alpha', button_alpha
--%}
 
 {%- comment -%}
   Contact. 45246:3640 (desktop) / 45246:1199 (mobile).
@@ -91,8 +92,6 @@
     --card-bg: {{ section.settings.card_color }};
     --field-border: {{ section.settings.field_border_color }};
     --field-placeholder: {{ section.settings.placeholder_color }};
-    --button-bg: {{ button_fill }};
-    --button-color: {{ section.settings.button_text_color }};
     --pt: {{ section.settings.padding_top }}px;
     --pb: {{ section.settings.padding_bottom }}px;
   "
@@ -202,9 +201,6 @@
     { "type": "color", "id": "card_color", "label": "Card background", "default": "#FCF5E3" },
     { "type": "color", "id": "field_border_color", "label": "Field border", "default": "#666666" },
     { "type": "color", "id": "placeholder_color", "label": "Placeholder text", "default": "#666666" },
-    { "type": "color", "id": "button_color", "label": "Button fill", "default": "#343434" },
-    { "type": "range", "id": "button_opacity", "min": 0, "max": 100, "step": 1, "unit": "%", "label": "Button fill opacity", "default": 66, "info": "The Figma fill is a translucent dark neutral, not a solid." },
-    { "type": "color", "id": "button_text_color", "label": "Button text & border", "default": "#FFFFFF" },
 
     { "type": "header", "content": "Spacing" },
     { "type": "range", "id": "padding_top", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding top", "default": 0 },

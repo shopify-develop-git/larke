@@ -23,7 +23,6 @@
         "background_color": "#333333",
         "text_color": "#ffffff",
         "accent_color": "#a8cf78",
-        "cta_text_color": "#333333",
         "padding_top": 64,
         "padding_bottom": 64
       }
@@ -163,7 +162,6 @@
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#ffffff",
         "accent_color": "#fffcf4",
-        "cta_text_color": "#333333",
         "padding_top": 80,
         "padding_bottom": 0
       }

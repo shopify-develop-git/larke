@@ -25,9 +25,6 @@
         "card_color": "#fcf5e3",
         "field_border_color": "#666666",
         "placeholder_color": "#666666",
-        "button_color": "#343434",
-        "button_opacity": 66,
-        "button_text_color": "#ffffff",
         "padding_top": 0,
         "padding_bottom": 0
       }
