@@ -100,7 +100,13 @@
     <div class="dev-contact-form__card">
       {%- if section.settings.title != blank -%}
         {%- comment -%} inline_richtext: already safe HTML from Shopify — never escape it. {%- endcomment -%}
-        <h2 class="dev-contact-form__title">{{ section.settings.title }}</h2>
+        {%- comment -%}
+          <h1>, not <h2>. This section IS the page's main content — the page templates render no
+          title of their own, so before this the whole document had no h1 at all and its outline
+          opened at level 2. The children below are h2 for the same reason: an h1 followed by an h3
+          is a skipped level.
+        {%- endcomment -%}
+        <h1 class="dev-contact-form__title">{{ section.settings.title }}</h1>
       {%- endif -%}
 
       {%- if section.settings.body != blank -%}

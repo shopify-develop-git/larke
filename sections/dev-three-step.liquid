@@ -97,7 +97,13 @@
           <div class="dev-three-step__text">
             {%- if block.settings.title != blank -%}
               {%- comment -%} inline_richtext: already safe HTML from Shopify — never escape it. {%- endcomment -%}
-              <h3 class="dev-three-step__title">{{ block.settings.title }}</h3>
+              {%- comment -%}
+              A <p>, not a heading. These are the labels on a row of cards, and the section carries
+              no heading of its own — so as an <h3> each one hung off whatever heading happened to
+              precede it in the document, and on the homepage that produced a literal h1 -> h3 skip.
+              They are captions, not sections. The class does all the styling, so nothing moves.
+            {%- endcomment -%}
+            <p class="dev-three-step__title">{{ block.settings.title }}</p>
             {%- endif -%}
 
             {%- if block.settings.body != blank -%}

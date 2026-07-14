@@ -76,7 +76,13 @@
     {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
       <div class="dev-faq__head">
         {%- if section.settings.heading != blank -%}
-          <h2 class="dev-faq__heading">{{ section.settings.heading }}</h2>
+          {%- comment -%}
+          <h1>, not <h2>. This section IS the page's main content — the page templates render no
+          title of their own, so before this the whole document had no h1 at all and its outline
+          opened at level 2. The children below are h2 for the same reason: an h1 followed by an h3
+          is a skipped level.
+        {%- endcomment -%}
+        <h1 class="dev-faq__heading">{{ section.settings.heading }}</h1>
         {%- endif -%}
 
         {%- if section.settings.subheading != blank -%}
@@ -96,7 +102,7 @@
             {{ block.shopify_attributes }}
           >
             <summary class="dev-faq__summary">
-              <h3 class="dev-faq__question">{{ block.settings.heading }}</h3>
+              <h2 class="dev-faq__question">{{ block.settings.heading }}</h2>
               <span class="dev-faq__icon" aria-hidden="true">
                 {%- comment -%} One glyph, rotated when the row opens — a second SVG would be the same path drawn twice. {%- endcomment -%}
                 <svg class="dev-faq__chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">

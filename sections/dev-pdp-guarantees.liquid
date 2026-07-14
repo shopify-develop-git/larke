@@ -88,7 +88,13 @@
         {%- for block in section.blocks -%}
           <li class="pdp-guarantees__badge" {{ block.shopify_attributes }}>
             {%- if block.settings.heading != blank -%}
-              <h3 class="pdp-guarantees__badge-heading">{{ block.settings.heading }}</h3>
+              {%- comment -%}
+              A <p>, not a heading. These are the labels on a row of cards, and the section carries
+              no heading of its own — so as an <h3> each one hung off whatever heading happened to
+              precede it in the document, and on the homepage that produced a literal h1 -> h3 skip.
+              They are captions, not sections. The class does all the styling, so nothing moves.
+            {%- endcomment -%}
+            <p class="pdp-guarantees__badge-heading">{{ block.settings.heading }}</p>
             {%- endif -%}
 
             {%- if block.settings.text != blank -%}
