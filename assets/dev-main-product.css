@@ -807,14 +807,36 @@
 
 /* The hand-drawn swoosh under "remarkable". Absolute so it cannot push the line apart, and
    aria-hidden because it says nothing a screen reader needs. */
-.dev-main-product__pc-underline {
+/* The stroke rides on the <em>, so it follows whatever the merchant italicises. It used to be an
+   <img> at top: 33px / left: 76px — the coordinates of "emarkable." in the default copy — while the
+   setting cheerfully told the merchant that "that split is yours to move". Moving it left the
+   underline behind. */
+.dev-main-product__pc-title em,
+.dev-main-product__pc-title i {
+  position: relative;
+}
+
+.dev-main-product__pc-title em::after,
+.dev-main-product__pc-title i::after {
+  content: '';
   position: absolute;
-  top: 33px;
-  left: 76px;
-  display: block;
-  width: 147px;
-  height: auto;
-  max-width: none;
+  left: 0;
+  right: 0;
+  top: 100%;
+  margin-top: var(--underline-gap);
+  height: var(--underline-h);
+
+  /* A MASK, not an image: the ink is --accent, so the stroke tracks the merchant's accent setting
+     and no colour is hardcoded here. The asset is the Figma vector verbatim. */
+  background-color: var(--accent);
+  -webkit-mask-image: var(--underline);
+  mask-image: var(--underline);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  pointer-events: none;
 }
 
 .dev-main-product__pc-sub {
