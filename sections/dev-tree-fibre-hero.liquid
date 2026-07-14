@@ -143,10 +143,20 @@
 
 {%- liquid
   assign bg_image = section.settings.background_image
+  assign bg_mobile = section.settings.background_image_mobile
 -%}
 
+{%- comment -%}
+  The mobile background is OPTIONAL and changes how the crop works, so the two cases are kept apart:
+
+  - No mobile image (the default, and what the artboard describes): the desktop photo is re-framed
+    on mobile by --bg-*-m — a 111.73% x 114.27% overflow crop that reaches up into the dark treeline.
+    Unchanged from before this setting existed.
+  - A mobile image IS set: it is a picture chosen FOR that frame, so re-applying the overflow crop
+    would push its subject off the top. The modifier below drops the crop and lets it simply cover.
+{%- endcomment -%}
 <div
-  class="tree-fibre-hero{% if section.settings.show_underline %} tree-fibre-hero--underline{% endif %}"
+  class="tree-fibre-hero{% if section.settings.show_underline %} tree-fibre-hero--underline{% endif %}{% if bg_mobile != blank %} tree-fibre-hero--mobile-bg{% endif %}"
   style="
     --bg: {{ section.settings.background_color }};
     --color: {{ section.settings.text_color }};
@@ -157,17 +167,43 @@
 >
   <div class="tree-fibre-hero__bg-layer">
     {%- if bg_image != blank -%}
-      {{
-        bg_image
-        | image_url: width: 2000
-        | image_tag:
-          loading: 'eager',
-          fetchpriority: 'high',
-          widths: '400, 600, 800, 1200, 1600, 2000',
-          sizes: '(max-width: 768px) 112vw, 100vw',
-          alt: '',
-          class: 'tree-fibre-hero__bg'
-      }}
+      {%- comment -%}
+        <picture>, not two <img> hidden from each other by display:none. A hidden <img> is still
+        FETCHED — the sibling hero does exactly that, so a phone downloads the desktop photo it will
+        never show, at fetchpriority: high, against the LCP of the page. A <source media=...> makes
+        the browser pick one file and download only that one.
+
+        The <img> stays the desktop candidate: it is the fallback every browser understands, and it
+        is what <picture> falls back to when no <source> matches.
+      {%- endcomment -%}
+      <picture>
+        {%- if bg_mobile != blank -%}
+          <source
+            media="(max-width: 768px)"
+            srcset="
+              {{ bg_mobile | image_url: width: 400 }} 400w,
+              {{ bg_mobile | image_url: width: 600 }} 600w,
+              {{ bg_mobile | image_url: width: 800 }} 800w,
+              {{ bg_mobile | image_url: width: 1200 }} 1200w
+            "
+            sizes="100vw"
+            width="{{ bg_mobile.width }}"
+            height="{{ bg_mobile.height }}"
+          >
+        {%- endif -%}
+
+        {{
+          bg_image
+          | image_url: width: 2000
+          | image_tag:
+            loading: 'eager',
+            fetchpriority: 'high',
+            widths: '400, 600, 800, 1200, 1600, 2000',
+            sizes: '(max-width: 768px) 112vw, 100vw',
+            alt: '',
+            class: 'tree-fibre-hero__bg'
+        }}
+      </picture>
     {%- endif -%}
 
     <span class="tree-fibre-hero__overlay" aria-hidden="true"></span>
@@ -204,7 +240,13 @@
       "info": "Draws the hand-drawn accent stroke under every italicised run, in the accent colour.",
       "default": false
     },
-    { "type": "image_picker", "id": "background_image", "label": "Background image" },
+    { "type": "image_picker", "id": "background_image", "label": "Background image (desktop)" },
+    {
+      "type": "image_picker",
+      "id": "background_image_mobile",
+      "label": "Background image (mobile)",
+      "info": "Optional. Left empty, mobile re-crops the desktop image the way the artboard does. Set one and it is shown as-is, cropped to fill."
+    },
 
     { "type": "header", "content": "Colors" },
     {
