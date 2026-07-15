@@ -351,12 +351,19 @@
 
       {%- if section.settings.show_payment_icons -%}
         {%- comment -%}
-          The eight brand marks are the owner's own Figma exports, inlined verbatim
-          (.figma-assets/site-footer/payment-*.svg). Multi-colour by design: brand fills are kept
-          exactly as exported — no currentColor, no theme/stock payment icon set.
+          Two sources, chosen by the "Payment icons" setting (section.settings.payment_icons_source):
+          - dynamic (default): shop.enabled_payment_types -> Shopify's own icon set, always
+            matching what is actually enabled at checkout, zero maintenance.
+          - custom: the eight brand marks — the owner's own Figma exports, inlined verbatim,
+            multi-colour, fills kept exactly as exported (no currentColor, no stock set).
         {%- endcomment -%}
         <div class="site-footer__payments">
           <ul class="site-footer__payment-list" role="list">
+            {%- if section.settings.payment_icons_source == 'dynamic' -%}
+              {%- for type in shop.enabled_payment_types -%}
+                <li>{{ type | payment_type_svg_tag: class: 'site-footer__payment-icon site-footer__payment-icon--dynamic' }}</li>
+              {%- endfor -%}
+            {%- else -%}
             <li><svg class="site-footer__payment-icon site-footer__payment-icon--visa" viewBox="0 0 35 20" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
 <title>Visa</title>
 <g id="sf-visa-Visa">
@@ -469,6 +476,7 @@
 </g>
 </g>
 </svg></li>
+            {%- endif -%}
           </ul>
         </div>
       {%- endif -%}
@@ -491,8 +499,21 @@
     { "type": "inline_richtext", "id": "social_heading", "label": "Social heading", "default": "Social" },
     { "type": "url", "id": "social_facebook_url", "label": "Facebook link" },
     { "type": "url", "id": "social_instagram_url", "label": "Instagram link" },
-    { "type": "checkbox", "id": "show_payment_icons", "label": "Show payment icons", "default": true },
     { "type": "richtext", "id": "copyright_text", "label": "Copyright", "default": "<p>Copyright © 2026 <a href=\"https://wearelarke.com/\">Larke</a></p>" },
+
+    { "type": "header", "content": "Payment icons" },
+    { "type": "checkbox", "id": "show_payment_icons", "label": "Show payment icons", "default": true },
+    {
+      "type": "select",
+      "id": "payment_icons_source",
+      "label": "Icon source",
+      "default": "dynamic",
+      "info": "Real: the marks Shopify actually enables at checkout — Shopify's own artwork, always accurate, no maintenance. Brand: the fixed Figma set, updated in code if payment methods change.",
+      "options": [
+        { "value": "dynamic", "label": "Real (enabled payment methods)" },
+        { "value": "custom", "label": "Brand icons (fixed set)" }
+      ]
+    },
 
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "background_color", "label": "Background", "default": "#FCF5E3" },

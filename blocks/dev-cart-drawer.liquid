@@ -275,13 +275,20 @@
         {%- endif -%}
 
         {%- comment -%}
-          The eight marks exported from the Figma artboard, in artboard order. NOT
-          shop.enabled_payment_types: that renders Shopify's own icon set, which is
-          different artwork from the owner's. The last mark is filed in Figma as a
-          second "Amex" but is a blue Shop Pay mark — flagged in the Brief, drawn here
-          exactly as exported and labelled for what it depicts.
+          Two sources, chosen by the "Payment icons" setting (block.settings.payment_icons_source):
+          - dynamic (default): shop.enabled_payment_types -> Shopify's own icon set,
+            always matching what is actually enabled at checkout, zero maintenance.
+          - custom: the eight marks exported from the Figma artboard, in artboard
+            order, pixel-matched to the owner's brand artwork. The last mark is filed
+            in Figma as a second "Amex" but is a blue Shop Pay mark (flagged in the
+            Brief) — drawn exactly as exported and labelled for what it depicts.
         {%- endcomment -%}
         <ul class="cart-drawer__payment-icons">
+          {%- if block.settings.payment_icons_source == 'dynamic' -%}
+            {%- for type in shop.enabled_payment_types -%}
+              <li class="cart-drawer__payment-item">{{ type | payment_type_svg_tag: class: 'cart-drawer__payment-icon' }}</li>
+            {%- endfor -%}
+          {%- else -%}
           <li class="cart-drawer__payment-item"><svg class="cart-drawer__payment-icon" viewBox="0 0 35 20" width="35" height="20" fill="none" role="img" aria-label="Visa">
 <g id="Visa-cd-visa">
 <g id="Visa_2-cd-visa">
@@ -386,6 +393,7 @@
 </g>
 </g>
 </svg></li>
+          {%- endif -%}
         </ul>
       </div>
     </div>
@@ -406,6 +414,19 @@
     { "type": "text", "id": "checkout_label", "label": "Checkout button label", "default": "Checkout Securely" },
     { "type": "url", "id": "checkout_url", "label": "Checkout link", "info": "Leave empty to use the store's checkout." },
     { "type": "text", "id": "payment_label", "label": "Payment methods label", "default": "Accepted payment methods" },
+
+    { "type": "header", "content": "Payment icons" },
+    {
+      "type": "select",
+      "id": "payment_icons_source",
+      "label": "Icon source",
+      "default": "dynamic",
+      "info": "Real: the marks Shopify actually enables at checkout — Shopify's own artwork, always accurate, no maintenance. Brand: a fixed set matched to the Figma artwork, updated in code if payment methods change.",
+      "options": [
+        { "value": "dynamic", "label": "Real (enabled payment methods)" },
+        { "value": "custom", "label": "Brand icons (fixed set)" }
+      ]
+    },
 
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },

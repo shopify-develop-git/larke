@@ -300,6 +300,13 @@
   height: 19px;
 }
 
+/* Dynamic (shop.enabled_payment_types) marks use Shopify's own artwork at one uniform
+   height rather than the per-brand Figma sizes above. */
+.site-footer__payment-icon--dynamic {
+  width: auto;
+  height: 20px;
+}
+
 /* --- typography --- */
 
 .site-footer__heading {
