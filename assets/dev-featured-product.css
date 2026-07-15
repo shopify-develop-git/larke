@@ -186,6 +186,9 @@
 .featured-product__button {
   --dev-btn-bg: var(--color-button-bg);
   --dev-btn-color: var(--color-button-text);
+  /* Client: narrow the distance between the trust icons and the button.
+     The group uses a uniform 24px gap; pull the button up 12px so its gap reads 12px. */
+  margin-top: -12px;
 }
 
 /* =============================================

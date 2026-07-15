@@ -63,8 +63,8 @@
        − 64 (gap) = 1184, split 544 / 640. Both are flex BASES, not fixed widths — see the CSS.
        They sum exactly to the card's content box at 1440, so the artboard matches to the pixel,
        and below it the two columns shrink in proportion instead of the text absorbing all of it. */
-    --text-col-width: 544px;
-    --tiles-width: 640px;
+    --text-col-width: 542px;
+    --tiles-width: 642px; /* tiles = (642 − 32 gap) / 2 = 305px each at design width (client spec) */
     --tile-aspect: 305.26 / 412; /* ~0.7409 — identical at both breakpoints (scaled, not re-cropped) */
 
     /* Decoration */
