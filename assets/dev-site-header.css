@@ -45,6 +45,22 @@
   transform: translateY(-100%);
 }
 
+/* Cross-axis clip on the scroll container. While the hide/reveal transition runs,
+   #header-group carries a live (non-none) transform, which — like will-change —
+   makes it the containing block for its position:fixed descendants. The cart drawer
+   renders inside it with its closed panel parked ~568px off-canvas to the right, so
+   for the ~250ms of the animation that width leaks into .page-wrapper, whose
+   overflow-x computes to `auto` (base.css sets only overflow-y), flashing a
+   horizontal scrollbar. The page only scrolls vertically; clip the cross-axis.
+   Scoped to >=990px, where .page-wrapper is the scroll container and already has
+   overflow-y: auto — so `clip` here does not promote overflow-y (which is `visible`
+   below that width, where the window scrolls instead). */
+@media (min-width: 990px) {
+  .page-wrapper {
+    overflow-x: clip;
+  }
+}
+
 .site-header {
   /* Stays in normal flow inside the sticky group above; the group is what
      pins and hides. See the HEADER GROUP block for the scroll behaviour. */
