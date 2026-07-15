@@ -177,6 +177,13 @@ body[data-cart-drawer-open='true'] {
   min-width: 0;
 }
 
+.cart-drawer__item-image-link {
+  display: block;
+  flex-shrink: 0;
+  line-height: 0;
+  border-radius: var(--radius-image);
+}
+
 .cart-drawer__item-image {
   flex-shrink: 0;
   width: var(--image-size);
@@ -211,6 +218,18 @@ body[data-cart-drawer-open='true'] {
   color: var(--color);
 }
 
+/* Title links to the product page (same target as the thumbnail). Looks like the plain
+   title at rest; underlines on hover/focus to signal it is clickable. */
+.cart-drawer__item-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cart-drawer__item-title-link:hover,
+.cart-drawer__item-title-link:focus-visible {
+  text-decoration: underline;
+}
+
 .cart-drawer__item-option {
   margin: 0;
   font-size: var(--font-size-option);
@@ -223,6 +242,23 @@ body[data-cart-drawer-open='true'] {
 }
 
 .cart-drawer__item-option-value {
+  font-weight: var(--weight-bold);
+}
+
+/* Per-line quantity — the design has no counter, so adding the same variant twice read as
+   one line. This makes the count explicit, in the same "label: value" shape as the options. */
+.cart-drawer__item-qty {
+  margin: 0;
+  font-size: var(--font-size-option);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+.cart-drawer__item-qty-label {
+  font-weight: var(--weight-medium);
+}
+
+.cart-drawer__item-qty-value {
   font-weight: var(--weight-bold);
 }
 
@@ -445,7 +481,8 @@ body[data-cart-drawer-open='true'] {
     font-size: var(--font-size-title-mobile);
   }
 
-  .cart-drawer__item-option {
+  .cart-drawer__item-option,
+  .cart-drawer__item-qty {
     font-size: var(--font-size-option-mobile);
   }
 

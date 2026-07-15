@@ -293,7 +293,17 @@
     <div id="buy" class="dev-main-product__buy">
       <div class="dev-main-product__head">
         {%- if section.settings.show_rating -%}
-          <div class="dev-main-product__rating">
+          {%- liquid
+            # The whole rating is one anchor — clicking the stars OR the label jumps to the reviews
+            # section. A merchant can point the Rating link setting anywhere; when it is blank we
+            # default to the on-page reviews anchor (#reviews) instead of rendering a dead <span>.
+            # dev-reviews always sits on the PDP, and it carries id="reviews".
+            assign rating_href = section.settings.rating_link
+            if rating_href == blank
+              assign rating_href = '#reviews'
+            endif
+          -%}
+          <a class="dev-main-product__rating" href="{{ rating_href }}">
             {%- comment -%}
               4.9/5 is FOUR full stars and one 90% full — the artboard clips the fifth with a
               gradient. Painting five solid stars would be a nicer number than the product has.
@@ -304,14 +314,8 @@
                 <span class="dev-main-product__stars-fill" aria-hidden="true">★★★★★</span>
               </span>
             {%- endif -%}
-            {%- if section.settings.rating_link != blank -%}
-              <a class="dev-main-product__rating-link" href="{{ section.settings.rating_link }}">
-                {{- section.settings.rating_label | escape -}}
-              </a>
-            {%- else -%}
-              <span class="dev-main-product__rating-link">{{ section.settings.rating_label | escape }}</span>
-            {%- endif -%}
-          </div>
+            <span class="dev-main-product__rating-link">{{ section.settings.rating_label | escape }}</span>
+          </a>
         {%- endif -%}
 
         <h1 class="dev-main-product__title">{{ product.title | escape }}</h1>

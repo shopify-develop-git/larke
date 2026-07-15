@@ -36,6 +36,17 @@
   margin-inline: auto;
 }
 
+/* Figma "Line 7" — a 1px Cream/300 rule that opens the section. It takes the full page-container
+   width (not the 644 reviews measure), centred, with 64px of air below it to the reviews block. */
+.dev-reviews__divider {
+  width: 100%;
+  max-width: var(--divider-max);
+  height: 1px;
+  margin: 0 auto var(--divider-gap);
+  border: 0;
+  background-color: var(--border-color);
+}
+
 /* ---- The app's own furniture, which the artboard has no place for -------- */
 
 /* Every one of these is .jdgm-widget-deep on purpose, and hiding them is not cosmetic — it is
@@ -446,6 +457,10 @@
   .dev-reviews {
     padding-block: var(--pt-mobile) var(--pb-mobile);
     padding-inline: var(--section-px-mobile);
+  }
+
+  .dev-reviews__divider {
+    margin-bottom: var(--divider-gap-mobile);
   }
 
   .dev-reviews .jdgm-rev-widg__title {

@@ -29,6 +29,14 @@
        container. A measured 644, not a guessed "narrow". */
     --reviews-max: 644px;
 
+    /* Full-width rule that opens the section — Figma "Line 7" (Cream/300). Unlike the 644 reviews
+       block, it spans the whole page container (1440 artboard − 2×64px gutters). 64px of air sits
+       below it (24px to the block + the block's own 40px top padding); the 24px above it comes from
+       the section's padding-top. */
+    --divider-max: 1312px;
+    --divider-gap: 64px;
+    --divider-gap-mobile: 40px;
+
     /* Vertical padding on mobile is the artboard's, not the merchant's: 44797:4034 puts its first
        text at y=48, so the block's own top padding is 48. Its BOTTOM padding is 0 — the button ends
        exactly on the frame's edge — but 0 would jam it into the footer, so the bottom mirrors the
@@ -40,6 +48,7 @@
 </style>
 
 <div
+  id="reviews"
   class="dev-reviews"
   style="
     --bg: {{ section.settings.background_color }};
@@ -53,6 +62,7 @@
   "
   data-reviews
 >
+  <hr class="dev-reviews__divider">
   <div class="dev-reviews__inner">
     {% content_for 'blocks' %}
   </div>
@@ -75,8 +85,8 @@
     { "type": "color", "id": "track_color", "label": "Histogram track", "default": "#D8D1C0" },
 
     { "type": "header", "content": "Spacing" },
-    { "type": "range", "id": "padding_top", "min": 0, "max": 160, "step": 4, "unit": "px", "label": "Padding top", "default": 80 },
-    { "type": "range", "id": "padding_bottom", "min": 0, "max": 160, "step": 4, "unit": "px", "label": "Padding bottom", "default": 80 }
+    { "type": "range", "id": "padding_top", "min": 0, "max": 160, "step": 4, "unit": "px", "label": "Padding top", "default": 24 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 160, "step": 4, "unit": "px", "label": "Padding bottom", "default": 0 }
   ],
   "presets": [{ "name": "Reviews" }]
 }

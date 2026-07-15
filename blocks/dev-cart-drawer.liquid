@@ -166,19 +166,23 @@
               <div class="cart-drawer__item-detail">
                 <div class="cart-drawer__item-media">
                   {%- if item.image != blank -%}
-                    {{
-                      item_src
-                      | image_tag:
-                        loading: 'lazy',
-                        widths: '64, 80, 128, 160, 240',
-                        sizes: '(max-width: 768px) 64px, 80px',
-                        alt: item_alt,
-                        class: 'cart-drawer__item-image'
-                    }}
+                    <a class="cart-drawer__item-image-link" href="{{ item.url }}">
+                      {{
+                        item_src
+                        | image_tag:
+                          loading: 'lazy',
+                          widths: '64, 80, 128, 160, 240',
+                          sizes: '(max-width: 768px) 64px, 80px',
+                          alt: item_alt,
+                          class: 'cart-drawer__item-image'
+                      }}
+                    </a>
                   {%- endif -%}
 
                   <div class="cart-drawer__item-info">
-                    <h3 class="cart-drawer__item-title">{{ item.product.title | escape }}</h3>
+                    <h3 class="cart-drawer__item-title">
+                      <a class="cart-drawer__item-title-link" href="{{ item.url }}">{{ item.product.title | escape }}</a>
+                    </h3>
 
                     {%- for option in item.options_with_values -%}
                       {%- if option.value != blank -%}
@@ -188,6 +192,11 @@
                         </p>
                       {%- endif -%}
                     {%- endfor -%}
+
+                    <p class="cart-drawer__item-qty">
+                      <span class="cart-drawer__item-qty-label">{{ block.settings.quantity_label | escape }}:</span>
+                      <span class="cart-drawer__item-qty-value">{{ item.quantity }}</span>
+                    </p>
                   </div>
                 </div>
 
@@ -410,6 +419,7 @@
     { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Your Order" },
     { "type": "text", "id": "close_label", "label": "Close button label (screen readers only)", "default": "Close basket" },
     { "type": "text", "id": "remove_label", "label": "Remove link label", "default": "Remove" },
+    { "type": "text", "id": "quantity_label", "label": "Quantity label", "default": "Qty" },
     { "type": "text", "id": "empty_text", "label": "Empty basket message", "default": "Your basket is empty." },
     { "type": "text", "id": "checkout_label", "label": "Checkout button label", "default": "Checkout Securely" },
     { "type": "url", "id": "checkout_url", "label": "Checkout link", "info": "Leave empty to use the store's checkout." },
