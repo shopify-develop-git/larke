@@ -99,13 +99,14 @@
   {%- endcomment -%}
   <div class="promo-bar__inner">
     {%- comment -%}
-      Five solid gold stars, as literal Unicode glyphs (U+2605). This is what the Figma file
-      contains — there is no icon or SVG asset in this section (asset report: `rawImages: []`,
-      no vectors), so a hand-drawn SVG star here would be a fabricated asset, not the design.
+      Five solid gold stars via the shared dev-stars component — inline SVG, not the ★ (U+2605)
+      glyph. The spec's exact-fidelity requirement calls for SVG here precisely because the glyph
+      falls back to a system font and varies across platforms. Figma ships no star vector, so the
+      canonical dev-stars vector is an authorised substitution (client-confirmed).
       Decorative: "4.6/5" + "Rated Excellent" already carry the meaning to a screen reader.
     {%- endcomment -%}
     {%- if section.settings.show_rating_stars -%}
-      <p class="promo-bar__stars" aria-hidden="true">★★★★★</p>
+      {%- render 'dev-stars', rating: 5, size: 13, gap: 1, color: section.settings.star_color -%}
     {%- endif -%}
 
     {%- if section.settings.rating_value != blank or section.settings.rating_label != blank -%}

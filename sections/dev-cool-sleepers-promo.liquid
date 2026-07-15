@@ -8,10 +8,12 @@
   explicitly, and the artboard corroborates it: the set of five repeats, and the ninth
   logo is clipped by the right edge — a strip that is meant to keep moving.
 
-  Still no JS. Two identical tracks translate by -50% in CSS, so the seam never lands in
-  view and the loop needs no measurement at runtime. The animation pauses on hover and
-  stops entirely under prefers-reduced-motion, where the duplicate track is hidden and
-  the strip degrades to a plain scrollable row.
+  The marquee uses Horizon's OWN stock technique (blocks/_marquee.liquid + marquee.js): fill the
+  row with whole copies of the set until it spans the frame, duplicate it once for two identical
+  halves, then loop with a percentage shift (translate3d -50%). A percentage is exact by
+  construction — no measured pixel shift to correct mid-animation — which is what finally killed
+  the Safari blink/jump. The animation pauses on hover and is simply not applied under
+  prefers-reduced-motion.
 
   Numbers below are measured off the Figma strip (1440x55), not guessed: the gap is a
   uniform 83px and each logo has its own optical height (Vogue 21, Mail Online 17,
@@ -111,18 +113,11 @@
 
     {%- if section.blocks.size > 0 -%}
       {%- comment -%}
-        ONE track is rendered. The seam-filler copies are cloned by the JS, because how many are
-        needed is a fact about the BROWSER, not about the template.
-
-        This used to render exactly two copies and shift by -50%, i.e. by one whole track. That is
-        seamless only while a single track is at least as wide as the frame. It is not: five logos
-        measure 839px against a 1512px viewport, so on every reset the strip ended after 839px and
-        673px of empty space slid into view. It was never endless — it just looked endless on the
-        artboard, where the logos happened to fill the width.
-
-        The JS measures the real track and clones it until the copies behind the first one cover the
-        frame, then tells the CSS to shift by exactly one copy. With no JS the strip stands still —
-        the animation is driven by --marquee-shift, which defaults to 0.
+        Structure mirrors Horizon's own stock marquee (blocks/_marquee.liquid + marquee.js):
+        wrapper → content → repeated-items. One authored set (__set) is rendered; the JS fills the
+        __track with copies of it until the row spans the frame, then duplicates the whole __track
+        once so the wrapper holds TWO identical halves. The CSS then loops by exactly one half with a
+        percentage shift (-50%). See the CSS keyframe for why a percentage is the whole point.
       {%- endcomment -%}
       <div
         class="cool-sleepers-promo__logos"
@@ -130,25 +125,34 @@
         data-marquee-root
         data-reveal-skip
       >
-        <div class="cool-sleepers-promo__marquee" data-marquee>
-          <ul class="cool-sleepers-promo__track" data-marquee-track>
-            {%- for block in section.blocks -%}
-              {%- if block.settings.image != blank -%}
-                {%- assign logo_alt = block.settings.alt_text | default: block.settings.image.alt | default: '' | escape -%}
-                <li
-                  class="cool-sleepers-promo__logo"
-                  style="--logo-height: {{ block.settings.logo_height }}px;"
-                  {{ block.shopify_attributes }}
-                >
-                  {{
-                    block.settings.image
-                    | image_url: width: 600
-                    | image_tag: loading: 'lazy', alt: logo_alt, class: 'cool-sleepers-promo__logo-image'
-                  }}
-                </li>
-              {%- endif -%}
-            {%- endfor -%}
-          </ul>
+        <div class="cool-sleepers-promo__marquee" data-marquee-wrapper>
+          <div class="cool-sleepers-promo__track" data-marquee-content>
+            <ul class="cool-sleepers-promo__set" data-marquee-set>
+              {%- for block in section.blocks -%}
+                {%- if block.settings.image != blank -%}
+                  {%- assign logo_alt = block.settings.alt_text | default: block.settings.image.alt | default: '' | escape -%}
+                  <li
+                    class="cool-sleepers-promo__logo"
+                    style="--logo-height: {{ block.settings.logo_height }}px;"
+                    {{ block.shopify_attributes }}
+                  >
+                    {%- comment -%}
+                      eager, NOT lazy: the strip is measured and cloned from these logos, so they
+                      must have their real width BEFORE the strip is scrolled into view. Left lazy,
+                      a real device (Safari especially) loads them only as you reach the section, so
+                      the build would run on screen. They are five tiny press SVGs; loading them up
+                      front is negligible.
+                    {%- endcomment -%}
+                    {{
+                      block.settings.image
+                      | image_url: width: 600
+                      | image_tag: loading: 'eager', alt: logo_alt, class: 'cool-sleepers-promo__logo-image'
+                    }}
+                  </li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+          </div>
         </div>
       </div>
     {%- endif -%}

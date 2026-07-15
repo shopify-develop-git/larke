@@ -43,6 +43,9 @@
     {%- comment -%} Shared button component — one source of truth for every dev-* CTA. {%- endcomment -%}
     {{ 'dev-button.css' | asset_url | stylesheet_tag }}
 
+    {%- comment -%} Shared star-rating component — one canonical vector star for every rating. {%- endcomment -%}
+    {{ 'dev-stars.css' | asset_url | stylesheet_tag }}
+
     {%- comment -%} Global scroll-reveal — subtle fade + rise as content enters the viewport. {%- endcomment -%}
     {{ 'dev-reveal.css' | asset_url | stylesheet_tag }}
     <script src="{{ 'dev-reveal.js' | asset_url }}" defer></script>

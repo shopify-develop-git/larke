@@ -1,0 +1,56 @@
+{%- comment -%}
+  dev-stars — shared inline-SVG star rating.
+
+  Replaces the Unicode ★ (U+2605) glyph — which is absent from Public Sans, falls back to a
+  system font and so varies across platforms — with one canonical vector. This is the
+  exact-fidelity fix the Promo/rating-bar spec asks for ("render the stars as inline SVGs
+  rather than font glyphs, which vary across platforms").
+
+  The Figma file ships NO star vector to export (its rating rows are literal ★ text), so this
+  clean 5-point star is an AUTHORISED substitution — not a Figma export. One component feeds
+  every rating (promo bar, featured product, PDP buy box, reviews) so they can never disagree.
+
+  Params:
+    rating {number}  filled amount, 0..max        (default: max — a full row)
+    max    {number}  number of stars              (default: 5)
+    size   {number}  star edge in px              (default: 16)
+    gap    {number}  space between stars in px    (default: 2)
+    color  {string}  filled-star colour           (default: currentColor)
+    track  {string}  empty-star colour            (default: rgba(0,0,0,0.15))
+    label  {string}  accessible name — when set the group is role="img"; else aria-hidden
+{%- endcomment -%}
+{%- liquid
+  assign star_max = max | default: 5
+  assign star_rating = rating | default: star_max
+  assign star_size = size | default: 16
+  assign star_gap = gap | default: 2
+  assign star_fill = color | default: 'currentColor'
+  assign star_track = track | default: 'rgba(0,0,0,0.15)'
+
+  assign star_pct = star_rating | times: 100.0 | divided_by: star_max
+  if star_pct > 100
+    assign star_pct = 100
+  elsif star_pct < 0
+    assign star_pct = 0
+  endif
+
+  comment
+    A regular 5-point star drawn with straight lines only — sharp points, NO rounded corners.
+    viewBox 24×24, outer radius 11 / inner radius ~4.2 (the regular {5/2} ratio), centred on x.
+  endcomment
+  capture star_svg
+    echo '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M12 1L14.47 8.6L22.46 8.6L15.99 13.3L18.47 20.9L12 16.2L5.53 20.9L8.01 13.3L1.54 8.6L9.53 8.6Z"/></svg>'
+  endcapture
+-%}
+<span
+  class="dev-stars"
+  style="--dev-stars-size:{{ star_size }}px;--dev-stars-gap:{{ star_gap }}px;--dev-stars-fill:{{ star_fill }};--dev-stars-track:{{ star_track }};--dev-stars-pct:{{ star_pct }}%;"
+  {%- if label != blank %} role="img" aria-label="{{ label | escape }}"{% else %} aria-hidden="true"{% endif -%}
+>
+  <span class="dev-stars__row dev-stars__row--track">
+    {%- for i in (1..star_max) -%}{{ star_svg }}{%- endfor -%}
+  </span>
+  <span class="dev-stars__row dev-stars__row--fill">
+    {%- for i in (1..star_max) -%}{{ star_svg }}{%- endfor -%}
+  </span>
+</span>

@@ -313,10 +313,20 @@
               gradient. Painting five solid stars would be a nicer number than the product has.
             {%- endcomment -%}
             {%- if section.settings.show_rating_stars -%}
-              <span class="dev-main-product__stars" role="img" aria-label="{{ rating }} / 5">
-                <span class="dev-main-product__stars-base" aria-hidden="true">★★★★★</span>
-                <span class="dev-main-product__stars-fill" aria-hidden="true">★★★★★</span>
-              </span>
+              {%- comment -%}
+                Shared inline-SVG stars (not the ★ glyph) with partial fill: 4.9/5 reads as four
+                solid stars and a 90%-filled fifth, clipped to the exact rating. See dev-stars.
+              {%- endcomment -%}
+              {%- assign stars_label = rating | append: ' / 5' -%}
+              {%- render 'dev-stars',
+                rating: rating,
+                max: 5,
+                size: 18,
+                gap: 1,
+                color: section.settings.star_color,
+                track: '#ededed',
+                label: stars_label
+              -%}
             {%- endif -%}
             <span class="dev-main-product__rating-link">{{ section.settings.rating_label | escape }}</span>
           </a>

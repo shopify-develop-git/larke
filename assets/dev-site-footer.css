@@ -571,6 +571,10 @@
     max-width: none;
   }
 
+  .site-footer__subheading {
+    padding: 0 20px;
+  }
+
   .site-footer__social {
     width: auto;
     flex: 0 0 auto; /* undo the ≤1024 `flex: 1 1 0`: in this column it would grow vertically */

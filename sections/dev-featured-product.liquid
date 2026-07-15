@@ -36,12 +36,11 @@
     --font-button-weight: 700;
     --font-button-lh: 1.4;
 
-    /* Typography — mobile. Only the subheading was confirmed on the mobile artboard
-       (Body/Lg_Body_Medium 18px). Heading size is NOT FOUND in Figma (the mobile node is a
-       collapsed component instance), so it falls back to the code-standards scale factor
-       rather than an invented px value. Label + button sizes are held at their desktop
-       values — the Brief explicitly says not to implement a smaller mobile button size
-       without verifying it. */
+    /* Typography — mobile. Both confirmed off the mobile artboard (node 44821:5733):
+       subheading is Body/Lg_Body_Medium 18px (line-advance 25px = 18 × 1.4); the heading
+       measures ~27px (line-advance 32px = 27 × 1.2), which the 0.75 scale factor lands on
+       exactly. Label + button sizes are held at their desktop values — the mobile screenshot
+       shows no smaller mobile button. */
     --font-heading-size-m: calc(var(--font-heading-size) * 0.75);
     --font-body-size-m: 18px;
 
@@ -57,6 +56,7 @@
     --media-w: 655px;
     --media-h: 511px;
     --media-ratio: 655 / 511;
+    --media-ratio-m: 343 / 319; /* mobile: image is a full-width band (343 @375px) × 319 tall */
     --content-py: 64px;
     --text-max: 311px;
 
@@ -149,9 +149,8 @@
           {%- if section.settings.rating_text != blank or show_stars -%}
             <div class="featured-product__badge">
               {%- if show_stars -%}
-                <span class="featured-product__stars" aria-hidden="true">
-                  {{- section.settings.rating_stars | escape -}}
-                </span>
+                {%- comment -%} Shared inline-SVG stars (not the ★ glyph) — see snippets/dev-stars.liquid. {%- endcomment -%}
+                {%- render 'dev-stars', rating: 5, size: 14, gap: 1, color: section.settings.accent_color -%}
               {%- endif -%}
               {%- if section.settings.rating_text != blank -%}
                 <span class="featured-product__rating">{{ section.settings.rating_text | escape }}</span>
@@ -268,7 +267,7 @@
       "id": "accent_color",
       "label": "Accent color",
       "info": "Star rating.",
-      "default": "#FAB725"
+      "default": "#F1B500"
     },
 
     { "type": "header", "content": "Spacing" },

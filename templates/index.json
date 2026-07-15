@@ -207,7 +207,7 @@
         "product_image": "shopify://shop_images/featured-product-hero.jpg",
         "background_color": "#fcf5e3",
         "text_color": "#333333",
-        "accent_color": "#fab725",
+        "accent_color": "#f1b500",
         "padding_top": 80,
         "padding_bottom": 0
       }
@@ -318,7 +318,7 @@
         "heading": "Larke, lived in.",
         "social_handle": "@wearelarke.com",
         "social_handle_link": "https://www.instagram.com/wearelarke/",
-        "profile_badge_logo": "shopify://shop_images/brand-social-gallery-badge-logo.png",
+        "profile_badge_logo": "shopify://shop_images/group_6568.webp",
         "background_color": "#fffcf4",
         "text_color": "#333333",
         "accent_color": "#4ea448",

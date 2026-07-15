@@ -61,47 +61,37 @@
   text-align: center;
 }
 
-/* --- press logo marquee --- */
+/* --- press logo marquee ---
+   Technique lifted from Horizon's stock marquee (blocks/_marquee.liquid): the JS fills __track with
+   copies of __set until it spans the frame, then duplicates __track once so __marquee (the wrapper)
+   holds TWO identical halves. The wrapper loops by a PERCENTAGE (translate3d -50%), which is exact
+   by construction — no measured pixel shift to go stale or get corrected mid-animation. That is what
+   removed the Safari blink/jump the pixel-shift version kept producing. */
 
-/* Full 1440px bleed — zero horizontal inset at both breakpoints. The overflow clip is
-   what turns two tracks into an endless strip: the second one is only ever seen as it
-   slides in behind the first. */
+/* Full bleed, zero horizontal inset. overflow:hidden is the clip; translateZ(0) composites the clip
+   itself so WebKit never paints the animated strip outside the mask at the wrap. */
 .cool-sleepers-promo__logos {
   width: 100%;
   padding-left: 0;
   padding-right: 0;
   overflow: hidden;
+  transform: translateZ(0);
 }
 
-/* Shifts by exactly ONE copy of the track, so the moment the animation restarts the next copy is
-   sitting precisely where the first one began and the reset is invisible.
-
-   The distance is a PIXEL value measured by the JS, not -50% of the marquee. -50% is one whole
-   track only while there are exactly two of them — and two are only ever enough if a single track
-   is at least as wide as the frame. Five logos are 839px against a 1512px viewport, so the old
-   -50% dragged 673px of empty space into view on every loop.
-
-   --marquee-shift defaults to 0, so with no JS the strip simply stands still rather than sliding
-   into a gap. */
+/* The wrapper: two identical halves side by side, animated. width:fit-content so it is exactly as
+   wide as its content and -50% means precisely one half. */
 .cool-sleepers-promo__marquee {
   display: flex;
-  width: max-content;
-
-  /* backface-visibility pins the layer so iOS Safari does not flash the strip when the
-     transform wraps (the classic "blinking marquee" on mobile). Harmless while static. */
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  gap: var(--logo-gap);
+  width: fit-content;
 }
 
-/* The animation is switched on by JS (class is-animating) ONLY once the logos have loaded and the
-   strip has been measured — so it starts from phase 0 with the correct shift instead of jumping
-   when a late measurement corrects the shift under an already-running timeline. will-change lives
-   here too, so the compositor layer only exists while the strip is actually moving; that layer is
-   also why this block is kept OUT of the global scroll-reveal (a transformed reveal ancestor would
-   re-anchor the promoted layer and flash it — see data-reveal-skip in the section markup). */
-.cool-sleepers-promo__marquee.is-animating {
-  animation: cool-sleepers-marquee var(--marquee-duration, 30s) linear infinite;
-  will-change: transform;
+/* Applied only when motion is allowed (stock pattern) — under reduced motion the strip is simply
+   static, clipped to the frame. */
+@media (prefers-reduced-motion: no-preference) {
+  .cool-sleepers-promo__marquee {
+    animation: cool-sleepers-marquee var(--marquee-duration, 30s) linear infinite;
+  }
 }
 
 /* A courtesy, not a control: hovering lets someone actually read a logo. */
@@ -109,16 +99,22 @@
   animation-play-state: paused;
 }
 
-/* The half-gap of padding at each end matters. Two tracks butted together put a half-gap
-   against a half-gap, so the joins between sets are the same 83px as the gaps within a
-   set — otherwise the seam shows up as a visible hitch every loop. */
+/* The content half — duplicated once into the wrapper. min-width:max-content so it never shrinks. */
 .cool-sleepers-promo__track {
+  display: flex;
+  gap: var(--logo-gap);
+  min-width: max-content;
+}
+
+/* The authored set — the JS clones THIS to fill the frame inside __track. */
+.cool-sleepers-promo__set {
   display: flex;
   align-items: center;
   gap: var(--logo-gap);
+  min-width: max-content;
   height: var(--logos-height);
   margin: 0;
-  padding: 0 calc(var(--logo-gap) / 2);
+  padding: 0;
   list-style: none;
 }
 
@@ -134,15 +130,26 @@
   display: block;
   width: auto;
   height: var(--logo-height, 21px);
+
+  /* Give EACH logo its own compositor layer. The marquee is one wide composited layer that Safari
+     rasterises in tiles; as it scrolls, tiles re-rasterise, and the widest / most path-heavy SVG
+     (Mail Online — 10 paths + an embedded <style> sheet) is the one caught re-rasterising at a tile
+     edge, so it flickers while the simple logos don't. translateZ(0) rasterises each SVG ONCE into
+     its own texture, which Safari then just composites — no per-tile re-raster, no flicker —
+     independent of the SVG's internal <style> or viewBox. */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
+/* -50% is one whole half of the wrapper; the extra -gap/2 cancels the wrapper's own flex gap
+   between the two halves, so the shift lands the second half exactly where the first began and the
+   seam gap equals the gap between logos. translate3d (not translateX) keeps the whole thing on the
+   GPU, so the wrap is a compositor reposition with no repaint — no Safari flash. */
 @keyframes cool-sleepers-marquee {
-  from {
-    transform: translateX(0);
-  }
-
   to {
-    transform: translateX(calc(-1 * var(--marquee-shift, 0px)));
+    transform: translate3d(calc(-50% - (var(--logo-gap) / 2)), 0, 0);
   }
 }
 
@@ -281,24 +288,9 @@
     transition-duration: 0.01ms !important;
   }
 
-  /* The blanket rule above is wrong for a marquee: crushing the duration to 0.01ms does
-     not stop an infinite animation, it spins it. Kill the animation outright instead, drop
-     the seam-filler track, and let the single remaining set centre itself — scrollable by
-     hand if it overflows. */
-  .cool-sleepers-promo__marquee {
-    animation: none !important;
-    width: 100%;
-  }
-
-  .cool-sleepers-promo__track[aria-hidden='true'] {
-    display: none;
-  }
-
-  .cool-sleepers-promo__track {
-    justify-content: center;
-    width: 100%;
-  }
-
+  /* The marquee animation is already gated behind (prefers-reduced-motion: no-preference), so it is
+     simply absent here — nothing to override. The wrapper still holds its copies; the strip sits
+     static, clipped to the frame, and can be scrolled by hand if it overflows. */
   .cool-sleepers-promo__logos {
     overflow-x: auto;
   }

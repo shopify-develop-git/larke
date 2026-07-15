@@ -205,10 +205,12 @@
    MOBILE  ≤ 768px
    ============================================= */
 
-/* The mobile Figma node is a collapsed component instance: only the section padding (16px)
-   and the top spacer (48px) could be read directly. Everything else below follows the
-   screenshot's stacking order and holds the CONFIRMED desktop values rather than inventing
-   mobile ones. Flagged in the Brief (Note 3) for re-verification. */
+/* Verified against the mobile artboard (Figma node 44821:5733). The mobile stack is
+   Heading → Image → Subheading → Badge → Icons → Button — i.e. the heading is pulled ABOVE
+   the image, unlike the desktop row where it lives in the right-hand content column. The
+   image becomes a full-width band (edge-to-edge of the 343px card) with its own natural
+   crop, NOT the desktop bleed. Measured rhythm: 32px card padding top/bottom, 24px between
+   stacked items, 16px section gutter. */
 @media (max-width: 768px) {
   .featured-product {
     padding-left: var(--section-px-m);
@@ -216,21 +218,41 @@
     padding-top: calc(var(--pt) * var(--pt-scale-m));
   }
 
+  /* Stack the card. `display: contents` on the content column (below) promotes its children
+     to direct flex items of the card, so a single `order` lifts the heading above the media
+     without duplicating markup or disturbing the desktop structure. Padding is vertical only
+     — the image bleeds the full card width while the text is already width-capped + centred. */
   .featured-product__card {
     flex-direction: column;
-  }
-
-  .featured-product__media {
-    flex: 0 0 auto;
-    width: 100%;
+    align-items: center;
+    gap: var(--spacing-lg);
+    padding: calc(var(--content-py) / 2) 0;
   }
 
   .featured-product__content {
-    padding: calc(var(--content-py) / 2) var(--spacing-md);
+    display: contents;
   }
 
+  /* Source order at card level is: media, heading, subheading, group.
+     Lifting the heading to the front yields Heading → Image → Subheading → Badge/Icons/Button. */
   .featured-product__heading {
+    order: -1;
     font-size: var(--font-heading-size-m);
+  }
+
+  /* Full-width photo band — reset the desktop bleed crop back to a plain cover fill. */
+  .featured-product__media {
+    flex: 0 0 auto;
+    width: 100%;
+    aspect-ratio: var(--media-ratio-m);
+  }
+
+  .featured-product__image {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-position: center;
   }
 
   .featured-product__subheading {
