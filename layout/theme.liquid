@@ -42,6 +42,10 @@
 
     {%- comment -%} Shared button component — one source of truth for every dev-* CTA. {%- endcomment -%}
     {{ 'dev-button.css' | asset_url | stylesheet_tag }}
+
+    {%- comment -%} Global scroll-reveal — subtle fade + rise as content enters the viewport. {%- endcomment -%}
+    {{ 'dev-reveal.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'dev-reveal.js' | asset_url }}" defer></script>
   </head>
 
   <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
