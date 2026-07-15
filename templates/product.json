@@ -140,6 +140,7 @@
         "rating_link": "",
         "badge_text": "Smooth & Breezy",
         "show_seal": true,
+        "seal_image": "shopify://shop_images/dev-main-product-seal.webp",
         "seal_alt": "Good Housekeeping Institute approved",
         "tog_label_temp": "Temperature:",
         "tog_label_feel": "How it feels over you:",
@@ -269,19 +270,26 @@
         "judge_me_reviews_review_widget_RXkthF"
       ],
       "settings": {
-        "background_color": "#FFFCF4",
+        "background_color": "#fffcf4",
         "text_color": "#333333",
-        "card_color": "#FCF5E3",
-        "border_color": "#C4BCA9",
-        "star_color": "#F1B500",
-        "track_color": "#D8D1C0",
+        "card_color": "#fcf5e3",
+        "border_color": "#c4bca9",
+        "star_color": "#f1b500",
+        "track_color": "#d8d1c0",
         "padding_top": 24,
         "padding_bottom": 0
       }
     },
     "dev_compare": {
       "type": "dev-compare",
-      "settings": {}
+      "settings": {
+        "heading": "How we compare",
+        "background_color": "#fffcf4",
+        "text_color": "#333333",
+        "backdrop_color": "#333333",
+        "backdrop_opacity": 40,
+        "open_on_load": false
+      }
     }
   },
   "order": [
