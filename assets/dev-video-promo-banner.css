@@ -265,6 +265,17 @@
     transform: translate(-50%, -50%);
   }
 
+  /* The play button above is absolutely centred on the TILE. The global scroll-reveal (dev-reveal.js)
+     tags __content and briefly transforms it — and a transformed ancestor becomes the containing block
+     for an absolutely-positioned descendant. So while __content carried the reveal transform the play
+     button anchored to __content (low, near the text); the instant the transform settled on `none` it
+     re-anchored to the tile and jumped ~160px up — and Safari left it stranded there. Drop ONLY the
+     rise on __content here (its fade still plays), so the button's containing block stays the tile at
+     every frame and it never moves. Desktop is unaffected: there the play button is in normal flow. */
+  html.dev-reveal .video-promo-banner__content[data-reveal] {
+    transform: none;
+  }
+
   .video-promo-banner__text {
     max-width: var(--text-max-m);
   }
@@ -305,6 +316,13 @@
 
 .video-promo-banner__play:focus:not(:focus-visible),
 .video-promo-banner__modal-close:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* The player container takes initial focus on open (so the × close button isn't the focused element
+   and iOS Safari doesn't ring it — the white circle over the video). It is tabindex="-1", never a tab
+   stop, so it needs no focus ring of its own. */
+.video-promo-banner__modal-inner:focus {
   outline: none;
 }
 

@@ -86,7 +86,22 @@
 .cool-sleepers-promo__marquee {
   display: flex;
   width: max-content;
+
+  /* backface-visibility pins the layer so iOS Safari does not flash the strip when the
+     transform wraps (the classic "blinking marquee" on mobile). Harmless while static. */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* The animation is switched on by JS (class is-animating) ONLY once the logos have loaded and the
+   strip has been measured — so it starts from phase 0 with the correct shift instead of jumping
+   when a late measurement corrects the shift under an already-running timeline. will-change lives
+   here too, so the compositor layer only exists while the strip is actually moving; that layer is
+   also why this block is kept OUT of the global scroll-reveal (a transformed reveal ancestor would
+   re-anchor the promoted layer and flash it — see data-reveal-skip in the section markup). */
+.cool-sleepers-promo__marquee.is-animating {
   animation: cool-sleepers-marquee var(--marquee-duration, 30s) linear infinite;
+  will-change: transform;
 }
 
 /* A courtesy, not a control: hovering lets someone actually read a logo. */

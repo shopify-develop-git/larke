@@ -121,7 +121,7 @@
 .featured-product__icon-item {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 4px; /* icon → label gap: Figma places the label 4px after the 24px icon (not --spacing-sm's 8px) */
 }
 
 .featured-product__icon {
@@ -186,9 +186,6 @@
 .featured-product__button {
   --dev-btn-bg: var(--color-button-bg);
   --dev-btn-color: var(--color-button-text);
-  /* Client: narrow the distance between the trust icons and the button.
-     The group uses a uniform 24px gap; pull the button up 12px so its gap reads 12px. */
-  margin-top: -12px;
 }
 
 /* =============================================

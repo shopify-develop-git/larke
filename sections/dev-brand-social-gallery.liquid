@@ -44,18 +44,15 @@
        designed size; capping it here keeps them at the artboard's ~236px across the stack. */
     --social-grid-w: 953px;
 
-    /* Profile badge: 48px logo mark centred in a 58px ring → 5px inset each side. */
-    --badge-ring-size: 58px;
-    --badge-logo-size: 48px;
-    --badge-logo-inset: 5px;
+    /* Profile badge: a single full 58px circle — ring and content are one image,
+       no longer split into a ring layer + inset mark. */
+    --badge-size: 58px;
   }
 </style>
 
 {%- liquid
-  assign ring_image = section.settings.profile_badge_ring
-  assign logo_image = section.settings.profile_badge_logo
-  assign ring_src = ring_image | image_url: width: 174
-  assign logo_src = logo_image | image_url: width: 144
+  assign badge_image = section.settings.profile_badge_logo
+  assign badge_src = badge_image | image_url: width: 174
 -%}
 
 <div
@@ -71,63 +68,25 @@
   <div class="brand-social-gallery__inner">
     <div class="brand-social-gallery__intro">
       {%- comment -%}
-        Profile badge — a flattened ring + logo-mark pair (Brief note #5): the Green/900
-        accent and the white wordmark are baked into the artwork, not live CSS colours.
-        Merchant images win; when unset we fall back to the vectors exported from Figma
-        (.figma-assets/brand-social-gallery/), pasted verbatim.
+        Profile badge — a single full circle (Brief note #5): the ring and the
+        green/white mark are one image, no longer split into a ring layer + inset
+        mark. The accent and wordmark are baked into the artwork, not live CSS
+        colours. Merchant image wins; when unset we fall back to the vector
+        exported from Figma (.figma-assets/brand-social-gallery/), pasted verbatim.
       {%- endcomment -%}
-      <div class="brand-social-gallery__badge">
-        <span class="brand-social-gallery__badge-ring" aria-hidden="true">
-          {%- if ring_image != blank -%}
-            {{
-              ring_src
-              | image_tag:
-                loading: 'lazy',
-                widths: '58, 116, 174',
-                sizes: '58px',
-                alt: '',
-                class: 'brand-social-gallery__badge-img'
-            }}
-          {%- else -%}
-            <svg width="58" height="58" viewBox="0 0 58 58" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="58" height="58" fill="#EDEDED"/>
-<g id="Homepage - D">
-<rect width="1440" height="5343.3" transform="translate(-198.5 -3996.92)" fill="#FFFCF4"/>
-<g id="Frame 6564">
-<g id="Frame 6565">
-<g id="Frame 4">
-<g id="Group 6568">
-<g id="Group 6567">
-<circle id="Ellipse 3" cx="29" cy="29" r="28" stroke="url(#paint0_linear_28968_22885)" stroke-width="2"/>
-</g>
-</g>
-</g>
-</g>
-</g>
-</g>
-<defs>
-<linearGradient id="paint0_linear_28968_22885" x1="29" y1="0" x2="29" y2="58" gradientUnits="userSpaceOnUse">
-<stop stop-color="#D810A2"/>
-<stop offset="1" stop-color="#FFBE2F"/>
-</linearGradient>
-</defs>
-</svg>
-          {%- endif -%}
-        </span>
-
-        <span class="brand-social-gallery__badge-logo" aria-hidden="true">
-          {%- if logo_image != blank -%}
-            {{
-              logo_src
-              | image_tag:
-                loading: 'lazy',
-                widths: '48, 96, 144',
-                sizes: '48px',
-                alt: '',
-                class: 'brand-social-gallery__badge-img'
-            }}
-          {%- else -%}
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <div class="brand-social-gallery__badge" aria-hidden="true">
+        {%- if badge_image != blank -%}
+          {{
+            badge_src
+            | image_tag:
+              loading: 'lazy',
+              widths: '58, 116, 174',
+              sizes: '58px',
+              alt: '',
+              class: 'brand-social-gallery__badge-img'
+          }}
+        {%- else -%}
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect width="48" height="48" fill="#EDEDED"/>
 <g id="Homepage - D">
 <rect width="1440" height="5343.3" transform="translate(-203.5 -4001.92)" fill="#FFFCF4"/>
@@ -155,8 +114,7 @@
 </g>
 </g>
 </svg>
-          {%- endif -%}
-        </span>
+        {%- endif -%}
       </div>
 
       {%- if section.settings.heading != blank -%}
@@ -164,7 +122,18 @@
       {%- endif -%}
 
       {%- if section.settings.social_handle != blank -%}
-        <p class="brand-social-gallery__handle">{{ section.settings.social_handle | escape }}</p>
+        <p class="brand-social-gallery__handle">
+          {%- if section.settings.social_handle_link != blank -%}
+            <a
+              class="brand-social-gallery__handle-link"
+              href="{{ section.settings.social_handle_link }}"
+              target="_blank"
+              rel="noopener"
+            >{{ section.settings.social_handle | escape }}</a>
+          {%- else -%}
+            {{ section.settings.social_handle | escape }}
+          {%- endif -%}
+        </p>
       {%- endif -%}
     </div>
 
@@ -203,16 +172,16 @@
     { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Larke, lived in." },
     { "type": "text", "id": "social_handle", "label": "Social handle", "default": "@wearelarke.com" },
     {
-      "type": "image_picker",
-      "id": "profile_badge_ring",
-      "label": "Profile badge ring",
-      "info": "58×58 gradient ring. Falls back to the Figma vector when empty."
+      "type": "url",
+      "id": "social_handle_link",
+      "label": "Social handle link",
+      "info": "Wraps the handle in a link (opens in a new tab) when set."
     },
     {
       "type": "image_picker",
       "id": "profile_badge_logo",
-      "label": "Profile badge logo mark",
-      "info": "48×48 logo mark, centred in the ring. Falls back to the Figma vector when empty."
+      "label": "Profile badge",
+      "info": "58×58 circle — the whole badge is one image. Falls back to the Figma vector when empty."
     },
 
     { "type": "header", "content": "Colors" },

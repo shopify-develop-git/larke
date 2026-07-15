@@ -23,9 +23,11 @@
   var MAX_STAGGER = 400;
   var GRID = /__(blocks|grid|cards|items|list|rows|tiles|gallery|track|columns)\b/;
   var SKIP_TAG = { STYLE: 1, SCRIPT: 1, LINK: 1, TEMPLATE: 1, NOSCRIPT: 1, BR: 1, HR: 1 };
-  // Things that must never be hidden (they manage their own visibility).
+  // Things that must never be hidden (they manage their own visibility). [data-reveal-skip] is the
+  // explicit opt-out for content that runs its own motion — e.g. a marquee, whose promoted layer a
+  // transformed reveal ancestor would re-anchor and flash.
   var SKIP_SEL =
-    '[hidden],[aria-hidden="true"],[role="dialog"],dialog,' +
+    '[data-reveal-skip],[hidden],[aria-hidden="true"],[role="dialog"],dialog,' +
     '[class*="modal"],[class*="drawer"],[class*="popup"],[class*="overlay"],[class*="backdrop"],' +
     '[class*="sr-only"],[class*="visually-hidden"]';
 

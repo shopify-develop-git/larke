@@ -198,7 +198,7 @@
       ],
       "settings": {
         "heading": "<p>Meet your new<br/><em>(and last)</em> duvet</p>",
-        "subheading": "<p>Cooler, cosier,<br/>kinder to the planet.</p>",
+        "subheading": "<p>A naturally breathable, cosier, all-season duvet</p>",
         "show_rating_stars": true,
         "rating_stars": "★★★★★",
         "rating_text": "Rated 4.9/5* by real sleepers",
@@ -317,7 +317,7 @@
       "settings": {
         "heading": "Larke, lived in.",
         "social_handle": "@wearelarke.com",
-        "profile_badge_ring": "shopify://shop_images/brand-social-gallery-badge-ring.png",
+        "social_handle_link": "https://www.instagram.com/wearelarke/",
         "profile_badge_logo": "shopify://shop_images/brand-social-gallery-badge-logo.png",
         "background_color": "#fffcf4",
         "text_color": "#333333",

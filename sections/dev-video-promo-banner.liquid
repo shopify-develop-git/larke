@@ -239,7 +239,12 @@
       aria-label="{{ 'Video' | escape }}"
       data-video-modal
     >
-      <div class="video-promo-banner__modal-inner">
+      {%- comment -%}
+        tabindex="-1" so the JS can land initial focus here on open instead of on the close button.
+        showModal() otherwise focuses the first focusable child (the ×), which iOS Safari rings with a
+        focus-visible outline — a white circle around the ×. Keyboard users still Tab to the × normally.
+      {%- endcomment -%}
+      <div class="video-promo-banner__modal-inner" tabindex="-1">
         <button
           class="video-promo-banner__modal-close"
           type="button"

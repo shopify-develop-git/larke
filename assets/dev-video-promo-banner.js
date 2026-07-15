@@ -39,6 +39,12 @@
     const video = modal.querySelector('video');
     const iframe = modal.querySelector('iframe');
     const embedSrc = iframe ? iframe.getAttribute('data-src') : null;
+    const modalInner = modal.querySelector('.video-promo-banner__modal-inner');
+
+    // How the lightbox was opened. A keyboard activation (Enter/Space on the button) fires a click
+    // with detail 0; a pointer tap/click has detail >= 1. We only restore focus to the play button
+    // on close for keyboard users — see cleanup().
+    let openedViaKeyboard = false;
 
     /* The source is `preload="none"`, so on a cold click the browser starts fetching a 4.5Mbps HD
        file only once the lightbox is already open — the old build showed a spinner where the video
@@ -53,8 +59,13 @@
       trigger.addEventListener('focus', warm, { once: true });
     }
 
-    function open() {
+    function open(event) {
+      openedViaKeyboard = !!event && event.detail === 0;
       modal.showModal();
+      // showModal() lands initial focus on the first focusable child — the × close button — which iOS
+      // Safari then paints a focus-visible ring around (a white circle over the video). Move focus to
+      // the player container instead so nothing is ringed on open; keyboard users still Tab to the ×.
+      if (modalInner) modalInner.focus({ preventScroll: true });
       trigger.setAttribute('aria-expanded', 'true');
       document.documentElement.classList.add('video-promo-banner-scroll-lock');
 
@@ -96,10 +107,17 @@
       trigger.setAttribute('aria-expanded', 'false');
       document.documentElement.classList.remove('video-promo-banner-scroll-lock');
       delete modal.dataset.modalState;
-      // Focus goes back to the button that opened the lightbox. <dialog> is supposed to restore it
+      // Restore focus to the play button ONLY for keyboard users. <dialog> is supposed to restore it
       // on its own; measured here, it left the focus sitting on the close button of a dialog that
-      // had already gone, so a keyboard user's next Tab started from nowhere.
-      trigger.focus();
+      // had already gone, so a keyboard user's next Tab started from nowhere. But restoring it after a
+      // POINTER open makes Safari paint a persistent focus ring around the play button (it treats the
+      // handed-back focus as focus-visible) — a stray white circle over the video. So for pointer opens
+      // we drop the focus the dialog restored instead of pulling it back onto the button.
+      if (openedViaKeyboard) {
+        trigger.focus();
+      } else if (document.activeElement === trigger) {
+        trigger.blur();
+      }
     }
 
     /* Drive the CSS animation from a data attribute and wait for it to land.
