@@ -132,10 +132,10 @@
       {%- if poster != blank -%}
         {{
           poster
-          | image_url: width: 1920
+          | image_url: width: 3200
           | image_tag:
             loading: 'eager',
-            widths: '400, 600, 800, 1000, 1200, 1600, 1920',
+            widths: '400, 600, 800, 1000, 1200, 1600, 1920, 2600, 3200',
             sizes: '100vw',
             alt: poster_alt,
             class: 'video-promo-banner__poster'

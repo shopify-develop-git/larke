@@ -169,11 +169,11 @@
     {%- if bg_desktop != blank -%}
       {{
         bg_desktop
-        | image_url: width: 2000
+        | image_url: width: 3200
         | image_tag:
           loading: 'eager',
           fetchpriority: 'high',
-          widths: '800, 1200, 1600, 2000',
+          widths: '800, 1200, 1600, 2000, 2600, 3200',
           sizes: '100vw',
           alt: '',
           class: 'hero__bg hero__bg--desktop'
@@ -183,11 +183,11 @@
     {%- if bg_mobile != blank -%}
       {{
         bg_mobile
-        | image_url: width: 1200
+        | image_url: width: 1600
         | image_tag:
           loading: 'eager',
           fetchpriority: 'high',
-          widths: '400, 600, 800, 1200',
+          widths: '400, 600, 800, 1200, 1600',
           sizes: '115vw',
           alt: '',
           class: 'hero__bg hero__bg--mobile'

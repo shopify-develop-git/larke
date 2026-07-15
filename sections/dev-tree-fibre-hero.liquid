@@ -184,7 +184,8 @@
               {{ bg_mobile | image_url: width: 400 }} 400w,
               {{ bg_mobile | image_url: width: 600 }} 600w,
               {{ bg_mobile | image_url: width: 800 }} 800w,
-              {{ bg_mobile | image_url: width: 1200 }} 1200w
+              {{ bg_mobile | image_url: width: 1200 }} 1200w,
+              {{ bg_mobile | image_url: width: 1600 }} 1600w
             "
             sizes="100vw"
             width="{{ bg_mobile.width }}"
@@ -194,11 +195,11 @@
 
         {{
           bg_image
-          | image_url: width: 2000
+          | image_url: width: 3200
           | image_tag:
             loading: 'eager',
             fetchpriority: 'high',
-            widths: '400, 600, 800, 1200, 1600, 2000',
+            widths: '400, 600, 800, 1200, 1600, 2000, 2600, 3200',
             sizes: '(max-width: 768px) 112vw, 100vw',
             alt: '',
             class: 'tree-fibre-hero__bg'

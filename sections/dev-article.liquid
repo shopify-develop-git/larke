@@ -138,7 +138,7 @@
         `width: 100%` never applied. This bit once; keep the assign.
       {%- endcomment -%}
       {%- liquid
-        assign hero_src = article.image | image_url: width: 1600
+        assign hero_src = article.image | image_url: width: 2600
         assign hero_alt = article.image.alt | default: article.title
       -%}
       <div class="dev-article__media">
@@ -146,7 +146,7 @@
           hero_src
           | image_tag:
             loading: 'eager',
-            widths: '400, 600, 800, 1000, 1200, 1600',
+            widths: '400, 600, 800, 1000, 1200, 1600, 2000, 2600',
             sizes: '(max-width: 768px) 100vw, 1312px',
             alt: hero_alt,
             class: 'dev-article__image'

@@ -76,7 +76,7 @@
   assign image_mobile = section.settings.image_mobile
 
   assign alt_desktop = image_desktop.alt | default: '' | escape
-  assign src_desktop = image_desktop | image_url: width: 2400
+  assign src_desktop = image_desktop | image_url: width: 3200
 
   assign src_mobile_1x = image_mobile | image_url: width: 480
   assign src_mobile_2x = image_mobile | image_url: width: 960
@@ -118,7 +118,7 @@
           src_desktop
           | image_tag:
             loading: 'eager',
-            widths: '750, 1100, 1500, 1780, 2000, 2400',
+            widths: '750, 1100, 1500, 1780, 2000, 2400, 2800, 3200',
             sizes: '100vw',
             alt: alt_desktop,
             class: 'video-story-banner__image'
