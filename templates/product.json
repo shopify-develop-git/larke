@@ -12,6 +12,10 @@
     "main_product": {
       "type": "dev-main-product",
       "blocks": {
+        "description": {
+          "type": "description",
+          "settings": {}
+        },
         "unit-cm": {
           "type": "unit",
           "settings": {
@@ -115,6 +119,7 @@
         }
       },
       "block_order": [
+        "description",
         "unit-cm",
         "unit-in",
         "compare",
@@ -126,8 +131,6 @@
       ],
       "name": "Main product",
       "settings": {
-        "tagline": "Breathable. Love-able. Washable.",
-        "subtitle": "Vegan-certified natural comfort for everyday sleepers.",
         "cta_label": "Add to Order",
         "sold_out_label": "Sold out",
         "show_rating": true,

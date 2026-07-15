@@ -324,16 +324,19 @@
 
         <h1 class="dev-main-product__title">{{ product.title | escape }}</h1>
 
-        {%- if section.settings.tagline != blank or section.settings.subtitle != blank -%}
-          <div class="dev-main-product__sub">
-            {%- if section.settings.tagline != blank -%}
-              <p class="dev-main-product__tagline">{{ section.settings.tagline | escape }}</p>
-            {%- endif -%}
-            {%- if section.settings.subtitle != blank -%}
-              <p class="dev-main-product__subtitle">{{ section.settings.subtitle | escape }}</p>
-            {%- endif -%}
-          </div>
-        {%- endif -%}
+        {%- comment -%}
+          The product's own description, rendered as an optional "Description" block in place of the
+          old tagline/subtitle section settings. It sits in the head, under the title. The block has
+          no per-block copy — it always pulls from the product, so one block serves every product.
+        {%- endcomment -%}
+        {%- assign description_blocks = section.blocks | where: 'type', 'description' -%}
+        {%- for block in description_blocks -%}
+          {%- if product.description != blank -%}
+            <div class="dev-main-product__description" {{ block.shopify_attributes }}>
+              {{ product.description }}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
       </div>
 
       {%- form 'product', product, class: 'dev-main-product__form', novalidate: 'novalidate' -%}
@@ -920,8 +923,7 @@
   "tag": "section",
   "settings": [
     { "type": "header", "content": "Content" },
-    { "type": "text", "id": "tagline", "label": "Tagline (bold line)", "default": "Breathable. Love-able. Washable." },
-    { "type": "text", "id": "subtitle", "label": "Subtitle", "default": "Vegan-certified natural comfort for everyday sleepers." },
+    { "type": "paragraph", "content": "The line under the title is the product's own Description — add the \"Description\" block. There is no tagline/subtitle here anymore." },
     { "type": "text", "id": "cta_label", "label": "Add to cart label", "default": "Add to Order" },
     { "type": "text", "id": "sold_out_label", "label": "Sold out label", "default": "Sold out" },
 
@@ -1029,12 +1031,21 @@
         { "type": "text", "id": "link_label", "label": "Link text", "default": "See how we’re different" },
         { "type": "url", "id": "link", "label": "Link" }
       ]
+    },
+    {
+      "type": "description",
+      "name": "Description",
+      "limit": 1,
+      "settings": [
+        { "type": "paragraph", "content": "Shows the product's own Description (from the product admin), under the title. Nothing to edit here — one block serves every product." }
+      ]
     }
   ],
   "presets": [
     {
       "name": "Main product",
       "blocks": [
+        { "type": "description" },
         { "type": "unit", "settings": { "unit": "cm", "label": "CM" } },
         { "type": "unit", "settings": { "unit": "in", "label": "IN" } },
         { "type": "compare" },

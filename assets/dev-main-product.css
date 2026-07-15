@@ -273,24 +273,29 @@
   line-height: var(--font-heading-lh);
 }
 
-.dev-main-product__sub {
-  display: flex;
-  flex-direction: column;
-}
-
-.dev-main-product__tagline,
-.dev-main-product__subtitle {
-  margin: 0;
+/* The product description, in place of the old tagline/subtitle. It is rich text from Shopify,
+   so reset the default block margins and stack the paragraphs/lists on the group gap. */
+.dev-main-product__description {
   font-size: var(--font-sub-size);
+  font-weight: var(--w-medium);
   line-height: var(--font-body-lh);
 }
 
-.dev-main-product__tagline {
-  font-weight: var(--w-bold);
+.dev-main-product__description > * {
+  margin: 0;
 }
 
-.dev-main-product__subtitle {
-  font-weight: var(--w-medium);
+.dev-main-product__description > * + * {
+  margin-top: var(--group-gap);
+}
+
+.dev-main-product__description ul,
+.dev-main-product__description ol {
+  padding-left: 1.25em;
+}
+
+.dev-main-product__description li + li {
+  margin-top: var(--variant-gap);
 }
 
 /* ---- Options ------------------------------------------------------------ */
@@ -613,9 +618,12 @@
     padding: 7px;
   }
 
+  /* Centre the buy CONTAINER on mobile (not its content): align-self stops it stretching to the
+     full column width, so the box sits centred; the copy inside keeps its own alignment. */
   .dev-main-product__buy {
     position: static;
     width: auto;
+    align-self: center;
     padding: 8px var(--section-px-mobile) 0;
   }
 
@@ -623,8 +631,7 @@
     font-size: var(--font-title-size-mobile);
   }
 
-  .dev-main-product__tagline,
-  .dev-main-product__subtitle {
+  .dev-main-product__description {
     font-size: var(--font-sub-size-mobile);
   }
 
