@@ -9,10 +9,39 @@
    (--bg/--color/--accent/--pt/--pb/--logo-w) arrive inline on the root wrapper.
    This file only consumes them. */
 
+/* =============================================
+   HEADER GROUP — scroll hide / reveal
+   =============================================
+   Product decision (design call, 2026-07-15): the whole header group
+   (announcement + header + promo) pins to the top and hides on scroll down,
+   returning on scroll up or after 2s of scroll inactivity — every page, both
+   breakpoints. This supersedes the earlier "no evidence for sticky" ruling,
+   which held only until an explicit product decision existed. It now does.
+
+   #header-group is the wrapper in layout/theme.liquid that renders all three
+   bars via {% sections 'header-group' %}, so it is the one element that moves
+   as a unit — the behaviour is owned here (there is no group-level dev
+   section). dev-site-header.js toggles data-header-hidden on it.
+
+   position: sticky (NOT fixed) keeps the group in normal flow: zero layout
+   shift, and at the top of the page the bars sit exactly as before. On desktop
+   (>=990px) .page-wrapper is the scroll container (base.css) and the group
+   pins to its top; below that the window scrolls. Both are covered. */
+#header-group {
+  position: sticky;
+  top: 0;
+  z-index: var(--layer-sticky); /* above content, below overlays/drawers */
+  transition: transform 250ms ease;
+  will-change: transform;
+}
+
+#header-group[data-header-hidden='true'] {
+  transform: translateY(-100%);
+}
+
 .site-header {
-  /* PM ruling (Brief, Interactivity): no "scrolled" state variant exists in the
-     Figma file, so there is no evidence for sticky — static, full stop. Do not
-     change without an explicit product decision. */
+  /* Stays in normal flow inside the sticky group above; the group is what
+     pins and hides. See the HEADER GROUP block for the scroll behaviour. */
   position: static;
 
   display: flex;
@@ -212,6 +241,7 @@
    ============================================= */
 
 @media (prefers-reduced-motion: reduce) {
+  #header-group,
   .site-header,
   .site-header * {
     animation-duration: 0.01ms !important;
