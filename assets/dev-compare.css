@@ -203,8 +203,15 @@
   margin-top: calc(var(--grid-offset) - var(--gap-lg));
 }
 
-/* Roa / Piglet have no data yet → the panel renders truly empty. Collapse it so it
-   contributes no margin, flex gap, or bottom spacing when its tab is selected. */
+/* The inactive panels carry the [hidden] attribute (Liquid on load, dev-compare.js on
+   switch). The class rule above sets display:flex, which out-specifies the UA
+   `[hidden]{display:none}` — so without THIS rule every panel renders and they stack
+   under each other. Class+attribute (0,2,0) beats the class alone (0,1,0). */
+.dev-compare__panel-content[hidden] {
+  display: none;
+}
+
+/* A panel with no rendered content collapses so it adds no margin or gap. */
 .dev-compare__panel-content:empty {
   display: none;
 }
