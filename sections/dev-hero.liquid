@@ -214,7 +214,7 @@
 
     {%- if section.settings.cta_label != blank -%}
       <div class="hero__actions">
-        <a class="hero__button" href="{{ cta_link }}">{{ cta_label }}</a>
+        {%- render 'dev-button', variant: 'filled', label: cta_label, link: cta_link, class: 'hero__button' -%}
       </div>
     {%- endif -%}
   </div>

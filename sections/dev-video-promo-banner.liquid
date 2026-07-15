@@ -217,13 +217,13 @@
               assign cta_link = routes.root_url
             endif
           -%}
-          <a
-            class="video-promo-banner__button"
-            href="{{ cta_link }}"
-            {{ block.shopify_attributes }}
-          >
-            {{- block.settings.label | escape -}}
-          </a>
+          {%- render 'dev-button',
+            variant: 'filled',
+            label: block.settings.label | escape,
+            link: cta_link,
+            class: 'video-promo-banner__button',
+            attrs: block.shopify_attributes
+          -%}
         {%- endif -%}
       {%- endfor -%}
     </div>

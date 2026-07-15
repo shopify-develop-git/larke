@@ -222,28 +222,12 @@
   align-items: center;
 }
 
+/* Styling comes from the shared component (.dev-btn--filled, assets/dev-button.css).
+   Only hero-specific token overrides live here: the CTA text is a fixed dark (#333333)
+   over the photo, not the section --color (which is the white heading colour). */
 .hero__button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: var(--cta-py) var(--cta-px);
-  border-radius: var(--radius-cta);
-  background-color: var(--accent);
-  color: var(--cta-text);
-
-  font-family: var(--font-body);
-  font-size: var(--cta-size);
-  font-weight: var(--cta-weight);
-  line-height: var(--cta-lh);
-  text-align: center;
-  text-decoration: none;
-
-  transition: filter 0.2s ease;
-}
-
-.hero__button:hover {
-  filter: brightness(0.95);
+  --dev-btn-color: var(--cta-text);
+  --dev-btn-focus: var(--color);
 }
 
 /* =============================================
@@ -306,12 +290,6 @@
     margin-top: var(--underline-gap-m);
     height: var(--underline-h-m);
   }
-
-  /* Touch target: the CTA is already 61px tall (25.2 line + 36 padding); this is a floor,
-     not a resize. */
-  .hero__button {
-    min-height: 44px;
-  }
 }
 
 /* =============================================
@@ -329,14 +307,7 @@
    ACCESSIBILITY
    ============================================= */
 
-.hero__button:focus-visible {
-  outline: 2px solid var(--color);
-  outline-offset: 2px;
-}
-
-.hero__button:focus:not(:focus-visible) {
-  outline: none;
-}
+/* Focus, hover and reduced-motion for the CTA are handled by the shared component. */
 
 /* =============================================
    REDUCED MOTION

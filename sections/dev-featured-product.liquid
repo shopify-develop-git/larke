@@ -211,9 +211,11 @@
           {%- endif -%}
 
           {%- if section.settings.button_label != blank -%}
-            <a class="featured-product__button" href="{{ button_link }}">
-              {{- section.settings.button_label | escape -}}
-            </a>
+            {%- render 'dev-button',
+              variant: 'dark',
+              label: section.settings.button_label | escape,
+              link: button_link,
+              class: 'featured-product__button' -%}
           {%- endif -%}
         </div>
       </div>

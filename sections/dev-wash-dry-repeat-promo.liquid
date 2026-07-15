@@ -108,17 +108,22 @@
         {%- endif -%}
 
         {%- if section.settings.cta_label != blank -%}
-          <a
-            class="wash-dry-repeat-promo__cta"
-            {% if section.settings.cta_link != blank %}
-              href="{{ section.settings.cta_link }}"
-            {% else %}
-              href="#"
-              aria-disabled="true"
-            {% endif %}
-          >
-            {{- section.settings.cta_label | escape -}}
-          </a>
+          {%- if section.settings.cta_link != blank -%}
+            {%- render 'dev-button',
+              variant: 'dark',
+              label: section.settings.cta_label | escape,
+              link: section.settings.cta_link,
+              class: 'wash-dry-repeat-promo__cta'
+            -%}
+          {%- else -%}
+            {%- render 'dev-button',
+              variant: 'dark',
+              label: section.settings.cta_label | escape,
+              link: '#',
+              class: 'wash-dry-repeat-promo__cta',
+              attrs: 'aria-disabled="true"'
+            -%}
+          {%- endif -%}
         {%- endif -%}
       </div>
 

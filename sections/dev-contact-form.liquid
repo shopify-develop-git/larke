@@ -179,9 +179,7 @@
           </div>
         </div>
 
-        <button type="submit" class="dev-contact-form__button">
-          {{- section.settings.button_label | escape -}}
-        </button>
+        {%- render 'dev-button', variant: 'ghost', type: 'submit', label: section.settings.button_label | escape, class: 'dev-contact-form__button' -%}
       {%- endform -%}
     </div>
   </div>

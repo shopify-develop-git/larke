@@ -421,37 +421,19 @@
 
 /* ---- Add to cart -------------------------------------------------------- */
 
+/* Full-width filled CTA from the shared component (.dev-btn--filled.dev-btn--full).
+   Only the composite bits stay here: the fixed 60px height, the label · divider · price
+   row (display:flex + 24px gap), the 20px type and the 16/24 padding. bg/colour/radius,
+   the unified hover, focus, [disabled] (opacity .5) and [aria-busy] (cursor:progress)
+   states are all provided by .dev-btn. */
 .dev-main-product__cta {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--cta-gap);
-  width: 100%;
   height: var(--cta-h);
   margin: 0;
   padding: var(--cta-pad);
-  border: 0;
-  border-radius: var(--cta-radius);
-  background-color: var(--accent);
-  color: var(--color);
-  font-family: var(--font-body);
-  font-size: var(--font-cta-size);
-  font-weight: var(--w-bold);
-  line-height: var(--font-body-lh);
-  cursor: pointer;
-  box-sizing: border-box;
-  appearance: none;
-}
-
-.dev-main-product__cta[disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* The CTA is disabled for the moment the add is in flight, which already dims it — this stops the
-   cursor from also promising it is clickable while nothing can be clicked. */
-.dev-main-product__cta[aria-busy='true'] {
-  cursor: progress;
+  --dev-btn-gap: var(--cta-gap);
+  --dev-btn-fs: var(--font-cta-size);
+  --dev-btn-focus: var(--color);
 }
 
 /* Only rendered when there is something to say — `hidden` on the element, no empty gap otherwise.
@@ -475,7 +457,6 @@
   background-color: var(--color);
 }
 
-.dev-main-product__cta:focus-visible,
 .dev-main-product__arrow:focus-visible,
 .dev-main-product__thumb:focus-visible {
   outline: 2px solid var(--color);
@@ -1011,27 +992,15 @@
   margin-top: var(--group-gap);
 }
 
+/* Outlined pill from the shared component (.dev-btn--outline). Only the layout
+   placement and the inside-stroke-corrected padding stay here. */
 .dev-main-product__acc-button {
-  display: inline-flex;
   align-self: flex-start;
-  align-items: center;
-  justify-content: center;
   margin-top: var(--group-gap);
   /* Inside-stroke correction — 1 + 17 = 18, 1 + 23 = 24. */
-  padding: 17px 23px;
-  border: 1px solid var(--color);
-  border-radius: var(--cta-radius);
-  background: none;
-  color: var(--color);
-  font-size: var(--font-sub-size);
-  font-weight: var(--w-bold);
-  line-height: var(--font-body-lh);
-  text-decoration: none;
-}
-
-.dev-main-product__acc-button:focus-visible {
-  outline: 2px solid var(--color);
-  outline-offset: 2px;
+  --dev-btn-py: 17px;
+  --dev-btn-px: 23px;
+  --dev-btn-focus: var(--color);
 }
 
 .dev-main-product__certs {
@@ -1290,11 +1259,6 @@
   text-align: center;
 }
 
-.dev-main-product__guide-foot strong {
-  text-decoration: underline;
-  text-underline-position: from-font;
-}
-
 /* ---- Seasons guide ------------------------------------------------------- */
 
 .dev-main-product__tog-heading {
@@ -1328,6 +1292,9 @@
 
 .dev-main-product__tog-label {
   display: block;
+  /* "Best for:" is a <p>, so without this it keeps the UA margin-block:1em (20px here) and breaks
+     the card's uniform 8px flex gap. Its <span> uses (Temperature/feel) are unaffected either way. */
+  margin: 0;
   font-family: var(--font-heading);
   font-size: var(--font-pc-label-size);
   font-weight: var(--font-heading-weight);
@@ -1371,11 +1338,17 @@
 }
 
 @media (max-width: 768px) {
+  /* A bottom sheet that hugs its content. top:32px + bottom:0 forced the panel to a fixed
+     100dvh-32px, so the short Size Guide filled the screen. top:auto + height:auto lets it size to
+     content and sit pinned to the bottom; the max-height keeps the 32px top inset and lets the tall
+     Seasons Guide fill to the same height and scroll its body, exactly as before. */
   .dev-main-product__guide-panel {
-    top: 32px;
+    top: auto;
     right: 0;
     bottom: 0;
     width: 100%;
+    height: auto;
+    max-height: calc(100dvh - 32px);
     max-width: none;
     border-radius: var(--image-radius) var(--image-radius) 0 0;
     transform: translateY(100%);
@@ -1383,6 +1356,24 @@
 
   .dev-main-product__guide[data-open='true'] .dev-main-product__guide-panel {
     transform: translateY(0);
+  }
+
+  /* Mobile/Title 3 (24px). Without this the title inherits the desktop --font-title-size (32px):
+     the overlay heading is a mobile artboard value, exactly like .dev-main-product__title above. */
+  .dev-main-product__guide-title {
+    font-size: var(--font-title-size-mobile);
+  }
+
+  /* The popup inset tightens 32px -> 24px on the mobile artboard. --pt can't be redefined here (the
+     inline <style> token wins on the cascade), so the head margin/padding and body padding are
+     overridden as properties, off the dedicated --pt-mobile token. */
+  .dev-main-product__guide-head {
+    margin: 0 var(--pt-mobile);
+    padding: var(--pt-mobile) 0 var(--group-gap);
+  }
+
+  .dev-main-product__guide-body {
+    padding: var(--pt-mobile);
   }
 
   /* The sheet rises from the bottom here, so its contents rise with it. Keeping the desktop

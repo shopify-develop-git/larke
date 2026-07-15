@@ -83,27 +83,16 @@
 
 /* --- buttons / links --- */
 
+/* Migrated to the shared .dev-btn component (variant: filled). The component is loaded
+   globally (before this stylesheet) and already provides the box, colours, hover, focus
+   and the touch-target floor. Only the values that DIFFER from the filled default are
+   re-declared, as override tokens mapped to this section's own tokens so the button keeps
+   following the section. bg (--accent) and text colour (--color) already match the filled
+   default, so they are intentionally NOT overridden. */
 .fibre-cta__button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--button-pad-y) var(--button-pad-x);
-  border: 0;
-  border-radius: var(--radius-button);
-  background-color: var(--accent);
-  color: var(--button-color);
-  font-family: var(--font-body);
-  font-size: var(--font-body-size);
-  font-weight: var(--font-body-weight);
-  line-height: var(--font-body-lh);
-  text-align: center;
-  text-decoration: none;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.fibre-cta__button:hover {
-  opacity: 0.85;
+  --dev-btn-py: var(--button-pad-y);   /* 12px — filled default is 18px */
+  --dev-btn-px: var(--button-pad-x);   /* 18px — filled default is 24px */
+  --dev-btn-fs: var(--font-body-size); /* 16px — filled default is 18px */
 }
 
 /* =============================================
@@ -171,12 +160,6 @@
   .fibre-cta__heading {
     font-size: var(--font-heading-size-m);
   }
-
-  /* Touch target floor. */
-  .fibre-cta__button {
-    min-height: 44px;
-    min-width: 44px;
-  }
 }
 
 /* =============================================
@@ -186,23 +169,6 @@
 /* Nothing changes below 480px — the 375 artboard's rules already hold, and the card is
    fluid (100% of the viewport minus the 16px gutters), so nothing overflows. */
 @media (max-width: 480px) {
-}
-
-/* =============================================
-   ACCESSIBILITY
-   ============================================= */
-
-/* Outlined in --color, not --accent: --accent IS this button's background, so an accent
-   outline on it would be invisible. */
-.fibre-cta__button:focus-visible,
-.fibre-cta__link:focus-visible {
-  outline: 2px solid var(--color);
-  outline-offset: 2px;
-}
-
-.fibre-cta__button:focus:not(:focus-visible),
-.fibre-cta__link:focus:not(:focus-visible) {
-  outline: none;
 }
 
 /* =============================================

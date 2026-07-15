@@ -162,17 +162,12 @@
         {%- endif -%}
 
         {%- if button_label != blank -%}
-          <a
-            class="fibre-cta__button"
-            {% if section.settings.button_link != blank %}
-              href="{{ section.settings.button_link }}"
-            {% else %}
-              href="#"
-              aria-disabled="true"
-            {% endif %}
-          >
-            {{- button_label | escape -}}
-          </a>
+          {%- render 'dev-button',
+            variant: 'filled',
+            label: button_label | escape,
+            link: section.settings.button_link,
+            class: 'fibre-cta__button'
+          -%}
         {%- endif -%}
       </div>
     </div>

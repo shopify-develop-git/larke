@@ -133,9 +133,12 @@
       {%- endif -%}
 
       {%- if section.settings.button_label != blank -%}
-        <a class="wash-dry-repeat__button" href="{{ button_link }}">
-          {{- section.settings.button_label | escape -}}
-        </a>
+        {%- render 'dev-button',
+          variant: 'outline',
+          label: section.settings.button_label | escape,
+          link: button_link,
+          class: 'wash-dry-repeat__button'
+        -%}
       {%- endif -%}
     </div>
   </div>

@@ -130,30 +130,12 @@
 
 /* --- buttons / links --- */
 
-/* Pill CTA. Its background is --color: in this design the button fill and the body text are the
-   same token (Neutral/700 #333333) — there is no separate accent fill anywhere in the section. */
+/* Pill CTA — the shared .dev-btn--dark component (fill = --color, the dark default). The one
+   deviation is the text colour: this design fixes it to --cta-text (#ffffff) rather than the
+   variant's --dev-btn-on-dark default, so map that single token. Box, radius, type, hover and
+   focus all come from dev-button.css. */
 .wash-dry-repeat-promo__cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: var(--cta-py) var(--cta-px);
-  border-radius: var(--radius-cta);
-  background-color: var(--color);
-  color: var(--cta-text);
-
-  font-family: var(--font-body);
-  font-size: var(--font-cta-size);
-  font-weight: var(--font-cta-weight);
-  line-height: var(--font-cta-lh);
-  text-align: center;
-  text-decoration: none;
-
-  transition: filter 0.2s ease;
-}
-
-.wash-dry-repeat-promo__cta:hover {
-  filter: brightness(0.9);
+  --dev-btn-color: var(--cta-text);
 }
 
 /* =============================================
@@ -209,10 +191,9 @@
   }
 
   .wash-dry-repeat-promo__cta {
-    order: 3;
+    order: 3; /* positioning: reorder below the image row (heading 1, tiles 2, cta 3) */
     padding: var(--cta-py-m) var(--cta-px-m);
     font-size: var(--font-cta-size-m);
-    min-height: 44px; /* touch target */
   }
 
   .wash-dry-repeat-promo__heading {
@@ -238,14 +219,14 @@
    ACCESSIBILITY
    ============================================= */
 
-.wash-dry-repeat-promo__cta:focus-visible,
-.wash-dry-repeat-promo a:focus-visible {
+/* The CTA's focus now lives in dev-button.css (.dev-btn:focus-visible / :focus).
+   Generic richtext anchors inside the section keep their original focus ring. */
+.wash-dry-repeat-promo a:not(.dev-btn):focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-.wash-dry-repeat-promo__cta:focus:not(:focus-visible),
-.wash-dry-repeat-promo a:focus:not(:focus-visible) {
+.wash-dry-repeat-promo a:not(.dev-btn):focus:not(:focus-visible) {
   outline: none;
 }
 

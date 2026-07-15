@@ -111,20 +111,12 @@
 
 /* --- buttons / links --- */
 
+/* Migrated to the shared .dev-btn component (variant: filled). The only desktop deviation from
+   the filled default is the fixed CTA text colour — everything else (padding, radius, accent bg,
+   font size/weight/line-height) already matches the component's defaults. No positioning is
+   needed: the button is centred by __content's flex align-items. */
 .video-promo-banner__button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--button-py) var(--button-px);
-  border-radius: var(--button-radius);
-  background-color: var(--accent);
-  color: var(--cta-text-color);
-  font-family: var(--font-body);
-  font-size: var(--font-button-size);
-  font-weight: var(--font-button-weight);
-  line-height: var(--font-button-lh);
-  text-align: center;
-  text-decoration: none;
+  --dev-btn-color: var(--cta-text-color);
 }
 
 /* --- modal (video lightbox) --- */
@@ -286,8 +278,6 @@
   }
 
   .video-promo-banner__button {
-    min-height: 44px;
-    min-width: 44px;
     padding: var(--button-py-m) var(--button-px-m);
     font-size: var(--font-button-size-m);
   }
@@ -307,14 +297,12 @@
    ACCESSIBILITY
    ============================================= */
 
-.video-promo-banner__button:focus-visible,
 .video-promo-banner__play:focus-visible,
 .video-promo-banner__modal-close:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-.video-promo-banner__button:focus:not(:focus-visible),
 .video-promo-banner__play:focus:not(:focus-visible),
 .video-promo-banner__modal-close:focus:not(:focus-visible) {
   outline: none;

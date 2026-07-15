@@ -261,9 +261,9 @@
 
     <div class="cart-drawer__footer">
       {%- if block.settings.checkout_label != blank -%}
-        <a class="cart-drawer__checkout" href="{{ checkout_url }}">
-          <span class="cart-drawer__checkout-label">{{ block.settings.checkout_label | escape }}</span>
-          <svg class="cart-drawer__icon" viewBox="329.5 18.5 24 24" width="24" height="24" fill="none" aria-hidden="true" focusable="false">
+        <a class="cart-drawer__checkout dev-btn dev-btn--ghost dev-btn--full" href="{{ checkout_url }}">
+          <span class="cart-drawer__checkout-label dev-btn__label">{{ block.settings.checkout_label | escape }}</span>
+          <svg class="cart-drawer__icon dev-btn__icon" viewBox="329.5 18.5 24 24" width="24" height="24" fill="none" aria-hidden="true" focusable="false">
 <path d="M341.5 33.5V35.5M335.5 39.5H347.5C348.605 39.5 349.5 38.6046 349.5 37.5V31.5C349.5 30.3954 348.605 29.5 347.5 29.5H335.5C334.395 29.5 333.5 30.3954 333.5 31.5V37.5C333.5 38.6046 334.395 39.5 335.5 39.5ZM345.5 29.5V25.5C345.5 23.2909 343.709 21.5 341.5 21.5C339.291 21.5 337.5 23.2909 337.5 25.5V29.5H345.5Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
         </a>

@@ -144,20 +144,15 @@
   opacity: 1;
 }
 
+/* Ghost variant via the shared dev-button component. bg/border/color already equal the ghost
+   defaults (rgba(52,52,52,.66) / 1px #fff / #fff), so only the deviations are overridden here:
+   the combined --button-pad shorthand (11px 17px, can't be split into two token vars) and the
+   16px field-size font. align-self is positioning, not appearance — it stays. */
 .dev-contact-form__button {
   align-self: flex-start;
-  margin: 0;
-  padding: var(--button-pad);
-  border: var(--button-border-w) solid var(--button-color);
-  border-radius: var(--button-radius);
-  background-color: var(--button-bg);
-  color: var(--button-color);
-  font-family: var(--font-body);
-  font-size: var(--font-field-size);
-  font-weight: var(--font-button-weight);
-  line-height: var(--font-body-lh);
-  cursor: pointer;
-  appearance: none;
+  --dev-btn-py: 11px;
+  --dev-btn-px: 17px;
+  --dev-btn-fs: var(--font-field-size);
 }
 
 .dev-contact-form__success,
@@ -172,8 +167,7 @@
   padding-left: 1.2em;
 }
 
-.dev-contact-form__input:focus-visible,
-.dev-contact-form__button:focus-visible {
+.dev-contact-form__input:focus-visible {
   outline: 2px solid var(--color);
   outline-offset: 2px;
 }

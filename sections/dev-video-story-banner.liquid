@@ -141,12 +141,12 @@
           href — a Figma-authoring inconsistency, not responsive behaviour (Brief note #2).
           Implemented as one <a> at both breakpoints; button_link is a real merchant field.
         {%- endcomment -%}
-        <a
-          class="video-story-banner__button"
-          {%- if section.settings.button_link != blank %} href="{{ section.settings.button_link }}"{% endif -%}
-        >
-          {{- section.settings.button_label | escape -}}
-        </a>
+        {%- render 'dev-button',
+          variant: 'filled',
+          label: section.settings.button_label | escape,
+          link: section.settings.button_link,
+          class: 'video-story-banner__button'
+        -%}
       {%- endif -%}
     </div>
   </div>

@@ -315,29 +315,19 @@ body[data-cart-drawer-open='true'] {
 
 /* --- checkout button --- */
 
+/* Full-width translucent checkout from the shared component (.dev-btn--ghost.dev-btn--full).
+   Composite bits kept: the 60px floor, the icon row (display:flex), the 16/24 padding, and the
+   drawer's own fill/stroke/text tokens mapped onto the ghost variant. The unified hover
+   (ghost solidifies) and focus come from .dev-btn. */
 .cart-drawer__checkout {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  width: 100%;
   min-height: 60px;
-  padding: var(--spacing-md) var(--spacing-lg);
-
-  background-color: var(--accent);
-  border: 1px solid var(--cta-color);
-  border-radius: var(--radius-cta);
-  color: var(--cta-color);
-
-  font-size: var(--font-size-cta);
-  font-weight: var(--weight-bold);
-  line-height: var(--font-body-lh);
-  text-decoration: none;
-  transition: opacity 0.2s ease;
-}
-
-.cart-drawer__checkout:hover {
-  opacity: 0.85;
+  --dev-btn-gap: var(--spacing-sm);
+  --dev-btn-py: var(--spacing-md);
+  --dev-btn-px: var(--spacing-lg);
+  --dev-btn-ghost-bg: var(--accent);
+  --dev-btn-on-dark: var(--cta-color);
+  --dev-btn-focus: var(--cta-color);
 }
 
 .cart-drawer__checkout .cart-drawer__icon {

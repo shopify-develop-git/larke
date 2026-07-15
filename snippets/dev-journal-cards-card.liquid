@@ -62,13 +62,13 @@
 
       {%- if cta_label != blank -%}
         {%- assign card_link = url | default: '#' -%}
-        <a class="journal-cards__cta" href="{{ card_link }}">
-          <span class="journal-cards__cta-label">{{ cta_label | escape }}</span>
+        <a class="journal-cards__cta dev-btn dev-btn--text" href="{{ card_link }}">
+          <span class="journal-cards__cta-label dev-btn__label">{{ cta_label | escape }}</span>
           {%- comment -%}
             Path data verbatim from .figma-assets/journal-cards/cta-icon-arrow-right.svg.
           {%- endcomment -%}
           <svg
-            class="journal-cards__cta-icon"
+            class="journal-cards__cta-icon dev-btn__icon"
             width="24"
             height="24"
             viewBox="99 0 24 24"

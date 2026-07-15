@@ -396,22 +396,20 @@
   opacity: 1;
 }
 
+/* Only positioning stays local; all visual styling comes from .dev-btn / .dev-btn--ghost. */
 .site-footer__button {
   flex: 0 0 auto;
-  margin: 0;
-  padding: var(--button-padding);
-  border: var(--border-width) solid var(--button-border-color);
-  border-radius: var(--radius-button);
-  background-color: var(--button-bg);
-  color: var(--button-color);
-  font-family: var(--font-body);
-  font-size: var(--font-button-size);
-  font-weight: var(--font-button-weight);
-  line-height: var(--font-body-lh);
-  text-align: center;
   white-space: nowrap;
-  appearance: none;
-  cursor: pointer;
+}
+
+/* Mobile: token-driven padding/size shrink, re-expressed as direct property overrides
+   because a media query cannot override the inline-<style> --button-* tokens the base
+   rule used to read (18px 24px / 18px desktop -> 12px 18px / 16px mobile). */
+@media (max-width: 768px) {
+  .site-footer__button {
+    padding: 12px 18px;
+    font-size: 16px;
+  }
 }
 
 .site-footer__form-message {
@@ -628,7 +626,6 @@
 .site-footer__link:focus-visible,
 .site-footer__logo:focus-visible,
 .site-footer__social-link:focus-visible,
-.site-footer__button:focus-visible,
 .site-footer__input:focus-visible,
 .site-footer__copyright a:focus-visible {
   outline: 2px solid var(--accent);
@@ -638,7 +635,6 @@
 .site-footer__link:focus:not(:focus-visible),
 .site-footer__logo:focus:not(:focus-visible),
 .site-footer__social-link:focus:not(:focus-visible),
-.site-footer__button:focus:not(:focus-visible),
 .site-footer__input:focus:not(:focus-visible),
 .site-footer__copyright a:focus:not(:focus-visible) {
   outline: none;

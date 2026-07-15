@@ -180,24 +180,12 @@
 
 /* --- buttons / links --- */
 
+/* Filled dark pill — rendered via the dev-button component (variant: dark).
+   Only the fixed brand fill/text differ from the dark default; padding, radius,
+   font and the hover/focus/touch behaviours all come from dev-button.css. */
 .featured-product__button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--button-py) var(--button-px);
-  background-color: var(--color-button-bg);
-  color: var(--color-button-text);
-  border-radius: var(--radius-button);
-  font-family: var(--font-body);
-  font-weight: var(--font-button-weight);
-  font-size: var(--font-button-size);
-  line-height: var(--font-button-lh);
-  text-decoration: none;
-  transition: opacity 0.2s ease;
-}
-
-.featured-product__button:hover {
-  opacity: 0.85;
+  --dev-btn-bg: var(--color-button-bg);
+  --dev-btn-color: var(--color-button-text);
 }
 
 /* =============================================
@@ -248,11 +236,6 @@
   .featured-product__subheading {
     font-size: var(--font-body-size-m);
   }
-
-  .featured-product__button {
-    min-height: 44px;
-    min-width: 44px;
-  }
 }
 
 /* =============================================
@@ -269,13 +252,11 @@
    ACCESSIBILITY
    ============================================= */
 
-.featured-product__button:focus-visible,
 .featured-product__link:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-.featured-product__button:focus:not(:focus-visible),
 .featured-product__link:focus:not(:focus-visible) {
   outline: none;
 }

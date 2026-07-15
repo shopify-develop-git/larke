@@ -419,10 +419,18 @@
   letter-spacing: normal;
   text-transform: none;
   cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+    transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Judge.me markup can't take the .dev-btn class, so the button is themed inline — but its
+   hover mirrors the shared component: lift + soft shadow, and the pill inverts to a solid
+   dark with light text (text pinned light so it can't vanish). */
 .dev-reviews .jdgm-paginate__load-more.jdgm-btn.jdgm-btn--solid:hover {
-  background-color: var(--bg);
+  background-color: var(--color);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
 }
 
 /* ---- Mobile (<=768) — 44797:4034 ----------------------------------------

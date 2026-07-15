@@ -180,9 +180,12 @@
             spellcheck="false"
             required
           >
-          <button type="submit" class="site-footer__button">
-            {{- section.settings.newsletter_button_label | escape -}}
-          </button>
+          {%- render 'dev-button',
+            variant: 'ghost',
+            type: 'submit',
+            label: section.settings.newsletter_button_label | escape,
+            class: 'site-footer__button'
+          -%}
         </div>
         {%- if form.posted_successfully? -%}
           <p class="site-footer__form-message" role="status" tabindex="-1">
