@@ -119,6 +119,12 @@
   assign size_guide = product.metafields.larke.size_guide.value
   assign seasons_guide = product.metafields.larke.seasons_guide.value
 
+  # The size-guide unit toggle is built from 'unit' blocks. Each block picks a unit type from a fixed
+  # list — the type carries the cm-conversion factor — so the merchant adds/reorders units without
+  # ever typing a number. The first block is the default. Rendered in two places below: the toggle
+  # buttons and one value column per size row.
+  assign units = section.blocks | where: 'type', 'unit'
+
   assign rating = section.settings.rating_value
   assign rating_pct = rating | times: 20.0
   if rating_pct > 100
@@ -568,6 +574,7 @@
               data-compare-open
               aria-haspopup="dialog"
               aria-controls="compare-modal"
+              aria-expanded="false"
               {{ block.shopify_attributes }}
             >
               <span class="dev-main-product__compare-icon" aria-hidden="true">
@@ -657,7 +664,7 @@
               {%- endif -%}
 
               {%- if block.settings.link_label != blank -%}
-                <a class="dev-main-product__pc-link" href="{{ block.settings.link | default: '#' }}" data-compare-open aria-haspopup="dialog" aria-controls="compare-modal">
+                <a class="dev-main-product__pc-link" href="{{ block.settings.link | default: '#' }}" data-compare-open aria-haspopup="dialog" aria-controls="compare-modal" aria-expanded="false">
                   <span>{{ block.settings.link_label | escape }}</span>
                   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
                     <path d="M17 16L21 12L17 8M21 12L3 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -701,10 +708,20 @@
               CM / IN is a real toggle, not two links. Both values are already in the DOM — a unit
               switch that had to fetch anything would be absurd.
             {%- endcomment -%}
-            <div class="dev-main-product__units" role="group" aria-label="{{ size_guide.title.value | escape }}">
-              <button type="button" class="dev-main-product__unit dev-main-product__unit--active" data-unit="cm" aria-pressed="true">{{ section.settings.unit_metric | escape }}</button>
-              <button type="button" class="dev-main-product__unit" data-unit="in" aria-pressed="false">{{ section.settings.unit_imperial | escape }}</button>
-            </div>
+            {%- comment -%} One button per 'unit' block. The toggle only exists when there is a choice to make. {%- endcomment -%}
+            {%- if units.size > 1 -%}
+              <div class="dev-main-product__units" role="group" aria-label="{{ size_guide.title.value | escape }}">
+                {%- for u in units -%}
+                  {%- liquid
+                    assign ulabel = u.settings.label
+                    if ulabel == blank
+                      assign ulabel = u.settings.unit | upcase
+                    endif
+                  -%}
+                  <button type="button" class="dev-main-product__unit{% if forloop.first %} dev-main-product__unit--active{% endif %}" data-unit="{{ u.id }}" aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}" {{ u.shopify_attributes }}>{{ ulabel | escape }}</button>
+                {%- endfor -%}
+              </div>
+            {%- endif -%}
 
             {%- comment -%}
               The rows come from the size_guide metaobject, one size_guide_row each. Every duvet can
@@ -755,16 +772,45 @@
 
                   assign w_cm = w.value | times: w_scale
                   assign l_cm = l.value | times: l_scale
-
-                  assign w_cm_out = w_cm | round
-                  assign l_cm_out = l_cm | round
-                  assign w_in_out = w_cm | divided_by: 2.54 | round
-                  assign l_in_out = l_cm | divided_by: 2.54 | round
                 -%}
                 <div class="dev-main-product__size-row">
                   <dt class="dev-main-product__size-label">{{ row.label.value | escape }}</dt>
-                  <dd class="dev-main-product__size-value" data-unit-value="cm">{{ w_cm_out }} cm x {{ l_cm_out }} cm</dd>
-                  <dd class="dev-main-product__size-value" data-unit-value="in" hidden>{{ w_in_out }} in x {{ l_in_out }} in</dd>
+                  {%- if units.size > 0 -%}
+                    {%- for u in units -%}
+                      {%- liquid
+                        # The unit type carries its own cm-conversion factor, suffix and rounding, so a
+                        # column can never drift from the stored dimension the way a typed value would.
+                        case u.settings.unit
+                          when 'in'
+                            assign factor = 0.3937008
+                            assign suffix = 'in'
+                            assign dec = 0
+                          when 'mm'
+                            assign factor = 10.0
+                            assign suffix = 'mm'
+                            assign dec = 0
+                          when 'ft'
+                            assign factor = 0.0328084
+                            assign suffix = 'ft'
+                            assign dec = 1
+                          when 'm'
+                            assign factor = 0.01
+                            assign suffix = 'm'
+                            assign dec = 2
+                          else
+                            assign factor = 1.0
+                            assign suffix = 'cm'
+                            assign dec = 0
+                        endcase
+                        assign wv = w_cm | times: factor | round: dec
+                        assign lv = l_cm | times: factor | round: dec
+                      -%}
+                      <dd class="dev-main-product__size-value" data-unit-value="{{ u.id }}"{% unless forloop.first %} hidden{% endunless %}>{{ wv }} {{ suffix }} x {{ lv }} {{ suffix }}</dd>
+                    {%- endfor -%}
+                  {%- else -%}
+                    {%- comment -%} No unit blocks configured — centimetres so the table still reads. {%- endcomment -%}
+                    <dd class="dev-main-product__size-value" data-unit-value="cm">{{ w_cm | round }} cm x {{ l_cm | round }} cm</dd>
+                  {%- endif -%}
                 </div>
               {%- endfor -%}
             </dl>
@@ -895,9 +941,7 @@
     { "type": "text", "id": "seal_alt", "label": "Approval seal alt text", "default": "Good Housekeeping Institute approved" },
 
     { "type": "header", "content": "Guides" },
-    { "type": "paragraph", "content": "Neither guide is set here any more. Both come from the product: larke.size_guide and larke.seasons_guide. Each entry names the option it explains, so its link appears beside that option \u2014 leave a metafield empty and that product simply has no link and no drawer. What stays below is interface, not content: the CM / IN toggle and the three row labels inside the seasons drawer." },
-    { "type": "text", "id": "unit_metric", "label": "Metric unit", "default": "CM" },
-    { "type": "text", "id": "unit_imperial", "label": "Imperial unit", "default": "IN" },
+    { "type": "paragraph", "content": "Neither guide is set here any more. Both come from the product: larke.size_guide and larke.seasons_guide. Each entry names the option it explains, so its link appears beside that option \u2014 leave a metafield empty and that product simply has no link and no drawer. What stays below is interface, not content: the three row labels in the seasons drawer. The size-guide unit toggle is built from \u201cSize unit\u201d blocks \u2014 add or reorder them, the first is the default." },
     { "type": "text", "id": "tog_label_temp", "label": "Label: temperature", "default": "Temperature:" },
     { "type": "text", "id": "tog_label_feel", "label": "Label: feel", "default": "How it feels over you:" },
     { "type": "text", "id": "tog_label_best", "label": "Label: best for", "default": "Best for:" },
@@ -912,6 +956,18 @@
     { "type": "color", "id": "border_color", "label": "Borders & dividers", "default": "#C4BCA9" }
   ],
   "blocks": [
+    {
+      "type": "unit",
+      "name": "Size unit",
+      "limit": 6,
+      "settings": [
+        { "type": "paragraph", "content": "A tab in the size-guide unit toggle. Pick the unit — it carries the conversion, so the numbers stay correct — and give it a short label. The first Size unit block is shown by default." },
+        { "type": "select", "id": "unit", "label": "Unit", "default": "cm", "options": [
+          { "value": "cm", "label": "Centimetres" }, { "value": "in", "label": "Inches" },
+          { "value": "mm", "label": "Millimetres" }, { "value": "ft", "label": "Feet" }, { "value": "m", "label": "Metres" } ] },
+        { "type": "text", "id": "label", "label": "Toggle text", "info": "The button text — CM, IN… Leave empty to use the unit’s short form." }
+      ]
+    },
     {
       "type": "accordion",
       "name": "Accordion",
@@ -981,6 +1037,8 @@
     {
       "name": "Main product",
       "blocks": [
+        { "type": "unit", "settings": { "unit": "cm", "label": "CM" } },
+        { "type": "unit", "settings": { "unit": "in", "label": "IN" } },
         { "type": "compare" },
         { "type": "accordion", "settings": { "open_by_default": true } },
         { "type": "price_comparison" }

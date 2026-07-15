@@ -12,6 +12,20 @@
     "main_product": {
       "type": "dev-main-product",
       "blocks": {
+        "unit-cm": {
+          "type": "unit",
+          "settings": {
+            "unit": "cm",
+            "label": "CM"
+          }
+        },
+        "unit-in": {
+          "type": "unit",
+          "settings": {
+            "unit": "in",
+            "label": "IN"
+          }
+        },
         "compare": {
           "type": "compare",
           "settings": {
@@ -101,6 +115,8 @@
         }
       },
       "block_order": [
+        "unit-cm",
+        "unit-in",
         "compare",
         "acc-love",
         "acc-faqs",
@@ -122,8 +138,6 @@
         "badge_text": "Smooth & Breezy",
         "show_seal": true,
         "seal_alt": "Good Housekeeping Institute approved",
-        "unit_metric": "CM",
-        "unit_imperial": "IN",
         "tog_label_temp": "Temperature:",
         "tog_label_feel": "How it feels over you:",
         "tog_label_best": "Best for:",
@@ -258,9 +272,13 @@
         "border_color": "#C4BCA9",
         "star_color": "#F1B500",
         "track_color": "#D8D1C0",
-        "padding_top": 80,
-        "padding_bottom": 80
+        "padding_top": 24,
+        "padding_bottom": 0
       }
+    },
+    "dev_compare": {
+      "type": "dev-compare",
+      "settings": {}
     }
   },
   "order": [
@@ -268,6 +286,7 @@
     "dev_sleep_grows_on_trees",
     "dev_naturally_best_sleep",
     "dev_pdp_guarantees",
-    "dev_reviews"
+    "dev_reviews",
+    "dev_compare"
   ]
 }

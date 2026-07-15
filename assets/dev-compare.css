@@ -1,0 +1,485 @@
+/* dev-compare.css */
+
+/* =============================================
+   BASE — desktop
+   =============================================
+   A right-side drawer, opened exactly like the product's size & season guides: the panel
+   floats 16px off the top/right/bottom and slides in from the right. Hidden state is
+   opacity:0 + off-canvas transform + pointer-events:none + inert (JS) — NOT visibility,
+   so the slide is visible and the container's overflow:hidden clips the parked panel.
+   Open state lives in ONE place: [data-open] on the root (dev-compare.js flips it). */
+
+.dev-compare {
+  position: fixed;
+  inset: 0;
+  z-index: 100; /* same layer as the size/season guides */
+  overflow: hidden; /* clips the off-canvas panel — no stray horizontal scrollbar */
+  pointer-events: none; /* a closed overlay must never intercept a click on the page */
+  font-family: var(--font-body);
+  color: var(--color);
+}
+
+.dev-compare[data-open='true'] {
+  pointer-events: auto;
+}
+
+.dev-compare__backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--backdrop);
+  opacity: 0;
+  transition: opacity var(--guide-out) var(--ease-in);
+}
+
+.dev-compare[data-open='true'] .dev-compare__backdrop {
+  opacity: var(--backdrop-opacity);
+  transition: opacity var(--guide-in) var(--ease-out);
+}
+
+/* The closed state carries the LEAVING transition and the open state the ARRIVING one, so
+   the two directions differ: it arrives on a decelerating curve and settles, leaves briskly. */
+.dev-compare__panel {
+  position: absolute;
+  top: var(--drawer-inset);
+  right: var(--drawer-inset);
+  bottom: var(--drawer-inset);
+  display: flex;
+  flex-direction: column;
+  width: var(--modal-max);
+  max-width: calc(100% - (2 * var(--drawer-inset)));
+  overflow: hidden;
+  background-color: var(--bg);
+  border-radius: var(--modal-radius);
+  opacity: 0;
+  transform: translateX(calc(100% + var(--drawer-inset)));
+  will-change: transform;
+  transition:
+    transform var(--guide-out) var(--ease-in),
+    opacity calc(var(--guide-out) / 2) linear var(--guide-out);
+}
+
+.dev-compare[data-open='true'] .dev-compare__panel {
+  opacity: 1;
+  transform: translateX(0);
+  transition:
+    transform var(--guide-in) var(--ease-out),
+    opacity calc(var(--guide-in) / 3) linear;
+}
+
+/* The contents ride a beat behind the panel — the drawer arrives, then its contents catch up.
+   Without it a fully-formed panel slides in as one flat slab. */
+.dev-compare[data-open='true'] .dev-compare__header,
+.dev-compare[data-open='true'] .dev-compare__body {
+  animation: dev-compare-content var(--guide-in) var(--ease-out) both;
+}
+
+.dev-compare[data-open='true'] .dev-compare__body {
+  animation-delay: 60ms;
+}
+
+@keyframes dev-compare-content {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --- header (Overlay Top) --- */
+
+.dev-compare__header {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  margin: 0 var(--pad);
+  padding-top: var(--pad);
+  padding-bottom: var(--gap-md); /* 16px */
+  border-bottom: 1px solid var(--divider);
+}
+
+.dev-compare__title {
+  flex: 1 0 0;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--heading-size);
+  font-weight: var(--heading-weight);
+  line-height: var(--heading-lh);
+  color: var(--color);
+}
+
+.dev-compare__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color);
+  appearance: none;
+  cursor: pointer;
+}
+
+.dev-compare__close-icon {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+/* --- body (scrolls) --- */
+
+.dev-compare__body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding: var(--pad);
+}
+
+.dev-compare__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+/* --- toggle (segmented control) --- */
+
+.dev-compare__toggle {
+  position: relative;
+  display: flex;
+  gap: var(--gap-sm);
+  width: var(--toggle-track-w);
+  padding: 4px;
+  margin-top: var(--gap-sm); /* Figma pt-8 above the toggle */
+  background-color: var(--toggle-track-bg);
+  border-radius: var(--toggle-radius);
+}
+
+/* The white pill that slides under the active tab. JS sets left + width. */
+.dev-compare__toggle-indicator {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: 0;
+  background-color: var(--toggle-active-bg);
+  border-radius: var(--toggle-radius);
+  transition: left var(--transition), width var(--transition);
+  pointer-events: none;
+}
+
+.dev-compare__toggle-btn {
+  position: relative;
+  z-index: 1; /* above the indicator */
+  flex: 0 0 auto;
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--toggle-radius);
+  background: transparent;
+  color: var(--color);
+  font-family: var(--font-body);
+  font-size: var(--toggle-size);
+  font-weight: var(--weight-bold);
+  line-height: var(--body-lh);
+  white-space: nowrap;
+  cursor: pointer;
+  appearance: none;
+}
+
+/* --- panel content (per competitor) --- */
+
+.dev-compare__panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg); /* logos → rows → footnote all 24px */
+  width: 100%;
+  /* toggle → grid: 16px flex gap already, plus the grid's own 24px top-offset. */
+  margin-top: calc(var(--grid-offset) - var(--gap-lg));
+}
+
+/* Roa / Piglet have no data yet → the panel renders truly empty. Collapse it so it
+   contributes no margin, flex gap, or bottom spacing when its tab is selected. */
+.dev-compare__panel-content:empty {
+  display: none;
+}
+
+.dev-compare__logos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.dev-compare__logo {
+  display: inline-flex;
+  align-items: center;
+}
+
+.dev-compare__logo img {
+  display: block;
+  width: var(--logo-w);
+  height: auto;
+  max-width: 100%;
+}
+
+.dev-compare__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md); /* 12px between rows */
+  width: 100%;
+}
+
+.dev-compare__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm); /* label → cells, 8px (desktop) */
+}
+
+.dev-compare__row-label {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--label-size);
+  font-weight: var(--weight-bold);
+  line-height: var(--body-lh);
+  text-align: center;
+  color: var(--color);
+}
+
+.dev-compare__cells {
+  display: flex;
+  align-items: stretch; /* both cards match the taller (Larke, with badge) */
+  gap: var(--gap-sm);
+}
+
+.dev-compare__cell {
+  flex: 1 1 0;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-xs);
+  padding: 8px 16px;
+  border-radius: var(--card-radius);
+}
+
+.dev-compare__cell--larke {
+  padding-top: var(--gap-md);    /* 12px — Figma py-12 */
+  padding-bottom: var(--gap-md);
+  background-color: var(--card-larke-bg);
+}
+
+.dev-compare__cell--comp {
+  background-color: var(--card-comp-bg);
+}
+
+.dev-compare__cell-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-xs);
+  width: 100%;
+}
+
+.dev-compare__icon {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+.dev-compare__icon--check {
+  color: var(--check);
+}
+
+.dev-compare__icon--x {
+  color: var(--cross);
+}
+
+.dev-compare__value {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--value-size);
+  font-weight: var(--weight-bold);
+  line-height: var(--body-lh);
+  text-align: center;
+  color: var(--color);
+}
+
+.dev-compare__value--comp {
+  font-weight: var(--weight-medium);
+}
+
+.dev-compare__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border: 1px solid var(--badge-border);
+  border-radius: var(--badge-radius);
+  font-family: var(--font-body);
+  font-size: var(--badge-size);
+  font-weight: var(--weight-bold);
+  line-height: var(--body-lh);
+  color: var(--color);
+  white-space: nowrap;
+}
+
+.dev-compare__footnote {
+  margin: 0;
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: var(--footnote-size);
+  font-weight: var(--weight-medium);
+  line-height: var(--body-lh);
+  text-align: center;
+  color: var(--color);
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+  /* No dedicated artboard at this width; the 568px card still fits with the 16px
+     inset. This block exists to keep the six-block structure the standards require. */
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   =============================================
+   Full-bleed bottom sheet — only the top corners round, and it slides up. */
+
+@media (max-width: 768px) {
+  /* Bottom sheet — same as the guides on mobile: pinned to the bottom, sized to content,
+     capped at 100dvh − 32px, slides up. */
+  .dev-compare__panel {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+    max-height: calc(100dvh - 32px);
+    max-width: none;
+    border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
+    transform: translateY(100%);
+  }
+
+  .dev-compare[data-open='true'] .dev-compare__panel {
+    transform: translateY(0);
+  }
+
+  /* The sheet rises from the bottom, so its contents rise with it (not sideways). */
+  .dev-compare[data-open='true'] .dev-compare__header,
+  .dev-compare[data-open='true'] .dev-compare__body {
+    animation-name: dev-compare-content-up;
+  }
+
+  .dev-compare__header {
+    margin: 0 var(--pad-mobile);
+    padding-top: var(--pad-mobile);
+  }
+
+  .dev-compare__title {
+    font-size: var(--heading-size-mobile);
+  }
+
+  .dev-compare__body {
+    padding: var(--pad-mobile);
+  }
+
+  .dev-compare__row {
+    gap: var(--gap-xs); /* Figma mobile: label → cells is 4px */
+  }
+
+  .dev-compare__row-label {
+    font-size: var(--label-size-mobile);
+  }
+
+  .dev-compare__cell--larke {
+    /* Mobile Larke card is py-8 like the competitor card (no extra height). */
+    padding-top: var(--gap-sm);
+    padding-bottom: var(--gap-sm);
+  }
+
+  .dev-compare__value {
+    font-size: var(--value-size-mobile);
+  }
+
+  .dev-compare__footnote {
+    font-size: var(--footnote-size-mobile);
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+  /* The 375px artboard already covers this range and specifies nothing further. */
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+/* The panel is focused programmatically on open (preventScroll trick); it is a
+   container, not a control, so it takes no focus ring. */
+.dev-compare__panel:focus {
+  outline: none;
+}
+
+.dev-compare__close:focus-visible,
+.dev-compare__toggle-btn:focus-visible {
+  outline: 2px solid var(--check);
+  outline-offset: 2px;
+}
+
+.dev-compare__close:focus:not(:focus-visible),
+.dev-compare__toggle-btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@keyframes dev-compare-content-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No motion means no motion: the drawer still opens, it just does not travel to get there. */
+  .dev-compare__backdrop,
+  .dev-compare[data-open='true'] .dev-compare__backdrop,
+  .dev-compare__panel,
+  .dev-compare[data-open='true'] .dev-compare__panel {
+    transition: opacity 1ms linear;
+  }
+
+  .dev-compare__panel,
+  .dev-compare[data-open='true'] .dev-compare__panel {
+    transform: none;
+  }
+
+  .dev-compare,
+  .dev-compare * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
