@@ -32,7 +32,13 @@
   top: 0;
   z-index: var(--layer-sticky); /* above content, below overlays/drawers */
   transition: transform 250ms ease;
-  will-change: transform;
+  /* Deliberately NO `will-change: transform`. It promotes #header-group to a
+     containing block for position:fixed descendants (CSS spec), which un-fixes the
+     cart drawer that renders inside the header section: its closed panel is parked
+     568px off-canvas to the right, and once no longer viewport-fixed that width
+     leaks into .page-wrapper — whose overflow-x computes to `auto` (base.css sets
+     only overflow-y) — as a horizontal scrollbar, visible whenever the header is
+     shown. The transform transition above composites fine without the hint. */
 }
 
 #header-group[data-header-hidden='true'] {
