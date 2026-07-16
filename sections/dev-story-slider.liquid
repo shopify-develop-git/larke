@@ -102,7 +102,16 @@
             {%- continue -%}
           {%- endif -%}
 
-          <li class="story-slider__tile" {{ block.shopify_attributes }}>
+          {%- comment -%}
+            data-reveal-skip is load-bearing, not decoration. dev-reveal.js treats any <ul> as a grid
+            and tags each child with [data-reveal], which dev-reveal.css holds at opacity:0 until the
+            child intersects the viewport. That breaks a looping track twice over: the JS clones are
+            created after the observer has already collected its targets, so they are never revealed
+            and stay invisible forever — and a real tile parked off the left edge by the loop has
+            never intersected either, so it is invisible until it happens to scroll back in.
+            The track manages its own visibility; the reveal must not touch these tiles.
+          {%- endcomment -%}
+          <li class="story-slider__tile" data-reveal-skip {{ block.shopify_attributes }}>
             <div class="story-slider__media story-slider__media--{{ block.settings.crop }}">
               {%- if block.settings.image != blank -%}
                 {%- assign tile_src = block.settings.image | image_url: width: 814 -%}

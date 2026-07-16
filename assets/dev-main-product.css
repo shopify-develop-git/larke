@@ -635,6 +635,68 @@
     font-size: var(--font-sub-size-mobile);
   }
 
+  /* The property, not the token: --font-label-size is declared in the section's inline <style>, which
+     sits further down the document than this file and so wins on order no matter what a media query
+     here says. Overriding the token would silently do nothing — and it would be wrong anyway, since
+     the option rows read the same token and stay at 16. */
+  .dev-main-product__rating-link {
+    font-size: var(--font-rating-size-mobile);
+  }
+
+  /* ---- Buy column rhythm, mobile — 44795:191 ----
+     The artboard stacks its blocks 16 apart, not the desktop's 32 (--buy-gap): title ends 144 and
+     Size starts 160; Size ends 298 and Tog starts 314. The CTA is the one exception — the artboard
+     wraps it in a frame (45228:4853) with 16 of padding top AND bottom, so it alone keeps 32 of air
+     above and below it. Expressed as a margin on the CTA and on the card that follows it, because a
+     flex `gap` cannot differ per child. */
+  .dev-main-product__buy,
+  .dev-main-product__form {
+    gap: 16px;
+  }
+
+  .dev-main-product__cta,
+  .dev-main-product__compare {
+    margin-top: 16px;
+  }
+
+  /* The accordion list already carries the artboard's own 24px top inset, so the 16 above lands its
+     first row 40 under the card — which is what the artboard draws (646 -> 686).
+     (The price-comparison block below the accordions is NOT on this artboard; it keeps the lead it
+     already had, restored next to its own rule further down — it cannot be done from here.) */
+
+  /* ---- Option rows, mobile — 44795:529 ----
+     Label row -> chips is 8 on the artboard, not --group-gap's 16. The row itself is 26 tall around
+     14px text (19.6), so the slack under it — where the "Size Guide" underline sits — is 6, not the
+     4 the desktop tunes for its 16px text. */
+  .dev-main-product__legend {
+    margin-bottom: 8px;
+  }
+
+  .dev-main-product__legend-row {
+    padding-bottom: 6px;
+  }
+
+  /* The property, not the token: --font-label-size is read by rows that stay at 16 (see above). */
+  .dev-main-product__legend-text,
+  .dev-main-product__legend-link {
+    font-size: 14px;
+  }
+
+  /* Variant chips — 44795:327: 14px Bold in an 11/18 box = 42 tall, against the 58.4 the desktop's
+     16px/17-31 produced. Ours draws the 1px rule OUTSIDE the padding box, so the artboard's 11/18
+     costs 10/17 — the same arithmetic as the compare card two blocks down. */
+  .dev-main-product__chip {
+    padding: 10px 17px;
+    font-size: 14px;
+  }
+
+  /* The buy button's label — 44869:1204 is Body/Lg_Body_Bold (18), not the desktop's 20. The box
+     itself is unchanged (h-60, px-24 py-16, gap-24), only the type. Overriding --dev-btn-fs rather
+     than font-size because the CTA drives the shared dev-btn component through that token. */
+  .dev-main-product__cta {
+    --dev-btn-fs: var(--font-cta-size-mobile);
+  }
+
 }
 
 /* ---- Still undecided ----------------------------------------------------
@@ -702,6 +764,35 @@
 .dev-main-product__compare:focus-visible {
   outline: 2px solid var(--color);
   outline-offset: 2px;
+}
+
+/* ---- Still undecided, mobile — 45228:4854 ----
+   This block lives HERE, after the desktop rules, and not up in the section's main
+   @media (max-width: 768px) block — that one sits earlier in the file, so at equal specificity the
+   desktop rules below it would win on source order and these overrides would silently do nothing.
+   (Setting width/height there while `padding` still lost to the desktop 15px squashed the 24px icon
+   to 16px wide inside a border-box 48px circle.)
+
+   Only two things move off the desktop artboard (45174:5990): the heading drops 18 -> 16, and the
+   icon circle 56 -> 48. Card padding, radius, both gaps, the link and the arrow are identical at both
+   widths, so they are deliberately not repeated.
+
+   The circle is sized explicitly rather than derived from padding the way desktop is (15px padding +
+   24px icon + the 1px rule = 56). The mobile artboard's own numbers do not add up: it declares a 48px
+   circle with 16px padding around a 24px icon, and 16 + 24 + 16 = 56 > 48 — which is exactly why the
+   icon sits skewed in the design. That slip is not reproduced: the circle takes the 48 it declares and
+   the icon centres in it (an 11px inset), per the owner's call that everything BUT the icon placement
+   should match. box-sizing is border-box (base.css:2), so the 48 includes the rule. */
+@media (max-width: 768px) {
+  .dev-main-product__compare-heading {
+    font-size: var(--font-sub-size-mobile);
+  }
+
+  .dev-main-product__compare-icon {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+  }
 }
 
 /* ---- Accordions --------------------------------------------------------- */
@@ -819,6 +910,31 @@
   background-color: currentcolor;
 }
 
+/* ---- Accordions, mobile — 44797:2410 ----
+   The mobile artboard steps the whole accordion down a size: the heading is Mobile/Title 4 (20, not
+   the desktop's 22) and the copy is Body/Md_Body_Medium (16, not 18).
+
+   This block sits HERE, after the rules it overrides, and not in the section's main <=768 block —
+   that block is earlier in the file, so at equal specificity these two declarations would lose on
+   source order and do nothing at all. Same trap as the compare card and the price-comparison lead. */
+@media (max-width: 768px) {
+  .dev-main-product__acc-title {
+    font-size: var(--font-title-4-size-mobile);
+  }
+
+  .dev-main-product__acc-body {
+    font-size: var(--font-sub-size-mobile);
+  }
+
+  /* The artboard stacks the bullet rows 8 apart (44797:2469). Ours reads --thumb-gap — the GALLERY
+     thumbnail spacing, 12 — which has nothing to do with this list and is 4 too much on every row.
+     Corrected for mobile only: the desktop artboard is not in front of me, and the same component
+     there almost certainly wants 8 too, so this is worth checking against the desktop board. */
+  .dev-main-product__acc-body ul {
+    gap: 8px;
+  }
+}
+
 /* The copy fades up out of nothing as the row opens — opacity ONLY. It used to slide as well, and
    with the row itself already growing underneath it that was two movements fighting over the same
    text. The row grows; the words appear. Nothing else moves.
@@ -861,6 +977,17 @@
   padding: var(--gallery-gap);
   border-radius: 16px;
   background-color: var(--card-bg);
+}
+
+/* The 48px spacer above is measured on top of --buy-gap, and mobile drops that gap 32 -> 16 to match
+   44795:191. This card is NOT on that artboard, so it must not absorb the change: the lead absorbs
+   the missing 16 instead, and the card still clears the accordions by the 80 it was built with.
+   It has to live here, after the rule above — the section's main <=768 block sits earlier in the
+   file, so at equal specificity this declaration would beat anything written up there. */
+@media (max-width: 768px) {
+  .dev-main-product__pc {
+    margin-top: calc(var(--pc-lead) + 16px);
+  }
 }
 
 .dev-main-product__pc-head {
@@ -1379,9 +1506,33 @@
   }
 
   /* Mobile/Title 3 (24px). Without this the title inherits the desktop --font-title-size (32px):
-     the overlay heading is a mobile artboard value, exactly like .dev-main-product__title above. */
-  .dev-main-product__guide-title {
+     the overlay heading is a mobile artboard value, exactly like .dev-main-product__title above.
+
+     "What's the difference?" (44808:738) is the SAME Mobile/Title 3 as the sheet's own heading —
+     it was simply missed when the heading beside it was brought down, and stayed at the desktop 32. */
+  .dev-main-product__guide-title,
+  .dev-main-product__tog-heading {
     font-size: var(--font-title-size-mobile);
+  }
+
+  /* Body/Md_Body_Medium + Body/Md_Body_Bold — 16px, not the desktop 18. EVERY run of body copy in
+     both sheets is 16 on the mobile artboards: the unit toggle (44977:3344/3345), the size rows
+     (44977:3348-3358), the footer line (44806:421), the seasons copy (44808:741, 744, 747) and the
+     chips (45178:2431). The card and section headings are NOT in here — Mobile/Title 3 keeps
+     .dev-main-product__tog-title at 24 and Mobile/Title 4 keeps .dev-main-product__tog-label at 20,
+     which both already match.
+
+     Overridden as the property rather than by retuning --font-sub-size: that token is declared in
+     the section's inline <style>, which sits further down the document than this file and wins on
+     order — and it feeds the description and the compare rows too, which keep their own scale. */
+  .dev-main-product__unit,
+  .dev-main-product__size-label,
+  .dev-main-product__size-value,
+  .dev-main-product__guide-foot,
+  .dev-main-product__guide-foot p,
+  .dev-main-product__tog-text,
+  .dev-main-product__tog-chip {
+    font-size: var(--font-sub-size-mobile);
   }
 
   /* The popup inset tightens 32px -> 24px on the mobile artboard. --pt can't be redefined here (the
@@ -1436,5 +1587,314 @@
   .dev-main-product__guide[data-open='true'] .dev-main-product__guide-head,
   .dev-main-product__guide[data-open='true'] .dev-main-product__guide-body {
     animation: none;
+  }
+}
+
+
+/* ---- Zoom lightbox -------------------------------------------------------
+   Not on any artboard — the design never drew a zoom. So none of this is traced: it is assembled out
+   of the section's OWN tokens, which it inherits by sitting inside the section root. The same cream,
+   the same round arrow buttons, the same close mark as the guide drawers.
+
+   Its numbers live here rather than in the token block at the top of the .liquid, because that block
+   is headed "Fixed design tokens from Figma" and these came from nowhere near Figma. The two motion
+   durations are the exception: they sit up there beside --guide-in/--guide-out because the JS reads
+   them back out, exactly as the accordion's do. */
+
+.dev-main-product {
+  --zoom-pad: 24px;
+  --zoom-nav-pad: 4px;
+  /* Stops the pill breathing as the count crosses from 9/10 to 10/10. */
+  --zoom-counter-w: 56px;
+}
+
+/* ---- The trigger ---- */
+
+.dev-main-product__zoom-open {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  /* The affordance IS the cursor. The artboard draws no magnifier over the photo, and inventing one
+     would put furniture on a frame that has already been pixel-verified without it. */
+  cursor: zoom-in;
+}
+
+.dev-main-product__zoom-open:focus-visible {
+  outline: 2px solid var(--color);
+  /* Inset, not offset: the button is flush with the photo's edge, and the slide list clips its
+     overflow — an outside ring would come out with three sides. */
+  outline-offset: -2px;
+  border-radius: var(--image-radius);
+}
+
+/* ---- The dialog ---- */
+
+/* Opaque and full-bleed: the dialog IS the surface, not a scrim over the page. A duvet photographed
+   in daylight wants the room's own light behind it, not a black overlay. It also means ::backdrop is
+   never visible, which is a relief — ::backdrop only started inheriting custom properties in Chrome
+   122, so a token would have been unreliable there anyway (the same trap dev-video-promo-banner.css
+   documents). */
+.dev-main-product__zoom {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  max-width: 100vw;
+  /* dvh, not vh: on iOS the URL bar is worth ~60px of a 100vh dialog hanging off the bottom. */
+  height: 100dvh;
+  max-height: 100dvh;
+  padding: 0;
+  border: 0;
+  background-color: var(--bg);
+  color: var(--color);
+}
+
+/* The layout is attached to [open], NOT to the element. A `display` on the bare selector overrides
+   the UA's `dialog:not([open]) { display: none }` and the lightbox is on the page permanently, at
+   every viewport, over everything. */
+.dev-main-product__zoom[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.dev-main-product__zoom[data-modal-state='opening'] {
+  animation: dev-main-product-zoom-in var(--zoom-in) var(--ease-out) both;
+}
+
+.dev-main-product__zoom[data-modal-state='closing'] {
+  animation: dev-main-product-zoom-out var(--zoom-out) var(--ease-in) both;
+}
+
+@keyframes dev-main-product-zoom-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dev-main-product-zoom-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* The photo rises the last few pixels in while the surface fades. Put on the SLIDE, never on the
+   image: the image's transform belongs to the pinch, and an animation with fill-mode:both would
+   out-rank it and pin it at scale(1) for as long as the state attribute lasted. */
+.dev-main-product__zoom[data-modal-state='opening'] .dev-main-product__zoom-slide--active {
+  animation: dev-main-product-zoom-rise var(--zoom-in) var(--ease-out) both;
+}
+
+@keyframes dev-main-product-zoom-rise {
+  from {
+    transform: scale(0.96);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* ---- The photo ---- */
+
+.dev-main-product__zoom-frame {
+  position: relative;
+  /* min-height:0 or the flex item refuses to shrink below its content and pushes the nav off. */
+  flex: 1;
+  min-height: 0;
+}
+
+.dev-main-product__zoom-frame:focus {
+  /* It holds focus on open only so the × is not the thing iOS Safari rings. It is not a control and
+     must not look like one. */
+  outline: none;
+}
+
+.dev-main-product__zoom-slides {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  /* No padding here: the slides are inset:0 against this element's PADDING box, so any padding set
+     on it would be covered by them and do nothing. The inset lives on the slide instead. */
+  padding: 0;
+  list-style: none;
+}
+
+/* Stacked and crossfaded — the same construction as the gallery's own slides, for the same reason:
+   every photo stays in the DOM, so paging to one never waits on a fetch. */
+.dev-main-product__zoom-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--zoom-pad);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition) ease;
+}
+
+.dev-main-product__zoom-slide--active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Capped, NOT stretched — and this is load-bearing, not taste. With object-fit:contain the element
+   fills the frame and the photo floats letterboxed inside it: every click on an empty band would hit
+   the image rather than the frame (so "click beside the photo to close" would die), and the pinch
+   bounds would have to rebuild the photo's true box out of naturalWidth/naturalHeight, which is
+   exactly the arithmetic stock is forced into. Sized this way the element IS the photo, and both
+   fall out for free. The price is that a photo smaller than the frame is not blown up to fill it —
+   which is the honest result, not a blurry one. */
+.dev-main-product__zoom-image {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  /* scale() THEN translate() — the order the JS's maths assumes. Swap them and a translate of 1px
+     silently stops meaning 1px, and the pan bounds drift by a factor of the scale. */
+  transform: scale(var(--zoom-scale, 1)) translate(var(--zoom-x, 0px), var(--zoom-y, 0px));
+}
+
+/* ---- The controls ---- */
+
+.dev-main-product__zoom-close {
+  position: absolute;
+  top: var(--zoom-pad);
+  right: var(--zoom-pad);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--arrow-pad);
+  border: 0;
+  border-radius: var(--arrow-radius);
+  background-color: var(--surface);
+  color: var(--color);
+  cursor: pointer;
+}
+
+.dev-main-product__zoom-close svg {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+/* In the flow, not floated over the photo: a pill absolutely positioned over the bottom of the frame
+   would sit on top of a landscape photo that reaches the full height. Letting it take its own row
+   means the photo is never underneath it. */
+.dev-main-product__zoom-nav {
+  display: flex;
+  align-self: center;
+  align-items: center;
+  gap: var(--variant-gap);
+  margin-bottom: var(--zoom-pad);
+  padding: var(--zoom-nav-pad);
+  border-radius: var(--arrow-radius);
+  background-color: var(--surface);
+}
+
+.dev-main-product__zoom-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--arrow-pad);
+  border: 0;
+  border-radius: var(--arrow-radius);
+  background-color: transparent;
+  color: var(--color);
+  cursor: pointer;
+}
+
+.dev-main-product__zoom-arrow svg {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+.dev-main-product__zoom-counter {
+  min-width: var(--zoom-counter-w);
+  margin: 0;
+  text-align: center;
+  font-size: var(--font-label-size);
+  line-height: var(--font-body-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The spoken counterpart of the counter: "1 / 7" reads aloud as "one slash seven". Taken off-screen
+   rather than hidden — a display:none live region announces nothing at all. */
+.dev-main-product__zoom-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- Accessibility ---- */
+
+.dev-main-product__zoom-close:focus-visible,
+.dev-main-product__zoom-arrow:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
+
+/* ---- Mobile (<=768) ---- */
+
+@media (max-width: 768px) {
+  .dev-main-product {
+    --zoom-pad: 16px;
+  }
+
+  /* The gesture surface. The browser's own pinch and double-tap have to be off the table before the
+     JS can be given them — without this the whole page zooms under the photo. */
+  .dev-main-product__zoom-frame {
+    touch-action: none;
+  }
+
+  /* A zoomed photo is something being dragged; a text caret in the middle of it is noise. */
+  .dev-main-product__zoom-frame[data-zoomed='true'] .dev-main-product__zoom-image {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* 44px targets. Written as the property and not as the token, because a media query in this file
+     cannot reach the token block — that is an inline <style> further down the document, so it wins
+     on order no matter what is written here. */
+  .dev-main-product__zoom-close,
+  .dev-main-product__zoom-arrow {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* ---- Reduced motion ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Not `animation: none`. The JS waits for animationend before it calls dialog.close(), and an
+     animation that never runs never fires it — the lightbox would hang until the timeout swept up
+     behind it. A 1ms animation lands instantly AND still reports that it landed. */
+  .dev-main-product__zoom[data-modal-state='opening'],
+  .dev-main-product__zoom[data-modal-state='closing'] {
+    animation-duration: 1ms;
+  }
+
+  .dev-main-product__zoom[data-modal-state='opening'] .dev-main-product__zoom-slide--active {
+    animation: none;
+  }
+
+  .dev-main-product__zoom-slide {
+    transition: none;
   }
 }

@@ -19,8 +19,9 @@
     /* Desktop/Title 3 vs Mobile/Title 3 — the mobile artboard states its own size. */
     --font-title-size: 32px;
     --font-title-size-mobile: 24px;
-    /* Desktop/Title 4 — the accordion headings. */
+    /* Desktop/Title 4 — the accordion headings. Mobile/Title 4 drops them to 20 (44797:2410). */
     --font-title-4-size: 22px;
+    --font-title-4-size-mobile: 20px;
     /* Mobile/Title2 + Mobile/Title 4 — the price-comparison card uses the mobile scale on desktop. */
     --font-pc-title-size: 28px;
     --font-pc-label-size: 20px;
@@ -31,9 +32,14 @@
     --font-sub-size-mobile: 16px;
     --font-label-size: 16px;
     --font-variant-size: 16px;
+    /* Body/Lg_Body_Bold on the mobile artboard — the buy button drops 20 -> 18 (44869:1204). */
     --font-cta-size: 20px;
+    --font-cta-size-mobile: 18px;
     --font-badge-size: 14px;
     --font-stars-size: 18px;
+    /* The rating label alone drops to 14 on mobile — NOT --font-label-size, which the option rows and
+       the zoom counter also read and which stays at 16. */
+    --font-rating-size-mobile: 14px;
     --font-body-lh: 1.4;
     --w-medium: 500;
     --w-bold: 700;
@@ -84,6 +90,13 @@
     --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
     --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
 
+    /* The zoom lightbox. Quicker than a drawer in both directions: a drawer is an object travelling
+       in from off-screen, the lightbox is already where it belongs and only has to fade up. Read
+       back out of here by the JS (parseFloat on the computed value) to know when the exit animation
+       has landed, so keep them in ms. */
+    --zoom-in: 320ms;
+    --zoom-out: 200ms;
+
     /* One curve for the accordion, both directions. Opening on one curve and closing on another
        looked restless when a row closed while its neighbour opened — two motions disagreeing. */
     --acc-dur: 320ms;
@@ -110,6 +123,16 @@
 {%- liquid
   assign product_media = product.media
   assign current = product.selected_or_first_available_variant
+
+  # The zoom lightbox is images only: a video carries its own controls and a 3D model its own viewer,
+  # and neither has anything to magnify. Counted here, never looped over — the loops below walk
+  # product.media itself, so every zoom slide keeps the SAME index the gallery already works in and
+  # the two can address each other with no mapping table to get out of step.
+  assign zoom_images = product_media | where: 'media_type', 'image'
+  assign zoom_on = false
+  if section.settings.enable_zoom and zoom_images.size > 0
+    assign zoom_on = true
+  endif
 
   # Both guides are the PRODUCT's, not the template's. They used to live in section blocks, which
   # meant a second duvet needed a second product template just to carry different numbers and cards.
@@ -244,6 +267,24 @@
                     class: 'dev-main-product__media'
                 }}
               {%- endif -%}
+
+              {%- comment -%}
+                The zoom trigger. A transparent button over the whole slide, LAST so it paints above
+                the image — the artboard draws no magnifier, and the whole photo is the target the
+                way it is in Horizon's own carousel. It cannot swallow the arrows, the badge or the
+                seal: those are siblings of the slide LIST, later in the DOM, so they paint above it.
+                And an inactive slide is visibility:hidden, which takes its button out of the tab ring
+                and out of hit-testing for free — only the photo on screen is clickable.
+              {%- endcomment -%}
+              {%- if zoom_on and media.media_type == 'image' -%}
+                <button
+                  type="button"
+                  class="dev-main-product__zoom-open"
+                  data-zoom-open
+                  data-zoom-target="{{ forloop.index0 }}"
+                  aria-label="{{ 'actions.zoom_media' | t: index: forloop.index | escape }}"
+                ></button>
+              {%- endif -%}
             </li>
           {%- endfor -%}
         </ul>
@@ -308,18 +349,32 @@
             endif
           -%}
           <a class="dev-main-product__rating" href="{{ rating_href }}">
-            {%- comment -%}
-              4.9/5 is FOUR full stars and one 90% full — the artboard clips the fifth with a
-              gradient. Painting five solid stars would be a nicer number than the product has.
-            {%- endcomment -%}
             {%- if section.settings.show_rating_stars -%}
               {%- comment -%}
-                Shared inline-SVG stars (not the ★ glyph) with partial fill: 4.9/5 reads as four
-                solid stars and a 90%-filled fifth, clipped to the exact rating. See dev-stars.
+                Shared inline-SVG stars (not the ★ glyph). See dev-stars.
+
+                The row rounds DOWN to the nearest half star, so 4.9 draws four solid and a half —
+                the owner's call, asked for explicitly against a reference of a half-filled star.
+
+                This is the third position this row has held, so the history matters. It first
+                clipped the fifth star to the true 4.9 (a ~90% sliver, which is what the artboard
+                draws — 44795:186 fades that star with a gradient stopping at 89.413%). It was then
+                rounded to whole stars, painting five solid ones. It now shows a half.
+
+                Floor, never round: rounding to the nearest half would send 4.9 back to five solid,
+                and rounding up would let a 4.2 claim four and a half. Flooring can only ever
+                understate the product, never flatter it.
+
+                The two readings DISAGREE on purpose: the stars say 4.5 while the label and the
+                aria-label beside them say the true 4.9/5. That was raised with the owner and chosen
+                anyway — do not "fix" the mismatch without asking them first.
               {%- endcomment -%}
-              {%- assign stars_label = rating | append: ' / 5' -%}
+              {%- liquid
+                assign stars_label = rating | append: ' / 5'
+                assign stars_rating = rating | times: 2 | floor | divided_by: 2.0
+              -%}
               {%- render 'dev-stars',
-                rating: rating,
+                rating: stars_rating,
                 max: 5,
                 size: 18,
                 gap: 1,
@@ -925,6 +980,112 @@
       {%- endfor -%}
     ]
   </script>
+
+  {%- comment -%} ---------- Zoom lightbox ---------- {%- endcomment -%}
+  {%- if zoom_on -%}
+    {%- comment -%}
+      A native <dialog> opened with showModal(). The focus trap, Escape, and the inertness of the page
+      behind it all come from the element. What it buys us over a hand-rolled fixed overlay is the TOP
+      LAYER: it is painted outside every stacking context on the page, so it cannot be re-anchored by a
+      transform on an ancestor — and the gallery above it IS sticky. A position:fixed overlay under a
+      transformed ancestor anchors to the ancestor instead of the viewport, which is exactly the bug
+      that has bitten the cart drawer here before.
+
+      It sits inside the section root so it inherits the token block at the top of this file. The top
+      layer changes where the dialog is PAINTED, not where it lives in the DOM, so inheritance is
+      untouched. dev-reveal.js already skips `dialog`, so the scroll-reveal cannot hide it either.
+    {%- endcomment -%}
+    <dialog class="dev-main-product__zoom" data-zoom-dialog aria-label="{{ 'actions.zoom' | t | escape }}">
+      {%- comment -%}
+        tabindex="-1": showModal() otherwise lands focus on the first control — the × — and iOS Safari
+        paints a focus ring around it. Focus the frame instead; Tab still walks to the ×.
+      {%- endcomment -%}
+      <div class="dev-main-product__zoom-frame" data-zoom-frame tabindex="-1">
+        <ul class="dev-main-product__zoom-slides" role="list">
+          {%- comment -%}
+            Walks product.media, not the filtered list, so data-media-index IS the gallery's own index
+            — one index space for both, and nothing to keep in sync. Images only: the `else` branch of
+            the gallery above also catches 3D models, and a model's preview image is not a photo of the
+            product to magnify.
+          {%- endcomment -%}
+          {%- assign zoom_n = 0 -%}
+          {%- for media in product_media -%}
+            {%- if media.media_type == 'image' -%}
+              {%- liquid
+                # forloop.index counts MEDIA, and a video in the middle of the gallery would make the
+                # spoken count skip a number ("photo 3 of 5" with only 4 photos). This counts photos.
+                assign zoom_n = zoom_n | plus: 1
+
+                # Both computed before the tag: a filter chain inside a named image_tag argument does
+                # not parse. Same trap as the thumbnails above.
+                assign zoom_alt = media.alt | default: product.title | escape
+                assign zoom_label = 'accessibility.slide_status' | t: index: zoom_n, length: zoom_images.size
+              -%}
+              {%- comment -%}
+                The 3840 source hangs on the LI, not the img: image_tag takes named arguments, and a
+                Liquid argument name cannot contain a hyphen — stock ends up emitting a literal
+                `data_max_resolution` for exactly this reason. On the li it is a real data attribute
+                the JS reads as `dataset.maxRes`.
+
+                Why swap at all, when the srcset already picks a candidate for this viewport: pinch
+                scales the image with a CSS transform, and a transform never makes the browser fetch a
+                bigger candidate. The 3840 file is the resolution held in reserve for the gesture.
+              {%- endcomment -%}
+              <li
+                class="dev-main-product__zoom-slide{% if zoom_n == 1 %} dev-main-product__zoom-slide--active{% endif %}"
+                data-zoom-slide
+                data-media-index="{{ forloop.index0 }}"
+                data-max-res="{{ media | image_url: width: 3840 }}"
+                data-zoom-label="{{ zoom_label | escape }}"
+              >
+                {{
+                  media
+                  | image_url: width: 2048
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '768, 1024, 1536, 2048',
+                    sizes: '100vw',
+                    alt: zoom_alt,
+                    class: 'dev-main-product__zoom-image'
+                }}
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+
+      <button type="button" class="dev-main-product__zoom-close" data-zoom-close aria-label="{{ 'actions.close_dialog' | t | escape }}">
+        {%- comment -%} The guide drawers' close mark, verbatim — same Figma icon family as the arrows. {%- endcomment -%}
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path d="M7 17L17 7M7 7L17 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      {%- if zoom_images.size > 1 -%}
+        <div class="dev-main-product__zoom-nav">
+          <button type="button" class="dev-main-product__zoom-arrow" data-zoom-prev aria-label="{{ 'accessibility.slideshow_previous' | t | escape }}">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+              <path d="M7 8L3 12L7 16M3 12L21 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          {%- comment -%}
+            The count is decoration for a screen reader — "1 slash 7" is not a sentence. The live
+            region below carries the same fact as one, and the JS writes both.
+          {%- endcomment -%}
+          <p class="dev-main-product__zoom-counter" data-zoom-counter aria-hidden="true">1 / {{ zoom_images.size }}</p>
+
+          <button type="button" class="dev-main-product__zoom-arrow" data-zoom-next aria-label="{{ 'accessibility.slideshow_next' | t | escape }}">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+              <path d="M17 16L21 12L17 8M21 12L3 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <p class="dev-main-product__zoom-status" data-zoom-status role="status" aria-live="polite"></p>
+      {%- endif -%}
+    </dialog>
+  {%- endif -%}
 </div>
 
 {% schema %}
@@ -945,6 +1106,7 @@
     { "type": "url", "id": "rating_link", "label": "Rating link", "info": "Point it at the reviews section." },
 
     { "type": "header", "content": "Gallery" },
+    { "type": "checkbox", "id": "enable_zoom", "label": "Enable image zoom", "default": true, "info": "Clicking a photo opens it full screen. Photos only — a video keeps its own controls. On a phone the zoomed photo can be pinched and double-tapped." },
     { "type": "text", "id": "badge_text", "label": "Image badge", "default": "Smooth & Breezy" },
     { "type": "checkbox", "id": "show_seal", "label": "Show approval seal", "default": true },
     { "type": "image_picker", "id": "seal_image", "label": "Approval seal", "info": "Pick the seal from Files. Leave it empty and no seal is drawn — the theme no longer bundles one." },

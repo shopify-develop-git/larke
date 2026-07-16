@@ -78,16 +78,22 @@
   }
 
   /* --- header-group scroll hide / reveal --------------------------------
-     Product decision (design call, 2026-07-15): the whole group hides on
-     scroll down and returns on scroll up or after 2s of scroll inactivity —
-     every page, both breakpoints. State is a single data-header-hidden
-     attribute on #header-group; dev-site-header.css does the transform.
+     Product decision (design call, 2026-07-15, amended 2026-07-16): the whole
+     group hides on scroll down and returns ONLY on scroll up — every page, both
+     breakpoints. State is a single data-header-hidden attribute on
+     #header-group; dev-site-header.css does the transform.
+
+     It used to also reveal itself after 2s of scroll inactivity. That was
+     dropped on the owner's call: any scroll re-armed the timer, so stopping
+     anywhere down the page brought the header back on its own, with no scroll
+     up — it read as the header appearing for no reason. Reading the intent off
+     an idle timer was the mistake; the only thing that means "I want the header"
+     is scrolling up, so that is now the only thing that reveals it.
 
      Scroll source differs by breakpoint (base.css): at >=990px .page-wrapper
      is the scroll container (html/body are overflow:hidden); below that the
      window scrolls. We read from whichever is active and listen on both — the
      inactive one simply never fires. */
-  const IDLE_REVEAL_MS = 2000;
   const SCROLL_TOLERANCE = 4; // px — ignore jitter so tiny scrolls don't toggle
 
   function initHeaderScroll() {
@@ -99,7 +105,6 @@
 
     let lastY = 0;
     let ticking = false;
-    let idleTimer = 0;
 
     const scrollTop = () =>
       desktop.matches && pageWrapper ? pageWrapper.scrollTop : window.scrollY;
@@ -111,11 +116,6 @@
       group.setAttribute('data-header-hidden', 'true');
     };
 
-    const armIdleReveal = () => {
-      window.clearTimeout(idleTimer);
-      idleTimer = window.setTimeout(show, IDLE_REVEAL_MS);
-    };
-
     const update = () => {
       ticking = false;
       const y = scrollTop();
@@ -124,7 +124,6 @@
       // first downward scroll (no group-height threshold — design call
       // 2026-07-15: hide immediately, the old threshold felt like too much).
       if (y <= SCROLL_TOLERANCE) {
-        window.clearTimeout(idleTimer);
         show();
         lastY = y;
         return;
@@ -137,7 +136,8 @@
         show();
       }
 
-      armIdleReveal(); // any scroll (re)arms the 2s reveal
+      // Note there is no else: a scroll smaller than the tolerance leaves the
+      // header exactly as it is. Standing still is not a request for it.
       lastY = y;
     };
 

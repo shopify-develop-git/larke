@@ -97,9 +97,10 @@
   overflow-wrap: break-word;
 }
 
-/* The emphasised run. See the header comment in the .liquid before touching --em-weight:
-   the design's Semibold Italic (600) face is not loaded, so this deliberately resolves to
-   the nearest REAL italic face rather than a synthesised oblique. */
+/* The emphasised run. READ the header comment in the .liquid before touching --em-weight — it is
+   700 on the owner's call, and no italic face is loaded above 500, so this pair currently resolves
+   to a browser-synthesised oblique. Supplying TiemposHeadline-BoldItalic.woff2 is what fixes that;
+   changing the number here only moves the compromise around. */
 .tree-fibre-hero__heading em,
 .tree-fibre-hero__heading i {
   font-style: italic;

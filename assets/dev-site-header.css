@@ -45,20 +45,35 @@
   transform: translateY(-100%);
 }
 
-/* Cross-axis clip on the scroll container. While the hide/reveal transition runs,
-   #header-group carries a live (non-none) transform, which — like will-change —
-   makes it the containing block for its position:fixed descendants. The cart drawer
-   renders inside it with its closed panel parked ~568px off-canvas to the right, so
-   for the ~250ms of the animation that width leaks into .page-wrapper, whose
-   overflow-x computes to `auto` (base.css sets only overflow-y), flashing a
-   horizontal scrollbar. The page only scrolls vertically; clip the cross-axis.
-   Scoped to >=990px, where .page-wrapper is the scroll container and already has
-   overflow-y: auto — so `clip` here does not promote overflow-y (which is `visible`
-   below that width, where the window scrolls instead). */
-@media (min-width: 990px) {
-  .page-wrapper {
-    overflow-x: clip;
-  }
+/* Cross-axis clip on the page container. While the group is hidden AND for the ~250ms
+   the reveal transition runs, #header-group carries a live (non-none) transform, which
+   — like will-change — makes it the containing block for its position:fixed
+   descendants. The cart drawer renders inside it (as a block of dev-site-header) with
+   its closed panel parked a panel-width off-canvas to the right. Re-anchored, it stops
+   being viewport-fixed, so for the first time that width counts as scrollable overflow
+   on an ancestor — and a horizontal scrollbar appears. The page only ever scrolls
+   vertically; clip the cross-axis.
+
+   NOT scoped to >=990px. It used to be, on the reasoning that `clip` would promote
+   overflow-y below that width — and that reads the rule backwards, which is why the
+   scrollbar was still there on mobile. CSS Overflow 3: visible/clip compute to
+   auto/hidden only if the OTHER axis is neither visible nor clip. So:
+
+     >=990  overflow-y: auto (base.css)     -> clip computes to hidden. No scrollbar.
+     <990   overflow-y: visible (the default) -> both axes are visible-or-clip, nothing
+            is promoted, and clip stays a true clip.
+
+   `clip` and not `hidden` is the whole point below 990: `hidden` WOULD promote
+   overflow-y: visible to auto, making .page-wrapper a scroll container — and the
+   nearest scrollport is what a sticky element sticks to, so the header above would
+   stop sticking. `clip` creates no scroll container, so the window keeps scrolling
+   and #header-group keeps sticking to it.
+
+   This clips the drawer only while it is re-anchored. Open, the drawer is viewport-
+   fixed — .page-wrapper is then not in its containing-block chain, so nothing here
+   touches it. */
+.page-wrapper {
+  overflow-x: clip;
 }
 
 .site-header {

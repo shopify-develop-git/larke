@@ -145,11 +145,28 @@ body[data-cart-drawer-open='true'] {
   list-style: none;
 }
 
+/* The empty basket centres its own message + CTA rather than sitting flush at the top of a
+   tall, otherwise-blank panel. align-items:center keeps the CTA from stretching to the full
+   panel width — dev-btn--full then sizes it against max-width below, not against the drawer. */
+.cart-drawer__empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  min-height: 100%;
+  text-align: center;
+}
+
 .cart-drawer__empty {
   margin: 0;
   font-size: var(--font-size-option);
   font-weight: var(--weight-medium);
   line-height: var(--font-body-lh);
+}
+
+.cart-drawer__continue {
+  max-width: 280px;
 }
 
 /* --- line item card --- */
