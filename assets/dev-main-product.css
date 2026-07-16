@@ -643,6 +643,56 @@
     font-size: var(--font-rating-size-mobile);
   }
 
+  /* ---- Buy column rhythm, mobile — 44795:191 ----
+     The artboard stacks its blocks 16 apart, not the desktop's 32 (--buy-gap): title ends 144 and
+     Size starts 160; Size ends 298 and Tog starts 314. The CTA is the one exception — the artboard
+     wraps it in a frame (45228:4853) with 16 of padding top AND bottom, so it alone keeps 32 of air
+     above and below it. Expressed as a margin on the CTA and on the card that follows it, because a
+     flex `gap` cannot differ per child. */
+  .dev-main-product__buy,
+  .dev-main-product__form {
+    gap: 16px;
+  }
+
+  .dev-main-product__cta,
+  .dev-main-product__compare {
+    margin-top: 16px;
+  }
+
+  /* The accordion list already carries the artboard's own 24px top inset, so the 16 above lands its
+     first row 40 under the card — which is what the artboard draws (646 -> 686). Nothing below the
+     accordions is on this artboard, so the price-comparison block keeps the 32 it already had rather
+     than silently inheriting the new 16. */
+  .dev-main-product__pc {
+    margin-top: 16px;
+  }
+
+  /* ---- Option rows, mobile — 44795:529 ----
+     Label row -> chips is 8 on the artboard, not --group-gap's 16. The row itself is 26 tall around
+     14px text (19.6), so the slack under it — where the "Size Guide" underline sits — is 6, not the
+     4 the desktop tunes for its 16px text. */
+  .dev-main-product__legend {
+    margin-bottom: 8px;
+  }
+
+  .dev-main-product__legend-row {
+    padding-bottom: 6px;
+  }
+
+  /* The property, not the token: --font-label-size is read by rows that stay at 16 (see above). */
+  .dev-main-product__legend-text,
+  .dev-main-product__legend-link {
+    font-size: 14px;
+  }
+
+  /* Variant chips — 44795:327: 14px Bold in an 11/18 box = 42 tall, against the 58.4 the desktop's
+     16px/17-31 produced. Ours draws the 1px rule OUTSIDE the padding box, so the artboard's 11/18
+     costs 10/17 — the same arithmetic as the compare card two blocks down. */
+  .dev-main-product__chip {
+    padding: 10px 17px;
+    font-size: 14px;
+  }
+
 }
 
 /* ---- Still undecided ----------------------------------------------------
