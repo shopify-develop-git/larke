@@ -925,6 +925,14 @@
   .dev-main-product__acc-body {
     font-size: var(--font-sub-size-mobile);
   }
+
+  /* The artboard stacks the bullet rows 8 apart (44797:2469). Ours reads --thumb-gap — the GALLERY
+     thumbnail spacing, 12 — which has nothing to do with this list and is 4 too much on every row.
+     Corrected for mobile only: the desktop artboard is not in front of me, and the same component
+     there almost certainly wants 8 too, so this is worth checking against the desktop board. */
+  .dev-main-product__acc-body ul {
+    gap: 8px;
+  }
 }
 
 /* The copy fades up out of nothing as the row opens — opacity ONLY. It used to slide as well, and
@@ -1498,9 +1506,33 @@
   }
 
   /* Mobile/Title 3 (24px). Without this the title inherits the desktop --font-title-size (32px):
-     the overlay heading is a mobile artboard value, exactly like .dev-main-product__title above. */
-  .dev-main-product__guide-title {
+     the overlay heading is a mobile artboard value, exactly like .dev-main-product__title above.
+
+     "What's the difference?" (44808:738) is the SAME Mobile/Title 3 as the sheet's own heading —
+     it was simply missed when the heading beside it was brought down, and stayed at the desktop 32. */
+  .dev-main-product__guide-title,
+  .dev-main-product__tog-heading {
     font-size: var(--font-title-size-mobile);
+  }
+
+  /* Body/Md_Body_Medium + Body/Md_Body_Bold — 16px, not the desktop 18. EVERY run of body copy in
+     both sheets is 16 on the mobile artboards: the unit toggle (44977:3344/3345), the size rows
+     (44977:3348-3358), the footer line (44806:421), the seasons copy (44808:741, 744, 747) and the
+     chips (45178:2431). The card and section headings are NOT in here — Mobile/Title 3 keeps
+     .dev-main-product__tog-title at 24 and Mobile/Title 4 keeps .dev-main-product__tog-label at 20,
+     which both already match.
+
+     Overridden as the property rather than by retuning --font-sub-size: that token is declared in
+     the section's inline <style>, which sits further down the document than this file and wins on
+     order — and it feeds the description and the compare rows too, which keep their own scale. */
+  .dev-main-product__unit,
+  .dev-main-product__size-label,
+  .dev-main-product__size-value,
+  .dev-main-product__guide-foot,
+  .dev-main-product__guide-foot p,
+  .dev-main-product__tog-text,
+  .dev-main-product__tog-chip {
+    font-size: var(--font-sub-size-mobile);
   }
 
   /* The popup inset tightens 32px -> 24px on the mobile artboard. --pt can't be redefined here (the
