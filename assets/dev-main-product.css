@@ -690,6 +690,13 @@
     font-size: 14px;
   }
 
+  /* The buy button's label — 44869:1204 is Body/Lg_Body_Bold (18), not the desktop's 20. The box
+     itself is unchanged (h-60, px-24 py-16, gap-24), only the type. Overriding --dev-btn-fs rather
+     than font-size because the CTA drives the shared dev-btn component through that token. */
+  .dev-main-product__cta {
+    --dev-btn-fs: var(--font-cta-size-mobile);
+  }
+
 }
 
 /* ---- Still undecided ----------------------------------------------------
@@ -901,6 +908,23 @@
   height: 6px;
   border-radius: 50%;
   background-color: currentcolor;
+}
+
+/* ---- Accordions, mobile — 44797:2410 ----
+   The mobile artboard steps the whole accordion down a size: the heading is Mobile/Title 4 (20, not
+   the desktop's 22) and the copy is Body/Md_Body_Medium (16, not 18).
+
+   This block sits HERE, after the rules it overrides, and not in the section's main <=768 block —
+   that block is earlier in the file, so at equal specificity these two declarations would lose on
+   source order and do nothing at all. Same trap as the compare card and the price-comparison lead. */
+@media (max-width: 768px) {
+  .dev-main-product__acc-title {
+    font-size: var(--font-title-4-size-mobile);
+  }
+
+  .dev-main-product__acc-body {
+    font-size: var(--font-sub-size-mobile);
+  }
 }
 
 /* The copy fades up out of nothing as the row opens — opacity ONLY. It used to slide as well, and
