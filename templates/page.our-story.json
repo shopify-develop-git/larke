@@ -21,7 +21,8 @@
         "text_color": "#ffffff",
         "accent_color": "#a8cf78",
         "padding_top": 64,
-        "padding_bottom": 64
+        "padding_bottom": 64,
+        "emphasis_weight": "700"
       }
     },
     "dev-story-slider": {

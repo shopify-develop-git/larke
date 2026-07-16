@@ -29,25 +29,9 @@
     --font-heading-weight: 400;
     --font-heading-lh: 1.2;
 
-    /* ---- The emphasised run ("comfortable.") -----------------------------------
-       READ THIS BEFORE CHANGING THE 500.
-       Figma sets this run in Tiempos Headline **Semibold Italic** — i.e. weight 600,
-       italic. There is NO TiemposHeadline-SemiboldItalic.woff2 in assets/: the only
-       italic faces loaded by dev-brand-fonts.liquid are Regular (400) and Medium (500).
-       600 and 700 are upright-only.
-
-       Asking for `font-weight: 600; font-style: italic` therefore does NOT get Semibold
-       Italic — it gets the browser SYNTHESISING an oblique by shearing the upright
-       Semibold. A true Tiempos italic has different letterforms (single-storey 'a',
-       descending 'f', calligraphic entry strokes); a sheared upright has none of them.
-       That is a far larger pixel error than being one weight light, so this uses the
-       nearest REAL italic face — Medium Italic (500) — rather than a faux-oblique 600.
-
-       This is a genuine asset gap, not a design decision. Supply
-       assets/TiemposHeadline-SemiboldItalic.woff2, register it at 600/italic in
-       snippets/dev-brand-fonts.liquid (owned by the shared-chrome lane, not this one),
-       then set --em-weight to 600 and the section is exact. */
-    --em-weight: 500;
+    /* --em-weight is NOT here any more: the two pages this section serves want different weights
+       (Our Story 700, Tree Fibre 600), so it is a per-instance `emphasis_weight` setting and rides
+       inline on the root wrapper below, with the merchant-controlled values. See the note there. */
 
     /* Frame — 550px tall on BOTH artboards (1440x550 desktop, 375x550 mobile). */
     --hero-min-h: 550px;
@@ -155,12 +139,29 @@
 {%- endcomment -%}
 <div
   class="tree-fibre-hero{% if section.settings.show_underline %} tree-fibre-hero--underline{% endif %}{% if section.settings.stretch_background %} tree-fibre-hero--stretch-bg{% endif %}{% if bg_mobile != blank %} tree-fibre-hero--mobile-bg{% endif %}"
+  {%- comment -%}
+    --em-weight lives here, per instance, because the two pages disagree: the Our Story hero sets
+    its runs in Bold Italic (45078:8868) and Tree Fibre wants Semibold. One token in the block
+    above could only ever serve one of them.
+
+    READ THIS BEFORE ASSUMING 600/700 LOOK RIGHT. dev-brand-fonts.liquid registers italic faces at
+    400 and 500 ONLY — 600 (Semibold) and 700 (Bold) are upright-only, and there is no
+    TiemposHeadline-BoldItalic.woff2 or -SemiboldItalic.woff2 in assets/. So above 500 the browser
+    SYNTHESISES the italic by shearing the upright face. A true Tiempos italic has its own
+    letterforms (single-storey 'a', descending 'f', calligraphic entry strokes); a sheared upright
+    has none of them. 500 is therefore the only value that draws a REAL italic, and it is one
+    weight light of both artboards — every option trades one kind of wrong for the other.
+
+    The fix that retires this whole note is an asset, not CSS: supply the missing italic faces and
+    register them in snippets/dev-brand-fonts.liquid (shared-chrome lane, not this one).
+  {%- endcomment -%}
   style="
     --bg: {{ section.settings.background_color }};
     --color: {{ section.settings.text_color }};
     --accent: {{ section.settings.accent_color }};
     --pt: {{ section.settings.padding_top }}px;
     --pb: {{ section.settings.padding_bottom }}px;
+    --em-weight: {{ section.settings.emphasis_weight }};
   "
 >
   <div class="tree-fibre-hero__bg-layer">
@@ -231,6 +232,18 @@
       "label": "Heading",
       "info": "Italicise a word to emphasise it.",
       "default": "Turns out, taking care of our planet never felt more <em>comfortable.</em>"
+    },
+    {
+      "type": "select",
+      "id": "emphasis_weight",
+      "label": "Emphasis weight",
+      "info": "How heavy the italicised words are. Only Medium has a real italic in the theme — above it the browser fakes the slant by leaning the upright face, which is heavier but not true Tiempos italic. Our Story uses Bold, Tree Fibre uses Semibold.",
+      "default": "600",
+      "options": [
+        { "value": "500", "label": "Medium (true italic)" },
+        { "value": "600", "label": "Semibold" },
+        { "value": "700", "label": "Bold" }
+      ]
     },
     {
       "type": "checkbox",
