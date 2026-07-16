@@ -162,7 +162,9 @@
         },
         "cart-drawer": {
           "type": "dev-cart-drawer",
-          "settings": {}
+          "settings": {
+            "continue_url": "shopify://products/natural-duvet"
+          }
         }
       },
       "block_order": [
