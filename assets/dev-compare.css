@@ -150,11 +150,18 @@
 
 /* --- toggle (segmented control) --- */
 
+/* The track hugs its tabs. It must NOT carry a measured width: the tab labels are
+   merchant data (competitor names from the metaobject), so their combined width is not
+   knowable at design time — Figma's 237px fits Figma's names, and the real Simba/Roa/Piglet
+   need ~243px. The tabs are flex:0 0 auto, so a too-narrow track does not shrink them, it
+   lets them overflow — and the indicator (sized from offsetLeft/offsetWidth) follows the
+   last tab out past the beige edge. fit-content keeps the 4px beige inset true at any name. */
 .dev-compare__toggle {
   position: relative;
   display: flex;
   gap: var(--gap-sm);
-  width: var(--toggle-track-w);
+  width: fit-content;
+  max-width: 100%;
   padding: 4px;
   margin-top: var(--gap-sm); /* Figma pt-8 above the toggle */
   background-color: var(--toggle-track-bg);
