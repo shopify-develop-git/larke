@@ -34,6 +34,9 @@
     --font-cta-size: 20px;
     --font-badge-size: 14px;
     --font-stars-size: 18px;
+    /* The rating label alone drops to 14 on mobile — NOT --font-label-size, which the option rows and
+       the zoom counter also read and which stays at 16. */
+    --font-rating-size-mobile: 14px;
     --font-body-lh: 1.4;
     --w-medium: 500;
     --w-bold: 700;
@@ -343,18 +346,24 @@
             endif
           -%}
           <a class="dev-main-product__rating" href="{{ rating_href }}">
-            {%- comment -%}
-              4.9/5 is FOUR full stars and one 90% full — the artboard clips the fifth with a
-              gradient. Painting five solid stars would be a nicer number than the product has.
-            {%- endcomment -%}
             {%- if section.settings.show_rating_stars -%}
               {%- comment -%}
-                Shared inline-SVG stars (not the ★ glyph) with partial fill: 4.9/5 reads as four
-                solid stars and a 90%-filled fifth, clipped to the exact rating. See dev-stars.
+                Shared inline-SVG stars (not the ★ glyph). See dev-stars.
+
+                The row is rounded to whole stars, so 4.9 draws FIVE solid ones — the owner's call,
+                reversing what this file used to do. It used to clip the fifth star to 90% because
+                the artboard fades it with a gradient, on the argument that five solid stars claim a
+                nicer number than the product has. The label still reads the true 4.9/5 beside it.
+
+                `round`, not `ceil`: nearest whole star. Round UP and a 4.2 would also show five,
+                which is the dishonest version of this change rather than the tidy one.
               {%- endcomment -%}
-              {%- assign stars_label = rating | append: ' / 5' -%}
+              {%- liquid
+                assign stars_label = rating | append: ' / 5'
+                assign stars_rating = rating | round
+              -%}
               {%- render 'dev-stars',
-                rating: rating,
+                rating: stars_rating,
                 max: 5,
                 size: 18,
                 gap: 1,

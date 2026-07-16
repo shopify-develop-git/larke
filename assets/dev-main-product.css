@@ -635,6 +635,14 @@
     font-size: var(--font-sub-size-mobile);
   }
 
+  /* The property, not the token: --font-label-size is declared in the section's inline <style>, which
+     sits further down the document than this file and so wins on order no matter what a media query
+     here says. Overriding the token would silently do nothing — and it would be wrong anyway, since
+     the option rows read the same token and stay at 16. */
+  .dev-main-product__rating-link {
+    font-size: var(--font-rating-size-mobile);
+  }
+
 }
 
 /* ---- Still undecided ----------------------------------------------------
@@ -702,6 +710,35 @@
 .dev-main-product__compare:focus-visible {
   outline: 2px solid var(--color);
   outline-offset: 2px;
+}
+
+/* ---- Still undecided, mobile — 45228:4854 ----
+   This block lives HERE, after the desktop rules, and not up in the section's main
+   @media (max-width: 768px) block — that one sits earlier in the file, so at equal specificity the
+   desktop rules below it would win on source order and these overrides would silently do nothing.
+   (Setting width/height there while `padding` still lost to the desktop 15px squashed the 24px icon
+   to 16px wide inside a border-box 48px circle.)
+
+   Only two things move off the desktop artboard (45174:5990): the heading drops 18 -> 16, and the
+   icon circle 56 -> 48. Card padding, radius, both gaps, the link and the arrow are identical at both
+   widths, so they are deliberately not repeated.
+
+   The circle is sized explicitly rather than derived from padding the way desktop is (15px padding +
+   24px icon + the 1px rule = 56). The mobile artboard's own numbers do not add up: it declares a 48px
+   circle with 16px padding around a 24px icon, and 16 + 24 + 16 = 56 > 48 — which is exactly why the
+   icon sits skewed in the design. That slip is not reproduced: the circle takes the 48 it declares and
+   the icon centres in it (an 11px inset), per the owner's call that everything BUT the icon placement
+   should match. box-sizing is border-box (base.css:2), so the 48 includes the rule. */
+@media (max-width: 768px) {
+  .dev-main-product__compare-heading {
+    font-size: var(--font-sub-size-mobile);
+  }
+
+  .dev-main-product__compare-icon {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+  }
 }
 
 /* ---- Accordions --------------------------------------------------------- */
