@@ -151,20 +151,11 @@
 
 /* --- buttons / links --- */
 
+/* Styling comes from the shared component (.dev-btn--text, assets/dev-button.css):
+   bare text link, gap 4px, colour var(--color), underline-on-hover + icon nudge.
+   Only the font-size deviates from the text-variant default (18px → 16px here). */
 .journal-cards__cta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--cta-icon-gap);
-  color: var(--color);
-  font-family: var(--font-body);
-  font-size: var(--cta-font-size);
-  font-weight: var(--cta-font-weight);
-  line-height: var(--cta-lh);
-  text-decoration: none;
-}
-
-.journal-cards__cta:hover .journal-cards__cta-label {
-  text-decoration: underline;
+  --dev-btn-fs: var(--cta-font-size);
 }
 
 /* Locked to 24x24 so the icon can never be stretched by the flex row. `stroke: currentColor` in the
@@ -245,14 +236,7 @@
    ACCESSIBILITY
    ============================================= */
 
-.journal-cards__cta:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.journal-cards__cta:focus:not(:focus-visible) {
-  outline: none;
-}
+/* Focus + hover for the CTA are handled by the shared component (.dev-btn). */
 
 /* =============================================
    REDUCED MOTION

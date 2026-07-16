@@ -1,18 +1,29 @@
 {{ 'dev-cool-sleepers-promo.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'dev-cool-sleepers-promo.js' | asset_url }}" defer></script>
 
 {%- comment -%}
-  No JS: the Brief's Interactivity section is "none". The logos strip LOOKS like a
-  marquee (a logo is cropped at the right edge on both artboards) but Figma has it as
-  one flattened rectangle — no component instance, no layers, no controls. Building a
-  marquee on the strength of the screenshot would be inventing a spec. If product wants
-  a real animated "as seen in", that is an explicit PM decision, not an inference here.
+  The logos strip IS a marquee. Figma has it flattened into one rectangle, so the
+  original build shipped it as a static image and deferred the call — correctly, since a
+  marquee could not be inferred from a screenshot. Product has since made that call
+  explicitly, and the artboard corroborates it: the set of five repeats, and the ninth
+  logo is clipped by the right edge — a strip that is meant to keep moving.
+
+  The marquee uses Horizon's OWN stock technique (blocks/_marquee.liquid + marquee.js): fill the
+  row with whole copies of the set until it spans the frame, duplicate it once for two identical
+  halves, then loop with a percentage shift (translate3d -50%). A percentage is exact by
+  construction — no measured pixel shift to correct mid-animation — which is what finally killed
+  the Safari blink/jump. The animation pauses on hover and is simply not applied under
+  prefers-reduced-motion.
+
+  Numbers below are measured off the Figma strip (1440x55), not guessed: the gap is a
+  uniform 83px and each logo has its own optical height (Vogue 21, Mail Online 17,
+  Refinery29 39, Grazia 21, Women's Health 21) — which is why height is a per-block
+  setting rather than one shared value.
 {%- endcomment -%}
 
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .cool-sleepers-promo {
-    --font-body: 'Public Sans', sans-serif;
-    --font-heading: 'Test Tiempos Headline', serif;
 
     /* No --container-max and no single --section-px: this section has no centred
        max-width frame, and its horizontal inset differs per element (Brief,
@@ -51,8 +62,12 @@
        sizes (Brief, Images). Aspect ratios are the artboard node dimensions. */
     --image-aspect: 1332 / 400;
     --image-aspect-mobile: 375 / 250;
-    --logos-aspect: 1440 / 55;
-    --logos-aspect-mobile: 375 / 55;
+
+    /* Marquee. The strip is 55px tall on BOTH artboards and the logos are the same size
+       on each — the mobile crop simply shows fewer of them. So there is no mobile
+       override here: scaling the gap down would invent a measurement Figma never gave. */
+    --logos-height: 55px;
+    --logo-gap: 83px;
   }
 </style>
 
@@ -60,23 +75,15 @@
   assign heading = section.settings.heading
   assign subheading = section.settings.subheading
 
-  assign logos = section.settings.logos_image
-  assign logos_mobile = section.settings.logos_image_mobile
   assign lifestyle = section.settings.lifestyle_image
   assign lifestyle_mobile = section.settings.lifestyle_image_mobile
 
-  assign logos_alt = logos.alt | default: '' | escape
   assign lifestyle_alt = lifestyle.alt | default: '' | escape
-
-  assign logos_mobile_1x = logos_mobile | image_url: width: 375
-  assign logos_mobile_2x = logos_mobile | image_url: width: 750
-  assign logos_mobile_3x = logos_mobile | image_url: width: 1125
 
   assign lifestyle_mobile_1x = lifestyle_mobile | image_url: width: 375
   assign lifestyle_mobile_2x = lifestyle_mobile | image_url: width: 750
   assign lifestyle_mobile_3x = lifestyle_mobile | image_url: width: 1125
 
-  assign logos_mobile_srcset = logos_mobile_1x | append: ' 375w, ' | append: logos_mobile_2x | append: ' 750w, ' | append: logos_mobile_3x | append: ' 1125w'
   assign lifestyle_mobile_srcset = lifestyle_mobile_1x | append: ' 375w, ' | append: lifestyle_mobile_2x | append: ' 750w, ' | append: lifestyle_mobile_3x | append: ' 1125w'
 
   assign lifestyle_sizes = '(max-width: 768px) 100vw, calc(100vw - 108px)'
@@ -99,34 +106,54 @@
           <h2 class="cool-sleepers-promo__heading">{{ heading }}</h2>
         {%- endif -%}
         {%- if subheading != blank -%}
-          <p class="cool-sleepers-promo__subheading">{{ subheading | escape }}</p>
+          <p class="cool-sleepers-promo__subheading">{{ subheading }}</p>
         {%- endif -%}
       </div>
     {%- endif -%}
 
-    {%- if logos != blank -%}
-      <div class="cool-sleepers-promo__logos">
-        <picture>
-          {%- if logos_mobile != blank -%}
-            <source
-              media="(max-width: 768px)"
-              srcset="{{ logos_mobile_srcset }}"
-              sizes="100vw"
-              width="375"
-              height="55"
-            >
-          {%- endif -%}
-          {{
-            logos
-            | image_url: width: 2880
-            | image_tag:
-              loading: 'lazy',
-              widths: '750, 1100, 1440, 2160, 2880',
-              sizes: '100vw',
-              alt: logos_alt,
-              class: 'cool-sleepers-promo__logos-image'
-          }}
-        </picture>
+    {%- if section.blocks.size > 0 -%}
+      {%- comment -%}
+        Structure mirrors Horizon's own stock marquee (blocks/_marquee.liquid + marquee.js):
+        wrapper → content → repeated-items. One authored set (__set) is rendered; the JS fills the
+        __track with copies of it until the row spans the frame, then duplicates the whole __track
+        once so the wrapper holds TWO identical halves. The CSS then loops by exactly one half with a
+        percentage shift (-50%). See the CSS keyframe for why a percentage is the whole point.
+      {%- endcomment -%}
+      <div
+        class="cool-sleepers-promo__logos"
+        style="--marquee-duration: {{ section.settings.marquee_duration }}s;"
+        data-marquee-root
+        data-reveal-skip
+      >
+        <div class="cool-sleepers-promo__marquee" data-marquee-wrapper>
+          <div class="cool-sleepers-promo__track" data-marquee-content>
+            <ul class="cool-sleepers-promo__set" data-marquee-set>
+              {%- for block in section.blocks -%}
+                {%- if block.settings.image != blank -%}
+                  {%- assign logo_alt = block.settings.alt_text | default: block.settings.image.alt | default: '' | escape -%}
+                  <li
+                    class="cool-sleepers-promo__logo"
+                    style="--logo-height: {{ block.settings.logo_height }}px;"
+                    {{ block.shopify_attributes }}
+                  >
+                    {%- comment -%}
+                      eager, NOT lazy: the strip is measured and cloned from these logos, so they
+                      must have their real width BEFORE the strip is scrolled into view. Left lazy,
+                      a real device (Safari especially) loads them only as you reach the section, so
+                      the build would run on screen. They are five tiny press SVGs; loading them up
+                      front is negligible.
+                    {%- endcomment -%}
+                    {{
+                      block.settings.image
+                      | image_url: width: 600
+                      | image_tag: loading: 'eager', alt: logo_alt, class: 'cool-sleepers-promo__logo-image'
+                    }}
+                  </li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+          </div>
+        </div>
       </div>
     {%- endif -%}
 
@@ -165,9 +192,7 @@
   "settings": [
     { "type": "header", "content": "Content" },
     { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "As seen in" },
-    { "type": "text", "id": "subheading", "label": "Subheading", "default": "Comfort put to the test" },
-    { "type": "image_picker", "id": "logos_image", "label": "Press logos strip (desktop)" },
-    { "type": "image_picker", "id": "logos_image_mobile", "label": "Press logos strip (mobile)" },
+    { "type": "inline_richtext", "id": "subheading", "label": "Subheading", "default": "Comfort put to the test" },
     { "type": "image_picker", "id": "lifestyle_image", "label": "Lifestyle image (desktop)" },
     { "type": "image_picker", "id": "lifestyle_image_mobile", "label": "Lifestyle image (mobile)" },
 
@@ -175,6 +200,19 @@
     { "type": "color", "id": "background_color", "label": "Background", "default": "rgba(0,0,0,0)" },
     { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
     { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#333333" },
+
+    { "type": "header", "content": "Layout" },
+    {
+      "type": "range",
+      "id": "marquee_duration",
+      "min": 10,
+      "max": 90,
+      "step": 5,
+      "unit": "s",
+      "label": "Marquee loop duration",
+      "info": "Time for the logo strip to scroll one full set. Higher is slower. Pauses on hover, and stops for visitors who ask for reduced motion.",
+      "default": 30
+    },
 
     { "type": "header", "content": "Spacing" },
     {
@@ -198,6 +236,44 @@
       "default": 0
     }
   ],
-  "presets": [{ "name": "As seen in" }]
+  "blocks": [
+    {
+      "type": "logo",
+      "name": "Press logo",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Logo" },
+        {
+          "type": "text",
+          "id": "alt_text",
+          "label": "Alt text",
+          "info": "The publication's name, e.g. \"Vogue\". Falls back to the image's own alt text."
+        },
+        {
+          "type": "range",
+          "id": "logo_height",
+          "min": 8,
+          "max": 55,
+          "step": 1,
+          "unit": "px",
+          "label": "Logo height",
+          "info": "Set per logo so the strip reads evenly — a tall stacked mark needs more height than a wide wordmark to look the same weight.",
+          "default": 21
+        }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "As seen in",
+      "blocks": [
+        { "type": "logo" },
+        { "type": "logo" },
+        { "type": "logo" },
+        { "type": "logo" },
+        { "type": "logo" }
+      ]
+    }
+  ]
 }
 {% endschema %}

@@ -1,0 +1,182 @@
+/* FAQ. No artboard exists for this section — see the note in dev-faq.liquid. The accordion follows
+   `Accordions - Desktop` (45068:1975), which is also what dev-main-product's rows follow. */
+
+.dev-faq {
+  padding: var(--pt) var(--section-px) var(--pb);
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+}
+
+.dev-faq__inner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+}
+
+.dev-faq__head {
+  margin-bottom: var(--head-gap);
+  text-align: center;
+}
+
+.dev-faq__heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+.dev-faq__subheading {
+  margin: 8px 0 0;
+  font-size: var(--font-answer-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+}
+
+/* The gap belongs BETWEEN the rows, not as padding inside them — so the last row carries no
+   trailing space. Same construction as the PDP's accordion. */
+.dev-faq__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--acc-gap);
+}
+
+.dev-faq__item {
+  padding-top: var(--acc-gap);
+  border-top: 1px solid var(--border-color);
+}
+
+/* The last row closes the list off — the artboard's rows sit between rules, not above them. */
+.dev-faq__item:last-child {
+  padding-bottom: var(--acc-gap);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* `padding: 0` is load-bearing. Horizon's base.css carries a BARE `summary { padding: var(--padding-sm) }`
+   and it loads on every page, so it lands on these rows and nothing else in this file refuses it.
+   A dev-prefixed class does not protect against an element selector. */
+.dev-faq__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+/* Safari draws its own disclosure triangle through ::-webkit-details-marker and ignores
+   `list-style: none`. Both rules are needed, or the chevron sits next to a stray arrow. */
+.dev-faq__summary::-webkit-details-marker {
+  display: none;
+}
+
+.dev-faq__summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.dev-faq__question {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-question-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+.dev-faq__icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.dev-faq__chevron {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  transition: transform var(--acc-dur) var(--acc-ease);
+}
+
+.dev-faq__item[open] .dev-faq__chevron {
+  transform: rotate(180deg);
+}
+
+/* A closing row keeps [open] until its height animation lands — the content has to stay in the DOM
+   to be animated out of — so the chevron must be told to turn back NOW, not at the end. Same
+   specificity as the rule above: it wins on source order, so it must stay below it. */
+.dev-faq__item[data-faq-state='closing'] .dev-faq__chevron {
+  transform: none;
+}
+
+.dev-faq__answer {
+  padding-top: var(--acc-gap);
+  font-size: var(--font-answer-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+}
+
+.dev-faq__answer p {
+  margin: 0;
+}
+
+.dev-faq__answer p + p {
+  margin-top: 12px;
+}
+
+.dev-faq__answer a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* The answer fades up out of nothing as the row opens — opacity ONLY. The row is already growing
+   underneath it; a slide as well would be two movements fighting over the same text. Closing has no
+   rule at all: the shrinking row clips the copy away from the bottom, which is already the gesture. */
+.dev-faq__item[data-faq-state='opening'] > :not(summary) {
+  animation: dev-faq-in calc(var(--acc-dur) * 0.75) var(--acc-ease) both;
+}
+
+@keyframes dev-faq-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .dev-faq {
+    padding-right: var(--section-px-mobile);
+    padding-left: var(--section-px-mobile);
+  }
+
+  /* Override the PROPERTY, not the token: the tokens live in an inline <style> block, which media
+     queries in this file cannot outrank. */
+  .dev-faq__heading {
+    font-size: var(--font-heading-size-mobile);
+  }
+
+  .dev-faq__question {
+    font-size: var(--font-answer-size);
+  }
+
+  .dev-faq__answer,
+  .dev-faq__subheading {
+    font-size: var(--font-answer-size-mobile);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-faq__chevron {
+    transition: none;
+  }
+
+  /* The JS drops the height animation to 0ms on its own; this kills the answer's fade to match. */
+  .dev-faq__item[data-faq-state] > :not(summary) {
+    animation: none;
+  }
+}

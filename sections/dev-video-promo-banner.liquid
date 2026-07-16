@@ -12,8 +12,6 @@
        --container-max is intentionally absent and --section-px is 0: this section is
        full-bleed at both breakpoints (Brief, Note 1 — the media row starts at x=0 and
        spans the whole frame). The only width constraint is a max-width on the text block. */
-    --font-body: 'Public Sans', sans-serif;
-    --font-heading: 'Test Tiempos Headline', serif;
     --section-px: 0px;
 
     /* Typography — desktop */
@@ -57,6 +55,8 @@
     --button-px-m: 18px;
     --button-py-m: 12px;
     --button-radius: 60px;
+    /* Fixed, like every other button on the site. No section lets a merchant recolour one. */
+    --cta-text-color: #333333;
 
     /* Play button */
     --play-btn-size: 62px;
@@ -68,6 +68,14 @@
     --modal-overlay: rgba(0, 0, 0, 0.85);
     --modal-max-w: 960px;
     --modal-px: 24px;
+
+    /* Motion. The same asymmetry the PDP's guide drawers use: the lightbox takes its time arriving
+       and leaves briskly, which is what makes it read as an object rather than a div being shown.
+       The JS reads these back out (parseFloat on the computed value), so keep them in ms. */
+    --modal-in: 480ms;
+    --modal-out: 300ms;
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
   }
 </style>
 
@@ -113,7 +121,6 @@
     --bg: {{ section.settings.background_color }};
     --color: {{ section.settings.text_color }};
     --accent: {{ section.settings.accent_color }};
-    --cta-text-color: {{ section.settings.cta_text_color }};
     --pt: {{ section.settings.padding_top }}px;
     --pb: {{ section.settings.padding_bottom }}px;
   "
@@ -123,10 +130,10 @@
       {%- if poster != blank -%}
         {{
           poster
-          | image_url: width: 1920
+          | image_url: width: 3200
           | image_tag:
             loading: 'eager',
-            widths: '400, 600, 800, 1000, 1200, 1600, 1920',
+            widths: '400, 600, 800, 1000, 1200, 1600, 1920, 2600, 3200',
             sizes: '100vw',
             alt: poster_alt,
             class: 'video-promo-banner__poster'
@@ -191,7 +198,7 @@
           {%- endif -%}
 
           {%- if section.settings.subheading != blank -%}
-            <p class="video-promo-banner__subheading">{{ section.settings.subheading | escape }}</p>
+            <p class="video-promo-banner__subheading">{{ section.settings.subheading }}</p>
           {%- endif -%}
         </div>
       {%- endif -%}
@@ -208,28 +215,36 @@
               assign cta_link = routes.root_url
             endif
           -%}
-          <a
-            class="video-promo-banner__button"
-            href="{{ cta_link }}"
-            {{ block.shopify_attributes }}
-          >
-            {{- block.settings.label | escape -}}
-          </a>
+          {%- render 'dev-button',
+            variant: 'filled',
+            label: block.settings.label | escape,
+            link: cta_link,
+            class: 'video-promo-banner__button',
+            attrs: block.shopify_attributes
+          -%}
         {%- endif -%}
       {%- endfor -%}
     </div>
   </div>
 
   {%- if has_video -%}
-    <div
+    {%- comment -%}
+      A native <dialog>, opened with showModal(). It is not a div wearing role="dialog": the element
+      brings the focus trap, Escape, the ::backdrop layer and inertness of the page behind it for
+      free, all of which the hand-rolled version was missing — from the old modal you could Tab
+      straight out of the video and onto the page underneath.
+    {%- endcomment -%}
+    <dialog
       class="video-promo-banner__modal"
-      role="dialog"
-      aria-modal="true"
       aria-label="{{ 'Video' | escape }}"
       data-video-modal
-      hidden
     >
-      <div class="video-promo-banner__modal-inner">
+      {%- comment -%}
+        tabindex="-1" so the JS can land initial focus here on open instead of on the close button.
+        showModal() otherwise focuses the first focusable child (the ×), which iOS Safari rings with a
+        focus-visible outline — a white circle around the ×. Keyboard users still Tab to the × normally.
+      {%- endcomment -%}
+      <div class="video-promo-banner__modal-inner" tabindex="-1">
         <button
           class="video-promo-banner__modal-close"
           type="button"
@@ -252,6 +267,15 @@
           </svg>
         </button>
 
+        {%- comment -%}
+          `image_size` sets the poster. Without it video_tag reaches for Shopify's own preview
+          thumbnail at its `_small` cut — a ~100px image stretched across a 960px player, which is
+          why the first frame arrived visibly blurry. 1280x is the widest the player is ever drawn.
+
+          preload stays `none`: this sits below the fold on the homepage and the source is a 4.5Mbps
+          HD file, so every visitor should not pay for it. The JS warms it on intent instead — the
+          moment the pointer or focus reaches the play button — so the click still plays at once.
+        {%- endcomment -%}
         {%- if hosted_video != blank -%}
           {{
             hosted_video
@@ -259,6 +283,7 @@
               controls: true,
               playsinline: true,
               preload: 'none',
+              image_size: '1280x',
               class: 'video-promo-banner__video'
           }}
         {%- elsif embed_url != blank -%}
@@ -272,7 +297,7 @@
           ></iframe>
         {%- endif -%}
       </div>
-    </div>
+    </dialog>
   {%- endif -%}
 </div>
 
@@ -307,7 +332,7 @@
       "default": "Trees into duvets – who would've thought?"
     },
     {
-      "type": "text",
+      "type": "inline_richtext",
       "id": "subheading",
       "label": "Subheading",
       "default": "See the difference in under 60 seconds."
@@ -343,7 +368,6 @@
       "info": "Button and play button background.",
       "default": "#FFFCF4"
     },
-    { "type": "color", "id": "cta_text_color", "label": "Button text color", "default": "#333333" },
 
     { "type": "header", "content": "Spacing" },
     {

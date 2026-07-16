@@ -136,10 +136,11 @@
           "mobile": "44979:3461"
         },
         {
-          "name": "TODO-pm-names-it",
+          "name": "brand-social-gallery",
           "figma_name": "Frame 6564",
           "desktop": "45031:2809",
-          "mobile": "44821:5835"
+          "mobile": "44821:5835",
+          "note": "Built as dev-brand-social-gallery. User's dev link points at the inner content frame 45031:2811 (Frame 6565, 1440x236.75); 45031:2809 is the full section incl. the 80px top spacer — use it for the full-section pixel diff. Badge image on the homepage is shopify://shop_images/group_6568.webp (green Larke disc inside a magenta→gold gradient ring). Text-column order is heading → badge → handle."
         },
         {
           "name": "TODO-pm-names-it",

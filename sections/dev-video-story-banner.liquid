@@ -13,8 +13,6 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .video-story-banner {
-    --font-body: 'Public Sans', sans-serif;
-    --font-heading: 'Test Tiempos Headline', serif;
 
     /* Full-bleed by design. The Brief found NO inner content frame narrower than the
        section at either breakpoint (the row and the image tile are both w-full), so
@@ -76,7 +74,7 @@
   assign image_mobile = section.settings.image_mobile
 
   assign alt_desktop = image_desktop.alt | default: '' | escape
-  assign src_desktop = image_desktop | image_url: width: 2400
+  assign src_desktop = image_desktop | image_url: width: 3200
 
   assign src_mobile_1x = image_mobile | image_url: width: 480
   assign src_mobile_2x = image_mobile | image_url: width: 960
@@ -118,7 +116,7 @@
           src_desktop
           | image_tag:
             loading: 'eager',
-            widths: '750, 1100, 1500, 1780, 2000, 2400',
+            widths: '750, 1100, 1500, 1780, 2000, 2400, 2800, 3200',
             sizes: '100vw',
             alt: alt_desktop,
             class: 'video-story-banner__image'
@@ -132,7 +130,7 @@
       {%- endif -%}
 
       {%- if section.settings.subheading != blank -%}
-        <p class="video-story-banner__subheading">{{ section.settings.subheading | escape }}</p>
+        <p class="video-story-banner__subheading">{{ section.settings.subheading }}</p>
       {%- endif -%}
 
       {%- if section.settings.button_label != blank -%}
@@ -141,12 +139,12 @@
           href — a Figma-authoring inconsistency, not responsive behaviour (Brief note #2).
           Implemented as one <a> at both breakpoints; button_link is a real merchant field.
         {%- endcomment -%}
-        <a
-          class="video-story-banner__button"
-          {%- if section.settings.button_link != blank %} href="{{ section.settings.button_link }}"{% endif -%}
-        >
-          {{- section.settings.button_label | escape -}}
-        </a>
+        {%- render 'dev-button',
+          variant: 'filled',
+          label: section.settings.button_label | escape,
+          link: section.settings.button_link,
+          class: 'video-story-banner__button'
+        -%}
       {%- endif -%}
     </div>
   </div>
@@ -165,7 +163,7 @@
       "info": "Press Shift + Enter for a manual line break — the design shows this on two lines.",
       "default": "<p>Tree-mendous<br/>since day one.</p>"
     },
-    { "type": "text", "id": "subheading", "label": "Subheading", "default": "See how it all began." },
+    { "type": "inline_richtext", "id": "subheading", "label": "Subheading", "default": "See how it all began." },
     { "type": "text", "id": "button_label", "label": "Button label", "default": "Our Story" },
     { "type": "url", "id": "button_link", "label": "Button link", "info": "Point this at the Our Story page." },
     { "type": "image_picker", "id": "image", "label": "Background image (desktop)" },

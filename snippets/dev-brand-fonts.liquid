@@ -1,108 +1,143 @@
 {%- comment -%}
-  Brand fonts from the Figma design. Every dev-* section depends on these.
+  Brand fonts. This is the SINGLE source of truth for --font-body / --font-heading —
+  every dev-* section reads those two tokens off :root and never redefines them, so the
+  whole site's typeface changes here and nowhere else.
 
-  Without this snippet the sections still SAY the right thing —
-  `font-family: 'Test Tiempos Headline', serif` matches the Design Brief exactly —
-  and then render in system Times, because no @font-face for it exists. A matching
-  font-family string is not a loaded font. That bug reached the browser once already.
+  Theme setting `use_test_fonts` (Theme settings → Typography, default ON) chooses:
 
-  Tiempos Headline is a LICENSED Klim font. The files here are the free TRIAL cut
-  (limited glyph set) supplied by the owner for preview only — they MUST be swapped
-  for the licensed release before this goes anywhere near production.
+    ON  — Public Sans + Tiempos Headline, self-hosted, exactly as the Figma design.
+          Tiempos Headline is a LICENSED Klim font; the files bundled here are the free
+          TRIAL cut (limited glyphs) supplied for preview only. Before production, turn
+          this OFF (or swap in the licensed release).
 
-  Public Sans is open source (SIL OFL), self-hosted rather than pulled from Google
-  so no third-party request is needed to render the page.
+    OFF — the Body and Heading fonts the merchant picks in Theme settings → Typography
+          (type_body_font / type_heading_font). These are served from Shopify's font
+          library — licensed and hosted — so the font can change with no code.
 
-  font-display: swap — text paints immediately in the fallback, then swaps. Never
-  `block`: an invisible heading is worse than a briefly wrong one.
+  font-display: swap everywhere — text paints in the fallback immediately, then swaps.
+  Never `block`: an invisible heading is worse than a briefly wrong one.
 {%- endcomment -%}
 
-{%- liquid
-  assign tiempos_regular = 'TiemposHeadline-Regular.woff2' | asset_url
-  assign tiempos_medium = 'TiemposHeadline-Medium.woff2' | asset_url
-  assign tiempos_semibold = 'TiemposHeadline-Semibold.woff2' | asset_url
-  assign tiempos_bold = 'TiemposHeadline-Bold.woff2' | asset_url
-  assign tiempos_medium_italic = 'TiemposHeadline-MediumItalic.woff2' | asset_url
-  assign tiempos_regular_italic = 'TiemposHeadline-RegularItalic.woff2' | asset_url
-  assign sans_regular = 'PublicSans-Regular.woff2' | asset_url
-  assign sans_medium = 'PublicSans-Medium.woff2' | asset_url
-  assign sans_bold = 'PublicSans-Bold.woff2' | asset_url
-  assign sans_regular_italic = 'PublicSans-RegularItalic.woff2' | asset_url
--%}
+{%- if settings.use_test_fonts -%}
+  {%- liquid
+    assign tiempos_regular = 'TiemposHeadline-Regular.woff2' | asset_url
+    assign tiempos_medium = 'TiemposHeadline-Medium.woff2' | asset_url
+    assign tiempos_semibold = 'TiemposHeadline-Semibold.woff2' | asset_url
+    assign tiempos_bold = 'TiemposHeadline-Bold.woff2' | asset_url
+    assign tiempos_medium_italic = 'TiemposHeadline-MediumItalic.woff2' | asset_url
+    assign tiempos_regular_italic = 'TiemposHeadline-RegularItalic.woff2' | asset_url
+    assign sans_regular = 'PublicSans-Regular.woff2' | asset_url
+    assign sans_medium = 'PublicSans-Medium.woff2' | asset_url
+    assign sans_bold = 'PublicSans-Bold.woff2' | asset_url
+    assign sans_regular_italic = 'PublicSans-RegularItalic.woff2' | asset_url
+  -%}
 
-<link rel="preload" as="font" type="font/woff2" href="{{ tiempos_medium }}" crossorigin>
-<link rel="preload" as="font" type="font/woff2" href="{{ sans_regular }}" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="{{ tiempos_medium }}" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="{{ sans_regular }}" crossorigin>
 
-<style>
-  @font-face {
-    font-family: 'Test Tiempos Headline';
-    src: url('{{ tiempos_regular }}') format('woff2');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'Test Tiempos Headline';
-    src: url('{{ tiempos_regular_italic }}') format('woff2');
-    font-weight: 400;
-    font-style: italic;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'Test Tiempos Headline';
-    src: url('{{ tiempos_medium }}') format('woff2');
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'Test Tiempos Headline';
-    src: url('{{ tiempos_medium_italic }}') format('woff2');
-    font-weight: 500;
-    font-style: italic;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'Test Tiempos Headline';
-    src: url('{{ tiempos_semibold }}') format('woff2');
-    font-weight: 600;
-    font-style: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'Test Tiempos Headline';
-    src: url('{{ tiempos_bold }}') format('woff2');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-  }
+  <style>
+    @font-face {
+      font-family: 'Test Tiempos Headline';
+      src: url('{{ tiempos_regular }}') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Test Tiempos Headline';
+      src: url('{{ tiempos_regular_italic }}') format('woff2');
+      font-weight: 400;
+      font-style: italic;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Test Tiempos Headline';
+      src: url('{{ tiempos_medium }}') format('woff2');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Test Tiempos Headline';
+      src: url('{{ tiempos_medium_italic }}') format('woff2');
+      font-weight: 500;
+      font-style: italic;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Test Tiempos Headline';
+      src: url('{{ tiempos_semibold }}') format('woff2');
+      font-weight: 600;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Test Tiempos Headline';
+      src: url('{{ tiempos_bold }}') format('woff2');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
 
-  @font-face {
-    font-family: 'Public Sans';
-    src: url('{{ sans_regular }}') format('woff2');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'Public Sans';
-    src: url('{{ sans_regular_italic }}') format('woff2');
-    font-weight: 400;
-    font-style: italic;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'Public Sans';
-    src: url('{{ sans_medium }}') format('woff2');
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'Public Sans';
-    src: url('{{ sans_bold }}') format('woff2');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-  }
-</style>
+    @font-face {
+      font-family: 'Public Sans';
+      src: url('{{ sans_regular }}') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Public Sans';
+      src: url('{{ sans_regular_italic }}') format('woff2');
+      font-weight: 400;
+      font-style: italic;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Public Sans';
+      src: url('{{ sans_medium }}') format('woff2');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Public Sans';
+      src: url('{{ sans_bold }}') format('woff2');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --font-body: 'Public Sans', sans-serif;
+      --font-heading: 'Test Tiempos Headline', serif;
+    }
+  </style>
+{%- else -%}
+  {%- liquid
+    assign body_font = settings.type_body_font
+    assign heading_font = settings.type_heading_font
+    assign body_medium = body_font | font_modify: 'weight', '500'
+    assign body_bold = body_font | font_modify: 'weight', '700'
+    assign body_italic = body_font | font_modify: 'style', 'italic'
+    assign heading_medium = heading_font | font_modify: 'weight', '500'
+    assign heading_bold = heading_font | font_modify: 'weight', '700'
+    assign heading_italic = heading_font | font_modify: 'style', 'italic'
+  -%}
+
+  <style>
+    {{ body_font | font_face: font_display: 'swap' }}
+    {%- if body_medium %}{{ body_medium | font_face: font_display: 'swap' }}{% endif -%}
+    {%- if body_bold %}{{ body_bold | font_face: font_display: 'swap' }}{% endif -%}
+    {%- if body_italic %}{{ body_italic | font_face: font_display: 'swap' }}{% endif -%}
+    {{ heading_font | font_face: font_display: 'swap' }}
+    {%- if heading_medium %}{{ heading_medium | font_face: font_display: 'swap' }}{% endif -%}
+    {%- if heading_bold %}{{ heading_bold | font_face: font_display: 'swap' }}{% endif -%}
+    {%- if heading_italic %}{{ heading_italic | font_face: font_display: 'swap' }}{% endif -%}
+
+    :root {
+      --font-body: {{ body_font.family }}, {{ body_font.fallback_families }};
+      --font-heading: {{ heading_font.family }}, {{ heading_font.fallback_families }};
+    }
+  </style>
+{%- endif -%}

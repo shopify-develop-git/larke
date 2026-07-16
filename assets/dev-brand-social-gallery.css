@@ -73,39 +73,23 @@
   object-fit: cover;
 }
 
-/* Profile badge — 48px mark centred in the 58px ring (5px inset each side).
-   The ring gradient and the green/white of the mark are baked into the artwork
-   (Brief note #5); they are not driven by --accent. */
+/* Profile badge — a single full 58px circle. Ring and mark are one image, clipped
+   to a round shape; the green/white/gradient are baked into the artwork
+   (Brief note #5), not driven by --accent. */
 .brand-social-gallery__badge {
-  position: relative;
   flex: 0 0 auto;
-  width: var(--badge-ring-size);
-  height: var(--badge-ring-size);
+  width: var(--badge-size);
+  height: var(--badge-size);
+  overflow: hidden;
+  border-radius: 50%;
 }
 
-.brand-social-gallery__badge-ring {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: var(--badge-ring-size);
-  height: var(--badge-ring-size);
-}
-
-.brand-social-gallery__badge-logo {
-  position: absolute;
-  top: var(--badge-logo-inset);
-  left: var(--badge-logo-inset);
-  display: block;
-  width: var(--badge-logo-size);
-  height: var(--badge-logo-size);
-}
-
-.brand-social-gallery__badge-ring svg,
-.brand-social-gallery__badge-logo svg,
+.brand-social-gallery__badge svg,
 .brand-social-gallery__badge-img {
   display: block;
   width: 100%;
   height: 100%;
+  object-fit: cover;
 }
 
 /* --- typography --- */
@@ -126,6 +110,17 @@
   font-weight: var(--font-body-weight);
   line-height: var(--font-body-lh);
   color: var(--color);
+}
+
+/* Inherits the handle's type + colour; only the link affordance is added. */
+.brand-social-gallery__handle-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand-social-gallery__handle-link:hover,
+.brand-social-gallery__handle-link:focus-visible {
+  text-decoration: underline;
 }
 
 /* --- buttons / links --- */

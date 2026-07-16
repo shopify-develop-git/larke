@@ -23,8 +23,6 @@
 <style>
   .wash-dry-repeat-promo {
     /* Brand params (Design Brief → Brand Params table) */
-    --font-body: 'Public Sans', sans-serif;
-    --font-heading: 'Test Tiempos Headline', serif;
     --container-max: 1312px;
     --section-px: 64px;
     --section-px-m: 16px;
@@ -65,8 +63,8 @@
        − 64 (gap) = 1184, split 544 / 640. Both are flex BASES, not fixed widths — see the CSS.
        They sum exactly to the card's content box at 1440, so the artboard matches to the pixel,
        and below it the two columns shrink in proportion instead of the text absorbing all of it. */
-    --text-col-width: 544px;
-    --tiles-width: 640px;
+    --text-col-width: 542px;
+    --tiles-width: 642px; /* tiles = (642 − 32 gap) / 2 = 305px each at design width (client spec) */
     --tile-aspect: 305.26 / 412; /* ~0.7409 — identical at both breakpoints (scaled, not re-cropped) */
 
     /* Decoration */
@@ -108,17 +106,22 @@
         {%- endif -%}
 
         {%- if section.settings.cta_label != blank -%}
-          <a
-            class="wash-dry-repeat-promo__cta"
-            {% if section.settings.cta_link != blank %}
-              href="{{ section.settings.cta_link }}"
-            {% else %}
-              href="#"
-              aria-disabled="true"
-            {% endif %}
-          >
-            {{- section.settings.cta_label | escape -}}
-          </a>
+          {%- if section.settings.cta_link != blank -%}
+            {%- render 'dev-button',
+              variant: 'dark',
+              label: section.settings.cta_label | escape,
+              link: section.settings.cta_link,
+              class: 'wash-dry-repeat-promo__cta'
+            -%}
+          {%- else -%}
+            {%- render 'dev-button',
+              variant: 'dark',
+              label: section.settings.cta_label | escape,
+              link: '#',
+              class: 'wash-dry-repeat-promo__cta',
+              attrs: 'aria-disabled="true"'
+            -%}
+          {%- endif -%}
         {%- endif -%}
       </div>
 

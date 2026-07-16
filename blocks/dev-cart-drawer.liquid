@@ -4,8 +4,6 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .cart-drawer {
-    --font-body: 'Public Sans', sans-serif;
-    --font-heading: 'Test Tiempos Headline', serif;
 
     /* The FIXED width of the drawer panel ("Cart/Order" 45058:2048) — this is the
        overlay's own width token, NOT the site's centred page container. On mobile the
@@ -101,11 +99,17 @@
   It lives as a block of dev-site-header (rather than a section of its own) so one
   configuration serves every template, and so it always ships with the trigger that
   opens it. position:fixed is unaffected — no ancestor creates a containing block.
+
+  The cart routes ride on the root as data attributes rather than being hardcoded in the
+  JS (the same contract dev-main-product uses): a localised storefront serves them under
+  a locale prefix, and "/cart/change.js" would 404 there.
 {%- endcomment -%}
 <div
   id="cart-drawer"
   class="cart-drawer"
   data-open="{{ is_open }}"
+  data-cart-change-url="{{ routes.cart_change_url }}"
+  data-cart-url="{{ routes.cart_url }}"
   {%- unless block.settings.open_on_load %} aria-hidden="true" inert{% endunless %}
   style="
     --bg: {{ block.settings.background_color }};
@@ -148,37 +152,6 @@
       </button>
     </div>
 
-    {%- comment -%}
-      The badge row is painted on EVERY line-item card, but `content_for 'blocks'` may be
-      emitted only ONCE per block — and `block.shopify_attributes` may appear only once per
-      block in the document, or the theme editor gets duplicate block ids and click-to-select
-      breaks. So: the first card renders the real Feature badge blocks (editable); every
-      other card renders an identical, attribute-free copy built from block.blocks. Both
-      draw their artwork from the same snippet.
-    {%- endcomment -%}
-    {%- capture badges_editable -%}
-      {%- if block.blocks.size > 0 -%}
-        <ul class="cart-drawer__badges">
-          {% content_for 'blocks' %}
-        </ul>
-      {%- endif -%}
-    {%- endcapture -%}
-
-    {%- capture badges_plain -%}
-      {%- if block.blocks.size > 0 -%}
-        <ul class="cart-drawer__badges">
-          {%- for badge in block.blocks -%}
-            {%- if badge.settings.label != blank -%}
-              <li class="cart-drawer__badge">
-                {%- render 'dev-cart-drawer-badge-icon', icon: badge.settings.icon -%}
-                <span class="cart-drawer__badge-label">{{ badge.settings.label | escape }}</span>
-              </li>
-            {%- endif -%}
-          {%- endfor -%}
-        </ul>
-      {%- endif -%}
-    {%- endcapture -%}
-
     <div class="cart-drawer__content">
       {%- if cart.item_count > 0 -%}
         <ul class="cart-drawer__items">
@@ -191,19 +164,23 @@
               <div class="cart-drawer__item-detail">
                 <div class="cart-drawer__item-media">
                   {%- if item.image != blank -%}
-                    {{
-                      item_src
-                      | image_tag:
-                        loading: 'lazy',
-                        widths: '64, 80, 128, 160, 240',
-                        sizes: '(max-width: 768px) 64px, 80px',
-                        alt: item_alt,
-                        class: 'cart-drawer__item-image'
-                    }}
+                    <a class="cart-drawer__item-image-link" href="{{ item.url }}">
+                      {{
+                        item_src
+                        | image_tag:
+                          loading: 'lazy',
+                          widths: '64, 80, 128, 160, 240',
+                          sizes: '(max-width: 768px) 64px, 80px',
+                          alt: item_alt,
+                          class: 'cart-drawer__item-image'
+                      }}
+                    </a>
                   {%- endif -%}
 
                   <div class="cart-drawer__item-info">
-                    <h3 class="cart-drawer__item-title">{{ item.product.title | escape }}</h3>
+                    <h3 class="cart-drawer__item-title">
+                      <a class="cart-drawer__item-title-link" href="{{ item.url }}">{{ item.product.title | escape }}</a>
+                    </h3>
 
                     {%- for option in item.options_with_values -%}
                       {%- if option.value != blank -%}
@@ -213,18 +190,73 @@
                         </p>
                       {%- endif -%}
                     {%- endfor -%}
+
+                    <p class="cart-drawer__item-qty">
+                      <span class="cart-drawer__item-qty-label">{{ block.settings.quantity_label | escape }}:</span>
+                      <span class="cart-drawer__item-qty-value">{{ item.quantity }}</span>
+                    </p>
                   </div>
                 </div>
 
                 <div class="cart-drawer__item-actions">
                   <p class="cart-drawer__item-price">{{ item.line_price | money }}</p>
-                  <a class="cart-drawer__item-remove" href="{{ item.url_to_remove }}">
+                  {%- comment -%}
+                    Still a real link to /cart/change, so removing a line works with JS off — it
+                    just costs a page load and lands on /cart, which is the browser doing exactly
+                    what the link says. The JS upgrades it into a cart change made in place; it is
+                    an upgrade on the link, never a replacement for it.
+
+                    It removes BY KEY, not by line number. The line number in url_to_remove is a
+                    position, and positions shift the moment anything above them is removed — the
+                    key names this line whatever happens to the ones around it.
+                  {%- endcomment -%}
+                  <a
+                    class="cart-drawer__item-remove"
+                    href="{{ item.url_to_remove }}"
+                    data-cart-remove
+                    data-line-key="{{ item.key }}"
+                  >
                     {{- block.settings.remove_label | escape -}}
                   </a>
                 </div>
               </div>
 
-              {%- if forloop.first -%}{{ badges_editable }}{%- else -%}{{ badges_plain }}{%- endif -%}
+              {%- comment -%}
+                The badges belong to the PRODUCT on this line, not to the drawer. They used to be
+                blocks of this drawer, which meant one hardcoded row painted onto every line in the
+                basket: add a pillow next to the duvet and the pillow would claim to be a
+                hypoallergenic tree-fibre duvet too. Now each line reads its own product's badges,
+                and a product with none simply shows none.
+
+                An uploaded image wins over the icon. The bundled icons are inline SVG on
+                currentColor — they inherit the drawer's text colour, which an <img> cannot do — so
+                the icon stays the default and the image is the override, not the other way round.
+              {%- endcomment -%}
+              {%- assign badges = item.product.metafields.larke.cart_badges.value -%}
+              {%- if badges.size > 0 -%}
+                <ul class="cart-drawer__badges">
+                  {%- for badge in badges -%}
+                    {%- if badge.label.value != blank -%}
+                      <li class="cart-drawer__badge">
+                        {%- if badge.image.value != blank -%}
+                          <img
+                            class="cart-drawer__badge-image"
+                            src="{{ badge.image.value | image_url: width: 72 }}"
+                            alt=""
+                            width="24"
+                            height="24"
+                            loading="lazy"
+                            aria-hidden="true"
+                          >
+                        {%- else -%}
+                          {%- render 'dev-cart-drawer-badge-icon', icon: badge.icon.value -%}
+                        {%- endif -%}
+                        <span class="cart-drawer__badge-label">{{ badge.label.value | escape }}</span>
+                      </li>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
             </li>
           {%- endfor -%}
         </ul>
@@ -236,9 +268,9 @@
 
     <div class="cart-drawer__footer">
       {%- if block.settings.checkout_label != blank -%}
-        <a class="cart-drawer__checkout" href="{{ checkout_url }}">
-          <span class="cart-drawer__checkout-label">{{ block.settings.checkout_label | escape }}</span>
-          <svg class="cart-drawer__icon" viewBox="329.5 18.5 24 24" width="24" height="24" fill="none" aria-hidden="true" focusable="false">
+        <a class="cart-drawer__checkout dev-btn dev-btn--ghost dev-btn--full" href="{{ checkout_url }}">
+          <span class="cart-drawer__checkout-label dev-btn__label">{{ block.settings.checkout_label | escape }}</span>
+          <svg class="cart-drawer__icon dev-btn__icon" viewBox="329.5 18.5 24 24" width="24" height="24" fill="none" aria-hidden="true" focusable="false">
 <path d="M341.5 33.5V35.5M335.5 39.5H347.5C348.605 39.5 349.5 38.6046 349.5 37.5V31.5C349.5 30.3954 348.605 29.5 347.5 29.5H335.5C334.395 29.5 333.5 30.3954 333.5 31.5V37.5C333.5 38.6046 334.395 39.5 335.5 39.5ZM345.5 29.5V25.5C345.5 23.2909 343.709 21.5 341.5 21.5C339.291 21.5 337.5 23.2909 337.5 25.5V29.5H345.5Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
         </a>
@@ -250,13 +282,20 @@
         {%- endif -%}
 
         {%- comment -%}
-          The eight marks exported from the Figma artboard, in artboard order. NOT
-          shop.enabled_payment_types: that renders Shopify's own icon set, which is
-          different artwork from the owner's. The last mark is filed in Figma as a
-          second "Amex" but is a blue Shop Pay mark — flagged in the Brief, drawn here
-          exactly as exported and labelled for what it depicts.
+          Two sources, chosen by the "Payment icons" setting (block.settings.payment_icons_source):
+          - dynamic (default): shop.enabled_payment_types -> Shopify's own icon set,
+            always matching what is actually enabled at checkout, zero maintenance.
+          - custom: the eight marks exported from the Figma artboard, in artboard
+            order, pixel-matched to the owner's brand artwork. The last mark is filed
+            in Figma as a second "Amex" but is a blue Shop Pay mark (flagged in the
+            Brief) — drawn exactly as exported and labelled for what it depicts.
         {%- endcomment -%}
         <ul class="cart-drawer__payment-icons">
+          {%- if block.settings.payment_icons_source == 'dynamic' -%}
+            {%- for type in shop.enabled_payment_types -%}
+              <li class="cart-drawer__payment-item">{{ type | payment_type_svg_tag: class: 'cart-drawer__payment-icon' }}</li>
+            {%- endfor -%}
+          {%- else -%}
           <li class="cart-drawer__payment-item"><svg class="cart-drawer__payment-icon" viewBox="0 0 35 20" width="35" height="20" fill="none" role="img" aria-label="Visa">
 <g id="Visa-cd-visa">
 <g id="Visa_2-cd-visa">
@@ -361,6 +400,7 @@
 </g>
 </g>
 </svg></li>
+          {%- endif -%}
         </ul>
       </div>
     </div>
@@ -371,18 +411,30 @@
 {
   "name": "Cart drawer",
   "tag": null,
-  "blocks": [
-    { "type": "dev-cart-drawer-badge" }
-  ],
   "settings": [
     { "type": "header", "content": "Content" },
+    { "type": "paragraph", "content": "The feature badges under each line are no longer configured here. They come from the product's Cart badges metafield (larke.cart_badges), so each line in the basket shows its OWN product's badges. Each badge entry carries a label plus either one of the theme's icons or an uploaded image." },
     { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Your Order" },
     { "type": "text", "id": "close_label", "label": "Close button label (screen readers only)", "default": "Close basket" },
     { "type": "text", "id": "remove_label", "label": "Remove link label", "default": "Remove" },
+    { "type": "text", "id": "quantity_label", "label": "Quantity label", "default": "Qty" },
     { "type": "text", "id": "empty_text", "label": "Empty basket message", "default": "Your basket is empty." },
     { "type": "text", "id": "checkout_label", "label": "Checkout button label", "default": "Checkout Securely" },
     { "type": "url", "id": "checkout_url", "label": "Checkout link", "info": "Leave empty to use the store's checkout." },
     { "type": "text", "id": "payment_label", "label": "Payment methods label", "default": "Accepted payment methods" },
+
+    { "type": "header", "content": "Payment icons" },
+    {
+      "type": "select",
+      "id": "payment_icons_source",
+      "label": "Icon source",
+      "default": "dynamic",
+      "info": "Real: the marks Shopify actually enables at checkout — Shopify's own artwork, always accurate, no maintenance. Brand: a fixed set matched to the Figma artwork, updated in code if payment methods change.",
+      "options": [
+        { "value": "dynamic", "label": "Real (enabled payment methods)" },
+        { "value": "custom", "label": "Brand icons (fixed set)" }
+      ]
+    },
 
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },

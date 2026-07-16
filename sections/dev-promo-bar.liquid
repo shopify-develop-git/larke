@@ -1,3 +1,20 @@
+{%- comment -%}
+  The bar is a section of the header GROUP, so it is rendered on every page there is. The product
+  page is the one place that does not want it: the PDP opens with its own rating right beside the
+  title, and a second "Rated Excellent 4.6/5" a few pixels above it is the same claim twice.
+
+  The guard wraps the whole section, stylesheet tag included — a hidden bar should not cost the PDP
+  a CSS request. It must NOT wrap {% schema %}, which is read statically and belongs to the file,
+  not to any one render.
+{%- endcomment -%}
+{%- liquid
+  assign hidden = false
+  if section.settings.hide_on_product and request.page_type == 'product'
+    assign hidden = true
+  endif
+-%}
+{%- unless hidden -%}
+
 {{ 'dev-promo-bar.css' | asset_url | stylesheet_tag }}
 {%- comment -%}
   No JS tag: the Brief's Interactivity section is "none" — a static, single-line trust bar.
@@ -23,7 +40,6 @@
        section's own padding. Full-bleed, padding only. Same precedent as dev-site-header.
        --font-heading is intentionally absent too: this section has no heading-level element
        (Brief, Note 2), so it must not override the site's global value. */
-    --font-body: 'Public Sans', sans-serif;
     --section-px: 64px;
 
     /* Typography — every text node here is a Body style; sizes/weights read off Figma. */
@@ -83,12 +99,15 @@
   {%- endcomment -%}
   <div class="promo-bar__inner">
     {%- comment -%}
-      Five solid gold stars, as literal Unicode glyphs (U+2605). This is what the Figma file
-      contains — there is no icon or SVG asset in this section (asset report: `rawImages: []`,
-      no vectors), so a hand-drawn SVG star here would be a fabricated asset, not the design.
+      Five solid gold stars via the shared dev-stars component — inline SVG, not the ★ (U+2605)
+      glyph. The spec's exact-fidelity requirement calls for SVG here precisely because the glyph
+      falls back to a system font and varies across platforms. Figma ships no star vector, so the
+      canonical dev-stars vector is an authorised substitution (client-confirmed).
       Decorative: "4.6/5" + "Rated Excellent" already carry the meaning to a screen reader.
     {%- endcomment -%}
-    <p class="promo-bar__stars" aria-hidden="true">★★★★★</p>
+    {%- if section.settings.show_rating_stars -%}
+      {%- render 'dev-stars', rating: 5, size: 13, gap: 1, color: section.settings.star_color -%}
+    {%- endif -%}
 
     {%- if section.settings.rating_value != blank or section.settings.rating_label != blank -%}
       {%- comment -%}
@@ -112,6 +131,8 @@
   </div>
 </div>
 
+{%- endunless -%}
+
 {% schema %}
 {
   "name": "Promo bar",
@@ -121,6 +142,7 @@
   ],
   "settings": [
     { "type": "header", "content": "Content" },
+    { "type": "checkbox", "id": "show_rating_stars", "label": "Show rating stars", "default": true },
     { "type": "text", "id": "rating_value", "label": "Rating value", "default": "4.6/5" },
     { "type": "text", "id": "rating_label", "label": "Rating label", "default": "Rated Excellent" },
 
@@ -157,6 +179,15 @@
       "unit": "px",
       "label": "Padding bottom",
       "default": 12
+    },
+
+    { "type": "header", "content": "Layout" },
+    {
+      "type": "checkbox",
+      "id": "hide_on_product",
+      "label": "Hide on product pages",
+      "info": "On by default. The product page carries its own rating beside the title, so the bar would repeat it.",
+      "default": true
     }
   ]
 }

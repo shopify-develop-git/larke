@@ -64,7 +64,15 @@
   min-width: 0;
 }
 
+/* position: relative is load-bearing, not cosmetic. The visually-hidden label below is
+   position: absolute; without a positioned ancestor its containing block is the initial one
+   (<html>), so it escapes .page-wrapper's overflow clipping and lands ~5850px down the <html>
+   box — making <html> programmatically scrollable despite its overflow: hidden. Shopify posts
+   this form to /contact#contact_form, so on success the browser jumps to that anchor, runs out
+   of scroll inside .page-wrapper, and scrolls <html> the rest of the way — leaving a few hundred
+   px of dead space under the footer that no scrollbar can undo. Containing the label kills it. */
 .site-footer__form-row {
+  position: relative;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -292,6 +300,13 @@
   height: 19px;
 }
 
+/* Dynamic (shop.enabled_payment_types) marks use Shopify's own artwork at one uniform
+   height rather than the per-brand Figma sizes above. */
+.site-footer__payment-icon--dynamic {
+  width: auto;
+  height: 20px;
+}
+
 /* --- typography --- */
 
 .site-footer__heading {
@@ -388,22 +403,20 @@
   opacity: 1;
 }
 
+/* Only positioning stays local; all visual styling comes from .dev-btn / .dev-btn--ghost. */
 .site-footer__button {
   flex: 0 0 auto;
-  margin: 0;
-  padding: var(--button-padding);
-  border: var(--border-width) solid var(--button-border-color);
-  border-radius: var(--radius-button);
-  background-color: var(--button-bg);
-  color: var(--button-color);
-  font-family: var(--font-body);
-  font-size: var(--font-button-size);
-  font-weight: var(--font-button-weight);
-  line-height: var(--font-body-lh);
-  text-align: center;
   white-space: nowrap;
-  appearance: none;
-  cursor: pointer;
+}
+
+/* Mobile: token-driven padding/size shrink, re-expressed as direct property overrides
+   because a media query cannot override the inline-<style> --button-* tokens the base
+   rule used to read (18px 24px / 18px desktop -> 12px 18px / 16px mobile). */
+@media (max-width: 768px) {
+  .site-footer__button {
+    padding: 12px 18px;
+    font-size: 16px;
+  }
 }
 
 .site-footer__form-message {
@@ -553,9 +566,14 @@
     align-self: center;
   }
 
-  .site-footer__subheading,
   .site-footer__tagline {
     max-width: none;
+  }
+
+  .site-footer__subheading {
+    max-width: 350px;
+    margin: 0 auto;
+    padding: 0 20px;
   }
 
   .site-footer__social {
@@ -620,7 +638,6 @@
 .site-footer__link:focus-visible,
 .site-footer__logo:focus-visible,
 .site-footer__social-link:focus-visible,
-.site-footer__button:focus-visible,
 .site-footer__input:focus-visible,
 .site-footer__copyright a:focus-visible {
   outline: 2px solid var(--accent);
@@ -630,7 +647,6 @@
 .site-footer__link:focus:not(:focus-visible),
 .site-footer__logo:focus:not(:focus-visible),
 .site-footer__social-link:focus:not(:focus-visible),
-.site-footer__button:focus:not(:focus-visible),
 .site-footer__input:focus:not(:focus-visible),
 .site-footer__copyright a:focus:not(:focus-visible) {
   outline: none;

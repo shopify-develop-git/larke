@@ -4,8 +4,6 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .brand-social-gallery {
-    --font-body: 'Public Sans', sans-serif;
-    --font-heading: 'Test Tiempos Headline', serif;
 
     /* No --container-max: Brief note #1 — no centred max-width frame exists in this
        node, exactly as for dev-site-header. The desktop inset comes entirely from
@@ -46,18 +44,15 @@
        designed size; capping it here keeps them at the artboard's ~236px across the stack. */
     --social-grid-w: 953px;
 
-    /* Profile badge: 48px logo mark centred in a 58px ring → 5px inset each side. */
-    --badge-ring-size: 58px;
-    --badge-logo-size: 48px;
-    --badge-logo-inset: 5px;
+    /* Profile badge: a single full 58px circle — ring and content are one image,
+       no longer split into a ring layer + inset mark. */
+    --badge-size: 58px;
   }
 </style>
 
 {%- liquid
-  assign ring_image = section.settings.profile_badge_ring
-  assign logo_image = section.settings.profile_badge_logo
-  assign ring_src = ring_image | image_url: width: 174
-  assign logo_src = logo_image | image_url: width: 144
+  assign badge_image = section.settings.profile_badge_logo
+  assign badge_src = badge_image | image_url: width: 174
 -%}
 
 <div
@@ -72,101 +67,66 @@
 >
   <div class="brand-social-gallery__inner">
     <div class="brand-social-gallery__intro">
-      {%- comment -%}
-        Profile badge — a flattened ring + logo-mark pair (Brief note #5): the Green/900
-        accent and the white wordmark are baked into the artwork, not live CSS colours.
-        Merchant images win; when unset we fall back to the vectors exported from Figma
-        (.figma-assets/brand-social-gallery/), pasted verbatim.
-      {%- endcomment -%}
-      <div class="brand-social-gallery__badge">
-        <span class="brand-social-gallery__badge-ring" aria-hidden="true">
-          {%- if ring_image != blank -%}
-            {{
-              ring_src
-              | image_tag:
-                loading: 'lazy',
-                widths: '58, 116, 174',
-                sizes: '58px',
-                alt: '',
-                class: 'brand-social-gallery__badge-img'
-            }}
-          {%- else -%}
-            <svg width="58" height="58" viewBox="0 0 58 58" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="58" height="58" fill="#EDEDED"/>
-<g id="Homepage - D">
-<rect width="1440" height="5343.3" transform="translate(-198.5 -3996.92)" fill="#FFFCF4"/>
-<g id="Frame 6564">
-<g id="Frame 6565">
-<g id="Frame 4">
-<g id="Group 6568">
-<g id="Group 6567">
-<circle id="Ellipse 3" cx="29" cy="29" r="28" stroke="url(#paint0_linear_28968_22885)" stroke-width="2"/>
-</g>
-</g>
-</g>
-</g>
-</g>
-</g>
-<defs>
-<linearGradient id="paint0_linear_28968_22885" x1="29" y1="0" x2="29" y2="58" gradientUnits="userSpaceOnUse">
-<stop stop-color="#D810A2"/>
-<stop offset="1" stop-color="#FFBE2F"/>
-</linearGradient>
-</defs>
-</svg>
-          {%- endif -%}
-        </span>
-
-        <span class="brand-social-gallery__badge-logo" aria-hidden="true">
-          {%- if logo_image != blank -%}
-            {{
-              logo_src
-              | image_tag:
-                loading: 'lazy',
-                widths: '48, 96, 144',
-                sizes: '48px',
-                alt: '',
-                class: 'brand-social-gallery__badge-img'
-            }}
-          {%- else -%}
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="48" height="48" fill="#EDEDED"/>
-<g id="Homepage - D">
-<rect width="1440" height="5343.3" transform="translate(-203.5 -4001.92)" fill="#FFFCF4"/>
-<g id="Frame 6564">
-<g id="Frame 6565">
-<g id="Frame 4">
-<g id="Group 6568">
-<g id="Group 6567">
-<g id="Group 6567_2">
-<g id="Group 6565">
-<circle id="Ellipse 2" cx="24" cy="24" r="24" fill="#4EA448"/>
-<g id="Larke">
-<path id="Vector" d="M42.7619 27.1092H43C42.4973 28.8024 41.3861 29.8475 39.4415 29.8475C37.2985 29.8475 35.4598 28.6172 35.4598 26.3948C35.4598 24.1592 37.3382 22.929 39.3093 22.929C41.439 22.929 42.6693 24.2253 42.6957 25.7069H37.5895C37.5763 25.8789 37.5763 26.0509 37.5763 26.2361C37.5763 27.9293 38.4097 29.3448 40.0633 29.3448C41.2274 29.3448 42.246 28.6569 42.7619 27.1092ZM39.2828 23.22C38.3965 23.22 37.7747 23.9475 37.616 25.4159H40.6586C40.6586 24.0931 40.2485 23.22 39.2828 23.22Z" fill="white"/>
-<path id="Vector_2" d="M34.4433 28.1409C34.9195 28.8023 35.1841 29.1595 35.5677 29.5828H33.1866C33.0014 29.0669 32.8427 28.7891 32.3797 28.1409C31.6521 27.0826 30.8848 26.5667 29.5885 26.4476C29.5752 26.6064 29.5752 26.7651 29.5752 26.9239C29.5752 27.7705 29.5885 28.4716 29.7207 29.5828H27.5116C27.6439 28.3922 27.6439 27.6779 27.6439 26.7519V21.8309C27.6439 20.9049 27.6439 20.1906 27.5116 19H29.7207C29.5752 20.1906 29.5752 20.9049 29.5752 21.8309V25.2703C29.9721 23.7755 30.9774 22.9289 32.5384 22.9289C33.5967 22.9289 34.4036 23.4051 34.4036 24.4501C34.4036 25.7994 32.803 26.2889 30.8452 26.3947C32.8823 26.6196 33.7422 27.162 34.4433 28.1409ZM31.6653 23.4448C30.607 23.4448 29.7737 24.3708 29.6017 26.2492C31.4404 26.2492 32.5913 25.6672 32.5913 24.4501C32.5913 23.8284 32.2474 23.4448 31.6653 23.4448Z" fill="white"/>
-<path id="Vector_3" d="M26.8514 23.1933C26.9836 23.8944 26.6794 24.3971 26.0576 24.3971C25.9254 24.3971 25.7798 24.3707 25.6079 24.3178C25.4095 24.2516 25.2243 24.2119 25.0523 24.2119C24.5628 24.2119 24.0469 24.5162 23.1209 25.5348V26.8841C23.1209 27.8101 23.1209 28.445 23.2664 29.5827H21.0573C21.1896 28.445 21.1896 27.8101 21.1896 26.8841V25.8919C21.1896 24.966 21.1896 24.331 21.0573 23.1933H23.2664C23.1606 23.987 23.1342 24.5426 23.1209 25.1247C23.994 24.0532 24.7613 23.1272 26.1635 23.1272C26.3884 23.1272 26.6132 23.1537 26.8514 23.1933Z" fill="white"/>
-<path id="Vector_4" d="M12.8316 28.0748C12.8316 26.4345 14.7365 26.0244 16.0065 25.7995C17.1573 25.5879 17.7394 25.3233 17.7394 24.4767C17.7394 23.6433 17.369 23.22 16.6547 23.22C15.5038 23.22 15.1863 24.0137 14.8027 24.5031C14.5778 24.7942 14.2735 24.9397 13.9693 24.9397C13.5592 24.9397 13.1888 24.6619 13.083 24.1063C13.9957 23.4978 15.3847 22.929 16.9192 22.929C18.5066 22.929 19.6575 23.4449 19.6707 25.0058V26.8314C19.6707 27.8103 19.6707 28.4452 19.8692 29.5829H17.8849C17.7923 29.067 17.7658 28.6966 17.7526 28.2336C17.3954 29.186 16.5753 29.8475 15.1334 29.8475C14.0354 29.8475 12.8316 29.3712 12.8316 28.0748ZM14.9482 27.7573C14.9482 28.7495 15.4112 29.1993 16.0858 29.1993C17.1044 29.1993 17.7394 28.2468 17.7394 27.0033V25.3762C17.488 25.6937 17.025 25.8128 16.4033 25.998C15.4244 26.289 14.9482 26.8578 14.9482 27.7573Z" fill="white"/>
-<path id="Vector_5" d="M5.02646 19H7.53987C7.43404 20.0054 7.39436 20.6006 7.39436 21.8309V29.305H8.33358C9.70934 29.305 10.503 29.2124 12.2624 28.551L11.773 29.5828H5C5.11906 28.5774 5.17197 27.9821 5.17197 26.7519V21.8309C5.17197 20.6006 5.13228 20.0054 5.02646 19Z" fill="white"/>
-</g>
-</g>
-</g>
-</g>
-</g>
-</g>
-</g>
-</g>
-</g>
-</svg>
-          {%- endif -%}
-        </span>
-      </div>
-
+      {%- comment -%} Figma order in the text column: heading → badge → handle. {%- endcomment -%}
       {%- if section.settings.heading != blank -%}
         <h2 class="brand-social-gallery__heading">{{ section.settings.heading }}</h2>
       {%- endif -%}
 
+      {%- comment -%}
+        Profile badge — Instagram-style: a green "Larke" disc inside a 2px gradient
+        ring (magenta #D810A2 top → gold #FFBE2F bottom, with a small cream gap),
+        sitting BETWEEN the heading and the handle. Merchant image wins; when unset
+        we fall back to the vector exported from Figma
+        (.figma-assets/brand-social-gallery/ — ring + disc + wordmark), which bakes
+        the ring, green disc and white wordmark into one 58×58 SVG.
+      {%- endcomment -%}
+      <div class="brand-social-gallery__badge" aria-hidden="true">
+        {%- if badge_image != blank -%}
+          {{
+            badge_src
+            | image_tag:
+              loading: 'lazy',
+              widths: '58, 116, 174',
+              sizes: '58px',
+              alt: '',
+              class: 'brand-social-gallery__badge-img'
+          }}
+        {%- else -%}
+          <svg class="brand-social-gallery__badge-img" width="58" height="58" viewBox="0 0 58 58" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+            <circle cx="29" cy="29" r="28" stroke="url(#bsg-badge-ring)" stroke-width="2"/>
+            <g transform="translate(5 5)">
+              <circle cx="24" cy="24" r="24" fill="#4EA448"/>
+              <g fill="white">
+                <path d="M42.7619 27.1092H43C42.4973 28.8024 41.3861 29.8475 39.4415 29.8475C37.2985 29.8475 35.4598 28.6172 35.4598 26.3948C35.4598 24.1592 37.3382 22.929 39.3093 22.929C41.439 22.929 42.6693 24.2253 42.6957 25.7069H37.5895C37.5763 25.8789 37.5763 26.0509 37.5763 26.2361C37.5763 27.9293 38.4097 29.3448 40.0633 29.3448C41.2274 29.3448 42.246 28.6569 42.7619 27.1092ZM39.2828 23.22C38.3965 23.22 37.7747 23.9475 37.616 25.4159H40.6586C40.6586 24.0931 40.2485 23.22 39.2828 23.22Z"/>
+                <path d="M34.4433 28.1409C34.9195 28.8023 35.1841 29.1595 35.5677 29.5828H33.1866C33.0014 29.0669 32.8427 28.7891 32.3797 28.1409C31.6521 27.0826 30.8848 26.5667 29.5885 26.4476C29.5752 26.6064 29.5752 26.7651 29.5752 26.9239C29.5752 27.7705 29.5885 28.4716 29.7207 29.5828H27.5116C27.6439 28.3922 27.6439 27.6779 27.6439 26.7519V21.8309C27.6439 20.9049 27.6439 20.1906 27.5116 19H29.7207C29.5752 20.1906 29.5752 20.9049 29.5752 21.8309V25.2703C29.9721 23.7755 30.9774 22.9289 32.5384 22.9289C33.5967 22.9289 34.4036 23.4051 34.4036 24.4501C34.4036 25.7994 32.803 26.2889 30.8452 26.3947C32.8823 26.6196 33.7422 27.162 34.4433 28.1409ZM31.6653 23.4448C30.607 23.4448 29.7737 24.3708 29.6017 26.2492C31.4404 26.2492 32.5913 25.6672 32.5913 24.4501C32.5913 23.8284 32.2474 23.4448 31.6653 23.4448Z"/>
+                <path d="M26.8514 23.1933C26.9836 23.8944 26.6794 24.3971 26.0576 24.3971C25.9254 24.3971 25.7798 24.3707 25.6079 24.3178C25.4095 24.2516 25.2243 24.2119 25.0523 24.2119C24.5628 24.2119 24.0469 24.5162 23.1209 25.5348V26.8841C23.1209 27.8101 23.1209 28.445 23.2664 29.5827H21.0573C21.1896 28.445 21.1896 27.8101 21.1896 26.8841V25.8919C21.1896 24.966 21.1896 24.331 21.0573 23.1933H23.2664C23.1606 23.987 23.1342 24.5426 23.1209 25.1247C23.994 24.0532 24.7613 23.1272 26.1635 23.1272C26.3884 23.1272 26.6132 23.1537 26.8514 23.1933Z"/>
+                <path d="M12.8316 28.0748C12.8316 26.4345 14.7365 26.0244 16.0065 25.7995C17.1573 25.5879 17.7394 25.3233 17.7394 24.4767C17.7394 23.6433 17.369 23.22 16.6547 23.22C15.5038 23.22 15.1863 24.0137 14.8027 24.5031C14.5778 24.7942 14.2735 24.9397 13.9693 24.9397C13.5592 24.9397 13.1888 24.6619 13.083 24.1063C13.9957 23.4978 15.3847 22.929 16.9192 22.929C18.5066 22.929 19.6575 23.4449 19.6707 25.0058V26.8314C19.6707 27.8103 19.6707 28.4452 19.8692 29.5829H17.8849C17.7923 29.067 17.7658 28.6966 17.7526 28.2336C17.3954 29.186 16.5753 29.8475 15.1334 29.8475C14.0354 29.8475 12.8316 29.3712 12.8316 28.0748ZM14.9482 27.7573C14.9482 28.7495 15.4112 29.1993 16.0858 29.1993C17.1044 29.1993 17.7394 28.2468 17.7394 27.0033V25.3762C17.488 25.6937 17.025 25.8128 16.4033 25.998C15.4244 26.289 14.9482 26.8578 14.9482 27.7573Z"/>
+                <path d="M5.02646 19H7.53987C7.43404 20.0054 7.39436 20.6006 7.39436 21.8309V29.305H8.33358C9.70934 29.305 10.503 29.2124 12.2624 28.551L11.773 29.5828H5C5.11906 28.5774 5.17197 27.9821 5.17197 26.7519V21.8309C5.17197 20.6006 5.13228 20.0054 5.02646 19Z"/>
+              </g>
+            </g>
+            <defs>
+              <linearGradient id="bsg-badge-ring" x1="29" y1="0" x2="29" y2="58" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#D810A2"/>
+                <stop offset="1" stop-color="#FFBE2F"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        {%- endif -%}
+      </div>
+
       {%- if section.settings.social_handle != blank -%}
-        <p class="brand-social-gallery__handle">{{ section.settings.social_handle | escape }}</p>
+        <p class="brand-social-gallery__handle">
+          {%- if section.settings.social_handle_link != blank -%}
+            <a
+              class="brand-social-gallery__handle-link"
+              href="{{ section.settings.social_handle_link }}"
+              target="_blank"
+              rel="noopener"
+            >{{ section.settings.social_handle | escape }}</a>
+          {%- else -%}
+            {{ section.settings.social_handle | escape }}
+          {%- endif -%}
+        </p>
       {%- endif -%}
     </div>
 
@@ -205,16 +165,16 @@
     { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Larke, lived in." },
     { "type": "text", "id": "social_handle", "label": "Social handle", "default": "@wearelarke.com" },
     {
-      "type": "image_picker",
-      "id": "profile_badge_ring",
-      "label": "Profile badge ring",
-      "info": "58×58 gradient ring. Falls back to the Figma vector when empty."
+      "type": "url",
+      "id": "social_handle_link",
+      "label": "Social handle link",
+      "info": "Wraps the handle in a link (opens in a new tab) when set."
     },
     {
       "type": "image_picker",
       "id": "profile_badge_logo",
-      "label": "Profile badge logo mark",
-      "info": "48×48 logo mark, centred in the ring. Falls back to the Figma vector when empty."
+      "label": "Profile badge",
+      "info": "58×58 circle — the whole badge is one image. Falls back to the Figma vector when empty."
     },
 
     { "type": "header", "content": "Colors" },

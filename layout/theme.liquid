@@ -39,6 +39,16 @@
 
     {%- comment -%} Brand fonts from Figma — every dev-* section depends on these. {%- endcomment -%}
     {%- render 'dev-brand-fonts' -%}
+
+    {%- comment -%} Shared button component — one source of truth for every dev-* CTA. {%- endcomment -%}
+    {{ 'dev-button.css' | asset_url | stylesheet_tag }}
+
+    {%- comment -%} Shared star-rating component — one canonical vector star for every rating. {%- endcomment -%}
+    {{ 'dev-stars.css' | asset_url | stylesheet_tag }}
+
+    {%- comment -%} Global scroll-reveal — subtle fade + rise as content enters the viewport. {%- endcomment -%}
+    {{ 'dev-reveal.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'dev-reveal.js' | asset_url }}" defer></script>
   </head>
 
   <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">

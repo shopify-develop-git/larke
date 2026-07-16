@@ -57,34 +57,44 @@
   z-index: 0;
 }
 
+/* DEFAULT: the photo simply fills its box. Any image behaves predictably here, which is what a
+   merchant dropping in their own picture expects. */
 .hero__bg {
   position: absolute;
   display: block;
-  /* The photo is deliberately larger than its box and offset — these are Figma's own fill
-     transforms (see the derivation in dev-hero.liquid). object-fit guards the aspect. */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 
   /* Horizon's base.css resets `img, picture, video, canvas, svg { max-width: 100% }`. That cap
-     silently clamps any fill wider than its box: the mobile crop asks for 113.45% and got 100%,
-     and the -6.73% left offset then dragged the too-narrow photo off the right edge, exposing
-     --bg in a 32.9px strip. The desktop crop is exactly 100% wide, which is why it never showed
-     there. Both offsets below are >100% by design, so the cap has to go. */
+     silently clamps any fill wider than its box: the stretched mobile crop asks for 113.45% and got
+     100%, and the -6.73% left offset then dragged the too-narrow photo off the right edge, exposing
+     --bg in a 32.9px strip. The stretch offsets below are >100% by design, so the cap has to go. */
   max-width: none;
-}
-
-.hero__bg--desktop {
-  width: var(--bg-w-d);
-  height: var(--bg-h-d);
-  top: var(--bg-top-d);
-  left: var(--bg-left-d);
 }
 
 .hero__bg--mobile {
   display: none;
-  width: var(--bg-w-m);
-  height: var(--bg-h-m);
+}
+
+/* OPT-IN: Figma's own fill transforms (derivation in dev-hero.liquid). The photo is blown up to
+   ~393% of the frame's height and dragged up out of it, so one source file yields the desktop slice
+   and, at the mobile sizes below, a different slice for the phone. It reproduces the artboard
+   exactly and it only works for the photo it was measured against — hence a toggle, not a default. */
+.hero--stretch-bg .hero__bg--desktop {
+  top: var(--bg-top-d);
+  left: var(--bg-left-d);
+  width: var(--bg-w-d);
+  height: var(--bg-h-d);
+}
+
+.hero--stretch-bg .hero__bg--mobile {
   top: var(--bg-top-m);
   left: var(--bg-left-m);
+  width: var(--bg-w-m);
+  height: var(--bg-h-m);
 }
 
 .hero__overlay {
@@ -169,19 +179,38 @@
 
 /* --- decorative squiggle --- */
 
-.hero__squiggle {
+/* The stroke rides on the <em>, so it follows whatever the merchant italicises. It used to be a
+   free-standing <svg> at left: 195.48px — the spot where the word "trees" lands in the default copy.
+   Italicise any other word and the old one stayed put, underlining nothing. See dev-hero.liquid.
+
+   Gated on the modifier so `show_underline_accent` still turns it off. */
+.hero--underline .hero__subtext em,
+.hero--underline .hero__subtext i {
+  position: relative;
+}
+
+.hero--underline .hero__subtext em::after,
+.hero--underline .hero__subtext i::after {
+  content: '';
   position: absolute;
-  left: var(--squiggle-x);
-  bottom: var(--squiggle-y);
+  left: 0;
+  right: 0;
+  top: 100%;
+  margin-top: var(--underline-gap);
+  height: var(--underline-h);
 
-  /* Rendered aspect (50.07 / 5.89 = 8.5) MUST equal the viewBox aspect (51 / 6 = 8.5).
-     Do not size this to Figma's 49x3 anchor box, and do not add preserveAspectRatio="none"
-     — see the long note in dev-hero.liquid. QA fails >2% aspect deviation. */
-  width: var(--squiggle-w);
-  height: var(--squiggle-h);
+  /* A MASK, not an image. The ink is --accent, so the stroke tracks the merchant's accent setting
+     and this file still hardcodes no colour. The asset is the Figma vector verbatim, filled opaque
+     black purely so the mask has an alpha channel to read. */
+  background-color: var(--accent);
+  -webkit-mask-image: var(--underline);
+  mask-image: var(--underline);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 
-  color: var(--accent); /* the path is fill="currentColor" */
-  filter: var(--squiggle-shadow); /* text-shadow does not reach SVG */
+  filter: var(--squiggle-shadow); /* text-shadow does not reach a masked box */
   pointer-events: none;
 }
 
@@ -193,28 +222,12 @@
   align-items: center;
 }
 
+/* Styling comes from the shared component (.dev-btn--filled, assets/dev-button.css).
+   Only hero-specific token overrides live here: the CTA text is a fixed dark (#333333)
+   over the photo, not the section --color (which is the white heading colour). */
 .hero__button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: var(--cta-py) var(--cta-px);
-  border-radius: var(--radius-cta);
-  background-color: var(--accent);
-  color: var(--cta-text);
-
-  font-family: var(--font-body);
-  font-size: var(--cta-size);
-  font-weight: var(--cta-weight);
-  line-height: var(--cta-lh);
-  text-align: center;
-  text-decoration: none;
-
-  transition: filter 0.2s ease;
-}
-
-.hero__button:hover {
-  filter: brightness(0.95);
+  --dev-btn-color: var(--cta-text);
+  --dev-btn-focus: var(--color);
 }
 
 /* =============================================
@@ -270,15 +283,12 @@
     font-weight: var(--em-weight-m); /* Bold Italic on mobile — Brief, Note 3 */
   }
 
-  .hero__squiggle {
-    left: var(--squiggle-x-m);
-    bottom: var(--squiggle-y-m);
-  }
-
-  /* Touch target: the CTA is already 61px tall (25.2 line + 36 padding); this is a floor,
-     not a resize. */
-  .hero__button {
-    min-height: 44px;
+  /* Override the PROPERTY, not the token: the tokens live in the section's inline <style> block,
+     which a media query in this file cannot outrank. */
+  .hero--underline .hero__subtext em::after,
+  .hero--underline .hero__subtext i::after {
+    margin-top: var(--underline-gap-m);
+    height: var(--underline-h-m);
   }
 }
 
@@ -297,14 +307,7 @@
    ACCESSIBILITY
    ============================================= */
 
-.hero__button:focus-visible {
-  outline: 2px solid var(--color);
-  outline-offset: 2px;
-}
-
-.hero__button:focus:not(:focus-visible) {
-  outline: none;
-}
+/* Focus, hover and reduced-motion for the CTA are handled by the shared component. */
 
 /* =============================================
    REDUCED MOTION

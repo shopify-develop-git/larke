@@ -117,6 +117,17 @@
       },
       {
         "type": "header",
+        "content": "Brand fonts"
+      },
+      {
+        "type": "checkbox",
+        "id": "use_test_fonts",
+        "label": "Use brand fonts (test cut)",
+        "default": true,
+        "info": "On: Public Sans + Tiempos Headline as designed. Tiempos here is a preview/trial cut — before going live, turn this off and pick a licensed Body and Heading font above. Off: uses the Body and Heading fonts selected above (Shopify-hosted, licensed)."
+      },
+      {
+        "type": "header",
         "content": "t:content.text_presets"
       },
       {

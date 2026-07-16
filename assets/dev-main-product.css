@@ -217,6 +217,19 @@
   display: flex;
   align-items: center;
   gap: var(--variant-gap);
+  /* The rating is a link to #reviews; keep the stars/label looking exactly as before —
+     only the label carries its own underline (via __rating-link). */
+  color: inherit;
+  text-decoration: none;
+}
+
+.dev-main-product__rating:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
+
+.dev-main-product__rating:focus:not(:focus-visible) {
+  outline: none;
 }
 
 /* A 4.9 is four stars and nine tenths, so the fill is clipped to --rating-pct rather than rounded
@@ -260,24 +273,29 @@
   line-height: var(--font-heading-lh);
 }
 
-.dev-main-product__sub {
-  display: flex;
-  flex-direction: column;
-}
-
-.dev-main-product__tagline,
-.dev-main-product__subtitle {
-  margin: 0;
+/* The product description, in place of the old tagline/subtitle. It is rich text from Shopify,
+   so reset the default block margins and stack the paragraphs/lists on the group gap. */
+.dev-main-product__description {
   font-size: var(--font-sub-size);
+  font-weight: var(--w-medium);
   line-height: var(--font-body-lh);
 }
 
-.dev-main-product__tagline {
-  font-weight: var(--w-bold);
+.dev-main-product__description > * {
+  margin: 0;
 }
 
-.dev-main-product__subtitle {
-  font-weight: var(--w-medium);
+.dev-main-product__description > * + * {
+  margin-top: var(--group-gap);
+}
+
+.dev-main-product__description ul,
+.dev-main-product__description ol {
+  padding-left: 1.25em;
+}
+
+.dev-main-product__description li + li {
+  margin-top: var(--variant-gap);
 }
 
 /* ---- Options ------------------------------------------------------------ */
@@ -300,16 +318,24 @@
 
 /* A <legend> will not lay out as a flex/grid child in every engine, so the row inside it does the
    work and the legend itself just carries the semantics. */
+/* margin-bottom, NOT the fieldset's `gap`. A rendered <legend> is not a flex item — the browser
+   lifts it out of the fieldset's formatting context and paints it over the top border — so the
+   gap: var(--group-gap) on .dev-main-product__group never reached it, and the chips sat flush
+   against the label instead of the artboard's 16px below it. */
 .dev-main-product__legend {
   display: block;
   width: 100%;
+  margin-bottom: var(--group-gap);
   padding: 0;
 }
 
+/* The artboard's label row is 26 tall around a 22 line of text. The 4px is under the row, where the
+   "Size Guide" underline sits — drop it and the chips creep up under the link. */
 .dev-main-product__legend-row {
   display: flex;
   align-items: flex-start;
   gap: var(--variant-gap);
+  padding-bottom: 4px;
 }
 
 .dev-main-product__legend-text {
@@ -346,9 +372,18 @@
   white-space: nowrap;
 }
 
+/* A two-column GRID, not wrapping flex — because that is what the artboard is: chips are always two
+   to a row, and an option with an odd number of values leaves the last cell empty rather than
+   stretching the last chip across the row.
+
+   Flex could not do both. With flex-wrap, the browser wraps BEFORE it shrinks: at the tablet's
+   380px column two 226px chips no longer fit, so instead of squeezing to 186 each they each went to
+   their own line and sat there at 226 with a dead 154px gutter beside them. Letting them grow
+   instead made the lone odd chip stretch to the full 460 on desktop. The grid has neither problem —
+   the cell width is the answer at every viewport, and no chip needs a basis at all. */
 .dev-main-product__chips {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--variant-gap);
 }
 
@@ -366,12 +401,12 @@
   border: 0;
 }
 
+/* The chip fills its grid cell — no basis, no growing, no shrinking. It is still a flex container
+   itself, but only to centre its own label. */
 .dev-main-product__chip {
   display: flex;
-  flex: 1 1 var(--chip-w, 226px);
   align-items: center;
   justify-content: center;
-  max-width: 100%;
   padding: var(--variant-pad);
   border: var(--variant-border-w) solid var(--accent);
   border-radius: var(--variant-radius);
@@ -404,31 +439,34 @@
 
 /* ---- Add to cart -------------------------------------------------------- */
 
+/* Full-width filled CTA from the shared component (.dev-btn--filled.dev-btn--full).
+   Only the composite bits stay here: the fixed 60px height, the label · divider · price
+   row (display:flex + 24px gap), the 20px type and the 16/24 padding. bg/colour/radius,
+   the unified hover, focus, [disabled] (opacity .5) and [aria-busy] (cursor:progress)
+   states are all provided by .dev-btn. */
 .dev-main-product__cta {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--cta-gap);
-  width: 100%;
   height: var(--cta-h);
   margin: 0;
   padding: var(--cta-pad);
-  border: 0;
-  border-radius: var(--cta-radius);
-  background-color: var(--accent);
-  color: var(--color);
-  font-family: var(--font-body);
-  font-size: var(--font-cta-size);
-  font-weight: var(--w-bold);
-  line-height: var(--font-body-lh);
-  cursor: pointer;
-  box-sizing: border-box;
-  appearance: none;
+  --dev-btn-gap: var(--cta-gap);
+  --dev-btn-fs: var(--font-cta-size);
+  --dev-btn-focus: var(--color);
 }
 
-.dev-main-product__cta[disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
+/* Only rendered when there is something to say — `hidden` on the element, no empty gap otherwise.
+   Not on the artboard because the artboard has no failing state; a rejected add still needs to
+   say why, or it looks identical to a successful one. */
+.dev-main-product__cta-error {
+  margin: var(--variant-gap) 0 0;
+  color: #b3261e;
+  font-size: var(--font-label-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+}
+
+.dev-main-product__cta-error[hidden] {
+  display: none;
 }
 
 .dev-main-product__cta-divider {
@@ -437,19 +475,29 @@
   background-color: var(--color);
 }
 
-.dev-main-product__cta:focus-visible,
 .dev-main-product__arrow:focus-visible,
 .dev-main-product__thumb:focus-visible {
   outline: 2px solid var(--color);
   outline-offset: 2px;
 }
 
-/* ---- Tablet (769–1200) — no Figma reference: don't overflow, don't crush the buy column. */
+/* ---- Tablet (769–1200) ---------------------------------------------------
+   There is no Figma artboard between 768 and 1440, so this range is a judgement, not a trace. The
+   rule it follows: keep the two columns, but stop the desktop's fixed numbers from eating the
+   viewport. At 1024 the artboard's 64px gutters plus a 96px column gap spend 224px — a fifth of the
+   screen — on nothing, which is what squeezed the image down to 390px wide beside a buy column that
+   still insisted on 380. */
 
 @media (max-width: 1200px) {
+  /* The PROPERTY, not the --section-px token. The token is declared in the section's own <style>
+     block, which the browser sees AFTER this file — an equally specific rule here would lose. */
+  .dev-main-product {
+    padding: 0 32px;
+  }
+
   .dev-main-product__inner {
-    --col-gap: 40px;
-    --buy-w: 380px;
+    --col-gap: 32px;
+    --buy-w: 400px;
   }
 
   .dev-main-product__stage {
@@ -461,6 +509,43 @@
   .dev-main-product__slides {
     height: auto;
     aspect-ratio: 668 / 640;
+  }
+}
+
+/* ---- Small tablet (769–1024) ---------------------------------------------
+   The thumbnail rail costs the image 86px of width it can no longer spare, so it goes under the
+   image and becomes a strip — the same move the mobile artboard makes, one breakpoint early. The
+   image gets the whole column back, and the sticky gallery is finally tall enough that scrolling
+   past it does not leave half the screen empty. */
+
+@media (max-width: 1024px) {
+  /* The buy column gives ground too. Held at 400 it took more than half of what was left at 800px
+     and starved the image down to 304 wide — the product, on a product page, smaller than the form
+     next to it. At 360 the two columns are roughly even all the way down to 769. */
+  .dev-main-product__inner {
+    --buy-w: 360px;
+  }
+
+  .dev-main-product__gallery {
+    flex-direction: column;
+    gap: var(--thumb-gap);
+  }
+
+  .dev-main-product__stage {
+    order: 1;
+    width: 100%;
+  }
+
+  .dev-main-product__thumbs {
+    order: 2;
+    flex-direction: row;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .dev-main-product__thumbs::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -479,7 +564,11 @@
     gap: 0;
   }
 
+  /* position: static undoes the desktop's sticky. Stacked into one column, a sticky gallery has
+     nothing to sit BESIDE — it just pins the image to the top of the screen and lets the whole buy
+     column scroll out from under it. Sticky only means anything while there are two columns. */
   .dev-main-product__gallery {
+    position: static;
     flex-direction: column;
     width: 100%;
     padding-top: 0;
@@ -529,9 +618,12 @@
     padding: 7px;
   }
 
+  /* Centre the buy CONTAINER on mobile (not its content): align-self stops it stretching to the
+     full column width, so the box sits centred; the copy inside keeps its own alignment. */
   .dev-main-product__buy {
     position: static;
     width: auto;
+    align-self: center;
     padding: 8px var(--section-px-mobile) 0;
   }
 
@@ -539,24 +631,23 @@
     font-size: var(--font-title-size-mobile);
   }
 
-  .dev-main-product__tagline,
-  .dev-main-product__subtitle {
+  .dev-main-product__description {
     font-size: var(--font-sub-size-mobile);
   }
 
-  .dev-main-product__chip {
-    flex-basis: calc(50% - var(--variant-gap));
-  }
 }
 
 /* ---- Still undecided ----------------------------------------------------
    45174:5990 — a cream card with an outlined circular icon and a two-line link. */
 
+/* Figma strokes INSIDE the box, CSS adds the border outside it — so the artboard's 16px inset costs
+   15px of padding plus the 1px rule, or every bordered box comes out 2px fat. The card is 88 on the
+   artboard and was 92; the round icon inside it is 56 and was 58. Same mistake, twice, nested. */
 .dev-main-product__compare {
   display: flex;
   align-items: flex-start;
   gap: var(--group-gap);
-  padding: var(--group-gap);
+  padding: calc(var(--group-gap) - 1px);
   border: 1px solid var(--border-color);
   border-radius: 16px;
   background-color: var(--card-bg);
@@ -569,7 +660,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  padding: var(--group-gap);
+  padding: calc(var(--group-gap) - 1px);
   border: 1px solid var(--border-color);
   border-radius: var(--arrow-radius);
   background-color: var(--surface);
@@ -615,21 +706,35 @@
 
 /* ---- Accordions --------------------------------------------------------- */
 
+/* The gap IS the artboard's bottom spacing. Each row draws its own divider as a top border, so the
+   space between one row's last line of copy and the next divider is the space BETWEEN the rows —
+   not padding inside them. Which is also why the last row has no trailing gap on the artboard, and
+   gets none here. Stacked flush (what this was), an open row's copy ran straight into the next
+   divider with nothing under it. */
+/* The 24px lead-in is the artboard's, not a guess: frame 6571 runs 833..1382 and its first row does
+   not start until y=24. So the first divider sits 24px below the column's own 32px gap, not on it. */
 .dev-main-product__accordions {
   display: flex;
   flex-direction: column;
+  gap: var(--acc-gap);
+  padding-top: var(--acc-gap);
 }
 
 .dev-main-product__acc {
-  padding-top: var(--pt);
+  padding-top: var(--acc-gap);
   border-top: 1px solid var(--border-color);
 }
 
+/* padding: 0 is load-bearing. Horizon's base.css carries a BARE `summary { padding: var(--padding-sm) }`
+   and it loads on every page, so it lands on these rows and nothing in this file was refusing it:
+   11.2px top and bottom, on every row, pushing the heading 43px off the divider where the artboard
+   wants 24. A dev-prefixed class does not protect against an element selector. */
 .dev-main-product__acc-summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--group-gap);
+  padding: 0;
   cursor: pointer;
   list-style: none;
 }
@@ -660,13 +765,20 @@
   display: block;
   width: var(--icon-size);
   height: var(--icon-size);
-  transition: transform var(--transition) ease;
+  transition: transform var(--acc-dur) var(--acc-ease);
 }
 
 /* Figma swaps chevron-down for chevron-up. One glyph, rotated — a second SVG would be the same
    path drawn twice and one more thing to keep in step. */
 .dev-main-product__acc[open] .dev-main-product__acc-chevron {
   transform: rotate(180deg);
+}
+
+/* A closing row keeps [open] until its height animation lands (the content has to stay in the DOM
+   to be animated out of), so the chevron has to be told to turn back NOW rather than at the end.
+   Same specificity as the [open] rule above — it wins on source order, so it must stay below it. */
+.dev-main-product__acc[data-acc-state='closing'] .dev-main-product__acc-chevron {
+  transform: none;
 }
 
 .dev-main-product__acc-body {
@@ -707,18 +819,45 @@
   background-color: currentcolor;
 }
 
+/* The copy fades up out of nothing as the row opens — opacity ONLY. It used to slide as well, and
+   with the row itself already growing underneath it that was two movements fighting over the same
+   text. The row grows; the words appear. Nothing else moves.
+   Closing has no rule at all: the shrinking row clips the copy away from the bottom, which is
+   already the right gesture. Fading it out on top of that only made it flicker. */
+.dev-main-product__acc[data-acc-state='opening'] > :not(summary) {
+  animation: dev-main-product-acc-in calc(var(--acc-dur) * 0.75) var(--acc-ease) both;
+}
+
+@keyframes dev-main-product-acc-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .dev-main-product__acc-chevron {
     transition: none;
+  }
+
+  /* The JS drops the height animation to 0ms on its own; this kills the content's fade to match. */
+  .dev-main-product__acc[data-acc-state] > :not(summary) {
+    animation: none;
   }
 }
 
 /* ---- Price comparison (45068:2385) -------------------------------------- */
 
+/* The artboard puts a "Section padding - M" spacer — 48px — above this card, inside its frame and
+   outside the card's own fill. So the card clears the accordions by 32 + 48, not by 32. */
 .dev-main-product__pc {
   display: flex;
   flex-direction: column;
   gap: var(--gallery-gap);
+  margin-top: var(--pc-lead);
   padding: var(--gallery-gap);
   border-radius: 16px;
   background-color: var(--card-bg);
@@ -741,14 +880,36 @@
 
 /* The hand-drawn swoosh under "remarkable". Absolute so it cannot push the line apart, and
    aria-hidden because it says nothing a screen reader needs. */
-.dev-main-product__pc-underline {
+/* The stroke rides on the <em>, so it follows whatever the merchant italicises. It used to be an
+   <img> at top: 33px / left: 76px — the coordinates of "emarkable." in the default copy — while the
+   setting cheerfully told the merchant that "that split is yours to move". Moving it left the
+   underline behind. */
+.dev-main-product__pc-title em,
+.dev-main-product__pc-title i {
+  position: relative;
+}
+
+.dev-main-product__pc-title em::after,
+.dev-main-product__pc-title i::after {
+  content: '';
   position: absolute;
-  top: 33px;
-  left: 76px;
-  display: block;
-  width: 147px;
-  height: auto;
-  max-width: none;
+  left: 0;
+  right: 0;
+  top: 100%;
+  margin-top: var(--underline-gap);
+  height: var(--underline-h);
+
+  /* A MASK, not an image: the ink is --accent, so the stroke tracks the merchant's accent setting
+     and no colour is hardcoded here. The asset is the Figma vector verbatim. */
+  background-color: var(--accent);
+  -webkit-mask-image: var(--underline);
+  mask-image: var(--underline);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  pointer-events: none;
 }
 
 .dev-main-product__pc-sub {
@@ -774,8 +935,10 @@
 }
 
 /* Figma rules off between the rows, not above the first one. */
+/* Same inside-stroke arithmetic: the artboard's divided row is 72 tall — 24 above the icon, rule
+   included. The rule is 1px of that 24, not 1px on top of it. */
 .dev-main-product__pc-row + .dev-main-product__pc-row {
-  padding-top: var(--gallery-gap);
+  padding-top: calc(var(--gallery-gap) - 1px);
   border-top: 1px solid var(--border-color);
 }
 
@@ -813,7 +976,8 @@
   align-self: flex-start;
   align-items: center;
   gap: var(--variant-gap);
-  padding-bottom: 4px;
+  /* 28 on the artboard: a 24px icon over a 4px gap that already contains the rule. */
+  padding-bottom: 3px;
   border-bottom: 1px solid var(--border-color);
   color: var(--color);
   font-size: var(--font-label-size);
@@ -848,27 +1012,15 @@
   margin-top: var(--group-gap);
 }
 
+/* Outlined pill from the shared component (.dev-btn--outline). Only the layout
+   placement and the inside-stroke-corrected padding stay here. */
 .dev-main-product__acc-button {
-  display: inline-flex;
   align-self: flex-start;
-  align-items: center;
-  justify-content: center;
   margin-top: var(--group-gap);
   /* Inside-stroke correction — 1 + 17 = 18, 1 + 23 = 24. */
-  padding: 17px 23px;
-  border: 1px solid var(--color);
-  border-radius: var(--cta-radius);
-  background: none;
-  color: var(--color);
-  font-size: var(--font-sub-size);
-  font-weight: var(--w-bold);
-  line-height: var(--font-body-lh);
-  text-decoration: none;
-}
-
-.dev-main-product__acc-button:focus-visible {
-  outline: 2px solid var(--color);
-  outline-offset: 2px;
+  --dev-btn-py: 17px;
+  --dev-btn-px: 23px;
+  --dev-btn-focus: var(--color);
 }
 
 .dev-main-product__certs {
@@ -931,13 +1083,17 @@
   inset: 0;
   background-color: rgb(51 51 51 / 40%);
   opacity: 0;
-  transition: opacity var(--transition) ease;
+  transition: opacity var(--guide-out) var(--ease-in);
 }
 
 .dev-main-product__guide[data-open='true'] .dev-main-product__guide-backdrop {
   opacity: 1;
+  transition: opacity var(--guide-in) var(--ease-out);
 }
 
+/* The closed state carries the LEAVING transition and the open state the ARRIVING one, so the two
+   directions can differ. `ease` on a 568px slide reads as a panel being dragged; the decelerating
+   curve below lets it arrive under its own weight and settle, which is the whole illusion. */
 .dev-main-product__guide-panel {
   position: absolute;
   top: 16px;
@@ -951,11 +1107,48 @@
   background-color: var(--bg);
   overflow: hidden;
   transform: translateX(calc(100% + 16px));
-  transition: transform var(--transition) ease;
+  opacity: 0;
+  will-change: transform;
+  transition:
+    transform var(--guide-out) var(--ease-in),
+    opacity calc(var(--guide-out) / 2) linear var(--guide-out);
+}
+
+/* The panel is the focus target on open (see the section's tabindex="-1"). It is a container, not a
+   control — the ring belongs on what the user tabs to next, not on the box that just slid in. */
+.dev-main-product__guide-panel:focus {
+  outline: none;
 }
 
 .dev-main-product__guide[data-open='true'] .dev-main-product__guide-panel {
   transform: translateX(0);
+  opacity: 1;
+  transition:
+    transform var(--guide-in) var(--ease-out),
+    opacity calc(var(--guide-in) / 3) linear;
+}
+
+/* The contents ride in a beat behind the panel — the drawer arrives, then its contents catch up.
+   Without it a fully-formed panel slides in as one flat slab. */
+.dev-main-product__guide[data-open='true'] .dev-main-product__guide-head,
+.dev-main-product__guide[data-open='true'] .dev-main-product__guide-body {
+  animation: dev-main-product-guide-content var(--guide-in) var(--ease-out) both;
+}
+
+.dev-main-product__guide[data-open='true'] .dev-main-product__guide-body {
+  animation-delay: 60ms;
+}
+
+@keyframes dev-main-product-guide-content {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .dev-main-product__guide-head {
@@ -1086,11 +1279,6 @@
   text-align: center;
 }
 
-.dev-main-product__guide-foot strong {
-  text-decoration: underline;
-  text-underline-position: from-font;
-}
-
 /* ---- Seasons guide ------------------------------------------------------- */
 
 .dev-main-product__tog-heading {
@@ -1124,6 +1312,9 @@
 
 .dev-main-product__tog-label {
   display: block;
+  /* "Best for:" is a <p>, so without this it keeps the UA margin-block:1em (20px here) and breaks
+     the card's uniform 8px flex gap. Its <span> uses (Temperature/feel) are unaffected either way. */
+  margin: 0;
   font-family: var(--font-heading);
   font-size: var(--font-pc-label-size);
   font-weight: var(--font-heading-weight);
@@ -1167,11 +1358,17 @@
 }
 
 @media (max-width: 768px) {
+  /* A bottom sheet that hugs its content. top:32px + bottom:0 forced the panel to a fixed
+     100dvh-32px, so the short Size Guide filled the screen. top:auto + height:auto lets it size to
+     content and sit pinned to the bottom; the max-height keeps the 32px top inset and lets the tall
+     Seasons Guide fill to the same height and scroll its body, exactly as before. */
   .dev-main-product__guide-panel {
-    top: 32px;
+    top: auto;
     right: 0;
     bottom: 0;
     width: 100%;
+    height: auto;
+    max-height: calc(100dvh - 32px);
     max-width: none;
     border-radius: var(--image-radius) var(--image-radius) 0 0;
     transform: translateY(100%);
@@ -1179,5 +1376,65 @@
 
   .dev-main-product__guide[data-open='true'] .dev-main-product__guide-panel {
     transform: translateY(0);
+  }
+
+  /* Mobile/Title 3 (24px). Without this the title inherits the desktop --font-title-size (32px):
+     the overlay heading is a mobile artboard value, exactly like .dev-main-product__title above. */
+  .dev-main-product__guide-title {
+    font-size: var(--font-title-size-mobile);
+  }
+
+  /* The popup inset tightens 32px -> 24px on the mobile artboard. --pt can't be redefined here (the
+     inline <style> token wins on the cascade), so the head margin/padding and body padding are
+     overridden as properties, off the dedicated --pt-mobile token. */
+  .dev-main-product__guide-head {
+    margin: 0 var(--pt-mobile);
+    padding: var(--pt-mobile) 0 var(--group-gap);
+  }
+
+  .dev-main-product__guide-body {
+    padding: var(--pt-mobile);
+  }
+
+  /* The sheet rises from the bottom here, so its contents rise with it. Keeping the desktop
+     keyframe would have the copy sliding in sideways out of a panel travelling upwards. */
+  .dev-main-product__guide[data-open='true'] .dev-main-product__guide-head,
+  .dev-main-product__guide[data-open='true'] .dev-main-product__guide-body {
+    animation-name: dev-main-product-guide-content-up;
+  }
+}
+
+@keyframes dev-main-product-guide-content-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* No motion means no motion: the drawer must still open, it simply must not travel to get there.
+   Everything below kills the movement and keeps the state change. */
+@media (prefers-reduced-motion: reduce) {
+  .dev-main-product__guide-backdrop,
+  .dev-main-product__guide[data-open='true'] .dev-main-product__guide-backdrop,
+  .dev-main-product__guide-panel,
+  .dev-main-product__guide[data-open='true'] .dev-main-product__guide-panel {
+    transition: opacity 1ms linear;
+  }
+
+  /* Opacity alone hides the closed panel — NOT visibility, and not display. The note at the top of
+     this block explains what happens to a panel that has no painted frame to animate from. */
+  .dev-main-product__guide-panel,
+  .dev-main-product__guide[data-open='true'] .dev-main-product__guide-panel {
+    transform: none;
+  }
+
+  .dev-main-product__guide[data-open='true'] .dev-main-product__guide-head,
+  .dev-main-product__guide[data-open='true'] .dev-main-product__guide-body {
+    animation: none;
   }
 }

@@ -124,6 +124,93 @@
       if (event.target.closest('[data-cart-drawer-close]')) close();
     });
 
+    /* --- remove a line ---
+       The link is a genuine /cart/change link and still works with JS off. Followed natively it
+       changes the cart and lands the buyer on /cart, which is a page they never asked for and did
+       not come from — they were in the basket, looking at what else they had. So the click is
+       intercepted and the same change is made over fetch, in place.
+
+       Delegated from the ROOT, not bound to each link: the item list is replaced wholesale on every
+       refresh below, so a listener bound to a link would be thrown away with the first removal and
+       the second one would navigate. */
+    drawer.addEventListener('click', (event) => {
+      const link = event.target.closest('[data-cart-remove]');
+      if (!link || !drawer.dataset.cartChangeUrl) return;
+
+      event.preventDefault();
+      removeLine(link);
+    });
+
+    async function removeLine(link) {
+      // A double click must not fire a second change. The first one already re-renders the list,
+      // and by then this line is a different line — or gone.
+      if (link.dataset.busy === 'true') return;
+      link.dataset.busy = 'true';
+      drawer.setAttribute('aria-busy', 'true');
+
+      try {
+        const response = await fetch(drawer.dataset.cartChangeUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ id: link.dataset.lineKey, quantity: 0 }),
+        });
+
+        if (!response.ok) throw new Error('cart change rejected');
+
+        await refresh();
+
+        /* Focus was on the link we just deleted. Left alone it falls to <body> — outside the modal
+           the focus trap is guarding — so a keyboard user's next Tab walks the page behind the
+           drawer. Hand it to the close button, which is the one control the drawer always has. */
+        const next = focusable()[0];
+        if (next && isOpen()) next.focus();
+      } catch (e) {
+        // The change never landed. Fall back to the plain link we just prevented: a page load and
+        // /cart is worse than staying put, but it is far better than a Remove button that silently
+        // does nothing.
+        window.location.href = link.href;
+      } finally {
+        drawer.removeAttribute('aria-busy');
+        if (link.isConnected) link.dataset.busy = 'false';
+      }
+    }
+
+    /* Re-render from a real page load of the cart, and swap in only what changed.
+
+       Shopify's Section Rendering API cannot do this: it does not render `content_for 'blocks'`, so
+       ?sections=dev-site-header comes back with the cart button and no drawer inside it at all.
+       Asking the cart page for the cart is honest, and it is the cheapest page that carries the
+       header. (dev-main-product.js does the same thing after an add — the two agree by
+       construction, because they read the same markup.) */
+    async function refresh() {
+      const response = await fetch(drawer.dataset.cartUrl, { headers: { Accept: 'text/html' } });
+      if (!response.ok) throw new Error('cart page did not render');
+
+      const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
+
+      /* div.cart-drawer, NOT #cart-drawer and NOT .cart-drawer__content on its own: Horizon's stock
+         drawer is rendered into every page by layout/theme.liquid, and it claims BOTH that id and
+         that class. An unscoped lookup is a coin toss decided by document order. Ours is the div. */
+      const fresh = doc.querySelector('div.cart-drawer');
+      if (!fresh) throw new Error('no drawer in the fresh cart page');
+
+      const next = fresh.querySelector('.cart-drawer__content');
+      const current = drawer.querySelector('.cart-drawer__content');
+      // Only the content is swapped. Every listener in this file is delegated from the ROOT, so
+      // replacing what is inside it cannot unbind the close button, the backdrop or the focus trap.
+      if (next && current) current.replaceWith(next);
+
+      // The count badge only exists while the cart is non-empty, so the whole inside is swapped
+      // rather than a number written into an element that may not be there. The node itself
+      // survives: aria-controls and aria-expanded live on it and the header reads them back.
+      const toggle = document.querySelector('.site-header__cart-toggle');
+      const freshToggle = doc.querySelector('.site-header__cart-toggle');
+      if (toggle && freshToggle) {
+        toggle.innerHTML = freshToggle.innerHTML;
+        toggle.setAttribute('aria-label', freshToggle.getAttribute('aria-label') || '');
+      }
+    }
+
     /* --- Escape, and the focus trap --- */
     drawer.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {

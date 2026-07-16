@@ -29,8 +29,6 @@
 {%- comment -%} Fixed design tokens — borrowed from the measured sections, see above {%- endcomment -%}
 <style>
   .dev-article {
-    --font-body: 'Public Sans', sans-serif;
-    --font-heading: 'Test Tiempos Headline', serif;
 
     --section-px: 64px;
     --section-px-m: 16px;
@@ -93,12 +91,12 @@
 >
   <article class="dev-article__inner">
     {%- if section.settings.back_label != blank -%}
-      <a class="dev-article__back" href="{{ blog_url }}">
+      <a class="dev-article__back dev-btn dev-btn--text dev-btn--icon-left" href="{{ blog_url }}">
         {%- comment -%} Same vector as dev-journal-cards' CTA, mirrored to point back. {%- endcomment -%}
-        <svg class="dev-article__back-icon" width="24" height="24" viewBox="99 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <svg class="dev-article__back-icon dev-btn__icon" width="24" height="24" viewBox="99 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
           <path d="M106 16L102 12L106 8M102 12L120 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span>{{ section.settings.back_label | escape }}</span>
+        <span class="dev-btn__label">{{ section.settings.back_label | escape }}</span>
       </a>
     {%- endif -%}
 
@@ -138,7 +136,7 @@
         `width: 100%` never applied. This bit once; keep the assign.
       {%- endcomment -%}
       {%- liquid
-        assign hero_src = article.image | image_url: width: 1600
+        assign hero_src = article.image | image_url: width: 2600
         assign hero_alt = article.image.alt | default: article.title
       -%}
       <div class="dev-article__media">
@@ -146,7 +144,7 @@
           hero_src
           | image_tag:
             loading: 'eager',
-            widths: '400, 600, 800, 1000, 1200, 1600',
+            widths: '400, 600, 800, 1000, 1200, 1600, 2000, 2600',
             sizes: '(max-width: 768px) 100vw, 1312px',
             alt: hero_alt,
             class: 'dev-article__image'
@@ -165,11 +163,11 @@
 
     {%- if section.settings.back_label != blank -%}
       <div class="dev-article__foot">
-        <a class="dev-article__back" href="{{ blog_url }}">
-          <svg class="dev-article__back-icon" width="24" height="24" viewBox="99 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <a class="dev-article__back dev-btn dev-btn--text dev-btn--icon-left" href="{{ blog_url }}">
+          <svg class="dev-article__back-icon dev-btn__icon" width="24" height="24" viewBox="99 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
             <path d="M106 16L102 12L106 8M102 12L120 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <span>{{ section.settings.back_label | escape }}</span>
+          <span class="dev-btn__label">{{ section.settings.back_label | escape }}</span>
         </a>
       </div>
     {%- endif -%}

@@ -4,8 +4,6 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .fibre-benefits {
-    --font-body: 'Public Sans', sans-serif;
-    --font-heading: 'Test Tiempos Headline', serif;
 
     /* Full-bleed by design. No --container-max: Brief note #1 — the content row is w-full,
        there is no centred max-width frame in this node (same precedent as dev-trust-badges
@@ -156,7 +154,13 @@
             {%- comment -%}
               inline_richtext: already safe HTML from Shopify — never escape it.
             {%- endcomment -%}
-            <h3 class="fibre-benefits__heading">
+            {%- comment -%}
+              A <p>, not a heading. These are the labels on a row of cards, and the section carries
+              no heading of its own — so as an <h3> each one hung off whatever heading happened to
+              precede it in the document, and on the homepage that produced a literal h1 -> h3 skip.
+              They are captions, not sections. The class does all the styling, so nothing moves.
+            {%- endcomment -%}
+            <p class="fibre-benefits__heading">
               <span class="fibre-benefits__heading-line">{{ block.settings.heading }}</span>
               {%- comment -%}
                 Card 2's heading carries an explicit manual line break on the mobile artboard
@@ -169,7 +173,7 @@
               {%- if block.settings.heading_line_2 != blank -%}
                 <span class="fibre-benefits__heading-line fibre-benefits__heading-line--2">{{ block.settings.heading_line_2 }}</span>
               {%- endif -%}
-            </h3>
+            </p>
           {%- endif -%}
           {%- if block.settings.body != blank -%}
             <p class="fibre-benefits__body">{{ block.settings.body | escape }}</p>

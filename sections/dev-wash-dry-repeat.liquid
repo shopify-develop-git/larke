@@ -13,8 +13,6 @@
 <style>
   .wash-dry-repeat {
     /* Brand params (Design Brief → Brand Params table) */
-    --font-body: 'Public Sans', sans-serif;
-    --font-heading: 'Test Tiempos Headline', serif;
     --container-max: 1312px;
     --section-px: 64px;
     --section-px-m: 16px;
@@ -133,9 +131,12 @@
       {%- endif -%}
 
       {%- if section.settings.button_label != blank -%}
-        <a class="wash-dry-repeat__button" href="{{ button_link }}">
-          {{- section.settings.button_label | escape -}}
-        </a>
+        {%- render 'dev-button',
+          variant: 'outline',
+          label: section.settings.button_label | escape,
+          link: button_link,
+          class: 'wash-dry-repeat__button'
+        -%}
       {%- endif -%}
     </div>
   </div>

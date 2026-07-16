@@ -76,7 +76,16 @@
         The blog's own title, not a theme setting — rename the blog in Shopify and the page follows.
         A setting here would be a second place to keep in sync, and the first one to go stale.
       {%- endcomment -%}
-      <h1 class="dev-blog__title">{{ section.settings.heading | default: blog.title | escape }}</h1>
+      {%- comment -%}
+        The two branches are NOT interchangeable. The setting is inline_richtext — already-safe HTML
+        from Shopify, so escaping it would print the merchant's italics as visible tags. blog.title is
+        raw store data and must still be escaped. `default:` would have forced one filter on both.
+      {%- endcomment -%}
+      {%- if section.settings.heading != blank -%}
+        <h1 class="dev-blog__title">{{ section.settings.heading }}</h1>
+      {%- else -%}
+        <h1 class="dev-blog__title">{{ blog.title | escape }}</h1>
+      {%- endif -%}
 
       {%- if section.settings.intro != blank -%}
         <p class="dev-blog__intro">{{ section.settings.intro | escape }}</p>
@@ -141,6 +150,7 @@
               badge: card_badge,
               meta: card_meta,
               heading: article.title | escape,
+              heading_level: 2,
               url: article.url,
               cta_label: section.settings.button_label
             -%}
@@ -216,7 +226,7 @@
   "tag": "section",
   "settings": [
     { "type": "header", "content": "Content" },
-    { "type": "text", "id": "heading", "label": "Heading", "info": "Leave empty to use the blog's own title." },
+    { "type": "inline_richtext", "id": "heading", "label": "Heading", "info": "Leave empty to use the blog's own title." },
     { "type": "text", "id": "intro", "label": "Intro line", "default": "Sleep, trees and everything in between." },
     { "type": "text", "id": "empty_text", "label": "Empty state message", "default": "Nothing here yet — check back soon." },
 

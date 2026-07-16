@@ -17,8 +17,6 @@
 <style>
   .site-footer {
     /* brand params */
-    --font-body: 'Public Sans', sans-serif;
-    --font-heading: 'Test Tiempos Headline', serif;
     --section-px: 64px;
     /* No --container-max by design: like dev-site-header, this is full-bleed shared chrome.
        The cream card is 100% of the section frame; content is inset only by --section-px. */
@@ -147,13 +145,21 @@
             <h2 class="site-footer__heading">{{ section.settings.newsletter_heading }}</h2>
           {%- endif -%}
           {%- if section.settings.newsletter_subheading != blank -%}
-            <p class="site-footer__subheading">{{ section.settings.newsletter_subheading | escape }}</p>
+            <p class="site-footer__subheading">{{ section.settings.newsletter_subheading }}</p>
           {%- endif -%}
         </div>
       {%- endif -%}
 
       {%- assign newsletter_id = 'site-footer-email-' | append: section.id -%}
-      {%- form 'customer', class: 'site-footer__form' -%}
+      {%- comment -%}
+        A form id of our own, not Shopify's default. Left alone, {% form 'customer' %} renders
+        id="contact_form" — the SAME id {% form 'contact' %} gives the contact section, so on
+        /pages/contact two elements shared it. Shopify builds the post-submit anchor out of the
+        form's id, so the browser jumped to whichever came first in the DOM (the contact form),
+        and a footer signup threw the visitor to the top of the page, never showing them the
+        confirmation. Naming it moves this form's anchor with it.
+      {%- endcomment -%}
+      {%- form 'customer', id: 'newsletter_form', class: 'site-footer__form' -%}
         <input type="hidden" name="contact[tags]" value="newsletter">
         <div class="site-footer__form-row">
           <label class="site-footer__visually-hidden" for="{{ newsletter_id }}">
@@ -172,9 +178,12 @@
             spellcheck="false"
             required
           >
-          <button type="submit" class="site-footer__button">
-            {{- section.settings.newsletter_button_label | escape -}}
-          </button>
+          {%- render 'dev-button',
+            variant: 'ghost',
+            type: 'submit',
+            label: section.settings.newsletter_button_label | escape,
+            class: 'site-footer__button'
+          -%}
         </div>
         {%- if form.posted_successfully? -%}
           <p class="site-footer__form-message" role="status" tabindex="-1">
@@ -340,12 +349,19 @@
 
       {%- if section.settings.show_payment_icons -%}
         {%- comment -%}
-          The eight brand marks are the owner's own Figma exports, inlined verbatim
-          (.figma-assets/site-footer/payment-*.svg). Multi-colour by design: brand fills are kept
-          exactly as exported — no currentColor, no theme/stock payment icon set.
+          Two sources, chosen by the "Payment icons" setting (section.settings.payment_icons_source):
+          - dynamic (default): shop.enabled_payment_types -> Shopify's own icon set, always
+            matching what is actually enabled at checkout, zero maintenance.
+          - custom: the eight brand marks — the owner's own Figma exports, inlined verbatim,
+            multi-colour, fills kept exactly as exported (no currentColor, no stock set).
         {%- endcomment -%}
         <div class="site-footer__payments">
           <ul class="site-footer__payment-list" role="list">
+            {%- if section.settings.payment_icons_source == 'dynamic' -%}
+              {%- for type in shop.enabled_payment_types -%}
+                <li>{{ type | payment_type_svg_tag: class: 'site-footer__payment-icon site-footer__payment-icon--dynamic' }}</li>
+              {%- endfor -%}
+            {%- else -%}
             <li><svg class="site-footer__payment-icon site-footer__payment-icon--visa" viewBox="0 0 35 20" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
 <title>Visa</title>
 <g id="sf-visa-Visa">
@@ -458,6 +474,7 @@
 </g>
 </g>
 </svg></li>
+            {%- endif -%}
           </ul>
         </div>
       {%- endif -%}
@@ -472,7 +489,7 @@
   "settings": [
     { "type": "header", "content": "Content" },
     { "type": "inline_richtext", "id": "newsletter_heading", "label": "Newsletter heading", "default": "Be the first to know." },
-    { "type": "text", "id": "newsletter_subheading", "label": "Newsletter subheading", "default": "Stay in touch – only for the good stuff like new launches and offers." },
+    { "type": "inline_richtext", "id": "newsletter_subheading", "label": "Newsletter subheading", "default": "Stay in touch – only for the good stuff like new launches and offers." },
     { "type": "text", "id": "newsletter_placeholder", "label": "Email placeholder", "default": "Your Email" },
     { "type": "text", "id": "newsletter_button_label", "label": "Newsletter button label", "default": "Subscribe" },
     { "type": "text", "id": "brand_tagline", "label": "Brand tagline", "default": "Nature-based sleep for the everyday." },
@@ -480,8 +497,21 @@
     { "type": "inline_richtext", "id": "social_heading", "label": "Social heading", "default": "Social" },
     { "type": "url", "id": "social_facebook_url", "label": "Facebook link" },
     { "type": "url", "id": "social_instagram_url", "label": "Instagram link" },
-    { "type": "checkbox", "id": "show_payment_icons", "label": "Show payment icons", "default": true },
     { "type": "richtext", "id": "copyright_text", "label": "Copyright", "default": "<p>Copyright © 2026 <a href=\"https://wearelarke.com/\">Larke</a></p>" },
+
+    { "type": "header", "content": "Payment icons" },
+    { "type": "checkbox", "id": "show_payment_icons", "label": "Show payment icons", "default": true },
+    {
+      "type": "select",
+      "id": "payment_icons_source",
+      "label": "Icon source",
+      "default": "dynamic",
+      "info": "Real: the marks Shopify actually enables at checkout — Shopify's own artwork, always accurate, no maintenance. Brand: the fixed Figma set, updated in code if payment methods change.",
+      "options": [
+        { "value": "dynamic", "label": "Real (enabled payment methods)" },
+        { "value": "custom", "label": "Brand icons (fixed set)" }
+      ]
+    },
 
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "background_color", "label": "Background", "default": "#FCF5E3" },

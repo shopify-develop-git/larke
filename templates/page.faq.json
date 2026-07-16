@@ -1,0 +1,41 @@
+{
+  "sections": {
+    "faq": {
+      "type": "dev-faq",
+      "blocks": {
+        "q_delivery_time": {
+          "type": "question",
+          "settings": {
+            "heading": "How soon will my order arrive?",
+            "body": "<p>We aim to have all orders dispatched on the same day when placed by 4 p.m on weekdays. The free standard delivery usually arrives within 3-5 days once dispatched. The local delivery option will arrive the same day if received before 4pm or the next day if ordered after 4pm</p>",
+            "open_by_default": true
+          }
+        },
+        "q_delivery_cost": {
+          "type": "question",
+          "settings": {
+            "heading": "How much does delivery cost?",
+            "body": "<p>Delivery within UK Mainland is always free. We do also offer an express local delivery option for any postcode within a 5 mile radius of Larke HQ</p>",
+            "open_by_default": false
+          }
+        }
+      },
+      "block_order": [
+        "q_delivery_time",
+        "q_delivery_cost"
+      ],
+      "settings": {
+        "heading": "Frequently Asked Questions",
+        "background_color": "rgba(0,0,0,0)",
+        "text_color": "#333333",
+        "accent_color": "#4EA448",
+        "border_color": "#C4BCA9",
+        "padding_top": 80,
+        "padding_bottom": 80
+      }
+    }
+  },
+  "order": [
+    "faq"
+  ]
+}

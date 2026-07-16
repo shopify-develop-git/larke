@@ -19,8 +19,6 @@
 <style>
   .as-seen-in {
     /* Brand params (Brief → Brand Params table) */
-    --font-body: 'Public Sans', sans-serif;
-    --font-heading: 'Test Tiempos Headline', serif;
     --container-max: 1312px;
     --section-px: 64px;
     --section-px-m: 16px;
@@ -56,8 +54,8 @@
     --pt-scale-m: 0.6;
 
     /* Layout */
-    --images-w: 640px; /* fixed image group (Figma 45031:4043), flush left */
-    --tile-ratio: 304 / 412; /* 2 tiles + a 32px gap = 640px exactly */
+    --images-w: 642px; /* tiles = (642 − 32 gap) / 2 = 305px each at design width (client spec) */
+    --tile-ratio: 304 / 412; /* keeps the tile's crop aspect while the group widens */
     --tile-h-m: 220px; /* mobile tiles are a fixed height on the Mobile artboard */
     --text-max: 341px; /* fixed text width, centred inside the flex-1 column */
 
@@ -141,9 +139,12 @@
       {%- endif -%}
 
       {%- if section.settings.button_label != blank -%}
-        <a class="as-seen-in__button" href="{{ button_link }}">
-          {{- section.settings.button_label | escape -}}
-        </a>
+        {%- render 'dev-button',
+          variant: 'outline',
+          label: section.settings.button_label | escape,
+          link: button_link,
+          class: 'as-seen-in__button'
+        -%}
       {%- endif -%}
     </div>
   </div>

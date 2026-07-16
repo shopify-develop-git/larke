@@ -193,20 +193,62 @@
       lastTrigger = trigger || null;
       if (trigger) trigger.setAttribute('aria-expanded', 'true');
 
-      const first = guide.querySelector(FOCUSABLE);
-      if (first) first.focus();
+      lockScroll();
+
+      // THE fix for the jerky open. Focusing a control inside the panel — which at this instant is
+      // still translated a full panel-width off-screen — makes the browser scroll it into view. It
+      // scrolls the overflow:hidden container, the drawer lands in place with no animation at all,
+      // and the transform then runs from an already-visible position. So: focus the panel itself,
+      // and forbid the scroll. Tab from there still walks into the close button.
+      const panel = guide.querySelector('[data-guide-panel]');
+      const target = panel || guide;
+      target.focus({ preventScroll: true });
+
+      // Belt and braces: any scroll a previous open leaked into the container would offset the
+      // panel for the whole of this animation.
+      guide.scrollLeft = 0;
+      guide.scrollTop = 0;
     }
 
     function close(guide) {
       guide.dataset.open = 'false';
       guide.setAttribute('aria-hidden', 'true');
 
+      unlockScroll();
+
       // Focus leaves BEFORE inert goes on, or the browser is left with focus inside an inert subtree.
       if (lastTrigger) {
         lastTrigger.setAttribute('aria-expanded', 'false');
-        lastTrigger.focus();
+        lastTrigger.focus({ preventScroll: true });
       }
       guide.setAttribute('inert', '');
+    }
+
+    /* The page behind an open drawer must not scroll — a modal whose backdrop scrolls under the
+       finger is the other half of "it feels cheap". Removing the scrollbar reflows the page by its
+       width, which would shove the whole layout sideways at the exact moment the drawer slides in,
+       so the width is paid back as padding. */
+    function lockScroll() {
+      const body = document.body;
+      if (body.dataset.mainProductLock === 'true') return;
+
+      const gap = window.innerWidth - document.documentElement.clientWidth;
+      body.dataset.mainProductLock = 'true';
+      body.dataset.mainProductOverflow = body.style.overflow;
+      body.dataset.mainProductPadding = body.style.paddingRight;
+      body.style.overflow = 'hidden';
+      if (gap > 0) body.style.paddingRight = gap + 'px';
+    }
+
+    function unlockScroll() {
+      const body = document.body;
+      if (body.dataset.mainProductLock !== 'true') return;
+
+      body.style.overflow = body.dataset.mainProductOverflow || '';
+      body.style.paddingRight = body.dataset.mainProductPadding || '';
+      delete body.dataset.mainProductLock;
+      delete body.dataset.mainProductOverflow;
+      delete body.dataset.mainProductPadding;
     }
 
     root.querySelectorAll('[data-guide-open]').forEach((trigger) => {
@@ -265,5 +307,277 @@
         });
       });
     });
+  }
+})();
+
+/* ---- Accordions ---------------------------------------------------------- */
+(function () {
+  // Height is animated with the Web Animations API rather than a CSS transition, because there is
+  // nothing to transition BETWEEN: <details> has no intermediate height. It is `auto` or it is the
+  // summary, and `auto` is not an animatable value. So each open measures the real end height and
+  // animates to it in pixels, then hands the element back to `auto` — a row whose content reflows
+  // (a font landing, an image loading) is never left frozen at a stale pixel height.
+  const running = new WeakMap();
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-main-product]').forEach((root) => initAccordions(root));
+  });
+
+  function initAccordions(root) {
+    root.querySelectorAll('[data-acc-group]').forEach((group) => {
+      const items = Array.from(group.querySelectorAll('[data-acc]'));
+      if (items.length === 0) return;
+
+      items.forEach((details) => {
+        const summary = details.querySelector('summary');
+        if (!summary) return;
+
+        summary.addEventListener('click', (event) => {
+          // The browser's own toggle is instant and unstoppable. Take it over: we open and close.
+          event.preventDefault();
+
+          if (isOpen(details)) {
+            collapse(details);
+            return;
+          }
+
+          // One row at a time. Whatever is open closes on the way — collapsed with the same
+          // animation as a click on its own summary, not slammed shut.
+          items.forEach((other) => {
+            if (other !== details && isOpen(other)) collapse(other);
+          });
+
+          expand(details);
+        });
+      });
+    });
+  }
+
+  // A row that is mid-collapse still carries `open` — the content has to stay in the DOM to be
+  // animated out of. Reading `.open` alone would call a click on a closing row "close it again",
+  // and the row would never come back. What the user sees is what counts: a closing row is closed.
+  function isOpen(details) {
+    return details.open && details.dataset.accState !== 'closing';
+  }
+
+  function expand(details) {
+    const from = current(details);
+    stop(details);
+
+    details.open = true;
+    details.dataset.accState = 'opening';
+
+    // Read the natural height while nothing is pinning it. This is the only honest measurement:
+    // scrollHeight excludes the border, and the row is border-box.
+    const to = details.getBoundingClientRect().height;
+
+    animate(details, from, to, () => {
+      delete details.dataset.accState;
+    });
+  }
+
+  function collapse(details) {
+    const from = current(details);
+    stop(details);
+
+    details.dataset.accState = 'closing';
+
+    animate(details, from, closedHeight(details), () => {
+      // .open comes off only at the END. It is what keeps the content in the DOM to be animated out
+      // of — drop it up front and the row would vanish and then politely animate an empty box.
+      details.open = false;
+      delete details.dataset.accState;
+    });
+  }
+
+  function animate(details, from, to, done) {
+    // overflow: hidden is what does the clipping while the box is shorter than its content. It is
+    // set inline and cleared on landing, so the open row can still overflow naturally if it must.
+    details.style.overflow = 'hidden';
+
+    const anim = details.animate({ height: [from + 'px', to + 'px'] }, { duration: duration(details), easing: easing(details) });
+
+    running.set(details, anim);
+
+    anim.addEventListener('finish', () => {
+      running.delete(details);
+      details.style.overflow = '';
+      details.style.height = '';
+      done();
+    });
+  }
+
+  // Cancel any animation still in flight, having already read the height it had reached. Without
+  // this, a fast second click animates from the row's resting height and the panel visibly snaps
+  // back before it starts moving.
+  function stop(details) {
+    const anim = running.get(details);
+    if (!anim) return;
+    anim.cancel();
+    running.delete(details);
+  }
+
+  function current(details) {
+    return details.getBoundingClientRect().height;
+  }
+
+  // The row at rest: summary, plus the row's own padding and borders. Everything else is content.
+  function closedHeight(details) {
+    const summary = details.querySelector('summary');
+    const styles = window.getComputedStyle(details);
+
+    return (
+      summary.getBoundingClientRect().height +
+      parseFloat(styles.paddingTop) +
+      parseFloat(styles.paddingBottom) +
+      parseFloat(styles.borderTopWidth) +
+      parseFloat(styles.borderBottomWidth)
+    );
+  }
+
+  // The duration and the curve live in the section's token block, so the height animation here and
+  // the content fade in the CSS cannot drift apart.
+  function duration(details) {
+    if (prefersReducedMotion()) return 0;
+    return parseFloat(window.getComputedStyle(details).getPropertyValue('--acc-dur')) || 300;
+  }
+
+  // The same curve opening and closing. A row that closes on a different curve from the row opening
+  // beside it makes the pair look like they are arguing.
+  function easing(details) {
+    return window.getComputedStyle(details).getPropertyValue('--acc-ease').trim() || 'ease';
+  }
+
+  function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+})();
+
+/* ---- Add to cart --------------------------------------------------------- */
+(function () {
+  /* Adding a duvet should open the basket, not throw the buyer onto /cart and make them find
+     their way back to the product they were still comparing.
+
+     The form still works with JS off: it is a real <form action="/cart/add">, and the native POST
+     still adds the item and lands on the cart page. Everything below is an upgrade on top of that,
+     never a replacement for it — so the buy button can never become a button that does nothing. */
+  const DRAWER_SELECTOR = 'div.cart-drawer';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-main-product]').forEach((root) => initAddToCart(root));
+  });
+
+  function initAddToCart(root) {
+    const form = root.querySelector('.dev-main-product__form');
+    const button = root.querySelector('[data-add]');
+    const error = root.querySelector('[data-cta-error]');
+    if (!form || !button) return;
+
+    // No drawer on this page? Leave the form entirely alone. Hijacking the submit and then having
+    // nowhere to show the result is strictly worse than the plain page load we started with.
+    if (!document.querySelector(DRAWER_SELECTOR)) return;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (button.disabled) return;
+
+      hideError(error);
+      busy(button, true);
+
+      try {
+        const response = await fetch(root.dataset.cartAddUrl, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: new FormData(form),
+        });
+
+        if (!response.ok) {
+          // A rejected add is a real answer, not a failure of the mechanism — show Shopify's own
+          // reason and stay on the page. Falling back to a native submit here would just replay
+          // the same rejection as a full page load.
+          const body = await response.json().catch(() => ({}));
+          showError(error, body.description || body.message);
+          return;
+        }
+
+        await refresh(root);
+        openDrawer();
+      } catch (e) {
+        // The request never completed — the network, not the cart, said no. Hand the buyer back to
+        // the form that works without any of this.
+        form.submit();
+      } finally {
+        busy(button, false);
+      }
+    });
+  }
+
+  /* The drawer is rendered by a BLOCK of the header, and Shopify's Section Rendering API does not
+     render `content_for 'blocks'` — ?sections=dev-site-header comes back with the cart button and
+     no drawer at all. So the fresh markup is pulled from a real page render instead. The cart page
+     is the cheapest one that carries the header, and asking the cart for the cart is honest. */
+  async function refresh(root) {
+    const response = await fetch(root.dataset.cartUrl, { headers: { Accept: 'text/html' } });
+    if (!response.ok) return;
+
+    const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
+
+    // div.cart-drawer, NOT #cart-drawer: Horizon's stock <theme-drawer> claims the same id on the
+    // same page, so an id lookup is a coin toss decided by document order.
+    const fresh = doc.querySelector(DRAWER_SELECTOR);
+    const live = document.querySelector(DRAWER_SELECTOR);
+    if (fresh && live) {
+      const next = fresh.querySelector('.cart-drawer__content');
+      const current = live.querySelector('.cart-drawer__content');
+      // Only the content is swapped. The drawer's listeners sit on its ROOT and are delegated, so
+      // replacing what is inside it cannot unbind the close button, the backdrop or the focus trap.
+      if (next && current) current.replaceWith(next);
+    }
+
+    const toggle = document.querySelector('.site-header__cart-toggle');
+    const freshToggle = doc.querySelector('.site-header__cart-toggle');
+    if (toggle && freshToggle) {
+      // The count badge only exists once the cart is non-empty, so the whole inside is swapped
+      // rather than a number written into an element that may not be there yet. The element itself
+      // survives — the header's click handler is delegated from the section, but aria-controls and
+      // aria-expanded live on this node and must not be rebuilt out from under it.
+      toggle.innerHTML = freshToggle.innerHTML;
+      toggle.setAttribute('aria-label', freshToggle.getAttribute('aria-label') || '');
+    }
+  }
+
+  /* Open it the way the header does, not by reaching into the drawer's internals: write the state
+     onto the trigger, then announce it. The drawer reads the trigger's aria-expanded to decide
+     which way to go, so setting one without the other leaves the cart button one click out of step
+     — the next click would "close" an already-closed drawer and look dead. */
+  function openDrawer() {
+    const trigger = document.querySelector('[aria-controls="cart-drawer"]');
+
+    if (trigger) {
+      trigger.setAttribute('aria-expanded', 'true');
+      document.dispatchEvent(new CustomEvent('site-header:cart-toggle'));
+      return;
+    }
+
+    // No trigger (a header without the cart button): the drawer derives everything from [data-open].
+    const drawer = document.querySelector(DRAWER_SELECTOR);
+    if (drawer) drawer.dataset.open = 'true';
+  }
+
+  function busy(button, on) {
+    button.disabled = on;
+    button.setAttribute('aria-busy', String(on));
+  }
+
+  function showError(el, message) {
+    if (!el) return;
+    el.textContent = message || '';
+    el.hidden = !message;
+  }
+
+  function hideError(el) {
+    if (!el) return;
+    el.textContent = '';
+    el.hidden = true;
   }
 })();

@@ -1,0 +1,42 @@
+/* dev-stars.css — shared inline-SVG star rating (snippets/dev-stars.liquid).
+
+   A canonical vector star replaces the Unicode ★ glyph, which is absent from Public Sans and
+   renders in a system fallback font that varies across platforms. Two overlaid rows: a track
+   (empty) row and a fill row clipped horizontally to the rating %, so a 4.9/5 reads as four
+   solid stars and a 90%-filled fifth. Loaded once from layout/theme.liquid. */
+
+.dev-stars {
+  position: relative;
+  display: inline-flex;
+  width: max-content;
+  line-height: 0;
+  vertical-align: middle;
+}
+
+.dev-stars__row {
+  display: inline-flex;
+  gap: var(--dev-stars-gap, 2px);
+}
+
+.dev-stars__row svg {
+  display: block;
+  flex: none;
+  width: var(--dev-stars-size, 16px);
+  height: var(--dev-stars-size, 16px);
+}
+
+/* Empty stars behind the fill. At a full (100%) rating the fill row covers them completely. */
+.dev-stars__row--track {
+  color: var(--dev-stars-track, rgba(0, 0, 0, 0.15));
+}
+
+/* Sits on top of the track and is clipped to the rating percentage. Both rows hold the same
+   stars at the same size, so the % maps exactly onto the row's width. */
+.dev-stars__row--fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--dev-stars-pct, 100%);
+  overflow: hidden;
+  color: var(--dev-stars-fill, currentColor);
+}

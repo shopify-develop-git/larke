@@ -4,8 +4,6 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .dev-main-product {
-    --font-body: 'Public Sans', sans-serif;
-    --font-heading: 'Test Tiempos Headline', serif;
 
     --section-px: 64px;
     --section-px-mobile: 16px;
@@ -15,6 +13,8 @@
     --container-max: 1312px;
     --col-gap: 96px;
     --pt: 32px;
+    /* The guide popups tighten to the mobile artboard's 24px inset (head + body) as a bottom sheet. */
+    --pt-mobile: 24px;
 
     /* Desktop/Title 3 vs Mobile/Title 3 — the mobile artboard states its own size. */
     --font-title-size: 32px;
@@ -75,12 +75,53 @@
     --cta-divider-h: 28px;
 
     --transition: 200ms;
+
+    /* Motion. Asymmetric on purpose: a drawer takes its time arriving and leaves briskly, which is
+       what makes it feel like an object rather than a div being toggled. The accordion duration is
+       read back out of here by the JS (parseFloat on the computed value), so keep it in ms. */
+    --guide-in: 480ms;
+    --guide-out: 300ms;
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+
+    /* One curve for the accordion, both directions. Opening on one curve and closing on another
+       looked restless when a row closed while its neighbour opened — two motions disagreeing. */
+    --acc-dur: 320ms;
+    /* Deliberately an even curve, not a snappy one. A steep ease-out puts ~70% of the travel into
+       the first fifth of the time, and on a row 450px tall that lands as a jolt no matter how long
+       the tail is. This accelerates and decelerates by roughly the same amount. */
+    --acc-ease: cubic-bezier(0.4, 0, 0.2, 1);
+    /* 24px on the artboard, in three places: under the divider, between the heading and the copy,
+       and between one row's copy and the next divider. Measured off 45060:2564. */
+    --acc-gap: 24px;
+
+    /* The spacer the artboard drops in above the price-comparison card (45068:2384). */
+    --pc-lead: 48px;
+
+    /* The hand-drawn stroke under the italic run of the price-comparison heading. A MASK on the
+       <em>, the same construction as dev-hero, dev-tree-fibre-hero and dev-values-we-cherish, so it
+       follows whatever the merchant italicises instead of being pinned to "emarkable." */
+    --underline: url('{{ 'dev-main-product-underline.svg' | asset_url }}');
+    --underline-h: 5.9px;
+    --underline-gap: -1px;
   }
 </style>
 
 {%- liquid
   assign product_media = product.media
   assign current = product.selected_or_first_available_variant
+
+  # Both guides are the PRODUCT's, not the template's. They used to live in section blocks, which
+  # meant a second duvet needed a second product template just to carry different numbers and cards.
+  # Now every product points at a metaobject entry, and many products can share one.
+  assign size_guide = product.metafields.larke.size_guide.value
+  assign seasons_guide = product.metafields.larke.seasons_guide.value
+
+  # The size-guide unit toggle is built from 'unit' blocks. Each block picks a unit type from a fixed
+  # list — the type carries the cm-conversion factor — so the merchant adds/reorders units without
+  # ever typing a number. The first block is the default. Rendered in two places below: the toggle
+  # buttons and one value column per size row.
+  assign units = section.blocks | where: 'type', 'unit'
 
   assign rating = section.settings.rating_value
   assign rating_pct = rating | times: 20.0
@@ -99,6 +140,9 @@
 
   Every class is dev-prefixed: Horizon compiles every stock section's {% stylesheet %} into a sheet
   that loads on every page, so an unprefixed BEM name inherits stock rules.
+
+  The cart routes ride on the root as data attributes rather than being hardcoded in the JS: a
+  localised storefront serves them under a locale prefix, and "/cart/add" would 404 there.
 {%- endcomment -%}
 <div
   class="dev-main-product"
@@ -113,6 +157,8 @@
     --rating-pct: {{ rating_pct }}%;
   "
   data-main-product
+  data-cart-add-url="{{ routes.cart_add_url }}"
+  data-cart-url="{{ routes.cart_url }}"
 >
   <div class="dev-main-product__inner">
     {%- comment -%} ---------- Gallery ---------- {%- endcomment -%}
@@ -207,33 +253,24 @@
         {%- endif -%}
 
         {%- comment -%}
-          The seal ships with the theme so the gallery matches the artboard with zero setup. A
-          merchant image always wins over it — the fallback is a default, not a lock.
+          The seal comes from the image picker and nowhere else. It used to fall back to a webp
+          bundled in assets/, which meant the theme could never stop shipping that file — the
+          fallback WAS the dependency. No image picked, no seal: an award the merchant has not
+          uploaded is not an award this section should invent.
         {%- endcomment -%}
-        {%- if section.settings.show_seal -%}
+        {%- if section.settings.show_seal and section.settings.seal_image != blank -%}
           {%- assign seal_alt = section.settings.seal_alt | escape -%}
           <span class="dev-main-product__seal">
-            {%- if section.settings.seal_image != blank -%}
-              {{
-                section.settings.seal_image
-                | image_url: width: 270
-                | image_tag:
-                  loading: 'lazy',
-                  widths: '90, 180, 270',
-                  sizes: '90px',
-                  alt: seal_alt,
-                  class: 'dev-main-product__seal-image'
-              }}
-            {%- else -%}
-              <img
-                class="dev-main-product__seal-image"
-                src="{{ 'dev-main-product-seal.webp' | asset_url }}"
-                alt="{{ seal_alt }}"
-                width="270"
-                height="214"
-                loading="lazy"
-              >
-            {%- endif -%}
+            {{
+              section.settings.seal_image
+              | image_url: width: 270
+              | image_tag:
+                loading: 'lazy',
+                widths: '90, 180, 270',
+                sizes: '90px',
+                alt: seal_alt,
+                class: 'dev-main-product__seal-image'
+            }}
           </span>
         {%- endif -%}
 
@@ -256,40 +293,60 @@
     </div>
 
     {%- comment -%} ---------- Buy column ---------- {%- endcomment -%}
-    <div class="dev-main-product__buy">
+    {%- comment -%} `id` is the anchor target for on-page CTAs elsewhere on the PDP. {%- endcomment -%}
+    <div id="buy" class="dev-main-product__buy">
       <div class="dev-main-product__head">
         {%- if section.settings.show_rating -%}
-          <div class="dev-main-product__rating">
+          {%- liquid
+            # The whole rating is one anchor — clicking the stars OR the label jumps to the reviews
+            # section. A merchant can point the Rating link setting anywhere; when it is blank we
+            # default to the on-page reviews anchor (#reviews) instead of rendering a dead <span>.
+            # dev-reviews always sits on the PDP, and it carries id="reviews".
+            assign rating_href = section.settings.rating_link
+            if rating_href == blank
+              assign rating_href = '#reviews'
+            endif
+          -%}
+          <a class="dev-main-product__rating" href="{{ rating_href }}">
             {%- comment -%}
               4.9/5 is FOUR full stars and one 90% full — the artboard clips the fifth with a
               gradient. Painting five solid stars would be a nicer number than the product has.
             {%- endcomment -%}
-            <span class="dev-main-product__stars" role="img" aria-label="{{ rating }} / 5">
-              <span class="dev-main-product__stars-base" aria-hidden="true">★★★★★</span>
-              <span class="dev-main-product__stars-fill" aria-hidden="true">★★★★★</span>
-            </span>
-            {%- if section.settings.rating_link != blank -%}
-              <a class="dev-main-product__rating-link" href="{{ section.settings.rating_link }}">
-                {{- section.settings.rating_label | escape -}}
-              </a>
-            {%- else -%}
-              <span class="dev-main-product__rating-link">{{ section.settings.rating_label | escape }}</span>
+            {%- if section.settings.show_rating_stars -%}
+              {%- comment -%}
+                Shared inline-SVG stars (not the ★ glyph) with partial fill: 4.9/5 reads as four
+                solid stars and a 90%-filled fifth, clipped to the exact rating. See dev-stars.
+              {%- endcomment -%}
+              {%- assign stars_label = rating | append: ' / 5' -%}
+              {%- render 'dev-stars',
+                rating: rating,
+                max: 5,
+                size: 18,
+                gap: 1,
+                color: section.settings.star_color,
+                track: '#ededed',
+                label: stars_label
+              -%}
             {%- endif -%}
-          </div>
+            <span class="dev-main-product__rating-link">{{ section.settings.rating_label | escape }}</span>
+          </a>
         {%- endif -%}
 
         <h1 class="dev-main-product__title">{{ product.title | escape }}</h1>
 
-        {%- if section.settings.tagline != blank or section.settings.subtitle != blank -%}
-          <div class="dev-main-product__sub">
-            {%- if section.settings.tagline != blank -%}
-              <p class="dev-main-product__tagline">{{ section.settings.tagline | escape }}</p>
-            {%- endif -%}
-            {%- if section.settings.subtitle != blank -%}
-              <p class="dev-main-product__subtitle">{{ section.settings.subtitle | escape }}</p>
-            {%- endif -%}
-          </div>
-        {%- endif -%}
+        {%- comment -%}
+          The product's own description, rendered as an optional "Description" block in place of the
+          old tagline/subtitle section settings. It sits in the head, under the title. The block has
+          no per-block copy — it always pulls from the product, so one block serves every product.
+        {%- endcomment -%}
+        {%- assign description_blocks = section.blocks | where: 'type', 'description' -%}
+        {%- for block in description_blocks -%}
+          {%- if product.description != blank -%}
+            <div class="dev-main-product__description" {{ block.shopify_attributes }}>
+              {{ product.description }}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
       </div>
 
       {%- form 'product', product, class: 'dev-main-product__form', novalidate: 'novalidate' -%}
@@ -298,11 +355,21 @@
         {%- for option in product.options_with_values -%}
           {%- liquid
             assign selected = option.selected_value
+
+            # Each guide hangs off the option its OWN entry says it explains (option_name), not off
+            # "whichever option happens to be first or second". Position was a lie the moment a
+            # product ordered its options differently — the size guide would open beside the warmth
+            # chips. The section now knows nothing about what any particular option is called.
+            # A product with no guide entry gets no link and no drawer: nothing to explain, nothing
+            # to open.
+            assign guide = ''
             assign link_label = ''
-            if forloop.first
-              assign link_label = section.settings.option_1_link_label
-            elsif forloop.index == 2
-              assign link_label = section.settings.option_2_link_label
+            if size_guide != blank and size_guide.option_name.value == option.name
+              assign guide = 'size'
+              assign link_label = size_guide.link_label.value
+            elsif seasons_guide != blank and seasons_guide.option_name.value == option.name
+              assign guide = 'tog'
+              assign link_label = seasons_guide.link_label.value
             endif
           -%}
           <fieldset class="dev-main-product__group" data-option-index="{{ forloop.index0 }}">
@@ -317,10 +384,6 @@
                   cmd-click open a blank tab.
                 {%- endcomment -%}
                 {%- if link_label != blank -%}
-                  {%- assign guide = 'size' -%}
-                  {%- if forloop.index == 2 -%}
-                    {%- assign guide = 'tog' -%}
-                  {%- endif -%}
                   <button
                     type="button"
                     class="dev-main-product__legend-link"
@@ -356,7 +419,7 @@
         <button
           type="submit"
           name="add"
-          class="dev-main-product__cta"
+          class="dev-main-product__cta dev-btn dev-btn--filled dev-btn--full"
           data-add
           {% unless current.available %}disabled{% endunless %}
         >
@@ -379,162 +442,249 @@
           <span class="dev-main-product__cta-divider" aria-hidden="true"></span>
           <span class="dev-main-product__cta-price" data-cta-price>{{ current.price | money }}</span>
         </button>
+
+        {%- comment -%}
+          Where a rejected add lands. Adding to cart over fetch means Shopify's own error page never
+          appears, so the reason ("You can only add 3 to the cart") has to have somewhere to go —
+          otherwise a failed add looks exactly like a successful one that opened no drawer.
+          role="alert" so a screen reader hears it without being moved.
+        {%- endcomment -%}
+        <p class="dev-main-product__cta-error" data-cta-error role="alert" hidden></p>
       {%- endform -%}
 
-      {%- comment -%} ---------- Still undecided ---------- {%- endcomment -%}
-      {%- if section.settings.compare_heading != blank -%}
-        <a class="dev-main-product__compare" href="{{ section.settings.compare_link | default: '#' }}">
-          <span class="dev-main-product__compare-icon" aria-hidden="true">
-            {%- comment -%} Exported from Figma (Icon/Outline/scale) — path data verbatim. {%- endcomment -%}
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
-              <path d="M3 6L6 7M6 7L3 16C4.77253 17.3334 7.22866 17.3334 9.00119 16M6 7L9.00006 16M6 7L12 5M18 7L21 6M18 7L15 16C16.7725 17.3334 19.2287 17.3334 21.0012 16M18 7L21.0001 16M18 7L12 5M12 3V5M12 21V5M12 21H9M12 21H15" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
-            </svg>
-          </span>
-
-          <span class="dev-main-product__compare-text">
-            <span class="dev-main-product__compare-heading">{{ section.settings.compare_heading | escape }}</span>
-            <span class="dev-main-product__compare-row">
-              <span class="dev-main-product__compare-link">{{ section.settings.compare_label | escape }}</span>
-              <span class="dev-main-product__compare-arrow" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
-                  <path d="M17 16L21 12L17 8M21 12L3 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </span>
-          </span>
-        </a>
-      {%- endif -%}
-
       {%- comment -%}
-        ---------- Accordions ----------
-        <details>/<summary>, not a div plus a click handler. It opens with no JS, it is keyboard
-        operable and announced correctly by screen readers for free, and Ctrl+F on the page can
-        still find the text inside a closed panel.
+        ---------- Blocks ----------
+        Everything below the buy form is a block, rendered in the merchant's order: the two cards
+        used to be section settings, which meant they were furniture — always there, always in that
+        one spot, and their copy sat in section settings while the accordions beside them were
+        blocks. Content in section settings is content nobody can move or remove.
+
+        The accordion rows are drawn as ONE group, in one container, at the position of the first
+        accordion block — rather than opening the container on the first row of a run and closing
+        it on the last. That version put the <div> and its </div> in different branches of this
+        loop, which is unbalanced HTML as far as any parser (theme-check included) can tell, and it
+        bought only the ability to split the rows by dropping a card between them. So a card
+        dropped mid-run lands below the rows instead of between them; everywhere else block order
+        is honoured exactly.
       {%- endcomment -%}
-      {%- assign rows = section.blocks | where: 'type', 'accordion' -%}
-      {%- if rows.size > 0 -%}
-        <div class="dev-main-product__accordions">
-          {%- for block in rows -%}
-            <details
-              class="dev-main-product__acc"
-              {% if block.settings.open_by_default %}open{% endif %}
+      {%- assign accordions = section.blocks | where: 'type', 'accordion' -%}
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- comment -%}
+            ---------- Accordions ----------
+            <details>/<summary>, not a div plus a click handler. It opens with no JS, it is keyboard
+            operable and announced correctly by screen readers for free, and Ctrl+F on the page can
+            still find the text inside a closed panel.
+
+            The JS upgrades it: it animates the height and closes the open row when another is
+            opened. Deliberately NOT the native `name` attribute, which would give exclusivity for
+            free — the browser slams the sibling shut the instant we set .open on the new row,
+            killing the closing animation mid-flight. Exclusivity is worth owning so it can be
+            animated. data-acc-group is the scope it closes across.
+          {%- endcomment -%}
+          {%- when 'accordion' -%}
+            {%- if block.id != accordions.first.id -%}
+              {%- continue -%}
+            {%- endif -%}
+
+            <div class="dev-main-product__accordions" data-acc-group>
+              {%- for row in accordions -%}
+                <details
+                  class="dev-main-product__acc"
+                  data-acc
+                  {% if row.settings.open_by_default %}open{% endif %}
+                  {{ row.shopify_attributes }}
+                >
+                  <summary class="dev-main-product__acc-summary">
+                    <span class="dev-main-product__acc-title">{{ row.settings.heading }}</span>
+                    <span class="dev-main-product__acc-icon" aria-hidden="true">
+                      {%- comment -%} Figma flips chevron-down to chevron-up when the row opens. {%- endcomment -%}
+                      <svg class="dev-main-product__acc-chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                        <path d="M19 9L12 16L5 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </summary>
+
+                  {%- if row.settings.body != blank -%}
+                    <div class="dev-main-product__acc-body">{{ row.settings.body }}</div>
+                  {%- endif -%}
+
+                  {%- comment -%}
+                    Certifications is the only row that pairs a mark with a line of copy, and
+                    richtext cannot hold an <img>. Three optional slots rather than a nested block
+                    type: they are a fixed set of accreditations, not a list that grows.
+                  {%- endcomment -%}
+                  {%- assign has_certs = false -%}
+                  {%- for i in (1..3) -%}
+                    {%- assign key = 'cert_' | append: i | append: '_text' -%}
+                    {%- if row.settings[key] != blank -%}
+                      {%- assign has_certs = true -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+
+                  {%- if has_certs -%}
+                    <ul class="dev-main-product__certs" role="list">
+                      {%- for i in (1..3) -%}
+                        {%- liquid
+                          assign text_key = 'cert_' | append: i | append: '_text'
+                          assign logo_key = 'cert_' | append: i | append: '_logo'
+                          assign cert_text = row.settings[text_key]
+                          assign cert_logo = row.settings[logo_key]
+                        -%}
+                        {%- if cert_text != blank -%}
+                          {%- comment -%}
+                            Each mark keeps its OWN shape. They were all being handed the same 48x58
+                            box, which is the FSC tree's shape — so the OEKO seal, a circle 48x48 on
+                            the artboard, was stretched 21% taller and came out an oval. Width is
+                            shared (48 on all three); height is not. The pair also reserves the row's
+                            space before the file arrives, so nothing jumps as the accordion opens.
+                          {%- endcomment -%}
+                          {%- liquid
+                            case cert_logo
+                              when 'vegan'
+                                assign cert_file = 'dev-main-product-cert-vegan.webp'
+                                assign cert_h = 52
+                              when 'fsc'
+                                assign cert_file = 'dev-main-product-cert-fsc.svg'
+                                assign cert_h = 58
+                              when 'oeko'
+                                assign cert_file = 'dev-main-product-cert-oeko.svg'
+                                assign cert_h = 48
+                              else
+                                assign cert_file = blank
+                            endcase
+                          -%}
+                          <li class="dev-main-product__cert">
+                            {%- if cert_file != blank -%}
+                              <img class="dev-main-product__cert-logo" src="{{ cert_file | asset_url }}" alt="" width="48" height="{{ cert_h }}" loading="lazy" aria-hidden="true">
+                            {%- endif -%}
+                            <span class="dev-main-product__cert-text">{{ cert_text }}</span>
+                          </li>
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </ul>
+                  {%- endif -%}
+
+                  {%- if row.settings.button_label != blank -%}
+                    {%- render 'dev-button',
+                      variant: 'outline',
+                      label: row.settings.button_label | escape,
+                      link: row.settings.button_link | default: '#',
+                      class: 'dev-main-product__acc-button'
+                    -%}
+                  {%- endif -%}
+                </details>
+              {%- endfor -%}
+            </div>
+
+          {%- comment -%} ---------- Still undecided ---------- {%- endcomment -%}
+          {%- when 'compare' -%}
+            <a
+              class="dev-main-product__compare"
+              href="{{ block.settings.link | default: '#' }}"
+              data-compare-open
+              aria-haspopup="dialog"
+              aria-controls="compare-modal"
+              aria-expanded="false"
               {{ block.shopify_attributes }}
             >
-              <summary class="dev-main-product__acc-summary">
-                <span class="dev-main-product__acc-title">{{ block.settings.heading }}</span>
-                <span class="dev-main-product__acc-icon" aria-hidden="true">
-                  {%- comment -%} Figma flips chevron-down to chevron-up when the row opens. {%- endcomment -%}
-                  <svg class="dev-main-product__acc-chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
-                    <path d="M19 9L12 16L5 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </span>
-              </summary>
+              <span class="dev-main-product__compare-icon" aria-hidden="true">
+                {%- comment -%} Exported from Figma (Icon/Outline/scale) — path data verbatim. {%- endcomment -%}
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                  <path d="M3 6L6 7M6 7L3 16C4.77253 17.3334 7.22866 17.3334 9.00119 16M6 7L9.00006 16M6 7L12 5M18 7L21 6M18 7L15 16C16.7725 17.3334 19.2287 17.3334 21.0012 16M18 7L21.0001 16M18 7L12 5M12 3V5M12 21V5M12 21H9M12 21H15" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                </svg>
+              </span>
 
-              {%- if block.settings.body != blank -%}
-                <div class="dev-main-product__acc-body">{{ block.settings.body }}</div>
-              {%- endif -%}
+              <span class="dev-main-product__compare-text">
+                <span class="dev-main-product__compare-heading">{{ block.settings.heading }}</span>
+                <span class="dev-main-product__compare-row">
+                  <span class="dev-main-product__compare-link">{{ block.settings.label | escape }}</span>
+                  <span class="dev-main-product__compare-arrow" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                      <path d="M17 16L21 12L17 8M21 12L3 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                </span>
+              </span>
+            </a>
+
+          {%- comment -%} ---------- Price comparison (45068:2385) ---------- {%- endcomment -%}
+          {%- when 'price_comparison' -%}
+            {%- comment -%} `id` is the anchor target for the "Still undecided?" link in the buy column. {%- endcomment -%}
+            <div id="compare" class="dev-main-product__pc" {{ block.shopify_attributes }}>
+              <div class="dev-main-product__pc-head">
+                {%- if block.settings.heading != blank -%}
+                  {%- comment -%}
+                    Figma turns italic mid-word — "Sleep r" then "emarkable." in italic. Kept as
+                    inline_richtext so the merchant owns where the italic starts, rather than
+                    hardcoding a split nobody could guess from the copy.
+
+                    The stroke under it is drawn by CSS, as a mask on the <em>. It used to be an
+                    <img> sitting here, absolutely positioned at top: 33px / left: 76px — the
+                    coordinates of "emarkable." in the default copy. So the setting invited the
+                    merchant to move the italic split ("that split is yours to move") while the
+                    underline stayed nailed where the artboard had put it. It now goes wherever the
+                    italic goes.
+
+                    Still an <h2>, not the <h3> a block heading normally gets: this is the only
+                    heading in its region, and demoting it would leave an h3 with no h2 above it.
+                  {%- endcomment -%}
+                  <h2 class="dev-main-product__pc-title">
+                    {{ block.settings.heading }}
+                  </h2>
+                {%- endif -%}
+
+                {%- if block.settings.subheading != blank -%}
+                  <p class="dev-main-product__pc-sub">{{ block.settings.subheading }}</p>
+                {%- endif -%}
+              </div>
 
               {%- comment -%}
-                Certifications is the only row that pairs a mark with a line of copy, and richtext
-                cannot hold an <img>. Three optional slots rather than a nested block type: they are
-                a fixed set of accreditations, not a list that grows.
+                Three fixed rows, not a nested block type — a section block cannot hold blocks of
+                its own, and the artboard's three points are a fixed set anyway (the old
+                compare_row type carried "limit": 3 and said so). Same construction as the
+                certification rows above. A row with no label is not drawn.
               {%- endcomment -%}
-              {%- assign has_certs = false -%}
+              {%- assign has_rows = false -%}
               {%- for i in (1..3) -%}
-                {%- assign key = 'cert_' | append: i | append: '_text' -%}
+                {%- assign key = 'row_' | append: i | append: '_label' -%}
                 {%- if block.settings[key] != blank -%}
-                  {%- assign has_certs = true -%}
+                  {%- assign has_rows = true -%}
                 {%- endif -%}
               {%- endfor -%}
 
-              {%- if has_certs -%}
-                <ul class="dev-main-product__certs" role="list">
+              {%- if has_rows -%}
+                <ul class="dev-main-product__pc-rows" role="list">
                   {%- for i in (1..3) -%}
                     {%- liquid
-                      assign text_key = 'cert_' | append: i | append: '_text'
-                      assign logo_key = 'cert_' | append: i | append: '_logo'
-                      assign cert_text = block.settings[text_key]
-                      assign cert_logo = block.settings[logo_key]
+                      assign label_key = 'row_' | append: i | append: '_label'
+                      assign icon_key = 'row_' | append: i | append: '_icon'
+                      assign row_label = block.settings[label_key]
+                      assign icon_src = 'dev-main-product-' | append: block.settings[icon_key] | append: '.svg'
                     -%}
-                    {%- if cert_text != blank -%}
-                      <li class="dev-main-product__cert">
-                        {%- if cert_logo != blank and cert_logo != 'none' -%}
-                          {%- assign cert_src = 'dev-main-product-cert-' | append: cert_logo -%}
-                          {%- if cert_logo == 'vegan' -%}
-                            {%- assign cert_src = cert_src | append: '.webp' -%}
-                          {%- else -%}
-                            {%- assign cert_src = cert_src | append: '.svg' -%}
-                          {%- endif -%}
-                          <img class="dev-main-product__cert-logo" src="{{ cert_src | asset_url }}" alt="" width="48" height="58" loading="lazy" aria-hidden="true">
-                        {%- endif -%}
-                        <span class="dev-main-product__cert-text">{{ cert_text }}</span>
+                    {%- if row_label != blank -%}
+                      <li class="dev-main-product__pc-row">
+                        <span class="dev-main-product__pc-icon">
+                          <img src="{{ icon_src | asset_url }}" alt="" width="40" height="39" loading="lazy" aria-hidden="true">
+                        </span>
+                        <span class="dev-main-product__pc-label">{{ row_label | escape }}</span>
                       </li>
                     {%- endif -%}
                   {%- endfor -%}
                 </ul>
               {%- endif -%}
 
-              {%- if block.settings.button_label != blank -%}
-                <a class="dev-main-product__acc-button" href="{{ block.settings.button_link | default: '#' }}">
-                  {{- block.settings.button_label | escape -}}
+              {%- if block.settings.link_label != blank -%}
+                <a class="dev-main-product__pc-link" href="{{ block.settings.link | default: '#' }}" data-compare-open aria-haspopup="dialog" aria-controls="compare-modal" aria-expanded="false">
+                  <span>{{ block.settings.link_label | escape }}</span>
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                    <path d="M17 16L21 12L17 8M21 12L3 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
                 </a>
               {%- endif -%}
-            </details>
-          {%- endfor -%}
-        </div>
-      {%- endif -%}
-
-      {%- comment -%} ---------- Price comparison (45068:2385) ---------- {%- endcomment -%}
-      {%- assign compare_rows = section.blocks | where: 'type', 'compare_row' -%}
-      {%- if compare_rows.size > 0 -%}
-        <div class="dev-main-product__pc">
-          <div class="dev-main-product__pc-head">
-            {%- if section.settings.pc_heading != blank -%}
-              {%- comment -%}
-                Figma turns italic mid-word — "Sleep r" then "emarkable." in italic. Kept as
-                inline_richtext so the merchant owns where the italic starts, rather than hardcoding
-                a split nobody could guess from the copy.
-              {%- endcomment -%}
-              <h2 class="dev-main-product__pc-title">
-                {{ section.settings.pc_heading }}
-                <img
-                  class="dev-main-product__pc-underline"
-                  src="{{ 'dev-main-product-underline.svg' | asset_url }}"
-                  alt=""
-                  width="147"
-                  height="6"
-                  aria-hidden="true"
-                >
-              </h2>
-            {%- endif -%}
-
-            {%- if section.settings.pc_subheading != blank -%}
-              <p class="dev-main-product__pc-sub">{{ section.settings.pc_subheading | escape }}</p>
-            {%- endif -%}
-          </div>
-
-          <ul class="dev-main-product__pc-rows" role="list">
-            {%- for block in compare_rows -%}
-              {%- assign icon_src = 'dev-main-product-' | append: block.settings.icon | append: '.svg' -%}
-              <li class="dev-main-product__pc-row" {{ block.shopify_attributes }}>
-                <span class="dev-main-product__pc-icon">
-                  <img src="{{ icon_src | asset_url }}" alt="" width="40" height="39" loading="lazy" aria-hidden="true">
-                </span>
-                <span class="dev-main-product__pc-label">{{ block.settings.label | escape }}</span>
-              </li>
-            {%- endfor -%}
-          </ul>
-
-          {%- if section.settings.pc_link_label != blank -%}
-            <a class="dev-main-product__pc-link" href="{{ section.settings.pc_link | default: '#' }}">
-              <span>{{ section.settings.pc_link_label | escape }}</span>
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-                <path d="M17 16L21 12L17 8M21 12L3 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-          {%- endif -%}
-        </div>
-      {%- endif -%}
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
     </div>
   </div>
 
@@ -544,15 +694,18 @@
     section owns the triggers — the same reason the menu and cart drawers are blocks of the header.
     Closed server-side with inert + aria-hidden so they are never focusable before the JS runs.
   {%- endcomment -%}
-  {%- assign size_rows = section.blocks | where: 'type', 'size_row' -%}
-  {%- assign tog_cards = section.blocks | where: 'type', 'tog_card' -%}
-
-  {%- if size_rows.size > 0 -%}
+  {%- if size_guide != blank and size_guide.rows.value.size > 0 -%}
     <div id="guide-size" class="dev-main-product__guide" role="dialog" aria-modal="true" aria-labelledby="guide-size-title" data-guide="size" data-open="false" aria-hidden="true" inert>
       <div class="dev-main-product__guide-backdrop" data-guide-close></div>
-      <div class="dev-main-product__guide-panel">
+      {%- comment -%}
+        tabindex="-1": on open the JS focuses THE PANEL, not the first control inside it. Focusing a
+        control while the panel is still translated off-screen makes the browser scroll it into view
+        — it scrolls the overflow:hidden container, the drawer snaps into place, and only then does
+        the transform start. That snap was the whole "horrible animation".
+      {%- endcomment -%}
+      <div class="dev-main-product__guide-panel" data-guide-panel tabindex="-1">
         <div class="dev-main-product__guide-head">
-          <h2 class="dev-main-product__guide-title" id="guide-size-title">{{ section.settings.size_guide_title | escape }}</h2>
+          <h2 class="dev-main-product__guide-title" id="guide-size-title">{{ size_guide.title.value | escape }}</h2>
           <button type="button" class="dev-main-product__guide-close" data-guide-close aria-label="{{ 'actions.close' | t | escape }}">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
               <path d="M7 17L17 7M7 7L17 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -566,36 +719,139 @@
               CM / IN is a real toggle, not two links. Both values are already in the DOM — a unit
               switch that had to fetch anything would be absurd.
             {%- endcomment -%}
-            <div class="dev-main-product__units" role="group" aria-label="{{ section.settings.size_guide_title | escape }}">
-              <button type="button" class="dev-main-product__unit dev-main-product__unit--active" data-unit="cm" aria-pressed="true">{{ section.settings.unit_metric | escape }}</button>
-              <button type="button" class="dev-main-product__unit" data-unit="in" aria-pressed="false">{{ section.settings.unit_imperial | escape }}</button>
-            </div>
+            {%- comment -%} One button per 'unit' block. The toggle only exists when there is a choice to make. {%- endcomment -%}
+            {%- if units.size > 1 -%}
+              <div class="dev-main-product__units" role="group" aria-label="{{ size_guide.title.value | escape }}">
+                {%- for u in units -%}
+                  {%- liquid
+                    assign ulabel = u.settings.label
+                    if ulabel == blank
+                      assign ulabel = u.settings.unit | upcase
+                    endif
+                  -%}
+                  <button type="button" class="dev-main-product__unit{% if forloop.first %} dev-main-product__unit--active{% endif %}" data-unit="{{ u.id }}" aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}" {{ u.shopify_attributes }}>{{ ulabel | escape }}</button>
+                {%- endfor -%}
+              </div>
+            {%- endif -%}
 
+            {%- comment -%}
+              The rows come from the size_guide metaobject, one size_guide_row each. Every duvet can
+              point at the SAME entry — the guide is a fact about the product line, not about the
+              template it happens to be rendered in.
+
+              Inches are DERIVED, never typed. The entry stores a real dimension (width x length) and
+              the imperial column is computed from it, so the two columns cannot drift apart the way
+              two hand-typed text fields eventually do. The artboard's numbers fall out exactly:
+              135->53, 200->79, 230->91, 220->87, 260->102.
+            {%- endcomment -%}
             <dl class="dev-main-product__size-rows">
-              {%- for block in size_rows -%}
-                <div class="dev-main-product__size-row" {{ block.shopify_attributes }}>
-                  <dt class="dev-main-product__size-label">{{ block.settings.label | escape }}</dt>
-                  <dd class="dev-main-product__size-value" data-unit-value="cm">{{ block.settings.value_cm | escape }}</dd>
-                  <dd class="dev-main-product__size-value" data-unit-value="in" hidden>{{ block.settings.value_in | escape }}</dd>
+              {%- for row in size_guide.rows.value -%}
+                {%- liquid
+                  assign w = row.width.value
+                  assign l = row.length.value
+
+                  # Normalise to centimetres first. The merchant picks the unit from a dropdown, so
+                  # "cm" is a convention, not a guarantee — a row typed in mm must not render 1350cm.
+                  # Shopify has used both short ("cm") and long ("CENTIMETERS") unit names; match both.
+                  assign wu = w.unit | downcase
+                  assign w_scale = 1.0
+                  if wu == 'mm' or wu == 'millimeters'
+                    assign w_scale = 0.1
+                  elsif wu == 'm' or wu == 'meters'
+                    assign w_scale = 100.0
+                  elsif wu == 'in' or wu == 'inches'
+                    assign w_scale = 2.54
+                  elsif wu == 'ft' or wu == 'feet'
+                    assign w_scale = 30.48
+                  elsif wu == 'yd' or wu == 'yards'
+                    assign w_scale = 91.44
+                  endif
+
+                  assign lu = l.unit | downcase
+                  assign l_scale = 1.0
+                  if lu == 'mm' or lu == 'millimeters'
+                    assign l_scale = 0.1
+                  elsif lu == 'm' or lu == 'meters'
+                    assign l_scale = 100.0
+                  elsif lu == 'in' or lu == 'inches'
+                    assign l_scale = 2.54
+                  elsif lu == 'ft' or lu == 'feet'
+                    assign l_scale = 30.48
+                  elsif lu == 'yd' or lu == 'yards'
+                    assign l_scale = 91.44
+                  endif
+
+                  assign w_cm = w.value | times: w_scale
+                  assign l_cm = l.value | times: l_scale
+                -%}
+                <div class="dev-main-product__size-row">
+                  <dt class="dev-main-product__size-label">{{ row.label.value | escape }}</dt>
+                  {%- if units.size > 0 -%}
+                    {%- for u in units -%}
+                      {%- liquid
+                        # The unit type carries its own cm-conversion factor, suffix and rounding, so a
+                        # column can never drift from the stored dimension the way a typed value would.
+                        case u.settings.unit
+                          when 'in'
+                            assign factor = 0.3937008
+                            assign suffix = 'in'
+                            assign dec = 0
+                          when 'mm'
+                            assign factor = 10.0
+                            assign suffix = 'mm'
+                            assign dec = 0
+                          when 'ft'
+                            assign factor = 0.0328084
+                            assign suffix = 'ft'
+                            assign dec = 1
+                          when 'm'
+                            assign factor = 0.01
+                            assign suffix = 'm'
+                            assign dec = 2
+                          else
+                            assign factor = 1.0
+                            assign suffix = 'cm'
+                            assign dec = 0
+                        endcase
+                        assign wv = w_cm | times: factor | round: dec
+                        assign lv = l_cm | times: factor | round: dec
+                      -%}
+                      <dd class="dev-main-product__size-value" data-unit-value="{{ u.id }}"{% unless forloop.first %} hidden{% endunless %}>{{ wv }} {{ suffix }} x {{ lv }} {{ suffix }}</dd>
+                    {%- endfor -%}
+                  {%- else -%}
+                    {%- comment -%} No unit blocks configured — centimetres so the table still reads. {%- endcomment -%}
+                    <dd class="dev-main-product__size-value" data-unit-value="cm">{{ w_cm | round }} cm x {{ l_cm | round }} cm</dd>
+                  {%- endif -%}
                 </div>
               {%- endfor -%}
             </dl>
           </div>
 
-          {%- if section.settings.guide_footer != blank -%}
-            <div class="dev-main-product__guide-foot">{{ section.settings.guide_footer }}</div>
+          {%- comment -%}
+            metafield_tag, not a bare print. A rich_text_field's value is an AST — {"type":"root",
+            "children":[...]} — and BOTH `{{ field }}` and `{{ field.value }}` dump that JSON onto
+            the page as text. metafield_tag is the filter that walks the AST and renders real HTML.
+          {%- endcomment -%}
+          {%- if size_guide.footer != blank -%}
+            <div class="dev-main-product__guide-foot">{{ size_guide.footer | metafield_tag }}</div>
           {%- endif -%}
         </div>
       </div>
     </div>
   {%- endif -%}
 
-  {%- if tog_cards.size > 0 -%}
+  {%- if seasons_guide != blank and seasons_guide.cards.value.size > 0 -%}
     <div id="guide-tog" class="dev-main-product__guide" role="dialog" aria-modal="true" aria-labelledby="guide-tog-title" data-guide="tog" data-open="false" aria-hidden="true" inert>
       <div class="dev-main-product__guide-backdrop" data-guide-close></div>
-      <div class="dev-main-product__guide-panel">
+      {%- comment -%}
+        tabindex="-1": on open the JS focuses THE PANEL, not the first control inside it. Focusing a
+        control while the panel is still translated off-screen makes the browser scroll it into view
+        — it scrolls the overflow:hidden container, the drawer snaps into place, and only then does
+        the transform start. That snap was the whole "horrible animation".
+      {%- endcomment -%}
+      <div class="dev-main-product__guide-panel" data-guide-panel tabindex="-1">
         <div class="dev-main-product__guide-head">
-          <h2 class="dev-main-product__guide-title" id="guide-tog-title">{{ section.settings.tog_guide_title | escape }}</h2>
+          <h2 class="dev-main-product__guide-title" id="guide-tog-title">{{ seasons_guide.title.value | escape }}</h2>
           <button type="button" class="dev-main-product__guide-close" data-guide-close aria-label="{{ 'actions.close' | t | escape }}">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
               <path d="M7 17L17 7M7 7L17 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -604,36 +860,43 @@
         </div>
 
         <div class="dev-main-product__guide-body">
-          {%- if section.settings.tog_heading != blank -%}
-            <p class="dev-main-product__tog-heading">{{ section.settings.tog_heading | escape }}</p>
+          {%- if seasons_guide.heading.value != blank -%}
+            <p class="dev-main-product__tog-heading">{{ seasons_guide.heading.value | escape }}</p>
           {%- endif -%}
 
-          {%- for block in tog_cards -%}
-            <div class="dev-main-product__tog-card" {{ block.shopify_attributes }}>
-              <h3 class="dev-main-product__tog-title">{{ block.settings.heading }}</h3>
+          {%- comment -%}
+            One seasons_card per card. The chips are a real list on the entry, not one text field
+            split on commas — a chip that legitimately contained a comma used to break into two.
 
-              {%- if block.settings.temperature != blank -%}
+            The chip's icon stays in the theme: it is the same mark on every chip, so it is
+            decoration, not content, and no merchant should have to attach it three times per card.
+            Temperature / How it feels / Best for are interface labels for the same reason.
+          {%- endcomment -%}
+          {%- for card in seasons_guide.cards.value -%}
+            <div class="dev-main-product__tog-card">
+              <h3 class="dev-main-product__tog-title">{{ card.heading.value | escape }}</h3>
+
+              {%- if card.temperature.value != blank -%}
                 <p class="dev-main-product__tog-line">
                   <span class="dev-main-product__tog-label">{{ section.settings.tog_label_temp | escape }}</span>
-                  <span class="dev-main-product__tog-text">{{ block.settings.temperature | escape }}</span>
+                  <span class="dev-main-product__tog-text">{{ card.temperature.value | escape }}</span>
                 </p>
               {%- endif -%}
 
-              {%- if block.settings.feel != blank -%}
+              {%- if card.feel.value != blank -%}
                 <p class="dev-main-product__tog-line">
                   <span class="dev-main-product__tog-label">{{ section.settings.tog_label_feel | escape }}</span>
-                  <span class="dev-main-product__tog-text">{{ block.settings.feel | escape }}</span>
+                  <span class="dev-main-product__tog-text">{{ card.feel.value | escape }}</span>
                 </p>
               {%- endif -%}
 
-              {%- if block.settings.chips != blank -%}
+              {%- if card.chips.value.size > 0 -%}
                 <p class="dev-main-product__tog-label">{{ section.settings.tog_label_best | escape }}</p>
                 <ul class="dev-main-product__tog-chips" role="list">
-                  {%- assign chips = block.settings.chips | split: ',' -%}
-                  {%- for chip in chips -%}
+                  {%- for chip in card.chips.value -%}
                     <li class="dev-main-product__tog-chip">
                       <img src="{{ 'dev-main-product-chip-icon.svg' | asset_url }}" alt="" width="22" height="16" loading="lazy" aria-hidden="true">
-                      <span>{{ chip | strip | escape }}</span>
+                      <span>{{ chip | escape }}</span>
                     </li>
                   {%- endfor -%}
                 </ul>
@@ -670,13 +933,13 @@
   "tag": "section",
   "settings": [
     { "type": "header", "content": "Content" },
-    { "type": "text", "id": "tagline", "label": "Tagline (bold line)", "default": "Breathable. Love-able. Washable." },
-    { "type": "text", "id": "subtitle", "label": "Subtitle", "default": "Vegan-certified natural comfort for everyday sleepers." },
+    { "type": "paragraph", "content": "The line under the title is the product's own Description — add the \"Description\" block. There is no tagline/subtitle here anymore." },
     { "type": "text", "id": "cta_label", "label": "Add to cart label", "default": "Add to Order" },
     { "type": "text", "id": "sold_out_label", "label": "Sold out label", "default": "Sold out" },
 
     { "type": "header", "content": "Rating" },
     { "type": "checkbox", "id": "show_rating", "label": "Show rating", "default": true },
+    { "type": "checkbox", "id": "show_rating_stars", "label": "Show rating stars", "default": true, "info": "Hides only the stars — the rating label stays." },
     { "type": "range", "id": "rating_value", "min": 0, "max": 5, "step": 0.1, "label": "Rating", "default": 4.9, "info": "Fills the stars proportionally — 4.9 leaves the fifth star 90% full, as drawn." },
     { "type": "text", "id": "rating_label", "label": "Rating label", "default": "4.9/5" },
     { "type": "url", "id": "rating_link", "label": "Rating link", "info": "Point it at the reviews section." },
@@ -684,35 +947,14 @@
     { "type": "header", "content": "Gallery" },
     { "type": "text", "id": "badge_text", "label": "Image badge", "default": "Smooth & Breezy" },
     { "type": "checkbox", "id": "show_seal", "label": "Show approval seal", "default": true },
-    { "type": "image_picker", "id": "seal_image", "label": "Approval seal", "info": "Leave empty to use the seal bundled with the theme." },
+    { "type": "image_picker", "id": "seal_image", "label": "Approval seal", "info": "Pick the seal from Files. Leave it empty and no seal is drawn — the theme no longer bundles one." },
     { "type": "text", "id": "seal_alt", "label": "Approval seal alt text", "default": "Good Housekeeping Institute approved" },
 
-    { "type": "header", "content": "Option links" },
-    { "type": "paragraph", "content": "The small underlined controls beside the first and second option labels. They open the Size guide and the Seasons guide — they are buttons, not links, because they open a dialog on this page rather than navigating." },
-    { "type": "text", "id": "option_1_link_label", "label": "Link 1 label", "default": "Size Guide" },
-    { "type": "text", "id": "option_2_link_label", "label": "Link 2 label", "default": "What’s the difference?" },
-
     { "type": "header", "content": "Guides" },
-    { "type": "text", "id": "size_guide_title", "label": "Size guide title", "default": "Size Guide" },
-    { "type": "text", "id": "unit_metric", "label": "Metric unit", "default": "CM" },
-    { "type": "text", "id": "unit_imperial", "label": "Imperial unit", "default": "IN" },
-    { "type": "richtext", "id": "guide_footer", "label": "Size guide footer", "default": "<p>Still got questions? <strong>Click here</strong> to chat with us</p>" },
-    { "type": "text", "id": "tog_guide_title", "label": "Seasons guide title", "default": "Seasons Guide" },
-    { "type": "text", "id": "tog_heading", "label": "Seasons guide heading", "default": "What\u2019s the difference?" },
+    { "type": "paragraph", "content": "Neither guide is set here any more. Both come from the product: larke.size_guide and larke.seasons_guide. Each entry names the option it explains, so its link appears beside that option \u2014 leave a metafield empty and that product simply has no link and no drawer. What stays below is interface, not content: the three row labels in the seasons drawer. The size-guide unit toggle is built from \u201cSize unit\u201d blocks \u2014 add or reorder them, the first is the default." },
     { "type": "text", "id": "tog_label_temp", "label": "Label: temperature", "default": "Temperature:" },
     { "type": "text", "id": "tog_label_feel", "label": "Label: feel", "default": "How it feels over you:" },
     { "type": "text", "id": "tog_label_best", "label": "Label: best for", "default": "Best for:" },
-
-    { "type": "header", "content": "Still undecided" },
-    { "type": "text", "id": "compare_heading", "label": "Heading", "default": "Still undecided?" },
-    { "type": "text", "id": "compare_label", "label": "Link text", "default": "See how our duvet compares" },
-    { "type": "url", "id": "compare_link", "label": "Link" },
-
-    { "type": "header", "content": "Price comparison" },
-    { "type": "inline_richtext", "id": "pc_heading", "label": "Heading", "default": "Sleep r<em>emarkable.</em>", "info": "The artboard turns italic mid-word — that split is yours to move." },
-    { "type": "text", "id": "pc_subheading", "label": "Subheading", "default": "Without any compromises" },
-    { "type": "text", "id": "pc_link_label", "label": "Link text", "default": "See how we’re different" },
-    { "type": "url", "id": "pc_link", "label": "Link" },
 
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
@@ -724,6 +966,18 @@
     { "type": "color", "id": "border_color", "label": "Borders & dividers", "default": "#C4BCA9" }
   ],
   "blocks": [
+    {
+      "type": "unit",
+      "name": "Size unit",
+      "limit": 6,
+      "settings": [
+        { "type": "paragraph", "content": "A tab in the size-guide unit toggle. Pick the unit — it carries the conversion, so the numbers stay correct — and give it a short label. The first Size unit block is shown by default." },
+        { "type": "select", "id": "unit", "label": "Unit", "default": "cm", "options": [
+          { "value": "cm", "label": "Centimetres" }, { "value": "in", "label": "Inches" },
+          { "value": "mm", "label": "Millimetres" }, { "value": "ft", "label": "Feet" }, { "value": "m", "label": "Metres" } ] },
+        { "type": "text", "id": "label", "label": "Toggle text", "info": "The button text — CM, IN… Leave empty to use the unit’s short form." }
+      ]
+    },
     {
       "type": "accordion",
       "name": "Accordion",
@@ -751,41 +1005,49 @@
       ]
     },
     {
-      "type": "size_row",
-      "name": "Size row",
+      "type": "compare",
+      "name": "Still undecided",
+      "limit": 1,
       "settings": [
-        { "type": "text", "id": "label", "label": "Size", "default": "Single" },
-        { "type": "text", "id": "value_cm", "label": "Value (cm)", "default": "135 cm x 200 cm" },
-        { "type": "text", "id": "value_in", "label": "Value (in)", "default": "53 in x 79 in" }
+        { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Still undecided?" },
+        { "type": "text", "id": "label", "label": "Link text", "default": "See how our duvet compares" },
+        { "type": "url", "id": "link", "label": "Link", "info": "Point it at the price comparison block: #compare" }
       ]
     },
     {
-      "type": "tog_card",
-      "name": "Seasons card",
+      "type": "price_comparison",
+      "name": "Price comparison",
+      "limit": 1,
       "settings": [
-        { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Lightweight" },
-        { "type": "text", "id": "temperature", "label": "Temperature", "default": "Our coolest: 2/10 on the warmth scale." },
-        { "type": "text", "id": "feel", "label": "How it feels", "default": "Think cloud-like comfort \u2013 (cool and forever light)." },
-        { "type": "text", "id": "chips", "label": "Best for", "info": "Comma separated.", "default": "Hot sleepers, Warm bedrooms." }
+        { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Sleep r<em>emarkable.</em>", "info": "The artboard turns italic mid-word — that split is yours to move." },
+        { "type": "inline_richtext", "id": "subheading", "label": "Subheading", "default": "Without any compromises" },
+
+        { "type": "header", "content": "Rows" },
+        { "type": "paragraph", "content": "Three points, as drawn. Clear a label and that row is not drawn." },
+        { "type": "select", "id": "row_1_icon", "label": "Icon 1", "default": "care", "options": [
+          { "value": "care", "label": "Easier to care for" }, { "value": "warranty", "label": "Longer warranties" },
+          { "value": "trial", "label": "Longer trial periods" } ] },
+        { "type": "text", "id": "row_1_label", "label": "Label 1", "default": "Easier to care for" },
+        { "type": "select", "id": "row_2_icon", "label": "Icon 2", "default": "warranty", "options": [
+          { "value": "care", "label": "Easier to care for" }, { "value": "warranty", "label": "Longer warranties" },
+          { "value": "trial", "label": "Longer trial periods" } ] },
+        { "type": "text", "id": "row_2_label", "label": "Label 2", "default": "Longer warranties" },
+        { "type": "select", "id": "row_3_icon", "label": "Icon 3", "default": "trial", "options": [
+          { "value": "care", "label": "Easier to care for" }, { "value": "warranty", "label": "Longer warranties" },
+          { "value": "trial", "label": "Longer trial periods" } ] },
+        { "type": "text", "id": "row_3_label", "label": "Label 3", "default": "Longer trial periods" },
+
+        { "type": "header", "content": "Link" },
+        { "type": "text", "id": "link_label", "label": "Link text", "default": "See how we’re different" },
+        { "type": "url", "id": "link", "label": "Link" }
       ]
     },
     {
-      "type": "compare_row",
-      "name": "Comparison row",
-      "limit": 3,
+      "type": "description",
+      "name": "Description",
+      "limit": 1,
       "settings": [
-        {
-          "type": "select",
-          "id": "icon",
-          "label": "Icon",
-          "default": "care",
-          "options": [
-            { "value": "care", "label": "Easier to care for" },
-            { "value": "warranty", "label": "Longer warranties" },
-            { "value": "trial", "label": "Longer trial periods" }
-          ]
-        },
-        { "type": "text", "id": "label", "label": "Label", "default": "Easier to care for" }
+        { "type": "paragraph", "content": "Shows the product's own Description (from the product admin), under the title. Nothing to edit here — one block serves every product." }
       ]
     }
   ],
@@ -793,10 +1055,12 @@
     {
       "name": "Main product",
       "blocks": [
+        { "type": "description" },
+        { "type": "unit", "settings": { "unit": "cm", "label": "CM" } },
+        { "type": "unit", "settings": { "unit": "in", "label": "IN" } },
+        { "type": "compare" },
         { "type": "accordion", "settings": { "open_by_default": true } },
-        { "type": "compare_row", "settings": { "icon": "care", "label": "Easier to care for" } },
-        { "type": "compare_row", "settings": { "icon": "warranty", "label": "Longer warranties" } },
-        { "type": "compare_row", "settings": { "icon": "trial", "label": "Longer trial periods" } }
+        { "type": "price_comparison" }
       ]
     }
   ]

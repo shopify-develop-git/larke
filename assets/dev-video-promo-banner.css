@@ -111,43 +111,93 @@
 
 /* --- buttons / links --- */
 
+/* Migrated to the shared .dev-btn component (variant: filled). The only desktop deviation from
+   the filled default is the fixed CTA text colour — everything else (padding, radius, accent bg,
+   font size/weight/line-height) already matches the component's defaults. No positioning is
+   needed: the button is centred by __content's flex align-items. */
 .video-promo-banner__button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--button-py) var(--button-px);
-  border-radius: var(--button-radius);
-  background-color: var(--accent);
-  color: var(--cta-text-color);
-  font-family: var(--font-body);
-  font-size: var(--font-button-size);
-  font-weight: var(--font-button-weight);
-  line-height: var(--font-button-lh);
-  text-align: center;
-  text-decoration: none;
+  --dev-btn-color: var(--cta-text-color);
 }
 
 /* --- modal (video lightbox) --- */
 
+/* A <dialog> opened with showModal(). The dim is painted by the dialog's OWN background rather than
+   by ::backdrop: ::backdrop only began inheriting custom properties from its originating element in
+   recent Chrome, and --modal-overlay is declared on the section. Painting it here keeps the colour a
+   token in every browser instead of a hex hardcoded into a pseudo-element. ::backdrop is still there
+   underneath, doing the job it is actually needed for — swallowing clicks and inerting the page. */
 .video-promo-banner__modal {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
   padding: var(--modal-px);
+  border: 0;
   background-color: var(--modal-overlay);
 }
 
-.video-promo-banner__modal[hidden] {
-  display: none;
+.video-promo-banner__modal[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-promo-banner__modal::backdrop {
+  background-color: transparent;
+}
+
+.video-promo-banner__modal[data-modal-state='opening'] {
+  animation: video-promo-banner-in var(--modal-in) var(--ease-out) both;
+}
+
+.video-promo-banner__modal[data-modal-state='closing'] {
+  animation: video-promo-banner-out var(--modal-out) var(--ease-in) both;
+}
+
+/* The dim fades; the player also rises the last few pixels into place. Scaling the whole dialog
+   would scale the dim along with it and the edges of the screen would visibly sweep in. */
+@keyframes video-promo-banner-in {
+  from {
+    background-color: transparent;
+  }
+}
+
+@keyframes video-promo-banner-out {
+  to {
+    background-color: transparent;
+  }
+}
+
+.video-promo-banner__modal[data-modal-state='opening'] .video-promo-banner__modal-inner {
+  animation: video-promo-banner-player-in var(--modal-in) var(--ease-out) both;
+}
+
+.video-promo-banner__modal[data-modal-state='closing'] .video-promo-banner__modal-inner {
+  animation: video-promo-banner-player-out var(--modal-out) var(--ease-in) both;
+}
+
+@keyframes video-promo-banner-player-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+}
+
+@keyframes video-promo-banner-player-out {
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
 }
 
 .video-promo-banner__modal-inner {
   position: relative;
   width: 100%;
   max-width: var(--modal-max-w);
+  /* Keep the 16:9 player, the close button above it and the padding inside the viewport. Without the
+     cap, a short window pushed the close button off the top of the screen. */
+  max-height: calc(100dvh - (var(--modal-px) * 2) - 44px - var(--spacing-sm));
   aspect-ratio: 16 / 9;
 }
 
@@ -215,6 +265,17 @@
     transform: translate(-50%, -50%);
   }
 
+  /* The play button above is absolutely centred on the TILE. The global scroll-reveal (dev-reveal.js)
+     tags __content and briefly transforms it — and a transformed ancestor becomes the containing block
+     for an absolutely-positioned descendant. So while __content carried the reveal transform the play
+     button anchored to __content (low, near the text); the instant the transform settled on `none` it
+     re-anchored to the tile and jumped ~160px up — and Safari left it stranded there. Drop ONLY the
+     rise on __content here (its fade still plays), so the button's containing block stays the tile at
+     every frame and it never moves. Desktop is unaffected: there the play button is in normal flow. */
+  html.dev-reveal .video-promo-banner__content[data-reveal] {
+    transform: none;
+  }
+
   .video-promo-banner__text {
     max-width: var(--text-max-m);
   }
@@ -228,8 +289,6 @@
   }
 
   .video-promo-banner__button {
-    min-height: 44px;
-    min-width: 44px;
     padding: var(--button-py-m) var(--button-px-m);
     font-size: var(--font-button-size-m);
   }
@@ -249,16 +308,21 @@
    ACCESSIBILITY
    ============================================= */
 
-.video-promo-banner__button:focus-visible,
 .video-promo-banner__play:focus-visible,
 .video-promo-banner__modal-close:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-.video-promo-banner__button:focus:not(:focus-visible),
 .video-promo-banner__play:focus:not(:focus-visible),
 .video-promo-banner__modal-close:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* The player container takes initial focus on open (so the × close button isn't the focused element
+   and iOS Safari doesn't ring it — the white circle over the video). It is tabindex="-1", never a tab
+   stop, so it needs no focus ring of its own. */
+.video-promo-banner__modal-inner:focus {
   outline: none;
 }
 
@@ -272,4 +336,11 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* showModal() makes the page behind inert and swallows clicks on it, but it does NOT stop it
+   scrolling — spin the wheel over the lightbox and the homepage slides about underneath. The class
+   goes on <html>, so it is prefixed to keep it out of everyone else's way. */
+.video-promo-banner-scroll-lock {
+  overflow: hidden;
 }

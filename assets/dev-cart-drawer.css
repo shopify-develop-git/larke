@@ -177,6 +177,13 @@ body[data-cart-drawer-open='true'] {
   min-width: 0;
 }
 
+.cart-drawer__item-image-link {
+  display: block;
+  flex-shrink: 0;
+  line-height: 0;
+  border-radius: var(--radius-image);
+}
+
 .cart-drawer__item-image {
   flex-shrink: 0;
   width: var(--image-size);
@@ -211,6 +218,18 @@ body[data-cart-drawer-open='true'] {
   color: var(--color);
 }
 
+/* Title links to the product page (same target as the thumbnail). Looks like the plain
+   title at rest; underlines on hover/focus to signal it is clickable. */
+.cart-drawer__item-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cart-drawer__item-title-link:hover,
+.cart-drawer__item-title-link:focus-visible {
+  text-decoration: underline;
+}
+
 .cart-drawer__item-option {
   margin: 0;
   font-size: var(--font-size-option);
@@ -223,6 +242,23 @@ body[data-cart-drawer-open='true'] {
 }
 
 .cart-drawer__item-option-value {
+  font-weight: var(--weight-bold);
+}
+
+/* Per-line quantity — the design has no counter, so adding the same variant twice read as
+   one line. This makes the count explicit, in the same "label: value" shape as the options. */
+.cart-drawer__item-qty {
+  margin: 0;
+  font-size: var(--font-size-option);
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+.cart-drawer__item-qty-label {
+  font-weight: var(--weight-medium);
+}
+
+.cart-drawer__item-qty-value {
   font-weight: var(--weight-bold);
 }
 
@@ -273,6 +309,19 @@ body[data-cart-drawer-open='true'] {
   color: var(--icon-muted);
 }
 
+/* A merchant's own artwork, standing in for the bundled icon. Same 24px box so a mixed row — one
+   badge on an uploaded mark, the next on a theme icon — still lines up. object-fit: contain because
+   the upload's aspect ratio is the merchant's business, not ours: a wide logo letterboxes rather
+   than being squashed into a square. No colour is applied — an <img> cannot take currentColor, and
+   pretending otherwise is what would make an uploaded badge look broken next to a themed one. */
+.cart-drawer__badge-image {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  max-width: none;
+  object-fit: contain;
+}
+
 .cart-drawer__badge-label {
   font-size: var(--font-size-badge);
   font-weight: var(--weight-bold);
@@ -302,29 +351,19 @@ body[data-cart-drawer-open='true'] {
 
 /* --- checkout button --- */
 
+/* Full-width translucent checkout from the shared component (.dev-btn--ghost.dev-btn--full).
+   Composite bits kept: the 60px floor, the icon row (display:flex), the 16/24 padding, and the
+   drawer's own fill/stroke/text tokens mapped onto the ghost variant. The unified hover
+   (ghost solidifies) and focus come from .dev-btn. */
 .cart-drawer__checkout {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  width: 100%;
   min-height: 60px;
-  padding: var(--spacing-md) var(--spacing-lg);
-
-  background-color: var(--accent);
-  border: 1px solid var(--cta-color);
-  border-radius: var(--radius-cta);
-  color: var(--cta-color);
-
-  font-size: var(--font-size-cta);
-  font-weight: var(--weight-bold);
-  line-height: var(--font-body-lh);
-  text-decoration: none;
-  transition: opacity 0.2s ease;
-}
-
-.cart-drawer__checkout:hover {
-  opacity: 0.85;
+  --dev-btn-gap: var(--spacing-sm);
+  --dev-btn-py: var(--spacing-md);
+  --dev-btn-px: var(--spacing-lg);
+  --dev-btn-ghost-bg: var(--accent);
+  --dev-btn-on-dark: var(--cta-color);
+  --dev-btn-focus: var(--cta-color);
 }
 
 .cart-drawer__checkout .cart-drawer__icon {
@@ -334,10 +373,12 @@ body[data-cart-drawer-open='true'] {
 
 /* --- payment methods --- */
 
+/* Centred, not end-aligned. The block is width:100%, so it fills the footer and the footer's own
+   align-items:center never gets a say — the alignment has to be set here, on its own axis. */
 .cart-drawer__payment {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   gap: var(--spacing-sm);
   width: 100%;
 }
@@ -354,7 +395,7 @@ body[data-cart-drawer-open='true'] {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   gap: var(--spacing-xs);
 
   margin: 0;
@@ -440,7 +481,8 @@ body[data-cart-drawer-open='true'] {
     font-size: var(--font-size-title-mobile);
   }
 
-  .cart-drawer__item-option {
+  .cart-drawer__item-option,
+  .cart-drawer__item-qty {
     font-size: var(--font-size-option-mobile);
   }
 

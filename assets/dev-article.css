@@ -50,33 +50,23 @@
 
 /* --- back link --- */
 
+/* Styling from the shared component (.dev-btn--text.dev-btn--icon-left): bare text
+   link, underline-on-hover, icon nudges left toward where it goes. Only the deviations
+   from the text-variant default are kept here, plus the layout self-alignment. */
 .dev-article__back {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
   align-self: flex-start;
-
-  font-size: var(--font-meta-size);
-  font-weight: var(--font-body-weight);
-  line-height: 1.4;
-  color: var(--color);
-  text-decoration: none;
+  --dev-btn-gap: var(--spacing-xs);
+  --dev-btn-fs: var(--font-meta-size);
+  --dev-btn-fw: var(--font-body-weight);
+  --dev-btn-focus: var(--color);
 }
 
-.dev-article__back:hover span {
-  text-decoration: underline;
-}
-
+/* Locked size; snappier 0.15s nudge overrides the component's 0.2s (source order). */
 .dev-article__back-icon {
   display: block;
   width: var(--icon-size);
   height: var(--icon-size);
   transition: transform 0.15s ease-out;
-}
-
-/* Nudges toward where it is taking you. */
-.dev-article__back:hover .dev-article__back-icon {
-  transform: translateX(-3px);
 }
 
 /* --- head --- */
@@ -295,13 +285,13 @@
    ACCESSIBILITY
    ============================================= */
 
-.dev-article__back:focus-visible,
+/* The back link's focus is handled by the shared component (.dev-btn, focus colour
+   pinned to --color via --dev-btn-focus above). Body richtext links keep their own. */
 .dev-article__body a:focus-visible {
   outline: 2px solid var(--color);
   outline-offset: 2px;
 }
 
-.dev-article__back:focus:not(:focus-visible),
 .dev-article__body a:focus:not(:focus-visible) {
   outline: none;
 }

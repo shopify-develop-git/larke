@@ -3,8 +3,6 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .dev-policy {
-    --font-body: 'Public Sans', sans-serif;
-    --font-heading: 'Test Tiempos Headline', serif;
 
     /* Desktop/Title 3 for the card, Desktop/Title 4 for a question. Mobile states its own
        sizes on the artboard, so they win over a scale factor. */
@@ -91,7 +89,13 @@
     <div class="dev-policy__card">
       {%- if section.settings.title != blank -%}
         {%- comment -%} inline_richtext: already safe HTML from Shopify — never escape it. {%- endcomment -%}
-        <h2 class="dev-policy__title">{{ section.settings.title }}</h2>
+        {%- comment -%}
+          <h1>, not <h2>. This section IS the page's main content — the page templates render no
+          title of their own, so before this the whole document had no h1 at all and its outline
+          opened at level 2. The children below are h2 for the same reason: an h1 followed by an h3
+          is a skipped level.
+        {%- endcomment -%}
+        <h1 class="dev-policy__title">{{ section.settings.title }}</h1>
       {%- endif -%}
 
       {%- if section.settings.body != blank -%}
@@ -104,7 +108,7 @@
         {%- for block in qa_blocks -%}
           <div class="dev-policy__item" {{ block.shopify_attributes }}>
             {%- if block.settings.heading != blank -%}
-              <h3 class="dev-policy__question">{{ block.settings.heading }}</h3>
+              <h2 class="dev-policy__question">{{ block.settings.heading }}</h2>
             {%- endif -%}
             {%- if block.settings.body != blank -%}
               <div class="dev-policy__answer">{{ block.settings.body }}</div>
@@ -119,7 +123,7 @@
         {%- for block in note_blocks -%}
           <div class="dev-policy__item dev-policy__item--note" {{ block.shopify_attributes }}>
             {%- if block.settings.heading != blank -%}
-              <h3 class="dev-policy__question">{{ block.settings.heading }}</h3>
+              <h2 class="dev-policy__question">{{ block.settings.heading }}</h2>
             {%- endif -%}
             {%- if block.settings.body != blank -%}
               <div class="dev-policy__answer">{{ block.settings.body }}</div>

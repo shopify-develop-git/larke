@@ -28,8 +28,6 @@
 <style>
   .naturally-best-sleep {
     /* Brand params (Brief → Brand Params table). Faces are loaded by snippets/dev-brand-fonts.liquid. */
-    --font-body: 'Public Sans', sans-serif;
-    --font-heading: 'Test Tiempos Headline', serif;
     --container-max: 1248px;
     --section-px: 96px;
     --section-px-m: 32px;
@@ -88,17 +86,12 @@
     {%- endif -%}
 
     {%- if button_label != blank -%}
-      <a
-        class="naturally-best-sleep__button"
-        {% if section.settings.button_link != blank %}
-          href="{{ section.settings.button_link }}"
-        {% else %}
-          href="#"
-          aria-disabled="true"
-        {% endif %}
-      >
-        {{- button_label | escape -}}
-      </a>
+      {%- render 'dev-button',
+        variant: 'outline',
+        label: button_label | escape,
+        link: section.settings.button_link,
+        class: 'naturally-best-sleep__button'
+      -%}
     {%- endif -%}
   </div>
 </div>

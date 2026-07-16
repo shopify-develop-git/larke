@@ -15,14 +15,14 @@
         "heading": "<p>Not just any<br/>ordinary duvet</p>",
         "subtext": "<p>This one begins with <em>trees</em>.</p>",
         "cta_label": "Discover Our Duvet",
-        "cta_link": "shopify://collections/all",
-        "background_image": "shopify://shop_images/hero-bg.jpg",
+        "cta_link": "/products/natural-duvet",
+        "background_image": "shopify://shop_images/master_hero_media_619dff07-6390-4b1e-ba79-c1622cdf6972.webp",
         "background_image_mobile": "shopify://shop_images/hero-bg.jpg",
+        "stretch_background": false,
         "show_underline_accent": true,
         "background_color": "#333333",
         "text_color": "#ffffff",
         "accent_color": "#a8cf78",
-        "cta_text_color": "#333333",
         "padding_top": 64,
         "padding_bottom": 64
       }
@@ -96,7 +96,7 @@
         "heading": "Naturally Better.",
         "subheading": "<p>From trees, to the most breathable duvet.</p>",
         "cta_label": "Start your 60-night trial",
-        "cta_link": "/collections/all",
+        "cta_link": "/products/natural-duvet",
         "background_color": "#fcf5e3",
         "text_color": "#333333",
         "accent_color": "#c4bca9",
@@ -130,7 +130,7 @@
         "heading": "Wash. Dry. Repeat.",
         "body_text": "<p>Fuss-free comfort.<br/>Fresh again by bedtime.</p>",
         "button_label": "Discover Tree-Fibre",
-        "button_link": "",
+        "button_link": "/pages/about?view=tree-fibre",
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#333333",
         "accent_color": "#c4bca9",
@@ -145,7 +145,7 @@
           "type": "cta_button",
           "settings": {
             "label": "Our Story",
-            "link": ""
+            "link": "/pages/about?view=our-story"
           }
         }
       },
@@ -162,7 +162,6 @@
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#ffffff",
         "accent_color": "#fffcf4",
-        "cta_text_color": "#333333",
         "padding_top": 80,
         "padding_bottom": 0
       }
@@ -199,31 +198,80 @@
       ],
       "settings": {
         "heading": "<p>Meet your new<br/><em>(and last)</em> duvet</p>",
-        "subheading": "<p>Cooler, cosier,<br/>kinder to the planet.</p>",
+        "subheading": "<p>A naturally breathable, cosier, all-season duvet</p>",
+        "show_rating_stars": true,
         "rating_stars": "★★★★★",
         "rating_text": "Rated 4.9/5* by real sleepers",
         "button_label": "Shop Your Duvet",
-        "button_link": "",
+        "button_link": "/products/natural-duvet",
         "product_image": "shopify://shop_images/featured-product-hero.jpg",
         "background_color": "#fcf5e3",
         "text_color": "#333333",
-        "accent_color": "#fab725",
+        "accent_color": "#f1b500",
         "padding_top": 80,
         "padding_bottom": 0
       }
     },
     "dev-cool-sleepers-promo": {
       "type": "dev-cool-sleepers-promo",
+      "blocks": {
+        "logo-vogue": {
+          "type": "logo",
+          "settings": {
+            "image": "shopify://shop_images/press-vogue.svg",
+            "alt_text": "Vogue",
+            "logo_height": 21
+          }
+        },
+        "logo-mail-online": {
+          "type": "logo",
+          "settings": {
+            "image": "shopify://shop_images/press-mail-online.svg",
+            "alt_text": "Mail Online",
+            "logo_height": 17
+          }
+        },
+        "logo-refinery29": {
+          "type": "logo",
+          "settings": {
+            "image": "shopify://shop_images/press-refinery29.svg",
+            "alt_text": "Refinery29",
+            "logo_height": 39
+          }
+        },
+        "logo-grazia": {
+          "type": "logo",
+          "settings": {
+            "image": "shopify://shop_images/press-grazia.svg",
+            "alt_text": "Grazia",
+            "logo_height": 21
+          }
+        },
+        "logo-womens-health": {
+          "type": "logo",
+          "settings": {
+            "image": "shopify://shop_images/press-womens-health.svg",
+            "alt_text": "Women's Health",
+            "logo_height": 21
+          }
+        }
+      },
+      "block_order": [
+        "logo-vogue",
+        "logo-mail-online",
+        "logo-refinery29",
+        "logo-grazia",
+        "logo-womens-health"
+      ],
       "settings": {
         "heading": "As seen in",
         "subheading": "Comfort put to the test",
-        "logos_image": "shopify://shop_images/cool-sleepers-promo-logos-desktop.png",
-        "logos_image_mobile": "shopify://shop_images/cool-sleepers-promo-logos-mobile.png",
         "lifestyle_image": "shopify://shop_images/cool-sleepers-promo-lifestyle-desktop.png",
         "lifestyle_image_mobile": "shopify://shop_images/cool-sleepers-promo-lifestyle-mobile.png",
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#333333",
         "accent_color": "#333333",
+        "marquee_duration": 30,
         "padding_top": 80,
         "padding_bottom": 0
       }
@@ -269,8 +317,8 @@
       "settings": {
         "heading": "Larke, lived in.",
         "social_handle": "@wearelarke.com",
-        "profile_badge_ring": "shopify://shop_images/brand-social-gallery-badge-ring.png",
-        "profile_badge_logo": "shopify://shop_images/brand-social-gallery-badge-logo.png",
+        "social_handle_link": "https://www.instagram.com/wearelarke/",
+        "profile_badge_logo": "shopify://shop_images/group_6568.webp",
         "background_color": "#fffcf4",
         "text_color": "#333333",
         "accent_color": "#4ea448",
@@ -284,55 +332,12 @@
         "heading": "<p>Tree-mendous<br/>since day one.</p>",
         "subheading": "See how it all began.",
         "button_label": "Our Story",
-        "button_link": "/pages/our-story",
+        "button_link": "/pages/about?view=our-story",
         "image": "shopify://shop_images/our-story-video-banner-bg.jpg",
         "image_mobile": "shopify://shop_images/our-story-video-banner-bg.jpg",
-        "background_color": "#ffffff",
+        "background_color": "#FFFCF4",
         "text_color": "#ffffff",
         "accent_color": "#a8cf78",
-        "padding_top": 80,
-        "padding_bottom": 0
-      }
-    },
-    "dev_three_step_hVnPqK": {
-      "type": "dev-three-step",
-      "blocks": {
-        "step-1": {
-          "type": "step",
-          "settings": {
-            "title": "Step 1",
-            "body": "<p>Our duvets started life as a tree. Think eucalyptus.</p>",
-            "image_alt": "Stacked eucalyptus logs"
-          }
-        },
-        "step-2": {
-          "type": "step",
-          "settings": {
-            "title": "Step 2",
-            "body": "<p>Using water, it’s transformed into ultra-fine fibres, smoother than merino wool.</p>",
-            "image_alt": "Close-up of ultra-fine tree fibre"
-          }
-        },
-        "step-3": {
-          "type": "step",
-          "settings": {
-            "title": "Step 3",
-            "body": "<p>Collected, filled then sewn together, it adapts to heat in sleep for all seasons. Year round.</p>",
-            "image_alt": "A duvet being sewn on a machine"
-          }
-        }
-      },
-      "block_order": [
-        "step-1",
-        "step-2",
-        "step-3"
-      ],
-      "name": "Three step",
-      "settings": {
-        "background_color": "#fffcf4",
-        "text_color": "#333333",
-        "card_color": "#fcf5e3",
-        "border_color": "#c4bca9",
         "padding_top": 80,
         "padding_bottom": 0
       }
@@ -344,7 +349,6 @@
     "dev-wash-dry-repeat-promo",
     "dev-as-seen-in",
     "dev-video-promo-banner",
-    "dev_three_step_hVnPqK",
     "dev-featured-product",
     "dev-cool-sleepers-promo",
     "dev-brand-social-gallery",

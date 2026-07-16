@@ -7,8 +7,6 @@
     /* Brand params. The faces are loaded theme-wide by snippets/dev-brand-fonts.liquid; this
        only selects them. No --container-max: the track is deliberately full-bleed so tiles can
        scroll out past the right gutter — the only inset is --section-px. */
-    --font-body: 'Public Sans', sans-serif;
-    --font-heading: 'Test Tiempos Headline', serif;
     --section-px: 64px;
     --section-px-m: 16px;
 
@@ -57,6 +55,11 @@
        not decoration. So the fill below is computed from real scroll position by the JS, and
        21.6% is just the mock's own scroll offset. */
     --progress-h: 2px;
+
+    /* Mobile lead-in: 40px on the artboard, against 80px on desktop. Expressed as a RATIO of the
+       merchant's own padding rather than a flat 40px, so their slider still does something on a
+       phone — the same idiom as the eleven other sections here. At the default 80 it lands on 40. */
+    --pt-scale-m: 0.5;
   }
 </style>
 
@@ -83,7 +86,8 @@
   >
     <div class="story-slider__inner">
       {%- if section.settings.heading != blank -%}
-        <h2 class="story-slider__heading">{{ section.settings.heading | escape }}</h2>
+        {%- comment -%} inline_richtext: already-safe HTML from Shopify — never escape it, or the merchant's italics arrive as visible tags. {%- endcomment -%}
+        <h2 class="story-slider__heading">{{ section.settings.heading }}</h2>
       {%- endif -%}
 
       {%- comment -%}
@@ -168,7 +172,7 @@
   "tag": "section",
   "settings": [
     { "type": "header", "content": "Content" },
-    { "type": "text", "id": "heading", "label": "Heading", "default": "Where it all began...." },
+    { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Where it all began...." },
     { "type": "text", "id": "prev_label", "label": "Previous button label (screen readers only)", "default": "Previous slide" },
     { "type": "text", "id": "next_label", "label": "Next button label (screen readers only)", "default": "Next slide" },
 

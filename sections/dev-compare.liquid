@@ -1,0 +1,240 @@
+{%- liquid
+  assign compare = product.metafields.larke.compare.value
+  assign competitors = compare.competitors.value
+-%}
+{%- if compare != blank and competitors.size > 0 -%}
+{{ 'dev-compare.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'dev-compare.js' | asset_url }}" defer></script>
+
+{%- comment -%} Fixed design tokens from Figma (45075:8383 desktop / 44837:5678 mobile) — not merchant-controlled {%- endcomment -%}
+<style>
+  .dev-compare {
+
+    /* Desktop modal is a centred card 568px wide (600px Figma frame − 16px inset each side).
+       Mobile is a full-bleed bottom sheet, so --modal-max is not applied there. */
+    --modal-max: 568px;
+    --modal-radius: 32px;
+    --sheet-radius: 16px; /* mobile: only the top corners are rounded */
+    --card-radius: 16px;
+    --badge-radius: 8px;
+    --toggle-radius: 32px;
+
+    --pad: 32px;
+    --pad-mobile: 24px;
+
+    --heading-size: 32px;        /* Desktop/Title 3 */
+    --heading-size-mobile: 24px; /* Mobile/Title 3 */
+    --heading-weight: 500;
+    --heading-lh: 1.2;
+
+    --toggle-size: 16px;
+    --label-size: 16px;
+    --label-size-mobile: 14px;
+    --value-size: 18px;          /* Lg body */
+    --value-size-mobile: 16px;   /* Md body */
+    --badge-size: 14px;          /* S body */
+    --footnote-size: 16px;
+    --footnote-size-mobile: 13px;
+    --weight-bold: 700;
+    --weight-medium: 500;
+    --body-lh: 1.4;
+
+    --icon-size: 24px;
+    --logo-w: 110px;
+    --logo-h: 33px;
+    --logo-larke-h: 33.016px;
+
+    --toggle-track-w: 237px;
+
+    --gap-xs: 4px;
+    --gap-sm: 8px;
+    --gap-md: 12px;
+    --gap-lg: 24px;
+    --grid-offset: 40px; /* toggle → grid: 16px flex gap + 24px grid top-padding in Figma */
+
+    /* Fixed palette from the Figma tokens (not merchant-controlled — fidelity). */
+    --divider: #D8D1C0;
+    --check: #4EA448;          /* Green/900 */
+    --cross: #AF0000;
+    --card-larke-bg: #FCF5E3;  /* Cream/100 */
+    --card-comp-bg: #EFEFEF;
+    --toggle-track-bg: #FCF5E3;
+    --toggle-active-bg: #FFFFFF;
+    --badge-border: #333333;
+
+    /* Open/close motion mirrors the product's size & season guides: a right-side drawer
+       that arrives on a decelerating curve and leaves briskly (asymmetric on purpose).
+       Same token names and values as dev-main-product so the two popups move identically. */
+    --drawer-inset: 16px; /* the panel floats this far off each viewport edge (desktop) */
+    --guide-in: 480ms;
+    --guide-out: 300ms;
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+
+    /* Toggle-indicator slide only. */
+    --transition: 300ms;
+  }
+</style>
+
+{%- liquid
+  # Data comes from the product's larke.compare metaobject (compare → competitors →
+  # compare_competitor → rows → compare_row). Mirrors the size/season guide wiring.
+  # The whole overlay (assets included) is guarded above on the metafield existing, like
+  # dev-promo-bar guards its own tag — a product without the metafield ships nothing.
+  assign heading = compare.title.value | default: section.settings.heading | default: 'How we compare'
+  assign close_label = 'actions.close' | t
+  assign backdrop_opacity = section.settings.backdrop_opacity | divided_by: 100.0
+  assign is_open = section.settings.open_on_load
+-%}
+
+{%- comment -%} Reusable inline icons (Figma Icon/Outline/check-circle + x-circle, stroke-width 1.4). {%- endcomment -%}
+{%- capture icon_check -%}
+<svg class="dev-compare__icon dev-compare__icon--check" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{%- endcapture -%}
+{%- capture icon_x -%}
+<svg class="dev-compare__icon dev-compare__icon--x" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M10 14L12 12M12 12L14 10M12 12L10 10M12 12L14 14M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{%- endcapture -%}
+
+{%- comment -%}
+  Overlay, not a page section: hidden + inert + aria-hidden by default so it takes no space and
+  cannot be focused until it opens. Open state lives in ONE place — [data-open] on the root —
+  which dev-compare.js flips and which QA can flip with plain JS. The PDP triggers carry
+  aria-controls="compare-modal" + data-compare-open; that id is a contract — do not rename it.
+{%- endcomment -%}
+<div
+  id="compare-modal"
+  class="dev-compare"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="compare-modal-title"
+  data-open="{% if is_open %}true{% else %}false{% endif %}"
+  {% unless is_open %}aria-hidden="true" inert{% endunless %}
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --backdrop: {{ section.settings.backdrop_color }};
+    --backdrop-opacity: {{ backdrop_opacity }};
+  "
+>
+  <div class="dev-compare__backdrop" data-compare-close></div>
+
+  <div class="dev-compare__panel" tabindex="-1">
+    <div class="dev-compare__header">
+      <h2 class="dev-compare__title" id="compare-modal-title">{{ heading | escape }}</h2>
+
+      <button type="button" class="dev-compare__close" aria-label="{{ close_label | escape }}" data-compare-close>
+        <svg class="dev-compare__close-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path d="M7 17L17 7M7 7L17 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="dev-compare__body">
+      <div class="dev-compare__inner">
+        {%- comment -%} Segmented toggle — one competitor active at a time; the white indicator slides. {%- endcomment -%}
+        <div class="dev-compare__toggle" role="tablist" aria-label="Compare Larke against">
+          <span class="dev-compare__toggle-indicator" aria-hidden="true"></span>
+          {%- for competitor in competitors -%}
+            {%- assign key = competitor.name.value | handleize -%}
+            <button
+              type="button"
+              class="dev-compare__toggle-btn"
+              role="tab"
+              id="compare-tab-{{ key }}"
+              data-compare-tab="{{ key }}"
+              aria-controls="compare-panel-{{ key }}"
+              aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+              tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
+            >
+              {{- competitor.name.value | escape -}}
+            </button>
+          {%- endfor -%}
+        </div>
+
+        {%- for competitor in competitors -%}
+          {%- assign key = competitor.name.value | handleize -%}
+          <div
+            class="dev-compare__panel-content"
+            role="tabpanel"
+            id="compare-panel-{{ key }}"
+            data-compare-panel="{{ key }}"
+            aria-labelledby="compare-tab-{{ key }}"
+            {% unless forloop.first %}hidden{% endunless %}
+          >
+            <div class="dev-compare__logos">
+              <span class="dev-compare__logo dev-compare__logo--larke">
+                <img src="{{ 'dev-compare-logo-larke.svg' | asset_url }}" width="110" height="33" alt="Larke" loading="lazy">
+              </span>
+              <span class="dev-compare__logo dev-compare__logo--comp">
+                {%- assign comp_logo = competitor.logo.value -%}
+                {%- if comp_logo != blank -%}
+                  {%- comment -%} File field: an image file (MediaImage) uses image_url; a non-image
+                    generic file exposes .url. image_url wins on `shopify theme dev`, where a
+                    GenericFile's .url renders as a broken relative `files/…` path. {%- endcomment -%}
+                  {%- if comp_logo.media_type == 'image' or comp_logo.width != blank -%}
+                    <img src="{{ comp_logo | image_url: width: 220 }}" width="110" height="33" alt="{{ competitor.name.value | escape }}" loading="lazy">
+                  {%- else -%}
+                    <img src="{{ comp_logo.url }}" width="110" height="33" alt="{{ competitor.name.value | escape }}" loading="lazy">
+                  {%- endif -%}
+                {%- endif -%}
+              </span>
+            </div>
+
+            <div class="dev-compare__rows">
+              {%- for row in competitor.rows.value -%}
+                <div class="dev-compare__row">
+                  <p class="dev-compare__row-label">{{ row.label.value | escape }}</p>
+                  <div class="dev-compare__cells">
+                    <div class="dev-compare__cell dev-compare__cell--larke">
+                      <div class="dev-compare__cell-main">
+                        {{ icon_check }}
+                        <p class="dev-compare__value">{{ row.larke_value.value | escape }}</p>
+                      </div>
+                      {%- if row.larke_badge.value != blank -%}
+                        <span class="dev-compare__badge">{{ row.larke_badge.value | escape }}</span>
+                      {%- endif -%}
+                    </div>
+                    <div class="dev-compare__cell dev-compare__cell--comp">
+                      <div class="dev-compare__cell-main">
+                        {{ icon_x }}
+                        <p class="dev-compare__value dev-compare__value--comp">{{ row.competitor_value.value | escape }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {%- endfor -%}
+            </div>
+
+            {%- if competitor.footnote.value != blank -%}
+              <p class="dev-compare__footnote">{{ competitor.footnote.value | escape }}</p>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "How we compare",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "How we compare", "info": "Fallback only — the visible title comes from the product's Compare metaobject." },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "backdrop_color", "label": "Backdrop color", "default": "#333333" },
+    { "type": "range", "id": "backdrop_opacity", "min": 0, "max": 100, "step": 5, "unit": "%", "label": "Backdrop opacity", "default": 40, "info": "No scrim was authored in Figma — set to taste." },
+
+    { "type": "header", "content": "Layout" },
+    { "type": "checkbox", "id": "open_on_load", "label": "Open on page load", "default": false, "info": "Preview only — lets the modal be designed in the editor. Leave off in production." }
+  ],
+  "presets": [
+    { "name": "How we compare" }
+  ]
+}
+{% endschema %}

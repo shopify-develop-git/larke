@@ -29,11 +29,11 @@
           "settings": {
             "title": "Inside Larke",
             "link_1_label": "Shop Our Duvet",
-            "link_1_url": "/collections/all",
+            "link_1_url": "/products/natural-duvet",
             "link_2_label": "Our Story",
-            "link_2_url": "/pages/our-story",
+            "link_2_url": "/pages/about?view=our-story",
             "link_3_label": "Discover Tree-Fibre",
-            "link_3_url": "/pages/tree-fibre"
+            "link_3_url": "/pages/about?view=tree-fibre"
           }
         },
         "menu-help-centre": {
@@ -41,13 +41,15 @@
           "settings": {
             "title": "Help Centre",
             "link_1_label": "FAQs",
-            "link_1_url": "/pages/faqs",
+            "link_1_url": "/pages/faq?view=faq",
             "link_2_label": "Delivery",
-            "link_2_url": "/pages/delivery",
+            "link_2_url": "/pages/about?view=delivery",
             "link_3_label": "Returns",
-            "link_3_url": "/pages/returns",
-            "link_4_label": "Contact",
-            "link_4_url": "/pages/contact"
+            "link_3_url": "/pages/about?view=delivery",
+            "link_4_label": "Shipping",
+            "link_4_url": "/pages/about?view=shipping",
+            "link_5_label": "Contact",
+            "link_5_url": "/pages/contact"
           }
         }
       },

@@ -13,10 +13,17 @@
   @param {string} [badge]        - the "Guest Review" / "Insight" pill; omitted when blank
   @param {string} [meta]         - "4 min read ㆍBy Priya s"
   @param {string} [heading]      - card headline (may contain inline HTML in fallback mode)
+  @param {number} [heading_level] - 3 by default; the CALLER owns this, because the right level
+                                    depends on what sits above the card in the document, not on the
+                                    card. Under dev-journal-cards the section's own h2 sits above it,
+                                    so 3 is right. On the blog index the page's h1 sits directly
+                                    above it and 3 would skip a level, so dev-blog passes 2.
   @param {string} [url]          - where the CTA points
   @param {string} [cta_label]    - CTA text; the whole CTA is omitted when blank
   @param {string} [attrs]        - block.shopify_attributes in fallback mode, blank in blog mode
 {%- endcomment -%}
+
+{%- assign h = heading_level | default: 3 -%}
 
 <li class="journal-cards__card" {{ attrs }}>
   <article class="journal-cards__card-inner">
@@ -50,18 +57,18 @@
           and in blog mode the caller passes `article.title | escape`. Escaping here would print the
           entities of the former.
         {%- endcomment -%}
-        <h3 class="journal-cards__card-heading">{{ heading }}</h3>
+        <h{{ h }} class="journal-cards__card-heading">{{ heading }}</h{{ h }}>
       {%- endif -%}
 
       {%- if cta_label != blank -%}
         {%- assign card_link = url | default: '#' -%}
-        <a class="journal-cards__cta" href="{{ card_link }}">
-          <span class="journal-cards__cta-label">{{ cta_label | escape }}</span>
+        <a class="journal-cards__cta dev-btn dev-btn--text" href="{{ card_link }}">
+          <span class="journal-cards__cta-label dev-btn__label">{{ cta_label | escape }}</span>
           {%- comment -%}
             Path data verbatim from .figma-assets/journal-cards/cta-icon-arrow-right.svg.
           {%- endcomment -%}
           <svg
-            class="journal-cards__cta-icon"
+            class="journal-cards__cta-icon dev-btn__icon"
             width="24"
             height="24"
             viewBox="99 0 24 24"

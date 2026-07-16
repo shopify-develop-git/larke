@@ -1,0 +1,204 @@
+/* dev-button.css
+   Shared button component for every dev-* section — one source of truth for CTA
+   styling and hover. Loaded ONCE, globally, from layout/theme.liquid (same pattern
+   as dev-brand-fonts).
+
+   Namespace is .dev-btn — deliberately NOT .button, so Horizon's global button
+   styles never leak in (and ours never leak out).
+
+   Brand tokens it consumes (every dev-* section already sets these on its root):
+     --accent  --color  --bg  --font-body
+
+   Per-button deviations are passed as override tokens (--dev-btn-*), set on the
+   button's OWN selector. Rule of thumb, to dodge the known cascade trap
+   (a media query cannot override a token declared in a section's inline <style>):
+     • desktop deviation  -> set the --dev-btn-* token (inline <style> is fine)
+     • mobile deviation   -> override the PROPERTY directly in the section @media
+   The base rule below only ever provides FALLBACKS for the override tokens; it never
+   sets one, so a section override always wins cleanly.
+*/
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.dev-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  gap: var(--dev-btn-gap, 8px);
+  padding: var(--dev-btn-py, 18px) var(--dev-btn-px, 24px);
+  border: var(--dev-btn-bw, 0) solid var(--dev-btn-bc, transparent);
+  border-radius: var(--dev-btn-radius, 60px);
+  background-color: var(--dev-btn-bg, transparent);
+  color: var(--dev-btn-color, var(--color));
+  font-family: var(--font-body);
+  font-size: var(--dev-btn-fs, 18px);
+  font-weight: var(--dev-btn-fw, 700);
+  line-height: var(--dev-btn-lh, 1.4);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    filter 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.dev-btn__label {
+  display: inline-block;
+}
+
+.dev-btn__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.dev-btn__icon svg {
+  display: block;
+}
+
+/* --- variants ------------------------------------------------ */
+
+/* Filled accent pill: hero, fibre-cta, video-story/promo, add-to-cart */
+.dev-btn--filled {
+  --dev-btn-bg: var(--accent);
+  --dev-btn-color: var(--color);
+}
+
+/* Filled dark pill: featured-product, wash-dry-repeat-promo */
+.dev-btn--dark {
+  --dev-btn-bg: var(--color);
+  --dev-btn-color: var(--dev-btn-on-dark, #ffffff);
+}
+
+/* Outlined pill: as-seen-in, wash-dry-repeat, naturally-best-sleep, acc-button */
+.dev-btn--outline {
+  --dev-btn-bg: transparent;
+  --dev-btn-bw: 1px;
+  --dev-btn-bc: var(--color);
+  --dev-btn-color: var(--color);
+}
+
+/* Translucent "glass" pill w/ light border: contact-form, site-footer, cart checkout */
+.dev-btn--ghost {
+  --dev-btn-bg: var(--dev-btn-ghost-bg, rgba(52, 52, 52, 0.66));
+  --dev-btn-bw: 1px;
+  --dev-btn-bc: var(--dev-btn-on-dark, #ffffff);
+  --dev-btn-color: var(--dev-btn-on-dark, #ffffff);
+}
+
+/* Bare text-link CTA: journal cta, article back */
+.dev-btn--text {
+  --dev-btn-bg: transparent;
+  --dev-btn-py: 0px;
+  --dev-btn-px: 0px;
+  --dev-btn-color: var(--color);
+  gap: var(--dev-btn-gap, 4px);
+}
+
+/* --- modifiers ----------------------------------------------- */
+
+.dev-btn--full {
+  width: 100%;
+}
+
+/* =============================================
+   HOVER — fill / invert (pointer devices only)
+   ============================================= */
+
+@media (hover: hover) {
+  /* Every boxed button lifts on a soft shadow — a clear, palette-independent affordance
+     that never touches the text colour, so it can't hide the label on any background. */
+  .dev-btn:not(.dev-btn--text):not([disabled]):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+  }
+
+  /* Filled / dark also deepen a touch. */
+  .dev-btn--filled:not([disabled]):hover,
+  .dev-btn--dark:not([disabled]):hover {
+    filter: brightness(0.93);
+  }
+
+  /* Outline inverts to a solid dark pill. Text is pinned to a fixed light colour
+     (--dev-btn-invert-text, default #fff) — NOT var(--bg), which is blank on some
+     sections and made the label vanish. Override per-button if a section needs a
+     different invert text. */
+  .dev-btn--outline:not([disabled]):hover {
+    background-color: var(--dev-btn-color, var(--color));
+    color: var(--dev-btn-invert-text, #ffffff);
+  }
+
+  /* Ghost goes fully opaque; the lift above makes the change read on any backdrop. */
+  .dev-btn--ghost:not([disabled]):hover {
+    background-color: var(--dev-btn-ghost-hover, #343434);
+  }
+
+  .dev-btn--text:not([disabled]):hover .dev-btn__label {
+    text-decoration: underline;
+  }
+
+  .dev-btn--text:not([disabled]):hover .dev-btn__icon {
+    transform: translateX(3px);
+  }
+
+  .dev-btn--text.dev-btn--icon-left:not([disabled]):hover .dev-btn__icon {
+    transform: translateX(-3px);
+  }
+}
+
+/* =============================================
+   STATES
+   ============================================= */
+
+.dev-btn[disabled],
+.dev-btn:disabled,
+.dev-btn[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dev-btn[aria-busy="true"] {
+  cursor: progress;
+}
+
+.dev-btn:focus-visible {
+  outline: 2px solid var(--dev-btn-focus, var(--accent));
+  outline-offset: 2px;
+}
+
+.dev-btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   MOBILE ≤ 768px — touch targets
+   ============================================= */
+
+@media (max-width: 768px) {
+  .dev-btn:not(.dev-btn--text) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-btn,
+  .dev-btn__icon {
+    transition-duration: 0.01ms !important;
+  }
+}
