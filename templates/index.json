@@ -335,7 +335,7 @@
         "button_link": "/pages/about?view=our-story",
         "image": "shopify://shop_images/our-story-video-banner-bg.jpg",
         "image_mobile": "shopify://shop_images/our-story-video-banner-bg.jpg",
-        "background_color": "#ffffff",
+        "background_color": "#FFFCF4",
         "text_color": "#ffffff",
         "accent_color": "#a8cf78",
         "padding_top": 80,
