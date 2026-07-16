@@ -353,17 +353,25 @@
               {%- comment -%}
                 Shared inline-SVG stars (not the ★ glyph). See dev-stars.
 
-                The row is rounded to whole stars, so 4.9 draws FIVE solid ones — the owner's call,
-                reversing what this file used to do. It used to clip the fifth star to 90% because
-                the artboard fades it with a gradient, on the argument that five solid stars claim a
-                nicer number than the product has. The label still reads the true 4.9/5 beside it.
+                The row rounds DOWN to the nearest half star, so 4.9 draws four solid and a half —
+                the owner's call, asked for explicitly against a reference of a half-filled star.
 
-                `round`, not `ceil`: nearest whole star. Round UP and a 4.2 would also show five,
-                which is the dishonest version of this change rather than the tidy one.
+                This is the third position this row has held, so the history matters. It first
+                clipped the fifth star to the true 4.9 (a ~90% sliver, which is what the artboard
+                draws — 44795:186 fades that star with a gradient stopping at 89.413%). It was then
+                rounded to whole stars, painting five solid ones. It now shows a half.
+
+                Floor, never round: rounding to the nearest half would send 4.9 back to five solid,
+                and rounding up would let a 4.2 claim four and a half. Flooring can only ever
+                understate the product, never flatter it.
+
+                The two readings DISAGREE on purpose: the stars say 4.5 while the label and the
+                aria-label beside them say the true 4.9/5. That was raised with the owner and chosen
+                anyway — do not "fix" the mismatch without asking them first.
               {%- endcomment -%}
               {%- liquid
                 assign stars_label = rating | append: ' / 5'
-                assign stars_rating = rating | round
+                assign stars_rating = rating | times: 2 | floor | divided_by: 2.0
               -%}
               {%- render 'dev-stars',
                 rating: stars_rating,
