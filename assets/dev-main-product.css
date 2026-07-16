@@ -1438,3 +1438,312 @@
     animation: none;
   }
 }
+
+
+/* ---- Zoom lightbox -------------------------------------------------------
+   Not on any artboard — the design never drew a zoom. So none of this is traced: it is assembled out
+   of the section's OWN tokens, which it inherits by sitting inside the section root. The same cream,
+   the same round arrow buttons, the same close mark as the guide drawers.
+
+   Its numbers live here rather than in the token block at the top of the .liquid, because that block
+   is headed "Fixed design tokens from Figma" and these came from nowhere near Figma. The two motion
+   durations are the exception: they sit up there beside --guide-in/--guide-out because the JS reads
+   them back out, exactly as the accordion's do. */
+
+.dev-main-product {
+  --zoom-pad: 24px;
+  --zoom-nav-pad: 4px;
+  /* Stops the pill breathing as the count crosses from 9/10 to 10/10. */
+  --zoom-counter-w: 56px;
+}
+
+/* ---- The trigger ---- */
+
+.dev-main-product__zoom-open {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  /* The affordance IS the cursor. The artboard draws no magnifier over the photo, and inventing one
+     would put furniture on a frame that has already been pixel-verified without it. */
+  cursor: zoom-in;
+}
+
+.dev-main-product__zoom-open:focus-visible {
+  outline: 2px solid var(--color);
+  /* Inset, not offset: the button is flush with the photo's edge, and the slide list clips its
+     overflow — an outside ring would come out with three sides. */
+  outline-offset: -2px;
+  border-radius: var(--image-radius);
+}
+
+/* ---- The dialog ---- */
+
+/* Opaque and full-bleed: the dialog IS the surface, not a scrim over the page. A duvet photographed
+   in daylight wants the room's own light behind it, not a black overlay. It also means ::backdrop is
+   never visible, which is a relief — ::backdrop only started inheriting custom properties in Chrome
+   122, so a token would have been unreliable there anyway (the same trap dev-video-promo-banner.css
+   documents). */
+.dev-main-product__zoom {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  max-width: 100vw;
+  /* dvh, not vh: on iOS the URL bar is worth ~60px of a 100vh dialog hanging off the bottom. */
+  height: 100dvh;
+  max-height: 100dvh;
+  padding: 0;
+  border: 0;
+  background-color: var(--bg);
+  color: var(--color);
+}
+
+/* The layout is attached to [open], NOT to the element. A `display` on the bare selector overrides
+   the UA's `dialog:not([open]) { display: none }` and the lightbox is on the page permanently, at
+   every viewport, over everything. */
+.dev-main-product__zoom[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.dev-main-product__zoom[data-modal-state='opening'] {
+  animation: dev-main-product-zoom-in var(--zoom-in) var(--ease-out) both;
+}
+
+.dev-main-product__zoom[data-modal-state='closing'] {
+  animation: dev-main-product-zoom-out var(--zoom-out) var(--ease-in) both;
+}
+
+@keyframes dev-main-product-zoom-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dev-main-product-zoom-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* The photo rises the last few pixels in while the surface fades. Put on the SLIDE, never on the
+   image: the image's transform belongs to the pinch, and an animation with fill-mode:both would
+   out-rank it and pin it at scale(1) for as long as the state attribute lasted. */
+.dev-main-product__zoom[data-modal-state='opening'] .dev-main-product__zoom-slide--active {
+  animation: dev-main-product-zoom-rise var(--zoom-in) var(--ease-out) both;
+}
+
+@keyframes dev-main-product-zoom-rise {
+  from {
+    transform: scale(0.96);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* ---- The photo ---- */
+
+.dev-main-product__zoom-frame {
+  position: relative;
+  /* min-height:0 or the flex item refuses to shrink below its content and pushes the nav off. */
+  flex: 1;
+  min-height: 0;
+}
+
+.dev-main-product__zoom-frame:focus {
+  /* It holds focus on open only so the × is not the thing iOS Safari rings. It is not a control and
+     must not look like one. */
+  outline: none;
+}
+
+.dev-main-product__zoom-slides {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  /* No padding here: the slides are inset:0 against this element's PADDING box, so any padding set
+     on it would be covered by them and do nothing. The inset lives on the slide instead. */
+  padding: 0;
+  list-style: none;
+}
+
+/* Stacked and crossfaded — the same construction as the gallery's own slides, for the same reason:
+   every photo stays in the DOM, so paging to one never waits on a fetch. */
+.dev-main-product__zoom-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--zoom-pad);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition) ease;
+}
+
+.dev-main-product__zoom-slide--active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Capped, NOT stretched — and this is load-bearing, not taste. With object-fit:contain the element
+   fills the frame and the photo floats letterboxed inside it: every click on an empty band would hit
+   the image rather than the frame (so "click beside the photo to close" would die), and the pinch
+   bounds would have to rebuild the photo's true box out of naturalWidth/naturalHeight, which is
+   exactly the arithmetic stock is forced into. Sized this way the element IS the photo, and both
+   fall out for free. The price is that a photo smaller than the frame is not blown up to fill it —
+   which is the honest result, not a blurry one. */
+.dev-main-product__zoom-image {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  /* scale() THEN translate() — the order the JS's maths assumes. Swap them and a translate of 1px
+     silently stops meaning 1px, and the pan bounds drift by a factor of the scale. */
+  transform: scale(var(--zoom-scale, 1)) translate(var(--zoom-x, 0px), var(--zoom-y, 0px));
+}
+
+/* ---- The controls ---- */
+
+.dev-main-product__zoom-close {
+  position: absolute;
+  top: var(--zoom-pad);
+  right: var(--zoom-pad);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--arrow-pad);
+  border: 0;
+  border-radius: var(--arrow-radius);
+  background-color: var(--surface);
+  color: var(--color);
+  cursor: pointer;
+}
+
+.dev-main-product__zoom-close svg {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+/* In the flow, not floated over the photo: a pill absolutely positioned over the bottom of the frame
+   would sit on top of a landscape photo that reaches the full height. Letting it take its own row
+   means the photo is never underneath it. */
+.dev-main-product__zoom-nav {
+  display: flex;
+  align-self: center;
+  align-items: center;
+  gap: var(--variant-gap);
+  margin-bottom: var(--zoom-pad);
+  padding: var(--zoom-nav-pad);
+  border-radius: var(--arrow-radius);
+  background-color: var(--surface);
+}
+
+.dev-main-product__zoom-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--arrow-pad);
+  border: 0;
+  border-radius: var(--arrow-radius);
+  background-color: transparent;
+  color: var(--color);
+  cursor: pointer;
+}
+
+.dev-main-product__zoom-arrow svg {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+.dev-main-product__zoom-counter {
+  min-width: var(--zoom-counter-w);
+  margin: 0;
+  text-align: center;
+  font-size: var(--font-label-size);
+  line-height: var(--font-body-lh);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The spoken counterpart of the counter: "1 / 7" reads aloud as "one slash seven". Taken off-screen
+   rather than hidden — a display:none live region announces nothing at all. */
+.dev-main-product__zoom-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- Accessibility ---- */
+
+.dev-main-product__zoom-close:focus-visible,
+.dev-main-product__zoom-arrow:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
+
+/* ---- Mobile (<=768) ---- */
+
+@media (max-width: 768px) {
+  .dev-main-product {
+    --zoom-pad: 16px;
+  }
+
+  /* The gesture surface. The browser's own pinch and double-tap have to be off the table before the
+     JS can be given them — without this the whole page zooms under the photo. */
+  .dev-main-product__zoom-frame {
+    touch-action: none;
+  }
+
+  /* A zoomed photo is something being dragged; a text caret in the middle of it is noise. */
+  .dev-main-product__zoom-frame[data-zoomed='true'] .dev-main-product__zoom-image {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* 44px targets. Written as the property and not as the token, because a media query in this file
+     cannot reach the token block — that is an inline <style> further down the document, so it wins
+     on order no matter what is written here. */
+  .dev-main-product__zoom-close,
+  .dev-main-product__zoom-arrow {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* ---- Reduced motion ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Not `animation: none`. The JS waits for animationend before it calls dialog.close(), and an
+     animation that never runs never fires it — the lightbox would hang until the timeout swept up
+     behind it. A 1ms animation lands instantly AND still reports that it landed. */
+  .dev-main-product__zoom[data-modal-state='opening'],
+  .dev-main-product__zoom[data-modal-state='closing'] {
+    animation-duration: 1ms;
+  }
+
+  .dev-main-product__zoom[data-modal-state='opening'] .dev-main-product__zoom-slide--active {
+    animation: none;
+  }
+
+  .dev-main-product__zoom-slide {
+    transition: none;
+  }
+}
