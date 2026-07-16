@@ -100,6 +100,28 @@
   color: var(--track-color);
 }
 
+/* Hover/focus, or every star turns teal under the cursor. Judge.me ships
+     .jdgm-rev-widg .jdgm-star:not([disabled]):hover { color: var(--jdgm-star-color) }
+   and their settings resolve that token to #2BBCA6 — their brand colour, not ours. It beats the
+   rule above on WEIGHT, (0,4,0) to (0,3,0), so matching their selector is not enough; :not([disabled])
+   and :hover have to be carried here too. Nothing on this widget is disabled — all 55 stars are
+   plain spans — so the rule reaches the display stars, not just a rating input.
+
+   These are read-only stars: hovering them means nothing, so hover must not change them at all.
+   The colours are therefore the resting ones, and --jdgm-star-color is deliberately not reused —
+   it is the app's setting, and the brand's gold lives in --star-color. */
+.dev-reviews .jdgm-widget .jdgm-star:not([disabled]):hover,
+.dev-reviews .jdgm-widget .jdgm-star:focus {
+  color: var(--star-color);
+}
+
+/* An empty star must stay empty under the cursor. Their hover rule does not exempt .jdgm--off, so
+   without this the greyed-out stars would light up too — gold here, teal before. */
+.dev-reviews .jdgm-widget .jdgm-star.jdgm--off:not([disabled]):hover,
+.dev-reviews .jdgm-widget .jdgm-star.jdgm--off:focus {
+  color: var(--track-color);
+}
+
 /* ---- Header --------------------------------------------------------------
    Title, five stars, review count — each centred, 24px between the header and the histogram. */
 
