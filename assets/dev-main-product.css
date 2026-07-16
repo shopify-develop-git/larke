@@ -660,12 +660,9 @@
   }
 
   /* The accordion list already carries the artboard's own 24px top inset, so the 16 above lands its
-     first row 40 under the card — which is what the artboard draws (646 -> 686). Nothing below the
-     accordions is on this artboard, so the price-comparison block keeps the 32 it already had rather
-     than silently inheriting the new 16. */
-  .dev-main-product__pc {
-    margin-top: 16px;
-  }
+     first row 40 under the card — which is what the artboard draws (646 -> 686).
+     (The price-comparison block below the accordions is NOT on this artboard; it keeps the lead it
+     already had, restored next to its own rule further down — it cannot be done from here.) */
 
   /* ---- Option rows, mobile — 44795:529 ----
      Label row -> chips is 8 on the artboard, not --group-gap's 16. The row itself is 26 tall around
@@ -948,6 +945,17 @@
   padding: var(--gallery-gap);
   border-radius: 16px;
   background-color: var(--card-bg);
+}
+
+/* The 48px spacer above is measured on top of --buy-gap, and mobile drops that gap 32 -> 16 to match
+   44795:191. This card is NOT on that artboard, so it must not absorb the change: the lead absorbs
+   the missing 16 instead, and the card still clears the accordions by the 80 it was built with.
+   It has to live here, after the rule above — the section's main <=768 block sits earlier in the
+   file, so at equal specificity this declaration would beat anything written up there. */
+@media (max-width: 768px) {
+  .dev-main-product__pc {
+    margin-top: calc(var(--pc-lead) + 16px);
+  }
 }
 
 .dev-main-product__pc-head {
