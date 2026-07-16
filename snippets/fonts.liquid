@@ -1,12 +1,31 @@
-{%- unless settings.type_body_font.system? -%}
-  {{ settings.type_body_font | font_url | preload_tag: as: 'font', type: 'font/woff2', fetchpriority: 'low' }}
-{%- endunless -%}
-{%- unless settings.type_subheading_font.system? -%}
-  {{ settings.type_subheading_font | font_url | preload_tag: as: 'font', type: 'font/woff2', fetchpriority: 'low' }}
-{%- endunless -%}
-{%- unless settings.type_heading_font.system? -%}
-  {{ settings.type_heading_font | font_url | preload_tag: as: 'font', type: 'font/woff2', fetchpriority: 'low' }}
-{%- endunless -%}
-{%- unless settings.type_accent_font.system? -%}
-  {{ settings.type_accent_font | font_url | preload_tag: as: 'font', type: 'font/woff2', fetchpriority: 'low' }}
+{%- comment -%}
+  Horizon's font preloads, for the fonts picked in Theme settings → Typography.
+
+  Guarded by `use_test_fonts`: while the brand fonts are on, dev-brand-fonts.liquid self-hosts
+  Public Sans + Tiempos and nothing on the page renders in settings.type_*_font. A preload_tag
+  downloads a face whether or not anything uses it, so these four tags were pulling Inter
+  (~48KB — InterVariable plus three static cuts) down on every page for glyphs that never paint,
+  spending bandwidth against the hero, which is the LCP element.
+
+  Only the preloads are guarded. The @font-face rules in theme-styles-variables.liquid stay:
+  stock Horizon CSS leaks onto these pages, so a face may still be referenced somewhere, and an
+  unused @font-face is free — a browser only fetches a face it actually has to render.
+
+  With `use_test_fonts` OFF the merchant's Shopify-library fonts are what render, and preloading
+  them is right — hence a guard, not a deletion.
+{%- endcomment -%}
+
+{%- unless settings.use_test_fonts -%}
+  {%- unless settings.type_body_font.system? -%}
+    {{ settings.type_body_font | font_url | preload_tag: as: 'font', type: 'font/woff2', fetchpriority: 'low' }}
+  {%- endunless -%}
+  {%- unless settings.type_subheading_font.system? -%}
+    {{ settings.type_subheading_font | font_url | preload_tag: as: 'font', type: 'font/woff2', fetchpriority: 'low' }}
+  {%- endunless -%}
+  {%- unless settings.type_heading_font.system? -%}
+    {{ settings.type_heading_font | font_url | preload_tag: as: 'font', type: 'font/woff2', fetchpriority: 'low' }}
+  {%- endunless -%}
+  {%- unless settings.type_accent_font.system? -%}
+    {{ settings.type_accent_font | font_url | preload_tag: as: 'font', type: 'font/woff2', fetchpriority: 'low' }}
+  {%- endunless -%}
 {%- endunless -%}

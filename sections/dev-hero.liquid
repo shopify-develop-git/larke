@@ -141,6 +141,20 @@
   if bg_mobile == blank
     assign bg_mobile = bg_desktop
   endif
+  if bg_desktop == blank
+    assign bg_desktop = bg_mobile
+  endif
+
+  # The phone's slice is only wider than the viewport under the stretch opt-in (--bg-w-m: 113.45%).
+  # With the toggle off the photo is a plain width:100% fill, and asking for 115vw just buys a
+  # bigger srcset candidate for pixels that are never shown.
+  assign mobile_sizes = '100vw'
+  if section.settings.stretch_background
+    assign mobile_sizes = '115vw'
+  endif
+  # The <img> is the desktop candidate but still has to describe the phone, for the browsers that
+  # fall back to it when no <source> matches.
+  assign img_sizes = '(max-width: 768px) ' | append: mobile_sizes | append: ', 100vw'
 
   assign cta_link = section.settings.cta_link
   if cta_link == blank
@@ -155,6 +169,13 @@
 
 <div
   class="hero{% if section.settings.show_underline_accent %} hero--underline{% endif %}{% if section.settings.stretch_background %} hero--stretch-bg{% endif %}"
+  {%- comment -%}
+    dev-reveal.js leaves above-the-fold content alone via a runtime geometry check (top < vh*0.9).
+    That holds today, but the hero is the LCP element on every page it appears on: if the header
+    group ever grew past that line, a deferred script would hand it opacity:0 and take LCP with it.
+    The explicit opt-out costs nothing and does not depend on measurement.
+  {%- endcomment -%}
+  data-reveal-skip
   style="
     --bg: {{ section.settings.background_color }};
     --color: {{ section.settings.text_color }};
@@ -165,31 +186,44 @@
 >
   <div class="hero__bg-layer">
     {%- if bg_desktop != blank -%}
-      {{
-        bg_desktop
-        | image_url: width: 3200
-        | image_tag:
-          loading: 'eager',
-          fetchpriority: 'high',
-          widths: '800, 1200, 1600, 2000, 2600, 3200',
-          sizes: '100vw',
-          alt: '',
-          class: 'hero__bg hero__bg--desktop'
-      }}
-    {%- endif -%}
+      {%- comment -%}
+        <picture>, not two <img> hidden from each other by display:none. A hidden <img> is still
+        FETCHED — this hero used to do exactly that, so a phone downloaded the desktop photo it
+        never shows, at fetchpriority: high, against the LCP of the page. A <source media=...>
+        makes the browser pick one file and download only that one.
 
-    {%- if bg_mobile != blank -%}
-      {{
-        bg_mobile
-        | image_url: width: 1600
-        | image_tag:
-          loading: 'eager',
-          fetchpriority: 'high',
-          widths: '400, 600, 800, 1200, 1600',
-          sizes: '115vw',
-          alt: '',
-          class: 'hero__bg hero__bg--mobile'
-      }}
+        The <img> stays the desktop candidate: it is the fallback every browser understands, and
+        it is what <picture> falls back to when no <source> matches.
+      {%- endcomment -%}
+      <picture>
+        {%- if bg_mobile != blank -%}
+          <source
+            media="(max-width: 768px)"
+            srcset="
+              {{ bg_mobile | image_url: width: 400 }} 400w,
+              {{ bg_mobile | image_url: width: 600 }} 600w,
+              {{ bg_mobile | image_url: width: 800 }} 800w,
+              {{ bg_mobile | image_url: width: 1200 }} 1200w,
+              {{ bg_mobile | image_url: width: 1600 }} 1600w
+            "
+            sizes="{{ mobile_sizes }}"
+            width="{{ bg_mobile.width }}"
+            height="{{ bg_mobile.height }}"
+          >
+        {%- endif -%}
+
+        {{
+          bg_desktop
+          | image_url: width: 3200
+          | image_tag:
+            loading: 'eager',
+            fetchpriority: 'high',
+            widths: '800, 1200, 1600, 2000, 2600, 3200',
+            sizes: img_sizes,
+            alt: '',
+            class: 'hero__bg'
+        }}
+      </picture>
     {%- endif -%}
 
     <span class="hero__overlay" aria-hidden="true"></span>

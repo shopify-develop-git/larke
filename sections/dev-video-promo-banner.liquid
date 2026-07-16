@@ -128,11 +128,17 @@
   <div class="video-promo-banner__tile">
     <div class="video-promo-banner__media">
       {%- if poster != blank -%}
+        {%- comment -%}
+          lazy, not eager: this banner sits ~2000px down the homepage, and the poster is the
+          heaviest asset on it. Eager put it in the same fetch round as the hero — the LCP element —
+          for a tile nobody has scrolled to yet. Nothing here is measured by JS, so there is no
+          reason it has to arrive before it is visible.
+        {%- endcomment -%}
         {{
           poster
           | image_url: width: 3200
           | image_tag:
-            loading: 'eager',
+            loading: 'lazy',
             widths: '400, 600, 800, 1000, 1200, 1600, 1920, 2600, 3200',
             sizes: '100vw',
             alt: poster_alt,
@@ -149,7 +155,7 @@
           alt=""
           width="1280"
           height="720"
-          loading="eager"
+          loading="lazy"
         >
       {%- endif -%}
     </div>
