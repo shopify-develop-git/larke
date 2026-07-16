@@ -566,12 +566,13 @@
     align-self: center;
   }
 
-  .site-footer__subheading,
   .site-footer__tagline {
     max-width: none;
   }
 
   .site-footer__subheading {
+    max-width: 350px;
+    margin: 0 auto;
     padding: 0 20px;
   }
 
