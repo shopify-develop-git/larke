@@ -41,9 +41,43 @@
     document.querySelectorAll(ROOT_SELECTOR).forEach((drawer) => init(drawer));
   });
 
+  /* Re-home the drawer onto <body>.
+
+     The drawer is a BLOCK of dev-site-header, so in the DOM it lands inside #header-group — and
+     that group hides on scroll down by way of `transform: translateY(-100%)`. A transformed
+     ancestor becomes the containing block for its position:fixed descendants (CSS spec), which
+     quietly redefines what this drawer's `inset: 0` means: not "fill the viewport" but "fill the
+     header". Opened anywhere below the fold it collapsed to a 138px strip parked off-screen above
+     the top edge — so clicking "Add to cart" appeared to do precisely nothing.
+
+     dev-site-header.css already documents this re-anchoring, but reads it as a cosmetic problem
+     (a stray horizontal scrollbar) and clips it away on .page-wrapper, closing with "Open, the
+     drawer is viewport-fixed — nothing here touches it". That is only true while the header is
+     SHOWN. Hidden, the transform is live and the open drawer is re-anchored too. The clip hid the
+     evidence; the anchor was the bug.
+
+     Staying a block is still right — one configuration serves every template, and the drawer
+     always ships with the trigger that opens it. Where it is CONFIGURED and where it must LIVE
+     at runtime are simply different questions, and only the Liquid cares about the first. A
+     viewport overlay belongs to the viewport, so it is moved once, at init, beyond the reach of
+     this transform and of any promoted ancestor added later — a class of bug rather than an
+     instance of one. The menu drawer in the same group has it too.
+
+     Nothing is lost with JS off: the drawer never opens without JS at all (the header's cart
+     button stays an ordinary link to /cart), so a node this code never moves is a node that was
+     never going to be shown. */
+  function portal(drawer) {
+    if (drawer.parentElement !== document.body) document.body.appendChild(drawer);
+  }
+
   function init(drawer) {
     const panel = drawer.querySelector('.cart-drawer__panel');
+    // Not our drawer. ROOT_SELECTOR matches Horizon's stock overlay too — it claims the same
+    // class — and it has no panel of ours inside it. Bail before touching anything, and in
+    // particular before the move below: portalling Horizon's drawer would be vandalism.
     if (!panel) return;
+
+    portal(drawer);
 
     // The element focus returns to when the drawer closes.
     let lastTrigger = null;
@@ -80,10 +114,12 @@
       drawer.dataset.open = 'true';
       syncState();
 
-      // Focus the first thing in the panel (the close button) so the drawer is
-      // immediately dismissable from the keyboard.
+      /* Focus the first thing in the panel (the close button) so the drawer is
+         immediately dismissable from the keyboard. preventScroll for the same reason as in
+         close(): nothing inside a viewport overlay is ever worth scrolling the page to reach,
+         and a focus that quietly moves the page behind the panel is a bug in every case. */
       const first = focusable()[0];
-      if (first) first.focus();
+      if (first) first.focus({ preventScroll: true });
     }
 
     function close() {
@@ -92,11 +128,19 @@
       drawer.dataset.open = 'false';
       syncState();
 
-      // Hand the header's disclosure state back, then return focus to it.
+      /* Hand the header's disclosure state back, then return focus to it.
+
+         preventScroll, and it is not optional. Returning focus to the trigger is right — it is
+         where the buyer was before the drawer took over — but the trigger sits in #header-group,
+         inside .page-wrapper, which IS the scroll container on desktop (base.css). Scrolled down,
+         the header is hidden, so the browser judges the trigger to be off-screen and scrolls the
+         page to reveal it — and base.css asks for `scroll-behavior: smooth`, so the page spent
+         ~900ms gliding 445px upward on its own after every close. Nobody asked for a scroll; we
+         asked for a focus. Say so. */
       const trigger = lastTrigger || document.querySelector(TRIGGER_SELECTOR);
       if (trigger) {
         trigger.setAttribute('aria-expanded', 'false');
-        trigger.focus();
+        trigger.focus({ preventScroll: true });
       }
 
       lastTrigger = null;
@@ -163,7 +207,7 @@
            the focus trap is guarding — so a keyboard user's next Tab walks the page behind the
            drawer. Hand it to the close button, which is the one control the drawer always has. */
         const next = focusable()[0];
-        if (next && isOpen()) next.focus();
+        if (next && isOpen()) next.focus({ preventScroll: true });
       } catch (e) {
         // The change never landed. Fall back to the plain link we just prevented: a page load and
         // /cart is worse than staying put, but it is far better than a Remove button that silently

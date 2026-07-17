@@ -105,7 +105,15 @@
 
   It lives as a block of dev-site-header (rather than a section of its own) so one
   configuration serves every template, and so it always ships with the trigger that
-  opens it. position:fixed is unaffected — no ancestor creates a containing block.
+  opens it.
+
+  That is where it is CONFIGURED. It is NOT where it lives at runtime: this markup lands
+  inside #header-group, which hides on scroll down with a transform, and a transformed
+  ancestor becomes the containing block for its position:fixed descendants — which turned
+  `inset: 0` from "fill the viewport" into "fill the header" and collapsed the whole overlay
+  to a strip off the top of the screen. dev-cart-drawer.js therefore moves this element to
+  <body> on init, and the full reasoning lives in the `portal` comment there. Do not assume
+  the rendered position is the final one, and do not re-add a containing block to it.
 
   The cart routes ride on the root as data attributes rather than being hardcoded in the
   JS (the same contract dev-main-product uses): a localised storefront serves them under
