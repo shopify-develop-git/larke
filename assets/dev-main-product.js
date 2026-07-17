@@ -1030,11 +1030,19 @@
     const fresh = doc.querySelector(DRAWER_SELECTOR);
     const live = document.querySelector(DRAWER_SELECTOR);
     if (fresh && live) {
-      const next = fresh.querySelector('.cart-drawer__content');
-      const current = live.querySelector('.cart-drawer__content');
-      // Only the content is swapped. The drawer's listeners sit on its ROOT and are delegated, so
-      // replacing what is inside it cannot unbind the close button, the backdrop or the focus trap.
-      if (next && current) current.replaceWith(next);
+      /* Content AND footer — the footer carries the checkout button, which the drawer renders only
+         when the basket has contents. This add is precisely the moment that flips: the buyer landed
+         with an empty basket (every first visit), so the footer came down WITHOUT a checkout button
+         and swapping the content alone left it that way — drawer open, duvet in it, nothing to
+         click. Keep the two regions in step with the server's own render.
+
+         The drawer's listeners sit on its ROOT and are delegated, so replacing what is inside it
+         cannot unbind the close button, the backdrop or the focus trap. */
+      ['.cart-drawer__content', '.cart-drawer__footer'].forEach((selector) => {
+        const next = fresh.querySelector(selector);
+        const current = live.querySelector(selector);
+        if (next && current) current.replaceWith(next);
+      });
     }
 
     const toggle = document.querySelector('.site-header__cart-toggle');

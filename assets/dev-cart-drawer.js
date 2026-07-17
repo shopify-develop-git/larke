@@ -194,11 +194,22 @@
       const fresh = doc.querySelector('div.cart-drawer');
       if (!fresh) throw new Error('no drawer in the fresh cart page');
 
-      const next = fresh.querySelector('.cart-drawer__content');
-      const current = drawer.querySelector('.cart-drawer__content');
-      // Only the content is swapped. Every listener in this file is delegated from the ROOT, so
-      // replacing what is inside it cannot unbind the close button, the backdrop or the focus trap.
-      if (next && current) current.replaceWith(next);
+      /* Content AND footer — both regions the cart's contents decide.
+
+         The footer is not trim: the checkout button lives in it, and it renders only when the
+         basket has something in it ({% if cart.item_count > 0 %}). Swapping the content alone
+         froze that decision at whatever the basket held when the PAGE loaded. Land with an empty
+         basket — every first visit — add a duvet, and the drawer opened with the line item, the
+         price and no checkout button anywhere: a basket you cannot buy. The mirror was as bad:
+         empty the basket and "Checkout Securely" stayed, aimed at a checkout with nothing in it.
+
+         Every listener in this file is delegated from the ROOT, so replacing what is inside it
+         cannot unbind the close button, the backdrop or the focus trap. */
+      ['.cart-drawer__content', '.cart-drawer__footer'].forEach((selector) => {
+        const next = fresh.querySelector(selector);
+        const current = drawer.querySelector(selector);
+        if (next && current) current.replaceWith(next);
+      });
 
       // The count badge only exists while the cart is non-empty, so the whole inside is swapped
       // rather than a number written into an element that may not be there. The node itself
