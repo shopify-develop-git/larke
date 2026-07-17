@@ -129,10 +129,13 @@
   flex: 0 0 auto;
 }
 
+/* The strokes are currentColor, so this drives them. Set on the svg, not the label's parent:
+   the icon is lighter than the label it sits next to. */
 .featured-product__icon svg {
   display: block;
   width: 24px;
   height: 24px;
+  color: var(--color-icon);
 }
 
 .featured-product__icon-label {

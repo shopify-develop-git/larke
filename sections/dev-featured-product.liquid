@@ -5,8 +5,8 @@
 
   Inline SVG (all 3 icons are < 8KB, per the Assets report → INLINE route). Every `d` below is
   copied BYTE-FOR-BYTE from the owner's Figma export in .figma-assets/featured-product/
-  (icon-wind.svg, icon-care.svg, icon-organic.svg). Only `stroke` was rewritten to currentColor
-  so the icons inherit --color. Nothing was retyped, rounded or "tidied".
+  (icon-wind.svg, icon-care.svg, icon-organic.svg). Only `stroke` was rewritten to currentColor,
+  which --color-icon then drives. Nothing was retyped, rounded or "tidied".
   Verify with: node .claude/tools/svg-fidelity.mjs --section featured-product
 
   Note (Brief §5): despite the name, this section has NO dynamic product binding in Figma —
@@ -85,6 +85,7 @@
     --color-badge-border: #c4bca9;
     --color-button-bg: #333333;
     --color-button-text: #ffffff;
+    --color-icon: #666666; /* icon strokes sit lighter than the label beside them */
   }
 </style>
 
