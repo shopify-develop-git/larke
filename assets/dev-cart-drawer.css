@@ -180,9 +180,12 @@ body[data-cart-drawer-open='true'] {
   border-radius: var(--radius-card);
 }
 
+/* Top-aligned, not centred: the price belongs to the line as a whole, so it reads against the
+   title. Centring hung it level with the middle option, which made it look like that option's
+   price rather than the line's. */
 .cart-drawer__item-detail {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--spacing-md);
 }
