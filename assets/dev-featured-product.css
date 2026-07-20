@@ -261,6 +261,16 @@
   .featured-product__subheading {
     font-size: var(--font-body-size-m);
   }
+
+  /* Mobile swaps the CTA to the small master-button size (node 44821:5733): 12/18 padding,
+     16px label — desktop keeps dev-button's 18/24 and 18px. Overridden as properties rather
+     than --dev-btn-* tokens, per the rule in dev-button.css: a media query cannot beat a
+     token declared in the section's inline <style>. Radius, weight and line-height are
+     unchanged from the component defaults, so they are not restated here. */
+  .featured-product__button {
+    padding: var(--button-pad-y-m) var(--button-pad-x-m);
+    font-size: var(--font-button-size-m);
+  }
 }
 
 /* =============================================

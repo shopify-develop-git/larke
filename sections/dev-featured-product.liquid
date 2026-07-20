@@ -39,10 +39,13 @@
     /* Typography — mobile. Both confirmed off the mobile artboard (node 44821:5733):
        subheading is Body/Lg_Body_Medium 18px (line-advance 25px = 18 × 1.4); the heading
        measures ~27px (line-advance 32px = 27 × 1.2), which the 0.75 scale factor lands on
-       exactly. Label + button sizes are held at their desktop values — the mobile screenshot
-       shows no smaller mobile button. */
+       exactly. The button drops to the small master size on mobile — 12/18 padding and a
+       16px label, against 18/24 and 18px on desktop. Icon labels stay at their desktop 14px. */
     --font-heading-size-m: calc(var(--font-heading-size) * 0.75);
     --font-body-size-m: 18px;
+    --font-button-size-m: 16px;
+    --button-pad-y-m: 12px;
+    --button-pad-x-m: 18px;
 
     /* Spacing */
     --spacing-sm: 8px;
