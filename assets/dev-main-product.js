@@ -12,6 +12,7 @@
   function init(root) {
     initGallery(root);
     initVariants(root);
+    initThumbScroll(root);
   }
 
   /* ---- Gallery ---------------------------------------------------------- */
@@ -74,6 +75,76 @@
       const to = event.detail ? event.detail.index : null;
       if (typeof to === 'number' && to >= 0) show(to);
     });
+  }
+
+  /* ---- Thumbnail scroll indicator --------------------------------------- */
+
+  /* The mobile strip hides the native scrollbar, so this draws the one the artboard specifies
+     (44948:821): a bar whose WIDTH is the fraction of the strip currently visible and whose OFFSET
+     is how far through it the buyer is. Both are measured off the element actually being scrolled,
+     so it stays truthful for any number of photos — the artboard's fixed 17.8% is one product's
+     media count frozen into a drawing, not a value to reproduce.
+
+     Runs on every breakpoint; the CSS only paints it below 769px. Cheaper than teaching the JS
+     about the breakpoint, and it means a desktop window dragged narrow is already correct. */
+  function initThumbScroll(root) {
+    const strip = root.querySelector('.dev-main-product__thumbs');
+    const rail = root.querySelector('[data-thumb-scroll]');
+    const bar = rail ? rail.querySelector('[data-thumb-scroll-bar]') : null;
+
+    if (!strip || !rail || !bar) return;
+
+    let queued = false;
+
+    function update() {
+      queued = false;
+
+      const overflow = strip.scrollWidth - strip.clientWidth;
+
+      /* Not `> 0`: sub-pixel layout rounding leaves a fraction of a pixel of phantom overflow on
+         strips that genuinely fit, and that would show a full-width bar advertising a scroll the
+         buyer cannot perform. */
+      if (overflow <= 1) {
+        rail.hidden = true;
+        return;
+      }
+
+      rail.hidden = false;
+
+      const visible = strip.clientWidth / strip.scrollWidth;
+      const progress = ratio(strip.scrollLeft / overflow);
+
+      /* translateX percentages resolve against the BAR's own width, not the track's — so the full
+         journey is (track - bar) / bar, which reduces to 1/visible - 1. Getting this wrong is the
+         classic way a scroll indicator stops short of, or overshoots, the right-hand end. */
+      bar.style.width = visible * 100 + '%';
+      bar.style.transform = 'translateX(' + progress * (1 / visible - 1) * 100 + '%)';
+    }
+
+    function schedule() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(update);
+    }
+
+    strip.addEventListener('scroll', schedule, { passive: true });
+
+    /* Catches the viewport changing AND the strip being resized by anything else — including the
+       breakpoint flip, where the strip goes from a column that cannot scroll to a row that can. */
+    if ('ResizeObserver' in window) {
+      new ResizeObserver(schedule).observe(strip);
+    } else {
+      window.addEventListener('resize', schedule);
+    }
+
+    update();
+  }
+
+  /* Guards the division: an empty strip gives 0/0, and a rubber-band overscroll on iOS reports a
+     scrollLeft past the end. Either would be written straight into a transform. */
+  function ratio(value) {
+    if (!isFinite(value) || value < 0) return 0;
+    return value > 1 ? 1 : value;
   }
 
   /* ---- Variants --------------------------------------------------------- */

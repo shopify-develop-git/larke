@@ -52,6 +52,11 @@
        by the zoom strip and the guide's bullet rows, which do not follow it. */
     --thumb-gap-mobile: 8px;
     --thumb-radius: 8px;
+    /* The mobile strip's scroll indicator (44948:821). The artboard draws it as a 2px line with
+       round caps: the travelled part #333, the rest #D8D1C0 — the same hairline colour the
+       accordion and the size table already use. */
+    --thumb-scroll-h: 2px;
+    --thumb-scroll-track: #d8d1c0;
     --image-w: 668px;
     --image-h: 640px;
     --image-radius: 32px;
@@ -237,6 +242,20 @@
             </li>
           {%- endfor -%}
         </ul>
+
+        {%- comment -%}
+          The mobile artboard (44948:821) draws its own 2px scroll indicator under the strip, because
+          the native scrollbar is hidden there. Decorative, hence aria-hidden: it mirrors an affordance
+          a keyboard user already has — every thumb is a real button in the tab order — and a
+          screen reader gains nothing from being told how far a strip is scrolled.
+
+          Rendered unconditionally and hidden by the JS when the strip has nothing to scroll; a
+          `hidden` that only ever comes OFF is safer than markup that has to guess the overflow
+          server-side, where neither the viewport nor the image count is known.
+        {%- endcomment -%}
+        <div class="dev-main-product__thumb-scroll" data-thumb-scroll aria-hidden="true" hidden>
+          <span class="dev-main-product__thumb-scroll-bar" data-thumb-scroll-bar></span>
+        </div>
       {%- endif -%}
 
       <div class="dev-main-product__stage">

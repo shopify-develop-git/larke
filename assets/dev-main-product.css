@@ -43,6 +43,36 @@
   list-style: none;
 }
 
+/* Scroll indicator for the thumbnail strip. Mobile-only: the desktop strip is a vertical column
+   that never scrolls sideways, and the artboard draws no indicator there. Display is switched on
+   in the <=768 block; the [hidden] rule outranks it (0,2,0 vs 0,1,0) whatever the source order,
+   which is what lets the JS take it away again when the strip has nothing to scroll. */
+.dev-main-product__thumb-scroll {
+  display: none;
+  position: relative;
+  height: var(--thumb-scroll-h);
+  border-radius: calc(var(--thumb-scroll-h) / 2);
+  background-color: var(--thumb-scroll-track);
+  overflow: hidden;
+}
+
+.dev-main-product__thumb-scroll[hidden] {
+  display: none;
+}
+
+/* Width and translate are both written by the JS. The bar is positioned by transform rather than
+   `left` so a scroll repaints on the compositor instead of relaying out the strip beside it, and
+   it carries NO transition on purpose — the bar has to track the finger exactly, and easing it
+   would make it drift behind the content it is reporting on. */
+.dev-main-product__thumb-scroll-bar {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background-color: var(--color);
+  will-change: transform;
+}
+
 .dev-main-product__thumb {
   display: block;
   position: relative;
@@ -603,6 +633,17 @@
 
   .dev-main-product__thumbs::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Sits under the strip, inset to the same gutter. The artboard puts 12px between the thumbs and
+     the bar; 8 of those are already the strip's own bottom padding, so only 4 are added here.
+     order: 3 because the gallery is a column on mobile and the DOM runs thumbs -> stage: the stage
+     is pulled to 1 and the strip to 2, so the indicator has to name its place too or it would sit
+     above the photo. */
+  .dev-main-product__thumb-scroll {
+    display: block;
+    order: 3;
+    margin: 4px var(--section-px-mobile) 8px;
   }
 
   .dev-main-product__thumb-item {
