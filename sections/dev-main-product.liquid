@@ -301,12 +301,7 @@
         {%- endcomment -%}
         {%- if section.settings.show_seal and section.settings.seal_image != blank -%}
           {%- assign seal_alt = section.settings.seal_alt | escape -%}
-          {%- assign seal_mobile = section.settings.seal_image_mobile -%}
-          {%- comment -%}
-            Captured once so the desktop <img> is written in exactly one place — it is both the
-            lone image when no mobile seal is set AND the <picture> fallback when one is.
-          {%- endcomment -%}
-          {%- capture seal_img -%}
+          <span class="dev-main-product__seal">
             {{
               section.settings.seal_image
               | image_url: width: 270
@@ -317,30 +312,6 @@
                 alt: seal_alt,
                 class: 'dev-main-product__seal-image'
             }}
-          {%- endcapture -%}
-          <span class="dev-main-product__seal">
-            {%- if seal_mobile != blank -%}
-              {%- comment -%}
-                Art direction, not a resize: <source> swaps the FILE below 769px, so the merchant can
-                ship a compacter seal for mobile rather than relying on the CSS cap to shrink a dense
-                desktop one. The <img> stays the desktop seal and remains the fallback at every other
-                width — and for anything that ignores <picture>.
-
-                The 768px cut matches the CSS breakpoint that caps the seal at 63px tall; move one and
-                the other has to move with it. Candidates are 90/180/270 because the mobile rule caps
-                the box at 90px wide, so those are the 1x/2x/3x renditions.
-              {%- endcomment -%}
-              <picture>
-                <source
-                  media="(max-width: 768px)"
-                  sizes="90px"
-                  srcset="{{ seal_mobile | image_url: width: 90 }} 90w, {{ seal_mobile | image_url: width: 180 }} 180w, {{ seal_mobile | image_url: width: 270 }} 270w"
-                >
-                {{ seal_img }}
-              </picture>
-            {%- else -%}
-              {{ seal_img }}
-            {%- endif -%}
           </span>
         {%- endif -%}
 
@@ -1139,7 +1110,6 @@
     { "type": "text", "id": "badge_text", "label": "Image badge", "default": "Smooth & Breezy" },
     { "type": "checkbox", "id": "show_seal", "label": "Show approval seal", "default": true },
     { "type": "image_picker", "id": "seal_image", "label": "Approval seal", "info": "Pick the seal from Files. Leave it empty and no seal is drawn — the theme no longer bundles one." },
-    { "type": "image_picker", "id": "seal_image_mobile", "label": "Approval seal (mobile)", "info": "Optional. A compacter seal for phones, swapped in below 769px. Leave it empty and the desktop seal is used at every width." },
     { "type": "text", "id": "seal_alt", "label": "Approval seal alt text", "default": "Good Housekeeping Institute approved" },
 
     { "type": "header", "content": "Guides" },
