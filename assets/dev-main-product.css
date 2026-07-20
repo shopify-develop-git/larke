@@ -1112,6 +1112,16 @@
   line-height: var(--font-body-lh);
 }
 
+/* 18 -> 16 on mobile, the same step the buy column's sub, the guide copy and the tog text already
+   take. Its own block, immediately after the rule it overrides, for the reason spelled out above
+   .dev-main-product__pc: every earlier <=768 block sits BEFORE this declaration in the file, so at
+   equal specificity the base rule would win and the override would silently do nothing. */
+@media (max-width: 768px) {
+  .dev-main-product__pc-sub {
+    font-size: var(--font-sub-size-mobile);
+  }
+}
+
 .dev-main-product__pc-rows {
   display: flex;
   flex-direction: column;
