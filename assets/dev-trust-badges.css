@@ -68,32 +68,35 @@
   justify-content: center;
 }
 
-/* Icons are NOT scaled between breakpoints (Brief note #4) — identical fixed px
-   boxes at 1440 and at 375. Rendered size == viewBox, so the art draws at its
-   true Figma size instead of being letterboxed into the smaller anchor box. */
-.trust-badges__icon-svg,
-.trust-badges__icon-img {
-  display: block;
-  width: auto;
-  height: auto;
-}
-
-.trust-badges__icon--warranty .trust-badges__icon-svg,
-.trust-badges__icon--warranty .trust-badges__icon-img {
+/* Sizing lives on the BOX, not on the artwork. Each badge's box is the fixed px size from
+   Figma (Brief note #4 — same at 1440 and at 375); the icon then fills that box and fits
+   inside it. Resizing a box therefore scales its art proportionally, which is what lets the
+   ≤768 block cap every icon at one height with a single rule. */
+.trust-badges__icon--warranty {
   width: var(--icon-warranty-w);
   height: var(--icon-warranty-h);
 }
 
-.trust-badges__icon--trial .trust-badges__icon-svg,
-.trust-badges__icon--trial .trust-badges__icon-img {
+.trust-badges__icon--trial {
   width: var(--icon-trial-w);
   height: var(--icon-trial-h);
 }
 
-.trust-badges__icon--delivery .trust-badges__icon-svg,
-.trust-badges__icon--delivery .trust-badges__icon-img {
+.trust-badges__icon--delivery {
   width: var(--icon-delivery-w);
   height: var(--icon-delivery-h);
+}
+
+.trust-badges__icon-svg,
+.trust-badges__icon-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* `object-fit` is what contains the warranty <img>. An inline <svg> ignores object-fit,
+     but its default preserveAspectRatio ("xMidYMid meet") IS contain-and-centre, so both
+     icon types fit their box identically. At the desktop sizes the box matches the viewBox
+     1:1, so the art still lands at its true Figma size — nothing is letterboxed. */
+  object-fit: contain;
 }
 
 .trust-badges__text {
@@ -175,6 +178,23 @@
 
   .trust-badges__description {
     font-size: var(--font-body-size-mobile);
+  }
+
+  /* Mobile caps all three icons at 38px tall — the one place icons scale between breakpoints.
+     Applied to the BOX, so the single rule covers both the inline svgs and the warranty <img>
+     without repeating the per-variant selectors. `max-height` rather than `height` on purpose:
+     it clamps the used value regardless of the variant heights set above, which stay untouched.
+     Widths are left at their Figma values; `contain` scales the art down proportionally inside
+     the shortened box and centres it. */
+  .trust-badges__icon {
+    max-height: 38px;
+  }
+
+  /* Delivery is the widest box (56px) and gets its own pair of caps — 1px taller than the
+     other two. Equal specificity to the rule above, so it wins only by coming after it. */
+  .trust-badges__icon--delivery {
+    max-width: 54px;
+    max-height: 39px;
   }
 }
 
