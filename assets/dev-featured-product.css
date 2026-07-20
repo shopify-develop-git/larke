@@ -240,7 +240,7 @@
      Lifting the heading to the front yields Heading → Image → Subheading → Badge/Icons/Button. */
   .featured-product__heading {
     order: -1;
-    font-size: var(--font-heading-size-m);
+    font-size: calc(var(--font-heading-size-m) + 1px);
   }
 
   /* Full-width photo band — reset the desktop bleed crop back to a plain cover fill. */
