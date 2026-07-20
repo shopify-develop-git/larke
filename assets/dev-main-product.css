@@ -618,6 +618,17 @@
     padding: 7px;
   }
 
+  /* Seal caps at 63px tall on mobile. `width: auto` is load-bearing, not tidying: the base rule
+     pins width to 90px, and a replaced element only re-derives its width from max-height when
+     width is auto (CSS2.1 10.4). Left at 90px the image would squash to 90x63 instead of scaling.
+     max-width keeps the old 90px ceiling, so the pair is a contain box — whichever edge binds
+     first wins and the aspect ratio survives either way. */
+  .dev-main-product__seal-image {
+    width: auto;
+    max-width: 90px;
+    max-height: 63px;
+  }
+
   /* Centre the buy CONTAINER on mobile (not its content): align-self stops it stretching to the
      full column width, so the box sits centred; the copy inside keeps its own alignment. */
   .dev-main-product__buy {
