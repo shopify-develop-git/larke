@@ -13,6 +13,7 @@
       "type": "dev-tree-fibre-hero",
       "settings": {
         "heading": "Turns out, taking care of our planet never felt more <em>comfortable.</em>",
+        "emphasis_weight": "600",
         "show_underline": false,
         "background_image": "shopify://shop_images/tree-fibre-hero-bg.jpg",
         "stretch_background": true,
@@ -20,8 +21,7 @@
         "text_color": "#ffffff",
         "accent_color": "#a8cf78",
         "padding_top": 64,
-        "padding_bottom": 64,
-        "emphasis_weight": "600"
+        "padding_bottom": 64
       }
     },
     "dev-tree-fibre-intro": {
@@ -138,7 +138,7 @@
       "settings": {
         "heading": "<p>A single, unique and plant-based fibre – redefining what a duvet can do.</p>",
         "image": "shopify://shop_images/fibre-cta-card-image-desktop.jpg",
-        "image_mobile": "shopify://shop_images/fibre-cta-card-image-mobile.jpg",
+        "image_mobile": "shopify://shop_images/fibre-cta-card-image-desktop.jpg",
         "alt_text": "",
         "button_label": "Trial Our Duvet",
         "button_link": "/products/natural-duvet",
