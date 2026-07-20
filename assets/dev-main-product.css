@@ -618,15 +618,16 @@
     padding: 7px;
   }
 
-  /* Seal caps at 63px tall on mobile. `width: auto` is load-bearing, not tidying: the base rule
-     pins width to 90px, and a replaced element only re-derives its width from max-height when
-     width is auto (CSS2.1 10.4). Left at 90px the image would squash to 90x63 instead of scaling.
-     max-width keeps the old 90px ceiling, so the pair is a contain box — whichever edge binds
-     first wins and the aspect ratio survives either way. */
+  /* The seal sits in a fixed 10:7 box on mobile. Width stays the base rule's 90px, so the ratio
+     resolves to exactly 63px tall — but as one declaration that keeps holding if that width is
+     ever retuned. `height: auto` is restated rather than inherited because it is what lets the
+     ratio drive the height at all; a fixed height in the base rule would silently win.
+     object-fit because aspect-ratio only shapes the BOX — the initial `fill` would stretch the
+     artwork to 10:7, and the seal is a merchant upload of unknown proportions. */
   .dev-main-product__seal-image {
-    width: auto;
-    max-width: 90px;
-    max-height: 63px;
+    aspect-ratio: 10 / 7;
+    height: auto;
+    object-fit: contain;
   }
 
   /* Centre the buy CONTAINER on mobile (not its content): align-self stops it stretching to the
