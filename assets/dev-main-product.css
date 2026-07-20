@@ -622,12 +622,11 @@
      resolves to exactly 63px tall — but as one declaration that keeps holding if that width is
      ever retuned. `height: auto` is restated rather than inherited because it is what lets the
      ratio drive the height at all; a fixed height in the base rule would silently win.
-     object-fit because aspect-ratio only shapes the BOX — the initial `fill` would stretch the
-     artwork to 10:7, and the seal is a merchant upload of unknown proportions. */
+     No object-fit, by decision: the artwork fills the box on the initial `fill`. If a seal whose
+     own proportions are not 10:7 is ever uploaded it will stretch — `contain` is the fix. */
   .dev-main-product__seal-image {
     aspect-ratio: 10 / 7;
     height: auto;
-    object-fit: contain;
   }
 
   /* Centre the buy CONTAINER on mobile (not its content): align-self stops it stretching to the
