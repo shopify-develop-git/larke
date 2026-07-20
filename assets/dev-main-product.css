@@ -594,6 +594,7 @@
   .dev-main-product__thumbs {
     order: 2;
     flex-direction: row;
+    gap: var(--thumb-gap-mobile);
     width: 100%;
     padding: 8px var(--section-px-mobile);
     overflow-x: auto;

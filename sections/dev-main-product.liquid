@@ -48,6 +48,9 @@
     --gallery-gap: 24px;
     --thumb-size: 62px;
     --thumb-gap: 12px;
+    /* The mobile strip tightens to 8 (44775:7085). Its own token because --thumb-gap is also read
+       by the zoom strip and the guide's bullet rows, which do not follow it. */
+    --thumb-gap-mobile: 8px;
     --thumb-radius: 8px;
     --image-w: 668px;
     --image-h: 640px;
