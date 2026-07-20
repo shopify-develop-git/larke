@@ -229,7 +229,7 @@
     flex-direction: column;
     align-items: center;
     gap: var(--spacing-lg);
-    padding: calc(var(--content-py) / 2) 0;
+    padding: var(--spacing-lg) 0;
   }
 
   .featured-product__content {
