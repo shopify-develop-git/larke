@@ -637,12 +637,21 @@
 
   /* Sits under the strip, inset to the same gutter. The artboard puts 12px between the thumbs and
      the bar; 8 of those are already the strip's own bottom padding, so only 4 are added here.
+
      order: 3 because the gallery is a column on mobile and the DOM runs thumbs -> stage: the stage
      is pulled to 1 and the strip to 2, so the indicator has to name its place too or it would sit
-     above the photo. */
+     above the photo.
+
+     align-self is NOT tidying. The gallery keeps align-items: flex-start from its base rule, and
+     once it turns into a column that governs the HORIZONTAL axis — so every child shrinks to its
+     content width. This rail's only content is a bar the JS starts at width 0, which makes the
+     whole thing 0 wide and perfectly invisible while looking correct in the inspector. The strip
+     above dodges the same trap with an explicit width: 100%; stretch is the equivalent here,
+     because it leaves the horizontal margins free to do the 16px inset. */
   .dev-main-product__thumb-scroll {
     display: block;
     order: 3;
+    align-self: stretch;
     margin: 4px var(--section-px-mobile) 8px;
   }
 
