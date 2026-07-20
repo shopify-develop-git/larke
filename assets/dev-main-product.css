@@ -600,6 +600,10 @@
   .dev-main-product__gallery {
     position: static;
     flex-direction: column;
+    /* --gallery-gap is the 24px between the desktop's two COLUMNS. Stacked, it became 24px of dead
+       space between the photo, the strip and the indicator — none of which the artboard has: the
+       strip carries its own 8px of padding and the indicator its own margins. */
+    gap: 0;
     width: 100%;
     padding-top: 0;
   }
