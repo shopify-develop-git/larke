@@ -153,23 +153,35 @@
 
           Measured on the CDN: mobile 290KB -> 227KB, desktop (1440) -> 138KB.
         {%- endcomment -%}
+        {%- comment -%}
+          Neither srcset goes past 1920w, and that is a hard limit, not a preference. The source is
+          1920x3413; ask Shopify to crop wider than the source and it silently drops the crop and
+          returns the UNCROPPED image — width=2600&height=903&crop=center comes back 508x903 at the
+          original 0.5625 aspect. The browser then cover-crops it again, so the entry costs 162KB
+          and undoes the optimisation. It looked right on screen, which is exactly why it survived
+          the first pass.
+
+          The mobile list stops at 1100 for a different reason: the tall crop is expensive, and
+          824x1000 is 227KB where 1536x1864 is 435KB — worse than the original. This is a
+          decorative background behind text, cover-cropped on every viewport, so the extra density
+          buys nothing anyone can see.
+        {%- endcomment -%}
         <picture>
           <source
             media="(min-width: 769px)"
             srcset="
               {{ poster | image_url: width: 1000, height: 347, crop: 'center' }} 1000w,
               {{ poster | image_url: width: 1440, height: 500, crop: 'center' }} 1440w,
-              {{ poster | image_url: width: 1920, height: 667, crop: 'center' }} 1920w,
-              {{ poster | image_url: width: 2600, height: 903, crop: 'center' }} 2600w
+              {{ poster | image_url: width: 1920, height: 667, crop: 'center' }} 1920w
             "
             sizes="100vw"
           >
           {{
             poster
-            | image_url: width: 1536, height: 1864, crop: 'center'
+            | image_url: width: 1100, height: 1334, crop: 'center'
             | image_tag:
               loading: 'lazy',
-              widths: '400, 600, 824, 1100, 1536',
+              widths: '400, 600, 824, 1100',
               sizes: '100vw',
               alt: poster_alt,
               class: 'video-promo-banner__poster'

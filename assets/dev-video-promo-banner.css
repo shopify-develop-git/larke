@@ -36,6 +36,20 @@
   inset: 0;
 }
 
+/* The art-directed poster is wrapped in <picture>, and <picture> is a real box in the layout
+   tree — not a passthrough. Without this the poster's `height: 100%` resolved against the
+   <picture>, whose own height is auto, so the percentage was dropped and the image sized to its
+   intrinsic aspect instead of filling the 500px tile.
+
+   `display: contents` removes the wrapper from the box tree so the <img> stays a direct child of
+   __media for layout, and every rule below keeps working unchanged.
+
+   dev-hero does not need this because .hero__bg is position: absolute and resolves against
+   .hero__bg-layer regardless of the wrapper. This one fills its box statically, so it does. */
+.video-promo-banner__media picture {
+  display: contents;
+}
+
 .video-promo-banner__poster {
   display: block;
   width: 100%;
