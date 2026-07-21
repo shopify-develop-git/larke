@@ -677,11 +677,18 @@
      resolves to exactly 63px tall — but as one declaration that keeps holding if that width is
      ever retuned. `height: auto` is restated rather than inherited because it is what lets the
      ratio drive the height at all; a fixed height in the base rule would silently win.
-     No object-fit, by decision: the artwork fills the box on the initial `fill`. If a seal whose
-     own proportions are not 10:7 is ever uploaded it will stretch — `contain` is the fix. */
+     object-fit: contain because that contingency arrived. The rule above used to end "if a seal
+     whose own proportions are not 10:7 is ever uploaded it will stretch — `contain` is the fix",
+     and the seal now on the product is 709x564 (1.257), not 10:7 (1.429). On the initial `fill`
+     it was being stretched 13% wide: Lighthouse flagged it as image-aspect-ratio on the PDP, and
+     distorting a certification mark is not something to ship regardless of the audit.
+
+     `contain` keeps the artboard's 10:7 box and letterboxes the artwork inside it, so the box
+     geometry the mobile layout depends on is unchanged. */
   .dev-main-product__seal-image {
     aspect-ratio: 10 / 7;
     height: auto;
+    object-fit: contain;
   }
 
   /* Centre the buy CONTAINER on mobile (not its content): align-self stops it stretching to the
