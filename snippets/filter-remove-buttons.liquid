@@ -11,7 +11,14 @@
 
 <div class="facets-remove facets-remove--mobile-and-vertical">
   {%- if filters -%}
-    <h3 class="visually-hidden">{{ 'accessibility.active_filters' | t }}</h3>
+    {%- comment -%}
+      h2, not h3. This is the first heading after the collection's <h1>, so an h3 skipped a level
+      and failed heading-order on every collection page — the product-card titles that follow are
+      aria-level 3, and they are what the audit pointed at. It is visually hidden either way, so
+      the level is pure semantics: h1 title → h2 "Active filters" → h3 card titles now reads as a
+      real outline to a screen reader.
+    {%- endcomment -%}
+    <h2 class="visually-hidden">{{ 'accessibility.active_filters' | t }}</h2>
   {%- endif -%}
 
   {%- for filter in filters -%}
