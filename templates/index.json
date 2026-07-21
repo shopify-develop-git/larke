@@ -82,7 +82,7 @@
         "tile-line-drying": {
           "type": "image_tile",
           "settings": {
-            "image": "shopify://shop_images/wash-dry-repeat-promo-tile-2.jpg",
+            "image": "shopify://shop_images/master_promo_tiles.webp",
             "alt_text": "A Larke duvet drying outdoors on a washing line",
             "border_color": "#c4bca9"
           }
@@ -335,7 +335,7 @@
         "button_link": "/pages/about?view=our-story",
         "image": "shopify://shop_images/our-story-video-banner-bg.jpg",
         "image_mobile": "shopify://shop_images/our-story-video-banner-bg.jpg",
-        "background_color": "#FFFCF4",
+        "background_color": "#fffcf4",
         "text_color": "#ffffff",
         "accent_color": "#a8cf78",
         "padding_top": 80,
