@@ -157,12 +157,22 @@
               {{ block.shopify_attributes }}
             >
               {%- if block.settings.image != blank -%}
+                {%- comment -%}
+                  sizes states the tile's REAL width. The mobile figure was 40vw, but the tile is
+                  half of the tiles row minus the 16px gap and measures 156px at a 412 viewport —
+                  37.9vw. The 3px of overstatement pushed the DPR-1.75 requirement to 288px, just
+                  past the 280 entry, so the browser stepped up to 400w: an 89KB download for a
+                  156x211 box. 38vw resolves to 274px and lands on 280 (51KB).
+
+                  320 is in the widths list for the same reason at DPR 2 (313px needed) — without
+                  it those devices also jump to 400.
+                {%- endcomment -%}
                 {{
                   tile_src
                   | image_tag:
                     loading: 'lazy',
-                    widths: '280, 400, 560, 640, 800',
-                    sizes: '(min-width: 769px) 304px, 40vw',
+                    widths: '280, 320, 400, 560, 640, 800',
+                    sizes: '(min-width: 769px) 305px, 38vw',
                     alt: tile_alt,
                     class: 'wash-dry-repeat-promo__image'
                 }}
