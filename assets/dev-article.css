@@ -120,9 +120,20 @@
 /* --- hero media --- */
 
 /* The one element that breaks the measure — it simply fills the container, which IS the wider of
-   the two widths (see __inner). No negative margins, nothing to overflow. */
+   the two widths (see __inner). No negative margins, nothing to overflow.
+
+   The RATIO is the load-bearing part. This used to be `height: auto`, so the box inherited whatever
+   shape the merchant's featured image happened to be — and blog photography is routinely portrait.
+   A 2:3 source at the 960px container came out 960x1440: one and a half viewports of photograph
+   before a single word of the article, which began at y=2019 on a 1440x900 screen. That is a
+   layout bug that only shows up with certain uploads, which is the worst kind.
+
+   Pinning the ratio makes the page the same shape for every article, and it is what lets the CDN
+   crop instead of the browser — 152 KB of downloaded pixels becomes 69 KB, and the ones that
+   arrive are the ones that get shown. */
 .dev-article__media {
   width: 100%;
+  aspect-ratio: var(--ratio-media);
   overflow: hidden;
   border-radius: var(--radius-media);
 }
@@ -130,7 +141,8 @@
 .dev-article__image {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* --- body --- */

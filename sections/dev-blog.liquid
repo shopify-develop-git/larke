@@ -144,6 +144,49 @@
               assign card_alt = article.image.alt | default: article.title | escape
             -%}
 
+            {%- comment -%}
+              The `sizes` expression is the grid above, read back as arithmetic — 33vw was never
+              true here and was wrong in BOTH directions. Column counts come from the auto-fill
+              rule: a track is at least 320px, so three fit once the inner box reaches 1024
+              (viewport 1152), two once it reaches 672 (viewport 800), one below that.
+
+                viewport   layout          real card   33vw said
+                1440       3 up            412px       475px   over  by 15%
+                1024       2 up            424px       338px   UNDER by 20%
+                 800       1 up            672px       264px   UNDER by 60%
+
+              Over-stating wastes bytes; under-stating ships a blurred card, which is worse and is
+              why this is not just a byte fix. `vw` counts the scrollbar, so each branch is a few
+              px generous — that is the safe direction.
+
+              TWO desktop bands, split at 1300, because one ratio for the whole range is set by its
+              narrowest card and then carries that crop all the way up. The floor is 1.4545 and it
+              happens at exactly two viewports — 800, where two columns hit the 320px track minimum,
+              and 1152, where three do. Everywhere else the card is wider:
+
+                viewport   layout      card        box ratio
+                 800       2 up        320px       1.45   <- floor
+                1152       3 up        320px       1.45   <- floor
+                1300       3 up        369px       1.68
+                1440       3 up        412px       1.87
+                1920       3 up        576px       2.62
+
+              So ≤1299 keeps 1.45, 1300–1699 gets 1.68, and ≥1700 gets 2.28 — each its own floor.
+              Three bands rather than two because a band priced at its floor over-delivers at its
+              ceiling, and with only two the 1.68 crop was still being carried out to 1920, where
+              the box is 2.6: 1160x690 delivered for a 1145x440 box, 59% over.
+
+              The split points are not round numbers for their own sake. 1300 is where the third
+              column clears the 320px track minimum; 1700 is simply where the remaining overshoot
+              stopped being worth another band. Above 2000 it climbs again and is left alone —
+              there is no ratio that serves a fixed-height, fluid-width box at every width, only
+              bands that bound the error.
+
+              Only the FIRST card is eager. On mobile it sits about 300px down — inside the
+              viewport, so it is the likely LCP element, and a lazy LCP image is a guaranteed
+              Lighthouse finding. The rest stay lazy: a 9-card index would otherwise open with
+              nine parallel image requests.
+            {%- endcomment -%}
             {%- render 'dev-journal-cards-card',
               image: article.image,
               image_alt: card_alt,
@@ -152,7 +195,19 @@
               heading: article.title | escape,
               heading_level: 2,
               url: article.url,
-              cta_label: section.settings.button_label
+              cta_label: section.settings.button_label,
+              eager: forloop.first,
+              tablet_max: 1299,
+              ratio_tablet: 1.45,
+              widths_tablet: '320, 400, 480, 560, 650, 740, 820, 900, 1000, 1100, 1200, 1300, 1360',
+              sizes_tablet: '(min-width: 1152px) calc((100vw - 192px) / 3), (min-width: 800px) calc((100vw - 160px) / 2), calc(100vw - 128px)',
+              ratio_desktop: 1.68,
+              widths_desktop: '380, 460, 540, 620, 700, 750, 790, 840, 900, 960, 1060, 1160, 1300, 1450, 1600',
+              sizes_desktop: 'calc((100vw - 192px) / 3)',
+              wide_min: 1700,
+              ratio_wide: 2.28,
+              widths_wide: '500, 560, 620, 700, 780, 860, 950, 1020, 1100, 1160, 1250, 1350, 1500, 1600',
+              sizes_wide: 'calc((100vw - 192px) / 3)'
             -%}
           {%- endfor -%}
         </ul>

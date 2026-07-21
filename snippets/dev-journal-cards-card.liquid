@@ -21,6 +21,13 @@
   @param {string} [url]          - where the CTA points
   @param {string} [cta_label]    - CTA text; the whole CTA is omitted when blank
   @param {string} [attrs]        - block.shopify_attributes in fallback mode, blank in blog mode
+
+  @param {string} [sizes_desktop] - the `sizes` expression for ≥769px. NO DEFAULT THAT FITS BOTH:
+                                    dev-journal-cards is a fixed 3-up flex row, dev-blog is an
+                                    auto-fill grid that steps 3 → 2 → 1. See the media comment.
+  @param {number} [ratio_desktop] - CDN crop ratio (w/h) for the ≥769px source
+  @param {string} [widths_desktop] - srcset ladder for the ≥769px source
+  @param {boolean} [eager]        - true for the one card that can be the LCP element
 {%- endcomment -%}
 
 {%- assign h = heading_level | default: 3 -%}
@@ -28,17 +35,226 @@
 <li class="journal-cards__card" {{ attrs }}>
   <article class="journal-cards__card-inner">
     {%- if image != blank -%}
-      {%- assign card_image_src = image | image_url: width: 1200 -%}
+      {%- comment -%}
+        THE CARD IMAGE IS A FIXED-HEIGHT, FLUID-WIDTH `object-fit: cover` BOX — 220px tall on
+        desktop, 150px on mobile (--card-image-h / --card-image-h-m). It used to be requested at the
+        source's own aspect and left for the browser to crop, which meant paying for pixels that
+        were then thrown away. Measured on /blogs/news at 1440 / DPR 2:
+
+          box      412 x 220 CSS  ->  824 x 440 device  =  0.36 Mpx needed
+          shipped  1000 x 1435             (the 1000w entry)  =  1.44 Mpx  — 4x
+          card-2   743,398 B for that one card
+
+        Passing height + crop moves the crop to the CDN, so an srcset entry is the box, not a tall
+        portrait waiting to be trimmed. `image_tag`'s `widths:` scales the height with the width, so
+        every entry keeps the ratio (verified in the rendered srcset, same as dev-video-promo-banner).
+
+        TWO SOURCES, because one aspect cannot serve both breakpoints — the box is ~1.9 wide-to-tall
+        at 375 and can be as tall as ~1.45 on desktop. A single ratio would have to satisfy the
+        taller one and would then over-deliver on mobile, which is the half Lighthouse scores.
+
+        The ratio is the SMALLEST (tallest) box the breakpoint can produce, never the average: with
+        `cover`, a source WIDER than the box is trimmed at the sides and its height is what runs
+        out first, so anything above the minimum renders upscaled. Mobile bottoms out at 320vw:
+        (320 − 32) / 150 = 1.92. The desktop minimum differs per caller, hence the parameter.
+
+        card-2 measured on the CDN, 824x440: 743,398 -> 205,744 B cropped -> ~152,000 B at q75.
+
+        QUALITY IS 54, DOWN FROM 75. The card is the smallest surface this photography appears on —
+        412x220 CSS at 2x — so it can carry a lower quality than the article hero, which is the same
+        pictures at five times the area.
+
+        The number is measured on the DELIVERED format, and that distinction is the whole point.
+        Shopify hands these to the browser as WebP by content negotiation, and WebP's quality curve
+        is far flatter than JPEG's — the figure a `format: 'jpg'` probe reports is roughly double the
+        real saving. Measured across all three cards at the 840x500 desktop crop, WebP out:
+
+          q75  225,364  <- was      q60  195,322  -13.3%
+          q70  215,084   -4.6%      q58  189,626  -15.9%
+          q65  202,768  -10.0%      q54  179,157  -20.5%
+
+        So 54, not the 60 that the same -20% would have implied under JPEG. Checked on the rendered
+        page at 2x on the tree canopy — fine branches against bright sky, where WebP goes first —
+        and it is clean there. All four sources carry the same value; a card must not change
+        quality when the viewport crosses a band boundary.
+      {%- endcomment -%}
+      {%- liquid
+        assign ratio_d = ratio_desktop | default: 1.45
+        assign widths_d = widths_desktop | default: '320, 420, 520, 640, 760, 880, 1040, 1240, 1480'
+        assign sizes_d = sizes_desktop | default: 'calc((100vw - 192px) / 3)'
+
+        assign widths_m = '300, 380, 460, 560, 660, 780, 900, 1040, 1200, 1472' | split: ', '
+        assign ratio_m = 1.92
+
+        comment
+          UP TO THREE DESKTOP BANDS, all optional, all driven by the caller. This exists because the
+          card is a FIXED-HEIGHT, fluid-width cover box: the image height is pinned at 220px while
+          the width follows the grid, so the box aspect changes with the viewport and a `w`-descriptor
+          srcset — which scales both dimensions together — cannot track it.
+
+          A band's crop ratio has to be its NARROWEST card, because with `cover` a source wider than
+          the box runs out of height first and anything above the minimum renders upscaled. So one
+          band across the whole desktop range is priced at its worst viewport and carries that crop
+          everywhere. Splitting the range lets each band be priced at its own floor.
+
+          Both callers reach the same conclusion from opposite directions:
+            dev-blog             grid reflows 3 -> 2 -> 1, so cards get WIDER as the viewport
+                                 narrows; its floor recurs at 800 and 1152, hence a split at 1300.
+            dev-journal-cards    fixed 3-up that never reflows, so cards get NARROWER — 211px at
+                                 820 against a 220px image height is a box taller than it is wide.
+
+          `tablet_max` / `wide_min` are the boundaries; the <source> order below is what makes them
+          bind, so they are written narrowest-first and must stay that way.
+        endcomment
+        assign has_tablet = false
+        if ratio_tablet
+          assign has_tablet = true
+          assign widths_t = widths_tablet | split: ', '
+          assign h_t = 1200 | divided_by: ratio_tablet | round
+        endif
+
+        assign has_wide = false
+        if ratio_wide
+          assign has_wide = true
+          assign widths_w = widths_wide | split: ', '
+          assign h_w = 1600 | divided_by: ratio_wide | round
+        endif
+
+        comment
+          `quality` is ILLEGAL on a png source — image_url raises "quality can't be used with ext
+          png" and the whole srcset renders as an error string. This image is merchant content
+          (article.image on the blog index, an image_picker in fallback mode), so the extension is
+          not knowable in advance and has to be read off the URL. Forcing format: 'jpg' instead
+          would be the other way out, but it flattens alpha, and nothing here can promise a
+          merchant's png has none. A png simply keeps the crop and skips the recompression — the
+          crop is the larger half of the win anyway (-72% vs the -25% that quality adds).
+        endcomment
+        assign img_ext = image | image_url: width: 1 | split: '?' | first | split: '.' | last | downcase
+        assign can_quality = true
+        assign img_png = false
+        if img_ext == 'png' or img_ext == 'gif'
+          assign can_quality = false
+        endif
+        if img_ext == 'png'
+          assign img_png = true
+        endif
+
+        comment
+          1500, not the width of any box on the page: `image_tag` DROPS every `widths:` entry
+          wider than the base url, silently, so a base of 1000 truncated the ladder at 960 and
+          the top three rungs never reached the srcset. The base only ever renders as the `src`
+          fallback for a browser without srcset, so it costs nothing to put it above the ladder.
+        endcomment
+        assign h_d = 1500 | divided_by: ratio_d | round
+        assign h_m = 768 | divided_by: ratio_m | round
+
+        if can_quality
+          assign src_d = image | image_url: width: 1500, height: h_d, crop: 'center', quality: 54
+        elsif img_png
+          assign src_d = image | image_url: width: 1500, height: h_d, crop: 'center', format: 'webp', quality: 54
+        else
+          assign src_d = image | image_url: width: 1500, height: h_d, crop: 'center'
+        endif
+
+        comment
+          `eager` alone only takes the image out of the lazy queue; it still queues behind every
+          other subresource. 'high' is what moves it ahead of them, and it is only honest on the one
+          card that can actually be the LCP element — marking them all high is the same as marking
+          none. 'auto' is the attribute's own default, so the other cards render unchanged.
+        endcomment
+        if eager
+          assign card_loading = 'eager'
+          assign card_priority = 'high'
+        else
+          assign card_loading = 'lazy'
+          assign card_priority = 'auto'
+        endif
+      -%}
       <div class="journal-cards__media">
-        {{
-          card_image_src
-          | image_tag:
-            loading: 'lazy',
-            widths: '343, 400, 600, 800, 1000, 1200',
-            sizes: '(min-width: 769px) 33vw, 100vw',
-            alt: image_alt,
-            class: 'journal-cards__image'
-        }}
+        <picture>
+          <source
+            media="(max-width: 768px)"
+            sizes="calc(100vw - 32px)"
+            srcset="
+              {%- for w in widths_m -%}
+                {%- assign wn = w | plus: 0 -%}
+                {%- assign hn = wn | divided_by: ratio_m | round -%}
+                {%- if can_quality -%}
+                  {{ image | image_url: width: wn, height: hn, crop: 'center', quality: 54 }} {{ wn }}w
+                {%- elsif img_png -%}
+                  {{ image | image_url: width: wn, height: hn, crop: 'center', format: 'webp', quality: 54 }} {{ wn }}w
+                {%- else -%}
+                  {{ image | image_url: width: wn, height: hn, crop: 'center' }} {{ wn }}w
+                {%- endif -%}
+                {%- unless forloop.last %}, {% endunless -%}
+              {%- endfor -%}
+            "
+            width="768"
+            height="{{ h_m }}"
+          >
+
+          {%- if has_tablet -%}
+            <source
+              media="(max-width: {{ tablet_max | default: 1151 }}px)"
+              sizes="{{ sizes_tablet | default: sizes_d }}"
+              srcset="
+                {%- for w in widths_t -%}
+                  {%- assign wn = w | plus: 0 -%}
+                  {%- assign hn = wn | divided_by: ratio_tablet | round -%}
+                  {%- if can_quality -%}
+                    {{ image | image_url: width: wn, height: hn, crop: 'center', quality: 54 }} {{ wn }}w
+                  {%- elsif img_png -%}
+                    {{ image | image_url: width: wn, height: hn, crop: 'center', format: 'webp', quality: 54 }} {{ wn }}w
+                  {%- else -%}
+                    {{ image | image_url: width: wn, height: hn, crop: 'center' }} {{ wn }}w
+                  {%- endif -%}
+                  {%- unless forloop.last %}, {% endunless -%}
+                {%- endfor -%}
+              "
+              width="1200"
+              height="{{ h_t }}"
+            >
+          {%- endif -%}
+
+          {%- comment -%}
+            The WIDE band is listed before the <img> but after the narrower sources, because a
+            <picture> takes the FIRST <source> whose media matches. Its min-width therefore has to
+            sit above tablet_max, and the <img> is left as the fallback for everything in between.
+          {%- endcomment -%}
+          {%- if has_wide -%}
+            <source
+              media="(min-width: {{ wide_min | default: 1440 }}px)"
+              sizes="{{ sizes_wide | default: sizes_d }}"
+              srcset="
+                {%- for w in widths_w -%}
+                  {%- assign wn = w | plus: 0 -%}
+                  {%- assign hn = wn | divided_by: ratio_wide | round -%}
+                  {%- if can_quality -%}
+                    {{ image | image_url: width: wn, height: hn, crop: 'center', quality: 54 }} {{ wn }}w
+                  {%- elsif img_png -%}
+                    {{ image | image_url: width: wn, height: hn, crop: 'center', format: 'webp', quality: 54 }} {{ wn }}w
+                  {%- else -%}
+                    {{ image | image_url: width: wn, height: hn, crop: 'center' }} {{ wn }}w
+                  {%- endif -%}
+                  {%- unless forloop.last %}, {% endunless -%}
+                {%- endfor -%}
+              "
+              width="1600"
+              height="{{ h_w }}"
+            >
+          {%- endif -%}
+
+          {{
+            src_d
+            | image_tag:
+              loading: card_loading,
+              fetchpriority: card_priority,
+              widths: widths_d,
+              sizes: sizes_d,
+              alt: image_alt,
+              class: 'journal-cards__image'
+          }}
+        </picture>
 
         {%- if badge != blank -%}
           <span class="journal-cards__badge">{{ badge | escape }}</span>

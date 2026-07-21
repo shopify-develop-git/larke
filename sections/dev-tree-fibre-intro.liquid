@@ -139,12 +139,30 @@
         with object-fit: cover.
       {%- endcomment -%}
       <div class="tree-fibre-intro__media">
+        {%- comment -%}
+          The media box is a fixed aspect-ratio (644/450) with object-fit: cover, so a source at
+          its own shape arrives taller than the box and the browser trims it — this one was landing
+          1058x843 in a 1288x900 box and getting 12% of its height cropped after download. Crop at
+          the CDN instead, and compress: it was the last image on this page with no `quality` at all.
+
+          `format: 'webp'` on the png branch rather than jpg. jpg would flatten alpha; webp keeps it
+          AND accepts quality, which is what makes a png compressible here at all.
+        {%- endcomment -%}
+        {%- liquid
+          assign intro_ext = image | image_url: width: 1 | split: '?' | first | split: '.' | last | downcase
+          if intro_ext == 'gif'
+            assign intro_src = image | image_url: width: 1288, height: 900, crop: 'center'
+          elsif intro_ext == 'png'
+            assign intro_src = image | image_url: width: 1288, height: 900, crop: 'center', format: 'webp', quality: 75
+          else
+            assign intro_src = image | image_url: width: 1288, height: 900, crop: 'center', quality: 75
+          endif
+        -%}
         {{
-          image
-          | image_url: width: 1058
+          intro_src
           | image_tag:
             loading: 'lazy',
-            widths: '400, 600, 800, 1000, 1058',
+            widths: '400, 520, 640, 760, 880, 1000, 1120, 1288',
             sizes: '(min-width: 1440px) 644px, (min-width: 769px) 48vw, 100vw',
             alt: image_alt,
             class: 'tree-fibre-intro__image'

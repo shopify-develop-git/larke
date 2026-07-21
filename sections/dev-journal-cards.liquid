@@ -116,6 +116,31 @@
             assign card_alt = article.image.alt | default: article.title | escape
           -%}
 
+          {%- comment -%}
+            This row is a FIXED 3-up flex list at every width above 768 — it never steps down to
+            two — so its `sizes` is one expression: (100vw − 2×64 section padding − 2×24 gap) / 3.
+            The old shared 33vw was 15% high at 1440 and, worse, roughly half the truth at 820,
+            where three columns squeeze each card to 211px.
+
+            TWO desktop ratios, split at 1152, because this row never reflows and so its cards get
+            NARROWER as the viewport does — the opposite of the blog index, where the grid drops a
+            column and the cards get wider. Against a fixed 220px image height that inverts which
+            end of the range is the tall one:
+
+              viewport   card        box ratio
+               820       211 x 220   0.96   <- taller than it is wide
+              1152       325 x 220   1.48
+              1440       421 x 220   1.91
+              1920       581 x 220   2.64
+
+            With `cover` a source wider than the box runs out of height first, so each band's crop
+            is that band's MINIMUM: 0.9 below 1152, 1.48 from there to 1439, 1.9 above. Two bands
+            were not enough — the 1.48 crop is priced at the 1152 floor and was still hauling that
+            shape up to 1440, delivering 860 x 581 for a box that needs 835 x 440. The third band
+            is priced at its own floor and lands on 860 x 453 instead, 36% over becomes 7%.
+
+            All lazy, no eager card: this strip is the last section on Our Story, far below the fold.
+          {%- endcomment -%}
           {%- render 'dev-journal-cards-card',
             image: article.image,
             image_alt: card_alt,
@@ -123,7 +148,16 @@
             meta: card_meta,
             heading: article.title | escape,
             url: article.url,
-            cta_label: section.settings.button_label
+            cta_label: section.settings.button_label,
+            tablet_max: 1151,
+            ratio_tablet: 0.9,
+            widths_tablet: '200, 260, 320, 400, 460, 540, 660, 780, 980',
+            ratio_desktop: 1.48,
+            widths_desktop: '330, 400, 480, 560, 620, 660, 700, 750, 800, 900, 1000, 1100, 1200',
+            sizes_desktop: 'calc((100vw - 176px) / 3)',
+            wide_min: 1440,
+            ratio_wide: 1.9,
+            widths_wide: '440, 520, 600, 680, 760, 850, 920, 960, 1050, 1170, 1300, 1450, 1600'
           -%}
         {%- endfor -%}
       </ul>
@@ -141,7 +175,16 @@
             heading: block.settings.heading,
             url: block.settings.button_link,
             cta_label: block.settings.button_label,
-            attrs: block.shopify_attributes
+            attrs: block.shopify_attributes,
+            tablet_max: 1151,
+            ratio_tablet: 0.9,
+            widths_tablet: '200, 260, 320, 400, 460, 540, 660, 780, 980',
+            ratio_desktop: 1.48,
+            widths_desktop: '330, 400, 480, 560, 620, 660, 700, 750, 800, 900, 1000, 1100, 1200',
+            sizes_desktop: 'calc((100vw - 176px) / 3)',
+            wide_min: 1440,
+            ratio_wide: 1.9,
+            widths_wide: '440, 520, 600, 680, 760, 850, 920, 960, 1050, 1170, 1300, 1450, 1600'
           -%}
         {%- endfor -%}
       </ul>
