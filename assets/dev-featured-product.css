@@ -39,9 +39,15 @@
 /* Image tile: fixed 655x511, flush against the content column (no gap in Figma) */
 .featured-product__media {
   position: relative;
-  flex: 0 0 var(--media-w);
+  /* 1 1, not 0 0. Pinned open, this tile forced the whole viewport loss onto the content column:
+     646px at 1440 but 306px at 1100, narrower than --text-max (311px), so the rating badge broke
+     onto two lines and the three feature icons split 2 + 1. Both columns carry their Figma basis
+     now, and at 1440 they sum to exactly the section's 1301px content box (655 + 646, no gap),
+     so nothing shrinks there and the artboard is untouched. */
+  flex: 1 1 var(--media-w);
   width: var(--media-w);
   aspect-ratio: var(--media-ratio);
+  min-width: 0;
   overflow: hidden;
 }
 
@@ -58,7 +64,8 @@
 }
 
 .featured-product__content {
-  flex: 1 1 auto;
+  /* Its Figma width as a basis — see the note on __media for why `auto` was the bug. */
+  flex: 1 1 var(--content-w);
   min-width: 0;
   display: flex;
   flex-direction: column;

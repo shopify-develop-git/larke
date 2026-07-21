@@ -155,19 +155,46 @@
     --letter-spacing-sm: 0.06em;
     --letter-spacing-md: 0.13em;
 
-    /* Font families */
-    --font-body--family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
-    --font-body--style: {{ settings.type_body_font.style }};
-    --font-body--weight: {{ settings.type_body_font.weight }};
-    --font-subheading--family: {{ settings.type_subheading_font.family }}, {{ settings.type_subheading_font.fallback_families }};
-    --font-subheading--style: {{ settings.type_subheading_font.style }};
-    --font-subheading--weight: {{ settings.type_subheading_font.weight }};
-    --font-heading--family: {{ settings.type_heading_font.family }}, {{ settings.type_heading_font.fallback_families }};
-    --font-heading--style: {{ settings.type_heading_font.style }};
-    --font-heading--weight: {{ settings.type_heading_font.weight }};
-    --font-accent--family: {{ settings.type_accent_font.family }}, {{ settings.type_accent_font.fallback_families }};
-    --font-accent--style: {{ settings.type_accent_font.style }};
-    --font-accent--weight: {{ settings.type_accent_font.weight }};
+    /* Font families
+
+       With `use_test_fonts` on, the brand stack from dev-brand-fonts.liquid is what the site
+       actually renders in — but these four family vars still resolved to the Shopify-library
+       fonts in Theme settings (Inter). Stock Horizon chrome that ships in the DOM on every page
+       (search modal, theme drawer, quick-add, chat drawer) reads them, so the browser saw real
+       text in Inter and downloaded inter_n4 + inter_n7 — ~80KB, on the critical chain, competing
+       with the hero for bandwidth inside the LCP window.
+
+       fonts.liquid already guards the *preloads* for the same reason; this closes the other half.
+       Pointing the vars at the brand stack rather than deleting the @font-face rules keeps that
+       chrome visually on-brand, and an unused @font-face costs nothing — a browser only fetches
+       a face it has to render. */
+    {%- if settings.use_test_fonts -%}
+      --font-body--family: var(--font-body);
+      --font-body--style: normal;
+      --font-body--weight: 400;
+      --font-subheading--family: var(--font-body);
+      --font-subheading--style: normal;
+      --font-subheading--weight: 500;
+      --font-heading--family: var(--font-heading);
+      --font-heading--style: normal;
+      --font-heading--weight: 400;
+      --font-accent--family: var(--font-heading);
+      --font-accent--style: normal;
+      --font-accent--weight: 400;
+    {%- else -%}
+      --font-body--family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+      --font-body--style: {{ settings.type_body_font.style }};
+      --font-body--weight: {{ settings.type_body_font.weight }};
+      --font-subheading--family: {{ settings.type_subheading_font.family }}, {{ settings.type_subheading_font.fallback_families }};
+      --font-subheading--style: {{ settings.type_subheading_font.style }};
+      --font-subheading--weight: {{ settings.type_subheading_font.weight }};
+      --font-heading--family: {{ settings.type_heading_font.family }}, {{ settings.type_heading_font.fallback_families }};
+      --font-heading--style: {{ settings.type_heading_font.style }};
+      --font-heading--weight: {{ settings.type_heading_font.weight }};
+      --font-accent--family: {{ settings.type_accent_font.family }}, {{ settings.type_accent_font.fallback_families }};
+      --font-accent--style: {{ settings.type_accent_font.style }};
+      --font-accent--weight: {{ settings.type_accent_font.weight }};
+    {%- endif -%}
 
     /* Margin sizes */
     --font-heading--spacing: 0.25em;

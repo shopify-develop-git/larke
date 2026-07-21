@@ -63,7 +63,12 @@
        − 64 (gap) = 1184, split 544 / 640. Both are flex BASES, not fixed widths — see the CSS.
        They sum exactly to the card's content box at 1440, so the artboard matches to the pixel,
        and below it the two columns shrink in proportion instead of the text absorbing all of it. */
-    --text-col-width: 542px;
+    /* 531, not the 542 this token used to carry. It is a flex BASIS now, and at 1440 the card's
+       content box is 1237px = 531 + 64 gap + 642 tiles. 542 would total 1248, 11px over, and the
+       overflow would come off the tiles — 305px each becomes 302 and the desktop artboard shifts.
+       Open question for the designer: whether Figma's text column really is 542 and the gap is
+       53 rather than 64. Until that is confirmed, the measured value keeps 1440 exact. */
+    --text-col-width: 531px;
     --tiles-width: 642px; /* tiles = (642 − 32 gap) / 2 = 305px each at design width (client spec) */
     --tile-aspect: 305.26 / 412; /* ~0.7409 — identical at both breakpoints (scaled, not re-cropped) */
 
@@ -139,7 +144,25 @@
               endif
               assign tile_alt = tile_alt | escape
 
-              assign tile_src = block.settings.image | image_url: width: 800
+              comment
+                format: 'jpg' is here to unlock `quality`, not to change the delivered format —
+                Shopify still serves WebP by content negotiation. image_url rejects quality on a
+                PNG source outright ("quality can't be used with ext png"), and the tile artwork
+                is a PNG, so without the format argument the whole thing is a Liquid error.
+
+                It matters because Shopify encodes PNG sources almost losslessly. Measured at the
+                same output size, bytes per pixel: PNG source 0.275, JPEG source 0.046. Same CDN,
+                same dimensions, 6x the weight. This tile was 43KB for a 280x378 box.
+
+                75 was picked by looking, not by taste: at 2x zoom on the white quilting — where
+                WebP banding shows first — q80, q75 and q70 are indistinguishable from Shopify's
+                default. PSNR against the untouched original drops 1.7dB for 41% fewer bytes.
+
+                The artwork's alpha is only its baked-in rounded corners (0.16% of pixels, none in
+                the interior) and the tile already has border-radius + overflow: hidden, so nothing
+                depends on it. It survives the conversion anyway.
+              endcomment
+              assign tile_src = block.settings.image | image_url: width: 800, format: 'jpg', quality: 75
             -%}
 
             {%- comment -%}
@@ -157,12 +180,22 @@
               {{ block.shopify_attributes }}
             >
               {%- if block.settings.image != blank -%}
+                {%- comment -%}
+                  sizes states the tile's REAL width. The mobile figure was 40vw, but the tile is
+                  half of the tiles row minus the 16px gap and measures 156px at a 412 viewport —
+                  37.9vw. The 3px of overstatement pushed the DPR-1.75 requirement to 288px, just
+                  past the 280 entry, so the browser stepped up to 400w: an 89KB download for a
+                  156x211 box. 38vw resolves to 274px and lands on 280 (51KB).
+
+                  320 is in the widths list for the same reason at DPR 2 (313px needed) — without
+                  it those devices also jump to 400.
+                {%- endcomment -%}
                 {{
                   tile_src
                   | image_tag:
                     loading: 'lazy',
-                    widths: '280, 400, 560, 640, 800',
-                    sizes: '(min-width: 769px) 304px, 40vw',
+                    widths: '280, 320, 400, 560, 640, 800',
+                    sizes: '(min-width: 769px) 305px, 38vw',
                     alt: tile_alt,
                     class: 'wash-dry-repeat-promo__image'
                 }}

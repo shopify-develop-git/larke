@@ -35,10 +35,18 @@
       {%- render 'theme-editor' -%}
     {% endif %}
 
-    {{ content_for_header }}
+    {%- comment -%}
+      The three shared component sheets load BEFORE content_for_header on purpose.
 
-    {%- comment -%} Brand fonts from Figma — every dev-* section depends on these. {%- endcomment -%}
-    {%- render 'dev-brand-fonts' -%}
+      Shopify compiles every section's {% stylesheet %} block into compiled_assets/styles.css and
+      injects that <link> from content_for_header, so anything emitted after it loses every
+      equal-specificity tie to section CSS. These three are the shared base that sections are
+      meant to override — a section's own rules have to win — so they must come first.
+      base.css already relies on this ordering (it renders from 'stylesheets' above).
+
+      Do not move these below content_for_header "for tidiness": it silently inverts the cascade
+      for every dev-* section at once, and the damage only shows up in a pixel diff.
+    {%- endcomment -%}
 
     {%- comment -%} Shared button component — one source of truth for every dev-* CTA. {%- endcomment -%}
     {{ 'dev-button.css' | asset_url | stylesheet_tag }}
@@ -48,6 +56,12 @@
 
     {%- comment -%} Global scroll-reveal — subtle fade + rise as content enters the viewport. {%- endcomment -%}
     {{ 'dev-reveal.css' | asset_url | stylesheet_tag }}
+
+    {{ content_for_header }}
+
+    {%- comment -%} Brand fonts from Figma — every dev-* section depends on these. {%- endcomment -%}
+    {%- render 'dev-brand-fonts' -%}
+
     <script src="{{ 'dev-reveal.js' | asset_url }}" defer></script>
   </head>
 

@@ -53,9 +53,11 @@
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-md);
-  /* Takes whatever the fixed-width image group leaves and shrinks/wraps as the viewport narrows,
-     so the tiles keep their EXACT 305px on desktop instead of giving up a pixel or two below 1440. */
-  flex: 1 1 auto;
+  /* A real basis, not `auto`. With `auto` this column had no size of its own, so every pixel the
+     viewport lost below 1440 came out of the text alone — 531px at 1440 but 191px at 1100, where
+     the heading, the subtext and the CTA all broke onto extra lines. The basis makes both columns
+     shrink in proportion (45/55), so the card holds its designed split at every width. */
+  flex: 1 1 var(--text-col-width);
   min-width: 0;
 }
 
@@ -79,11 +81,12 @@
   flex-direction: row;
   align-items: center;
   gap: var(--tile-gap);
-  /* Fixed width so each tile is EXACTLY (642 − 32 gap) / 2 = 305px on desktop — it never shrinks a
-     pixel or two below 305 as the viewport dips under 1440. The text column absorbs the difference.
-     Below 1024 the tablet rule lets it shrink so nothing overflows on small screens. */
-  flex: 0 0 var(--tiles-width);
-  width: var(--tiles-width);
+  /* 0 1, not 0 0. Never grows past its Figma 642px, but shrinks alongside the text column instead
+     of pinning the row open and starving it. At 1440 the two bases plus the 64px gap sum to
+     exactly the card's 1237px content box, so nothing shrinks and each tile is still EXACTLY
+     (642 − 32 gap) / 2 = 305px — the artboard matches to the pixel. */
+  flex: 0 1 var(--tiles-width);
+  width: auto;
   min-width: 0;
 }
 
@@ -154,12 +157,10 @@
    46/54. Both columns now carry their Figma basis in the BASE rules, so the proportion holds
    continuously from 1440 down to the 768px stack. */
 @media (max-width: 1024px) {
-  /* Below the desktop band the fixed 642px image group would crowd the text, so let it shrink
-     proportionally again — the same graceful fluid behaviour as dev-as-seen-in's tablet rule. */
-  .wash-dry-repeat-promo__tiles {
-    flex: 0 1 var(--tiles-width);
-    width: auto;
-  }
+  /* The tiles override that used to live here has moved into the base rule. It only existed to
+     let the group shrink below the desktop band, and now that both columns carry a real basis
+     the shrink is continuous from 1440 down to the 768px stack — which is what the note above
+     already described. Re-stating it here would just be a second source of truth. */
 }
 
 /* =============================================

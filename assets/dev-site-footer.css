@@ -556,6 +556,21 @@
     justify-content: center;
   }
 
+  /* WCAG 2.2 target size (2.5.8). The mobile artboard stacks these links flush — the section
+     sets --gap-link-list and --link-row-min-h to 0 there — so each <a> rendered at its 22.4px
+     line box with 20.8px of safe clickable space, under the 24px minimum, and every footer link
+     failed the audit.
+
+     The min-height goes on the ANCHOR, not the row: target size measures the interactive
+     element's own box, so growing .site-footer__menu-item alone would leave the <a> at 22.4px
+     and the audit still failing. The anchor stays a flex item that hugs its text, so link
+     widths are unchanged; only the row grows, by 1.6px each. */
+  .site-footer__link {
+    display: flex;
+    align-items: center;
+    min-height: 24px;
+  }
+
   /* brand identity: logo + tagline centred, no "Social" label, address stacks */
   .site-footer__identity {
     align-items: center;

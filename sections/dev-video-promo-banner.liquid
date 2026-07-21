@@ -134,16 +134,68 @@
           for a tile nobody has scrolled to yet. Nothing here is measured by JS, so there is no
           reason it has to arrive before it is visible.
         {%- endcomment -%}
-        {{
-          poster
-          | image_url: width: 3200
-          | image_tag:
-            loading: 'lazy',
-            widths: '400, 600, 800, 1000, 1200, 1600, 1920, 2600, 3200',
-            sizes: '100vw',
-            alt: poster_alt,
-            class: 'video-promo-banner__poster'
-        }}
+        {%- comment -%}
+          This poster was the heaviest asset on the homepage, for three separate reasons.
+
+          1. CROP. The tile is --tile-min-h: 500px tall at BOTH breakpoints, full-bleed wide, and
+             the poster is object-fit: cover — so everything past 500px of height was cropped away
+             by the browser after being downloaded. Asking for width: 3200 off a 1920x3413 source
+             made the 800w entry 800x1422: 1422px of image for a 500px box. Passing height + crop
+             moves the crop to the CDN so each entry matches the box it lands in. The rendered
+             result is identical; the browser was already cropping to exactly this.
+
+          2. ART DIRECTION. One aspect cannot serve both breakpoints — the box is ~0.82 wide-to-tall
+             at 412 and ~2.88 at 1440 — and a single srcset had to satisfy the taller one, which is
+             what inflated the desktop entries too. Hence two sources.
+
+          3. ENCODING. Shopify encodes PNG sources almost losslessly. Measured at identical output
+             dimensions, bytes per pixel: PNG source 0.275, JPEG source 0.046 — same CDN, same
+             format, 6x the weight. This source is a PNG whose alpha channel is FULLY OPAQUE, so
+             the cost bought nothing. format: 'jpg' is what unlocks `quality`; image_url rejects it
+             on a PNG outright ("quality can't be used with ext png"). The delivered format does
+             not change — browsers still get WebP by content negotiation.
+
+             75 was chosen by looking, not by taste: at 2x zoom on the fine branch detail, where
+             WebP artefacts show first, q80/q75/q70 are indistinguishable from Shopify's default.
+             PSNR against the untouched original drops 1.7dB for 34% fewer bytes.
+
+          Two hard limits, both learned the expensive way:
+
+          Neither srcset goes past 1920w. Ask Shopify to crop wider than the source and it silently
+          drops the crop and returns the UNCROPPED image — width=2600&height=903&crop=center comes
+          back 508x903 at the original 0.5625 aspect, 162KB, which the browser then cover-crops
+          again. It renders correctly, which is exactly why it survived the first pass.
+
+          The mobile list stops at 1100 because the tall crop is expensive: 1536x1864 is 435KB,
+          worse than the original this replaced. Decorative background, cover-cropped everywhere —
+          the extra density buys nothing anyone can see.
+
+          Measured on the CDN, before -> after:
+            mobile 824    291KB -> 150KB
+            desktop 1440  (was picking a 2600w entry) -> 84KB
+            desktop 1920                              -> 115KB
+        {%- endcomment -%}
+        <picture>
+          <source
+            media="(min-width: 769px)"
+            srcset="
+              {{ poster | image_url: width: 1000, height: 347, crop: 'center', format: 'jpg', quality: 75 }} 1000w,
+              {{ poster | image_url: width: 1440, height: 500, crop: 'center', format: 'jpg', quality: 75 }} 1440w,
+              {{ poster | image_url: width: 1920, height: 667, crop: 'center', format: 'jpg', quality: 75 }} 1920w
+            "
+            sizes="100vw"
+          >
+          {{
+            poster
+            | image_url: width: 1100, height: 1334, crop: 'center', format: 'jpg', quality: 75
+            | image_tag:
+              loading: 'lazy',
+              widths: '400, 600, 824, 1100',
+              sizes: '100vw',
+              alt: poster_alt,
+              class: 'video-promo-banner__poster'
+          }}
+        </picture>
       {%- elsif poster_fallback_url != blank -%}
         {%- comment -%}
           Not a Shopify-hosted image, so image_tag cannot build it — the YouTube thumbnail is a
