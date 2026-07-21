@@ -63,7 +63,12 @@
        − 64 (gap) = 1184, split 544 / 640. Both are flex BASES, not fixed widths — see the CSS.
        They sum exactly to the card's content box at 1440, so the artboard matches to the pixel,
        and below it the two columns shrink in proportion instead of the text absorbing all of it. */
-    --text-col-width: 542px;
+    /* 531, not the 542 this token used to carry. It is a flex BASIS now, and at 1440 the card's
+       content box is 1237px = 531 + 64 gap + 642 tiles. 542 would total 1248, 11px over, and the
+       overflow would come off the tiles — 305px each becomes 302 and the desktop artboard shifts.
+       Open question for the designer: whether Figma's text column really is 542 and the gap is
+       53 rather than 64. Until that is confirmed, the measured value keeps 1440 exact. */
+    --text-col-width: 531px;
     --tiles-width: 642px; /* tiles = (642 − 32 gap) / 2 = 305px each at design width (client spec) */
     --tile-aspect: 305.26 / 412; /* ~0.7409 — identical at both breakpoints (scaled, not re-cropped) */
 
