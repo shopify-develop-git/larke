@@ -144,7 +144,25 @@
               endif
               assign tile_alt = tile_alt | escape
 
-              assign tile_src = block.settings.image | image_url: width: 800
+              comment
+                format: 'jpg' is here to unlock `quality`, not to change the delivered format —
+                Shopify still serves WebP by content negotiation. image_url rejects quality on a
+                PNG source outright ("quality can't be used with ext png"), and the tile artwork
+                is a PNG, so without the format argument the whole thing is a Liquid error.
+
+                It matters because Shopify encodes PNG sources almost losslessly. Measured at the
+                same output size, bytes per pixel: PNG source 0.275, JPEG source 0.046. Same CDN,
+                same dimensions, 6x the weight. This tile was 43KB for a 280x378 box.
+
+                75 was picked by looking, not by taste: at 2x zoom on the white quilting — where
+                WebP banding shows first — q80, q75 and q70 are indistinguishable from Shopify's
+                default. PSNR against the untouched original drops 1.7dB for 41% fewer bytes.
+
+                The artwork's alpha is only its baked-in rounded corners (0.16% of pixels, none in
+                the interior) and the tile already has border-radius + overflow: hidden, so nothing
+                depends on it. It survives the conversion anyway.
+              endcomment
+              assign tile_src = block.settings.image | image_url: width: 800, format: 'jpg', quality: 75
             -%}
 
             {%- comment -%}
