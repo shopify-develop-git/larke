@@ -1,6 +1,34 @@
 {{ 'dev-cart-drawer.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'dev-cart-drawer.js' | asset_url }}" defer></script>
 
+{%- comment -%}
+  CLOSED STATE, INLINE, AND IT HAS TO STAY INLINE.
+
+  dev-cart-drawer.css above is a <link> in the BODY — this block renders inside #header-group, not
+  the head — and the drawer is hidden by that CSS and nothing else. Until the request comes back the
+  drawer is an ordinary in-flow element: `position: static`, `visibility: visible`, `opacity: 1`.
+  Measured with the stylesheet disabled, that is 500x1490 of open cart covering the whole viewport.
+
+  A <style> element costs no request and applies the moment the parser reaches it, ahead of the
+  drawer markup below, so there is no window in which a visitor can see the cart hanging open —
+  on a cold cache, on a slow connection, or when Shopify re-renders the header group after a cart
+  update and the markup lands before styles are applied to it.
+
+  Specificity is what keeps this from freezing the drawer shut: this rule is (0,1,0), while
+  `.cart-drawer[data-open='true']` in the stylesheet is (0,2,0) and still wins. Do not add
+  !important here, and do not move these declarations into an inline style attribute — either one
+  would make the cart impossible to open.
+{%- endcomment -%}
+<style>
+  .cart-drawer {
+    position: fixed;
+    inset: 0;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .cart-drawer {

@@ -1,6 +1,35 @@
 {{ 'dev-menu-drawer.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'dev-menu-drawer.js' | asset_url }}" defer></script>
 
+{%- comment -%}
+  CLOSED STATE, INLINE, AND IT HAS TO STAY INLINE.
+
+  The drawer is hidden by CSS alone, and dev-menu-drawer.css above is a <link> in the BODY — this
+  block renders inside #header-group, not the head. Until that request comes back the drawer is an
+  ordinary in-flow element: `position: static`, `visibility: visible`, `opacity: 1`. Measured with
+  the stylesheet disabled, that is a 500x309 block of open menu sitting in the page, and the cart
+  drawer next to it is 500x1490 and covers the viewport outright.
+
+  So on a cold CSS cache, a slow connection, or any render where the markup lands before its
+  stylesheet, the visitor sees the menu and the cart drawer hanging open. A <style> element costs
+  no request and applies the moment the parser reaches it, which is before the drawer markup below
+  — that closes the window completely.
+
+  Specificity is what keeps this from freezing the drawer shut: this rule is (0,1,0), while
+  `.dev-menu-drawer[data-open='true']` in the stylesheet is (0,2,0) and still wins. Do not add
+  !important here, and do not move these declarations into an inline style attribute — either one
+  would make the drawer impossible to open.
+{%- endcomment -%}
+<style>
+  .dev-menu-drawer {
+    position: fixed;
+    inset: 0;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .dev-menu-drawer {

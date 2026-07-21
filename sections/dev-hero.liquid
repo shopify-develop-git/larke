@@ -170,12 +170,11 @@
 <div
   class="hero{% if section.settings.show_underline_accent %} hero--underline{% endif %}{% if section.settings.stretch_background %} hero--stretch-bg{% endif %}"
   {%- comment -%}
-    dev-reveal.js leaves above-the-fold content alone via a runtime geometry check (top < vh*0.9).
+    Nothing animates it in: the theme's scroll-reveal was removed (see layout/theme.liquid).
     That holds today, but the hero is the LCP element on every page it appears on: if the header
     group ever grew past that line, a deferred script would hand it opacity:0 and take LCP with it.
     The explicit opt-out costs nothing and does not depend on measurement.
   {%- endcomment -%}
-  data-reveal-skip
   style="
     --bg: {{ section.settings.background_color }};
     --color: {{ section.settings.text_color }};

@@ -673,22 +673,22 @@
     padding: 7px;
   }
 
-  /* The seal sits in a fixed 10:7 box on mobile. Width stays the base rule's 90px, so the ratio
-     resolves to exactly 63px tall — but as one declaration that keeps holding if that width is
-     ever retuned. `height: auto` is restated rather than inherited because it is what lets the
-     ratio drive the height at all; a fixed height in the base rule would silently win.
-     object-fit: contain because that contingency arrived. The rule above used to end "if a seal
-     whose own proportions are not 10:7 is ever uploaded it will stretch — `contain` is the fix",
-     and the seal now on the product is 709x564 (1.257), not 10:7 (1.429). On the initial `fill`
-     it was being stretched 13% wide: Lighthouse flagged it as image-aspect-ratio on the PDP, and
-     distorting a certification mark is not something to ship regardless of the audit.
+  /* The seal sits in a fixed 10:7 box on mobile — the artboard's box. Width stays the base rule's
+     90px, so the ratio resolves to exactly 63px tall, expressed as a ratio rather than a height so
+     it keeps holding if that width is ever retuned. `height: auto` is restated rather than inherited
+     because it is what lets the ratio drive the height at all.
 
-     `contain` keeps the artboard's 10:7 box and letterboxes the artwork inside it, so the box
-     geometry the mobile layout depends on is unchanged. */
+     NO object-fit here, deliberately, so the artwork fills the box edge to edge at the full 90px the
+     design specifies. The trade-off is real and is the owner's call: the seal currently on the
+     product is 709x564 (1.257), not 10:7 (1.429), so `fill` draws it ~13% wide. `object-fit: contain`
+     was tried and removed — it does stop the stretching, but by shrinking the artwork to 80x63 inside
+     the box, which left 5px of dead space down each side and read as a seal 11% too small.
+
+     If the stretch ever needs to go, the fix is a 10:7 seal asset, not another object-fit: only a
+     source at the box's own ratio fills it edge to edge without distortion. */
   .dev-main-product__seal-image {
     aspect-ratio: 10 / 7;
     height: auto;
-    object-fit: contain;
   }
 
   /* Centre the buy CONTAINER on mobile (not its content): align-self stops it stretching to the

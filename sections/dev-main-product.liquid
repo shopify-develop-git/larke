@@ -1062,7 +1062,7 @@
 
       It sits inside the section root so it inherits the token block at the top of this file. The top
       layer changes where the dialog is PAINTED, not where it lives in the DOM, so inheritance is
-      untouched. dev-reveal.js already skips `dialog`, so the scroll-reveal cannot hide it either.
+      untouched. The theme's scroll-reveal was removed, so nothing can hide it on scroll either.
     {%- endcomment -%}
     <dialog class="dev-main-product__zoom" data-zoom-dialog aria-label="{{ 'actions.zoom' | t | escape }}">
       {%- comment -%}
