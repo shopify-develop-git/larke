@@ -13,6 +13,7 @@
       "type": "dev-tree-fibre-hero",
       "settings": {
         "heading": "We believe every sleep should feel extraordinary, <em>starting</em> with <em>duvets.</em>",
+        "emphasis_weight": "700",
         "show_underline": true,
         "background_image": "shopify://shop_images/master_hero_media.webp",
         "background_image_mobile": "shopify://shop_images/hero_media_m.webp",
@@ -21,8 +22,7 @@
         "text_color": "#ffffff",
         "accent_color": "#a8cf78",
         "padding_top": 64,
-        "padding_bottom": 64,
-        "emphasis_weight": "700"
+        "padding_bottom": 64
       }
     },
     "dev-story-slider": {
@@ -145,7 +145,7 @@
         "value-simple": {
           "type": "value",
           "settings": {
-            "image": "shopify://shop_images/values-we-cherish-tile-2.jpg",
+            "image": "shopify://shop_images/rectangle_747.webp",
             "image_alt": "A stack of cut logs seen end-on, showing their tree rings",
             "text": "All things sleep that feel simple to enjoy — no PhD in sleep required."
           }
