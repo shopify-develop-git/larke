@@ -155,9 +155,12 @@
              on a PNG outright ("quality can't be used with ext png"). The delivered format does
              not change — browsers still get WebP by content negotiation.
 
-             75 was chosen by looking, not by taste: at 2x zoom on the fine branch detail, where
-             WebP artefacts show first, q80/q75/q70 are indistinguishable from Shopify's default.
-             PSNR against the untouched original drops 1.7dB for 34% fewer bytes.
+             60, and the number is not arbitrary. Lighthouse's image-delivery model targets
+             exactly 1/6 byte per pixel (0.1667) — verified against its own arithmetic on both
+             images — and 728x882 at q60 lands on 0.1653. q70 sat at 0.1867 and kept the audit
+             open. At 2x zoom on the fine branch detail, where WebP artefacts show first, q60 is
+             indistinguishable from Shopify's default; this is a decorative background behind
+             text, cover-cropped on every viewport.
 
           Two hard limits, both learned the expensive way:
 
@@ -170,6 +173,12 @@
           worse than the original this replaced. Decorative background, cover-cropped everywhere —
           the extra density buys nothing anyone can see.
 
+          The ladder is dense on purpose. It used to be 400, 600, 824, 1100, and a 412 viewport at
+          DPR 1.75 needs 722px — so the browser jumped to 824 and Lighthouse charged 34.8KB for
+          "larger than it needs to be (824x999) for its displayed dimensions (722x875)". That was
+          the bigger half of the remaining waste, bigger than the compression half. 728 catches
+          that case; the rest fill in the gaps so no common DPR has to round far up.
+
           Measured on the CDN, before -> after:
             mobile 824    291KB -> 150KB
             desktop 1440  (was picking a 2600w entry) -> 84KB
@@ -179,18 +188,18 @@
           <source
             media="(min-width: 769px)"
             srcset="
-              {{ poster | image_url: width: 1000, height: 347, crop: 'center', format: 'jpg', quality: 75 }} 1000w,
-              {{ poster | image_url: width: 1440, height: 500, crop: 'center', format: 'jpg', quality: 75 }} 1440w,
-              {{ poster | image_url: width: 1920, height: 667, crop: 'center', format: 'jpg', quality: 75 }} 1920w
+              {{ poster | image_url: width: 1000, height: 347, crop: 'center', format: 'jpg', quality: 60 }} 1000w,
+              {{ poster | image_url: width: 1440, height: 500, crop: 'center', format: 'jpg', quality: 60 }} 1440w,
+              {{ poster | image_url: width: 1920, height: 667, crop: 'center', format: 'jpg', quality: 60 }} 1920w
             "
             sizes="100vw"
           >
           {{
             poster
-            | image_url: width: 1100, height: 1334, crop: 'center', format: 'jpg', quality: 75
+            | image_url: width: 1100, height: 1334, crop: 'center', format: 'jpg', quality: 60
             | image_tag:
               loading: 'lazy',
-              widths: '400, 600, 824, 1100',
+              widths: '400, 500, 600, 728, 824, 1000, 1100',
               sizes: '100vw',
               alt: poster_alt,
               class: 'video-promo-banner__poster'
