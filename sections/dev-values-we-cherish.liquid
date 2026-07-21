@@ -125,16 +125,56 @@
             <li class="values-we-cherish__tile" {{ block.shopify_attributes }}>
               <div class="values-we-cherish__media">
                 {%- if block.settings.image != blank -%}
+                  {%- comment -%}
+                    The media box is SQUARE on desktop (--ratio-image: 1 / 1) and 260/250 = 1.04 on
+                    mobile, and the image is object-fit: cover inside it — so a portrait source was
+                    being downloaded whole and then had a third of its height thrown away by the
+                    browser. Measured on Our Story at 1440 / DPR 2:
+
+                      box      418 x 418 CSS  ->  836 x 836 device  =  0.70 Mpx needed
+                      shipped  900 x 1200                           =  1.08 Mpx
+                      tile-2   457,434 B for one tile
+
+                    Cropping square at the CDN costs nothing visually — the browser was already
+                    cropping to exactly this — and 1/1 is safe at both breakpoints because the
+                    mobile box is 1.04, wider than the crop, so height is never the limit.
+
+                    CDN, 836x836: tile-2 457,434 -> 306,750 cropped -> 239,984 at q80.
+
+                    `sizes` was 33vw, and the row is three flex tiles inside 100vw − 128 padding
+                    with two 24px gaps: 418px at 1440, not the 475px 33vw claimed. The old ladder
+                    also had a hole exactly where mobile lands — a 303px tile at DPR 2 needs 606
+                    and the steps were 600 then 900, so it jumped to 900 and paid for 1.5x the
+                    pixels to cover a 6px miss. 610 closes it.
+
+                    q80 rather than the 75 the journal card uses: these three tiles are the
+                    section's entire visual content at a large size, and 80 was where the CDN's
+                    curve stopped paying — 70 saved another 20% on tile-2 alone and started to
+                    show on the flat mid-tones.
+                  {%- endcomment -%}
                   {%- liquid
-                    assign tile_src = block.settings.image | image_url: width: 900
+                    comment
+                      Base 1200 = the top of the ladder, not a box on the page. `image_tag` silently
+                      drops every `widths:` entry wider than the base url, so a base of 900 capped
+                      the srcset at 800 and a 1440 display asking for 843 got a 5% upscale. The base
+                      is only the `src` fallback for a browser with no srcset.
+                    endcomment
+                    assign tile_ext = block.settings.image | image_url: width: 1 | split: '?' | first | split: '.' | last | downcase
+                    if tile_ext == 'gif'
+                      assign tile_src = block.settings.image | image_url: width: 1200, height: 1200, crop: 'center'
+                    elsif tile_ext == 'png'
+                      assign tile_src = block.settings.image | image_url: width: 1200, height: 1200, crop: 'center', format: 'webp', quality: 70
+                    else
+                      assign tile_src = block.settings.image | image_url: width: 1200, height: 1200, crop: 'center', quality: 70
+                    endif
                     assign tile_alt = block.settings.image.alt | default: block.settings.image_alt
                   -%}
                   {{
                     tile_src
                     | image_tag:
                       loading: 'lazy',
-                      widths: '303, 420, 600, 900',
-                      sizes: '(max-width: 768px) 303px, 33vw',
+                      widths: '300, 380, 460, 540, 610, 660, 700, 750, 800, 850, 920, 960, 1050, 1170',
+                      sizes: '(min-width: 769px) calc((100vw - 176px) / 3), 303px',
                       alt: tile_alt,
                       class: 'values-we-cherish__image'
                   }}

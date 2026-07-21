@@ -175,16 +175,75 @@
         The <img> stays the desktop candidate: it is the fallback every browser understands, and it
         is what <picture> falls back to when no <source> matches.
       {%- endcomment -%}
+      {%- comment -%}
+        NO CDN CROP ON THIS ONE, deliberately, and it is the exception on the site. The zoom mode
+        below blows the photo up to ~393% of the frame and pulls it up out of it — the trick that
+        lets one image supply both the desktop slice and a different mobile slice. Those offsets are
+        measured against the WHOLE photo, so cropping it at the CDN would move the framing. Every
+        other section here crops; this one only recompresses.
+
+        Weight, measured on the rendered page at 1440 / DPR 2:
+
+          tree-fibre  3200w entry, 527,434 B   — the heaviest asset on either page
+          our-story   3200w entry, 144,688 B
+
+        The ladder stops at 2600. The box is 1429 CSS wide, so DPR 2 asks for 2858 and 2600 is 9%
+        short of it — on a decorative background sitting under a scrim with a heading over it, at a
+        density no one is inspecting. 3200 was the entry actually being chosen, and it was the last
+        one on the ladder rather than the right one.
+
+        q65 on top of that. 2600 alone is 472,240 B; measured on the DELIVERED WebP at that width:
+
+          q75  250 KB      q65  214 KB      q55  185 KB
+          q70  229 KB      q60  197 KB
+
+        65 is a second pass on an earlier, more cautious 75. The section's own overlay is what the
+        visitor sees this photo through, and there is an h1 over it — dev-video-promo-banner went to
+        q60 on exactly this kind of surface and stayed indistinguishable at 2x. 65 keeps a margin on
+        that because this one fills the whole viewport rather than a banner, and it is the biggest
+        single asset on the page, on the fetchpriority: high path.
+
+        Both settings are image_pickers, so neither extension is knowable — `quality` on a png makes
+        image_url raise "quality can't be used with ext png" and the srcset renders as the error
+        text. Today they are .jpg and .webp; the guard is for the upload after this one.
+      {%- endcomment -%}
+      {%- liquid
+        assign bg_ext = bg_image | image_url: width: 1 | split: '?' | first | split: '.' | last | downcase
+        if bg_ext == 'gif'
+          assign bg_src = bg_image | image_url: width: 2600
+        elsif bg_ext == 'png'
+          assign bg_src = bg_image | image_url: width: 2600, format: 'webp', quality: 65
+        else
+          assign bg_src = bg_image | image_url: width: 2600, quality: 65
+        endif
+
+        assign bgm_ext = bg_mobile | image_url: width: 1 | split: '?' | first | split: '.' | last | downcase
+        assign bgm_quality = true
+        assign bgm_png = false
+        if bgm_ext == 'png' or bgm_ext == 'gif'
+          assign bgm_quality = false
+        endif
+        if bgm_ext == 'png'
+          assign bgm_png = true
+        endif
+      -%}
       <picture>
         {%- if bg_mobile != blank -%}
           <source
             media="(max-width: 768px)"
             srcset="
-              {{ bg_mobile | image_url: width: 400 }} 400w,
-              {{ bg_mobile | image_url: width: 600 }} 600w,
-              {{ bg_mobile | image_url: width: 800 }} 800w,
-              {{ bg_mobile | image_url: width: 1200 }} 1200w,
-              {{ bg_mobile | image_url: width: 1600 }} 1600w
+              {%- assign bgm_widths = '400, 600, 800, 1000, 1200, 1400, 1600' | split: ', ' -%}
+              {%- for w in bgm_widths -%}
+                {%- assign wn = w | plus: 0 -%}
+                {%- if bgm_quality -%}
+                  {{ bg_mobile | image_url: width: wn, quality: 65 }} {{ wn }}w
+                {%- elsif bgm_png -%}
+                  {{ bg_mobile | image_url: width: wn, format: 'webp', quality: 65 }} {{ wn }}w
+                {%- else -%}
+                  {{ bg_mobile | image_url: width: wn }} {{ wn }}w
+                {%- endif -%}
+                {%- unless forloop.last %}, {% endunless -%}
+              {%- endfor -%}
             "
             sizes="100vw"
             width="{{ bg_mobile.width }}"
@@ -193,12 +252,11 @@
         {%- endif -%}
 
         {{
-          bg_image
-          | image_url: width: 3200
+          bg_src
           | image_tag:
             loading: 'eager',
             fetchpriority: 'high',
-            widths: '400, 600, 800, 1200, 1600, 2000, 2600, 3200',
+            widths: '400, 600, 800, 1000, 1200, 1600, 2000, 2200, 2600',
             sizes: '(max-width: 768px) 112vw, 100vw',
             alt: '',
             class: 'tree-fibre-hero__bg'
@@ -272,8 +330,8 @@
       "type": "color",
       "id": "background_color",
       "label": "Background",
-      "info": "Sits behind the photo — only visible if no image is set.",
-      "default": "#333333"
+      "info": "Sits behind the photo. Visible while the photo is still loading, so a solid colour here reads as a flash of that colour before the image lands. Transparent by default, which lets the page canvas through.",
+      "default": "rgba(0,0,0,0)"
     },
     { "type": "color", "id": "text_color", "label": "Text color", "default": "#FFFFFF" },
     { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#A8CF78" },

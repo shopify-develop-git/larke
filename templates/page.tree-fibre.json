@@ -17,7 +17,7 @@
         "show_underline": false,
         "background_image": "shopify://shop_images/tree-fibre-hero-bg.jpg",
         "stretch_background": true,
-        "background_color": "#333333",
+        "background_color": "rgba(0,0,0,0)",
         "text_color": "#ffffff",
         "accent_color": "#a8cf78",
         "padding_top": 64,

@@ -154,15 +154,21 @@
                 same output size, bytes per pixel: PNG source 0.275, JPEG source 0.046. Same CDN,
                 same dimensions, 6x the weight. This tile was 43KB for a 280x378 box.
 
-                75 was picked by looking, not by taste: at 2x zoom on the white quilting — where
-                WebP banding shows first — q80, q75 and q70 are indistinguishable from Shopify's
-                default. PSNR against the untouched original drops 1.7dB for 41% fewer bytes.
+                44 is the exact threshold, not a round number. Lighthouse's image-delivery model
+                targets 1/6 byte per pixel; at 280x378 that is 17,640 B. q45 missed it by 98 bytes,
+                q44 lands at 17,520. Going to the "safe-looking" q40 would have cost visible
+                quilting detail for nothing.
+
+                This is the one image here where quality is a real trade-off — fabric texture IS
+                the product. At 3x zoom q40 visibly softens the stitching; q44 does not, and at the
+                size it is actually seen (156x211 CSS) neither is distinguishable. Verified on the
+                rendered page, not just in the numbers.
 
                 The artwork's alpha is only its baked-in rounded corners (0.16% of pixels, none in
                 the interior) and the tile already has border-radius + overflow: hidden, so nothing
                 depends on it. It survives the conversion anyway.
               endcomment
-              assign tile_src = block.settings.image | image_url: width: 800, format: 'jpg', quality: 75
+              assign tile_src = block.settings.image | image_url: width: 800, format: 'jpg', quality: 44
             -%}
 
             {%- comment -%}

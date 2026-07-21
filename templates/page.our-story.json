@@ -17,7 +17,7 @@
         "background_image": "shopify://shop_images/master_hero_media.webp",
         "background_image_mobile": "shopify://shop_images/hero_media_m.webp",
         "stretch_background": false,
-        "background_color": "#333333",
+        "background_color": "rgba(0,0,0,0)",
         "text_color": "#ffffff",
         "accent_color": "#a8cf78",
         "padding_top": 64,

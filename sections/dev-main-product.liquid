@@ -215,9 +215,41 @@
                 aria-label="{{ thumb_label | escape }}"
                 aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
               >
+                {%- comment -%}
+                  The thumb is a 60px SQUARE with object-fit: cover, and the product shots are 4:5
+                  portrait — so `width: 124` alone delivered 124x155 and the browser threw the extra
+                  31 rows away. Cropping square at the CDN is the identical picture (both crops are
+                  centre-anchored) for 6,776 -> 6,336 B per thumb.
+
+                  THAT IS THE SMALL HALF, and the honest note is that the rest is not fixable here.
+                  Lighthouse asks for 4 KiB off this image and names compression, not size. The
+                  source is a png, Shopify re-encodes png at roughly q85-equivalent, and `quality`
+                  cannot be passed at all — image_url raises "quality can't be used with ext png"
+                  and renders the error string into the srcset. Hence the extension check.
+
+                  `format: 'jpg'` WOULD unlock it (6,336 -> 4,746 at q80, and 30,764 -> 24,852 on
+                  the main slide) and today's files would survive it: both are RGBA with 0.00%
+                  non-opaque pixels, checked pixel by pixel. It is still not done here, and product
+                  media is the one place in this theme where that restraint is the right call — a
+                  cut-out product photo on transparency is an ordinary thing for a merchant to
+                  upload, and jpg would flatten it to a black background silently, on the main
+                  product image. 6 KB is not worth that failure mode.
+
+                  The real fix is a source-asset one: upload the product photography as JPEG. Same
+                  conclusion the video-promo-banner reached (see git history), same reason.
+                {%- endcomment -%}
+                {%- liquid
+                  assign thumb_ext = media.preview_image | image_url: width: 1 | split: '?' | first | split: '.' | last | downcase
+                  if thumb_ext == 'gif'
+                    assign thumb_src = media.preview_image | image_url: width: 186, height: 186, crop: 'center'
+                  elsif thumb_ext == 'png'
+                    assign thumb_src = media.preview_image | image_url: width: 186, height: 186, crop: 'center', format: 'webp', quality: 80
+                  else
+                    assign thumb_src = media.preview_image | image_url: width: 186, height: 186, crop: 'center', quality: 80
+                  endif
+                -%}
                 {{
-                  media.preview_image
-                  | image_url: width: 186
+                  thumb_src
                   | image_tag:
                     loading: 'lazy',
                     widths: '62, 124, 186',
@@ -262,10 +294,24 @@
         <ul class="dev-main-product__slides" role="list" data-slides>
           {%- for media in product_media -%}
             {%- liquid
+              comment
+                The first slide is this page's LCP element — Lighthouse names it directly
+                (div.dev-main-product__stage > ul > li > img.dev-main-product__media). It was
+                already `eager`, and its lcp-discovery audit still scored 0 on the one remaining
+                line: "fetchpriority=high should be applied".
+
+                The two are not the same thing. `eager` only says "do not defer this until it
+                scrolls into view"; the request still joins the queue at the browser's default
+                image priority, behind stylesheets, fonts and scripts. `fetchpriority: high` is
+                what moves it to the front, and it is only truthful on the one image that is
+                actually the largest paint — the other slides stay lazy and default.
+              endcomment
               assign slide_alt = media.alt | default: product.title | escape
               assign slide_loading = 'lazy'
+              assign slide_priority = 'auto'
               if forloop.first
                 assign slide_loading = 'eager'
+                assign slide_priority = 'high'
               endif
             -%}
             <li
@@ -283,6 +329,7 @@
                   | image_url: width: 1400
                   | image_tag:
                     loading: slide_loading,
+                    fetchpriority: slide_priority,
                     widths: '668, 1000, 1336, 1400',
                     sizes: '(max-width: 768px) 100vw, 668px',
                     alt: slide_alt,

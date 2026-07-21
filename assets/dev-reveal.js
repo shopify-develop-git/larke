@@ -49,14 +49,30 @@
       rootMargin: '0px 0px -8% 0px',
     });
 
+    /* READ EVERYTHING, THEN WRITE EVERYTHING. This used to be one loop that measured a group and
+       immediately tagged it, which is the textbook layout thrash: getBoundingClientRect() forces
+       the browser to flush layout, setAttribute('data-reveal') applies the CSS hidden state and
+       invalidates it again, and the next iteration forces another flush. One layout per group,
+       on every section of every page — Lighthouse's forced-reflow audit named this file.
+
+       Splitting the phases costs one array and turns N synchronous layouts into 1. Nothing else
+       here reads geometry: groupsFor / contentSections only touch className, children and
+       matches(), and IntersectionObserver.observe() is asynchronous by definition. */
+    var groups = [];
     sections.forEach(function (section) {
-      groupsFor(section).forEach(function (g) {
-        // Already in (or above) the viewport on load: leave it as-is, no hide, no motion.
-        if (g.el.getBoundingClientRect().top < vh * 0.9) return;
-        g.el.setAttribute('data-reveal', '');
-        if (g.delay) g.el.style.setProperty('--reveal-delay', g.delay + 'ms');
-        observer.observe(g.el);
-      });
+      groups = groups.concat(groupsFor(section));
+    });
+
+    var tops = groups.map(function (g) {
+      return g.el.getBoundingClientRect().top;
+    });
+
+    groups.forEach(function (g, i) {
+      // Already in (or above) the viewport on load: leave it as-is, no hide, no motion.
+      if (tops[i] < vh * 0.9) return;
+      g.el.setAttribute('data-reveal', '');
+      if (g.delay) g.el.style.setProperty('--reveal-delay', g.delay + 'ms');
+      observer.observe(g.el);
     });
   }
 

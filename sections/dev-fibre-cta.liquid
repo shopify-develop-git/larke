@@ -106,11 +106,41 @@
   endif
   assign image_alt = image_alt | default: '' | escape
 
-  assign m_343 = image_mobile | image_url: width: 343
-  assign m_500 = image_mobile | image_url: width: 500
-  assign m_686 = image_mobile | image_url: width: 686
-  assign m_1001 = image_mobile | image_url: width: 1001
-  assign mobile_srcset = m_343 | append: ' 343w, ' | append: m_500 | append: ' 500w, ' | append: m_686 | append: ' 686w, ' | append: m_1001 | append: ' 1001w'
+  # Both media boxes are fixed aspect-ratios with object-fit: cover (--media-ratio 656/450 on
+  # desktop, --media-ratio-m 343/250 on mobile), so the crop belongs at the CDN rather than in the
+  # browser — and this section was the last one here shipping images with no `quality` at all.
+  #
+  # png takes format: 'webp' rather than 'jpg'. jpg would flatten any alpha; webp keeps it and still
+  # accepts quality, which is the only reason a png can be compressed here at all.
+  assign cta_ext = image | image_url: width: 1 | split: '?' | first | split: '.' | last | downcase
+  assign cta_ext_m = image_mobile | image_url: width: 1 | split: '?' | first | split: '.' | last | downcase
+
+  assign mobile_srcset = ''
+  assign m_widths = '343, 430, 520, 620, 686, 800, 900, 1001' | split: ', '
+  for w in m_widths
+    assign wn = w | plus: 0
+    assign hn = wn | times: 250 | divided_by: 343
+    if cta_ext_m == 'gif'
+      assign m_url = image_mobile | image_url: width: wn, height: hn, crop: 'center'
+    elsif cta_ext_m == 'png'
+      assign m_url = image_mobile | image_url: width: wn, height: hn, crop: 'center', format: 'webp', quality: 75
+    else
+      assign m_url = image_mobile | image_url: width: wn, height: hn, crop: 'center', quality: 75
+    endif
+    assign mobile_srcset = mobile_srcset | append: m_url | append: ' ' | append: wn | append: 'w'
+    unless forloop.last
+      assign mobile_srcset = mobile_srcset | append: ', '
+    endunless
+  endfor
+
+  # Desktop: 656/450 at the widest the box gets (656 CSS at DPR 2) -> 1312x900.
+  if cta_ext == 'gif'
+    assign cta_src = image | image_url: width: 1500, height: 1029, crop: 'center'
+  elsif cta_ext == 'png'
+    assign cta_src = image | image_url: width: 1500, height: 1029, crop: 'center', format: 'webp', quality: 75
+  else
+    assign cta_src = image | image_url: width: 1500, height: 1029, crop: 'center', quality: 75
+  endif
 
   assign button_label = section.settings.button_label
 -%}
@@ -141,11 +171,10 @@
               sizes="calc(100vw - 32px)"
             >
             {{
-              image
-              | image_url: width: 1500
+              cta_src
               | image_tag:
                 loading: 'lazy',
-                widths: '400, 600, 800, 1000, 1200, 1500',
+                widths: '400, 600, 800, 1000, 1200, 1350, 1500',
                 sizes: '(min-width: 1440px) 656px, (min-width: 769px) calc(50vw - 64px), calc(100vw - 32px)',
                 alt: image_alt,
                 class: 'fibre-cta__image'

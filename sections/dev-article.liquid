@@ -64,6 +64,15 @@
     --spacing-xl: 48px;
     --spacing-2xl: 64px;
 
+    /* Hero crop. 3:2 is the shape a camera hands you, so it is the least violent thing to impose
+       on photography a merchant did not shoot for this slot — and unlike `height: auto` it is the
+       SAME shape for every article, portrait uploads included. At the 960px container that is
+       960x640, comfortably inside one screen, with the first paragraph visible under it.
+
+       One value for both breakpoints, which is this theme's habit (story-slider and
+       values-we-cherish do the same): the ratio is the design, not a per-device measurement. */
+    --ratio-media: 3 / 2;
+
     --radius-media: 32px;
     --radius-inline: 16px;
     --radius-badge: 60px;
@@ -135,17 +144,59 @@
         after it — the `class` never reached image_tag and the <img> rendered unclassed, so its
         `width: 100%` never applied. This bit once; keep the assign.
       {%- endcomment -%}
+      {%- comment -%}
+        THE HERO IS THIS PAGE'S LCP ELEMENT — confirmed with a PerformanceObserver on the rendered
+        page at both widths, not assumed. Everything below follows from that.
+
+        `sizes` said 1312px and the box has never been wider than 960. 1312 is the Figma content
+        frame (1440 − 2×64), which is the width of the SECTION; the image lives inside
+        .dev-article__inner, capped at --media-w: 960px. The 37% overshoot was enough to push the
+        browser off the 1000w entry and all the way onto 2600w:
+
+          box 960 CSS @ DPR2  ->  1920 device px needed
+          shipped             ->  2600w, 519,042 B
+
+        On the CDN, same image: 2600 = 519,042 B, 1920 = 292,806 B, 1920 at q75 = 151,846 B, and
+        1920x1280 cropped at q75 = 69,078 B. The crop is the bigger half — see --ratio-media.
+
+        The ladder now stops at 1920 for the same reason — 960 × 2 is the most a correct `sizes`
+        can ever ask for, and the entries above it were unreachable weight in the srcset. Below
+        1088 the cap stops binding and the padding takes over, hence the middle branch: 64px each
+        side above 768, 16px below.
+
+        `quality` cannot be passed blind — image_url raises "quality can't be used with ext png" and
+        the src renders as an error string. This is a merchant's featured image, so the extension is
+        read off the URL first. A png keeps the correct width and skips the recompression rather
+        than being flattened to jpg, which would drop any alpha it does have.
+
+        fetchpriority high: `eager` only removes it from the lazy queue. Being the LCP element, it
+        should also outrank the rest of the page's subresources, and nothing else here competes.
+      {%- endcomment -%}
       {%- liquid
-        assign hero_src = article.image | image_url: width: 2600
         assign hero_alt = article.image.alt | default: article.title
+        assign hero_ext = article.image | image_url: width: 1 | split: '?' | first | split: '.' | last | downcase
+
+        comment
+          1920x1280 is --ratio-media (3/2) at the widest the box ever gets: 960 CSS at DPR 2.
+          `image_tag`'s `widths:` scales the height with each rung, so every srcset entry keeps the
+          ratio and the browser is handed the box rather than a portrait to trim.
+        endcomment
+        if hero_ext == 'gif'
+          assign hero_src = article.image | image_url: width: 1920, height: 1280, crop: 'center'
+        elsif hero_ext == 'png'
+          assign hero_src = article.image | image_url: width: 1920, height: 1280, crop: 'center', format: 'webp', quality: 75
+        else
+          assign hero_src = article.image | image_url: width: 1920, height: 1280, crop: 'center', quality: 75
+        endif
       -%}
       <div class="dev-article__media">
         {{
           hero_src
           | image_tag:
             loading: 'eager',
-            widths: '400, 600, 800, 1000, 1200, 1600, 2000, 2600',
-            sizes: '(max-width: 768px) 100vw, 1312px',
+            fetchpriority: 'high',
+            widths: '400, 500, 600, 700, 800, 900, 1000, 1120, 1280, 1440, 1600, 1920',
+            sizes: '(min-width: 1088px) 960px, (min-width: 769px) calc(100vw - 128px), calc(100vw - 32px)',
             alt: hero_alt,
             class: 'dev-article__image'
         }}
@@ -157,8 +208,23 @@
       Every tag it can emit is styled in the CSS; the class is `dev-article__body`, deliberately
       NOT Horizon's `.rte`, which is a stock class and would drag stock rules in with it.
     {%- endcomment -%}
+    {%- comment -%}
+      Images the merchant drops into the post body come out of the rich-text editor as bare
+      `<img src="…cdn…">`: no loading attribute, so every one of them is eager by default and
+      competes with the hero above for the connection that decides LCP. There is no markup here to
+      fix — the HTML is the merchant's — so the attribute is injected into the string.
+
+      Prepending is deliberate. Duplicate attributes are legal and the FIRST one wins, so a post
+      whose editor already emitted `loading="eager"` still ends up lazy, and one that emitted
+      `loading="lazy"` is unchanged. `<img ` with the trailing space cannot match `<image` or any
+      other tag that starts the same way.
+
+      srcset is NOT injectable this way and is not attempted: the editor's URL is whatever width it
+      pasted, and rewriting merchant HTML with `replace` past a single attribute is how you corrupt
+      a post. The CSS below already caps them at the measure.
+    {%- endcomment -%}
     <div class="dev-article__body">
-      {{ article.content }}
+      {{ article.content | replace: '<img ', '<img loading="lazy" decoding="async" ' }}
     </div>
 
     {%- if section.settings.back_label != blank -%}
