@@ -54,15 +54,44 @@
     {%- comment -%} Shared star-rating component — one canonical vector star for every rating. {%- endcomment -%}
     {{ 'dev-stars.css' | asset_url | stylesheet_tag }}
 
-    {%- comment -%} Global scroll-reveal — subtle fade + rise as content enters the viewport. {%- endcomment -%}
-    {{ 'dev-reveal.css' | asset_url | stylesheet_tag }}
+    {%- comment -%}
+      Global scroll-reveal — subtle fade + rise as content enters the viewport.
+
+      NOT ON THE UTILITY PAGES. On a marketing page the reveal reads as craft: a photo or a card
+      arrives as you reach it. On Delivery / Returns / FAQ / Contact it reads as a fault — someone
+      looking up a returns window or an answer sees the text they came for arrive late, and the
+      obvious reading is "this page is loading badly", not "this page is animating". The motion is
+      identical; only the intent the visitor assigns to it changes.
+
+      Skipping is done here rather than inside dev-reveal.js so these pages also stop downloading
+      and parsing the file at all. Both tags are guarded, so nothing about the reveal ships.
+
+      Shopify's own /policies/* routes go too — same kind of page, and they are not in this list
+      because they have no template of ours to name.
+    {%- endcomment -%}
+    {%- liquid
+      assign reveal_skip = 'page.delivery,page.shipping,page.faq,page.contact' | split: ','
+      assign this_template = template | append: ''
+      assign use_reveal = true
+      if reveal_skip contains this_template
+        assign use_reveal = false
+      endif
+      if request.page_type == 'policy'
+        assign use_reveal = false
+      endif
+    -%}
+    {%- if use_reveal -%}
+      {{ 'dev-reveal.css' | asset_url | stylesheet_tag }}
+    {%- endif -%}
 
     {{ content_for_header }}
 
     {%- comment -%} Brand fonts from Figma — every dev-* section depends on these. {%- endcomment -%}
     {%- render 'dev-brand-fonts' -%}
 
-    <script src="{{ 'dev-reveal.js' | asset_url }}" defer></script>
+    {%- if use_reveal -%}
+      <script src="{{ 'dev-reveal.js' | asset_url }}" defer></script>
+    {%- endif -%}
   </head>
 
   <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
