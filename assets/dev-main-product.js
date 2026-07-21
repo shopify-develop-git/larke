@@ -201,10 +201,20 @@
 
           const label = input.nextElementSibling;
           if (!label) return;
-          label.classList.toggle(
-            'dev-main-product__chip--unavailable',
-            !match || !match.available
-          );
+          const unavailable = !match || !match.available;
+          label.classList.toggle('dev-main-product__chip--unavailable', unavailable);
+
+          // The unavailable state is drawn with opacity: 0.4, which takes the label text down to
+          // a 1.8:1 contrast ratio — a colour-contrast failure on every sold-out chip. WCAG 1.4.3
+          // exempts inactive controls, but nothing in the markup said these were inactive, so the
+          // audit judged them as live text. aria-disabled states it, and unlike the `disabled`
+          // attribute it leaves the chip focusable, so a keyboard user can still reach a sold-out
+          // option and hear that it is unavailable rather than have it vanish from the tab order.
+          if (unavailable) {
+            input.setAttribute('aria-disabled', 'true');
+          } else {
+            input.removeAttribute('aria-disabled');
+          }
         });
       });
     }
