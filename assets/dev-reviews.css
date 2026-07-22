@@ -310,6 +310,14 @@
   padding: 0;
 }
 
+/* Judge.me's own 16px of trail under the widget. It is NOT on .jdgm-review-widget, which measures
+   0 all round — it sits on this inner wrapper, which is why the outer selector does nothing.
+   .jdgm-widget is in there for weight, same reason as the stars above: their stylesheet loads after
+   ours, so the tie breaks on specificity, not order. The matching lead-in is taken off at <=768. */
+.dev-reviews .jdgm-widget .jdgm-rev-widg {
+  padding-bottom: 0;
+}
+
 .dev-reviews .jdgm-rev__header,
 .dev-reviews .jdgm-row-rating,
 .dev-reviews .jdgm-row-profile,
@@ -475,14 +483,31 @@
 @media (max-width: 768px) {
   /* The PROPERTIES, not the --pt/--pb tokens: those are written into the element's style="" attribute
      from the section settings, and an inline style outranks any stylesheet rule. Overriding
-     padding-block directly is the only thing that reaches them. */
+     padding-block directly is the only thing that reaches them.
+
+     Nothing below the reviews on mobile: the section ends flush with its last card and whatever
+     follows carries its own lead-in. --pb-mobile is left declared but unread here on purpose, so
+     restoring the trail is a one-word edit rather than a re-derivation. */
   .dev-reviews {
-    padding-block: var(--pt-mobile) var(--pb-mobile);
+    padding-block: var(--pt-mobile) 0;
     padding-inline: var(--section-px-mobile);
   }
 
+  /* The opening rule is desktop-only. Hidden rather than dropped from the markup so the desktop
+     artboard keeps it and the merchant sees no change in the editor.
+
+     Note this also takes away the 40px it was carrying below itself: the reviews block now clears
+     the top of the section by --pt-mobile alone. That is the point of removing a rule — if the air
+     is still wanted, it belongs on --pt-mobile, not on an invisible <hr>. */
   .dev-reviews__divider {
-    margin-bottom: var(--divider-gap-mobile);
+    display: none;
+  }
+
+  /* Only the lead-in is left to take: the trail is already off at every width (base rule). With
+     both gone the section's own --pt-mobile is the only air above the reviews, and there is none
+     below it at all. */
+  .dev-reviews .jdgm-widget .jdgm-rev-widg {
+    padding-top: 0;
   }
 
   .dev-reviews .jdgm-rev-widg__title {

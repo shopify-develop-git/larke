@@ -64,8 +64,16 @@
     --promo-rating-size-mobile: 14px;
     --promo-rating-weight: 700;
     --promo-label-weight: 500;
+    --promo-sep-weight: 700;
     --promo-stars-size: 13px;
-    --promo-stars-weight: 700;
+
+    /* The rating row is the promo bar's row, so it is spaced the promo bar's way: Figma fakes the
+       gaps INSIDE the text node with literal space characters (` 4.6/5`, `   |   `), and Public
+       Sans' space advance is 520/2000 upm = exactly 0.26em in every weight. Expressing the margins
+       in em reproduces that to the pixel and rescales itself for free when the size drops to 14 on
+       mobile. Do not hardcode these in px — see the same two tokens in dev-promo-bar. */
+    --space-advance: 0.26em;
+    --sep-spaces: 3;
 
     --spacing-xs: 4px;
     --spacing-sm: 8px;
@@ -168,15 +176,43 @@
 
       {%- if block.settings.show_rating_bar -%}
         <div class="dev-menu-drawer__promo">
-          {%- if block.settings.rating_value != blank -%}
-            <span class="dev-menu-drawer__promo-rating">{{ block.settings.rating_value | escape }}</span>
-          {%- endif -%}
+          {%- comment -%}
+            Stars FIRST, then "4.6/5 | Rated Excellent" — the same row, in the same order, as
+            dev-promo-bar. It used to read "4.6/5 ★★★★★ Rated Excellent" with no separator, which
+            was the one place in the theme where this claim was set differently.
+
+            The stars come from the shared dev-stars component (inline SVG), not the ★ U+2605 glyph
+            that was here before: Public Sans has no star, so the glyph fell back to a system font
+            and drew a different shape on every platform. dev-stars.css is linked in theme.liquid,
+            so nothing extra has to be loaded for this.
+          {%- endcomment -%}
           {%- if block.settings.show_rating_stars -%}
-            {%- comment -%} Static glyphs, per Brief — not a data-driven rating widget. {%- endcomment -%}
-            <span class="dev-menu-drawer__promo-stars" aria-hidden="true">★★★★★</span>
+            {%- render 'dev-stars',
+              rating: 5,
+              size: 13,
+              gap: 1,
+              color: block.settings.accent_color
+            -%}
           {%- endif -%}
-          {%- if block.settings.rating_label != blank -%}
-            <span class="dev-menu-drawer__promo-label">{{ block.settings.rating_label | escape }}</span>
+
+          {%- if block.settings.rating_value != blank or block.settings.rating_label != blank -%}
+            {%- comment -%}
+              .dev-menu-drawer__promo-rating is font-size: 0 so the whitespace between these spans
+              cannot render as a real space — every gap comes from the em margins instead.
+            {%- endcomment -%}
+            <p class="dev-menu-drawer__promo-rating">
+              {%- if block.settings.rating_value != blank -%}
+                <span class="dev-menu-drawer__promo-value">{{ block.settings.rating_value | escape }}</span>
+              {%- endif -%}
+
+              {%- if block.settings.rating_value != blank and block.settings.rating_label != blank -%}
+                <span class="dev-menu-drawer__promo-separator" aria-hidden="true">|</span>
+              {%- endif -%}
+
+              {%- if block.settings.rating_label != blank -%}
+                <span class="dev-menu-drawer__promo-label">{{ block.settings.rating_label | escape }}</span>
+              {%- endif -%}
+            </p>
           {%- endif -%}
         </div>
       {%- endif -%}

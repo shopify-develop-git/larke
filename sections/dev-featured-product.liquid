@@ -106,6 +106,22 @@
 
   assign hero = section.settings.product_image
   assign hero_alt = hero.alt | default: '' | escape
+
+  comment
+    Art direction, not a second size of the same file: the desktop tile is 655x511 (1.28) and the
+    mobile band is 343x319 (1.08), so a merchant with a landscape hero can supply a portrait crop
+    for phones instead of letting object-fit: cover shave the sides off it. Optional — with no
+    mobile pick the <source> is not written at all and every width falls through to the one image.
+
+    343 is the tile at 375; the ladder is that at 1x/2x/3x.
+  endcomment
+  assign hero_mobile = section.settings.product_image_mobile
+
+  assign hero_mobile_1x = hero_mobile | image_url: width: 343
+  assign hero_mobile_2x = hero_mobile | image_url: width: 686
+  assign hero_mobile_3x = hero_mobile | image_url: width: 1029
+
+  assign hero_mobile_srcset = hero_mobile_1x | append: ' 343w, ' | append: hero_mobile_2x | append: ' 686w, ' | append: hero_mobile_3x | append: ' 1029w'
 -%}
 
 <div
@@ -122,16 +138,21 @@
     <div class="featured-product__card">
       {%- if hero != blank -%}
         <div class="featured-product__media">
-          {{
-            hero
-            | image_url: width: 1400
-            | image_tag:
-              loading: 'lazy',
-              widths: '400, 655, 800, 1000, 1310, 1400',
-              sizes: '(min-width: 769px) 655px, 100vw',
-              alt: hero_alt,
-              class: 'featured-product__image'
-          }}
+          <picture>
+            {%- if hero_mobile != blank -%}
+              <source media="(max-width: 768px)" srcset="{{ hero_mobile_srcset }}" sizes="100vw">
+            {%- endif -%}
+            {{
+              hero
+              | image_url: width: 1400
+              | image_tag:
+                loading: 'lazy',
+                widths: '400, 655, 800, 1000, 1310, 1400',
+                sizes: '(min-width: 769px) 655px, 100vw',
+                alt: hero_alt,
+                class: 'featured-product__image'
+            }}
+          </picture>
         </div>
       {%- endif -%}
 
@@ -260,6 +281,7 @@
     { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop Your Duvet" },
     { "type": "url", "id": "button_link", "label": "Button link" },
     { "type": "image_picker", "id": "product_image", "label": "Product image" },
+    { "type": "image_picker", "id": "product_image_mobile", "label": "Product image (mobile)", "info": "Optional. On phones the image is a shorter, near-square band — pick a crop made for it here. Leave it empty and the image above is used at every width." },
 
     { "type": "header", "content": "Colors" },
     {

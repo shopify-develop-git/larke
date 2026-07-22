@@ -73,8 +73,12 @@
      barely two logos on a 375 screen).
 
      It has to be declared HERE and not in dev-cool-sleepers-promo.css: that file is linked above
-     this <style>, and a media query there would carry the same 0,1,0 specificity as the rule it is
+     this block, and a media query there would carry the same 0,1,0 specificity as the rule it is
      trying to beat — so it would lose on source order and do nothing.
+
+     Do not write a literal style tag into a comment in here, even inside CSS comment markers:
+     theme-check parses this element as HTML, sees a nested opening tag and fails the whole file
+     with "Attempting to end parsing before HtmlElement 'style' was closed".
 
      Retuning the TOKEN, not __set's gap. The same value spaces logos inside a set, sets inside a
      half, and the two halves against each other; changing one of the three leaves the strip

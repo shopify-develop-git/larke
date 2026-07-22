@@ -193,6 +193,15 @@
   right: 16px;
 }
 
+/* The seal is art-directed, so it is wrapped in <picture> — and <picture> is a real box in the
+   layout tree, not a passthrough. Left inline it adds a line-box strut under the image, which shows
+   up as a couple of stray pixels below the seal. `display: contents` takes the wrapper out of the
+   box tree so the <img> stays the direct child of __seal and the rule below keeps working as it did
+   when the img was on its own. Same move as .video-promo-banner__media picture. */
+.dev-main-product__seal picture {
+  display: contents;
+}
+
 .dev-main-product__seal-image {
   display: block;
   width: 90px;
@@ -1145,7 +1154,16 @@
    take. Its own block, immediately after the rule it overrides, for the reason spelled out above
    .dev-main-product__pc: every earlier <=768 block sits BEFORE this declaration in the file, so at
    equal specificity the base rule would win and the override would silently do nothing. */
+/* The swoosh starts 10px before the word on mobile. Same placement rule as the block above: it has
+   to sit after the base ::after declaration, since every earlier <=768 block is further up the file
+   and would lose on source order at equal specificity. `right` is left alone, so the stroke simply
+   gets 10px longer on the leading side rather than sliding out from under the word. */
 @media (max-width: 768px) {
+  .dev-main-product__pc-title em::after,
+  .dev-main-product__pc-title i::after {
+    left: -10px;
+  }
+
   .dev-main-product__pc-sub {
     font-size: var(--font-sub-size-mobile);
   }
@@ -1470,18 +1488,31 @@
   margin: 0;
 }
 
+/* 19 above each rule, not --group-gap's 16. A literal, because that token still sets the gap
+   BETWEEN the label and the value on this same row and everywhere else in the table — retuning it
+   would move all of that too. The <=768 block below takes this to 22. */
 .dev-main-product__size-row {
   display: flex;
   align-items: baseline;
   gap: var(--group-gap);
-  padding-bottom: var(--group-gap);
+  padding-bottom: 19px;
   border-bottom: 1px solid #d8d1c0;
 }
 
-/* Figma rules off between the rows, not under the last one. */
+/* Figma rules off BETWEEN the rows, not under the last one — so only the rule goes. The padding
+   stays on every row including the last, where it is what holds the table off whatever follows it
+   in the drawer. */
 .dev-main-product__size-row:last-child {
-  padding-bottom: 0;
   border-bottom: 0;
+}
+
+/* Mobile opens the rows a little further, 19 -> 22. Placed after the base rules for the usual
+   reason: the section's earlier <=768 blocks sit further up the file and would lose on source order
+   at equal specificity. The plain class is enough — :last-child no longer touches padding. */
+@media (max-width: 768px) {
+  .dev-main-product__size-row {
+    padding-bottom: 22px;
+  }
 }
 
 .dev-main-product__size-label {

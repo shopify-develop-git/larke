@@ -51,14 +51,21 @@
   overflow: hidden;
 }
 
-/* Not an object-fit box: Figma renders the source oversized and clips it to the tile
-   (h 164.06%, w 102.04%, top -58.28%). Reproduced literally so the crop matches. */
+/* The image is art-directed, so it is wrapped in <picture> — and <picture> is a real box in the
+   layout tree, not a passthrough. `display: contents` takes it out of the box tree so the <img>
+   stays a direct child of __media and cannot leave a stray line box inside a tile whose only other
+   content is out of flow. Same move as .video-promo-banner__media picture. */
+.featured-product__media picture {
+  display: contents;
+}
+
+/* The literal Figma over-crop (h 164.06%, w 102.04%, top -58.28%) is gone — the image is a plain
+   cover fill of the tile now. --media-img-* are left declared in the section but unread. */
 .featured-product__image {
   position: absolute;
-  top: var(--media-img-top);
-  left: var(--media-img-left);
-  width: var(--media-img-w);
-  height: var(--media-img-h);
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   display: block;
 }
@@ -232,11 +239,18 @@
      to direct flex items of the card, so a single `order` lifts the heading above the media
      without duplicating markup or disturbing the desktop structure. Padding is vertical only
      — the image bleeds the full card width while the text is already width-capped + centred. */
+  /* The mobile card steps its whole rhythm down to 16 (44821:5701 is `gap-16, py-24`): heading ->
+     photo, photo -> subheading and subheading -> group are all 16, and so is every row inside the
+     group. Only the card's own vertical padding stays at 24. */
   .featured-product__card {
     flex-direction: column;
     align-items: center;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-md);
     padding: var(--spacing-lg) 0;
+  }
+
+  .featured-product__group {
+    gap: var(--spacing-md);
   }
 
   .featured-product__content {
@@ -270,7 +284,9 @@
     left: 0;
     width: 100%;
     height: 100%;
-    object-position: center;
+    /* Anchored to the bottom, not centred: the mobile band is a much shallower crop of the same
+       source, and centring it cut the product off at both ends. */
+    object-position: bottom;
   }
 
   .featured-product__subheading {

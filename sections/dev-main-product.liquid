@@ -369,18 +369,39 @@
           uploaded is not an award this section should invent.
         {%- endcomment -%}
         {%- if section.settings.show_seal and section.settings.seal_image != blank -%}
-          {%- assign seal_alt = section.settings.seal_alt | escape -%}
+          {%- liquid
+            assign seal_alt = section.settings.seal_alt | escape
+            assign seal_mobile = section.settings.seal_image_mobile
+
+            assign seal_mobile_1x = seal_mobile | image_url: width: 90
+            assign seal_mobile_2x = seal_mobile | image_url: width: 180
+            assign seal_mobile_3x = seal_mobile | image_url: width: 270
+
+            assign seal_mobile_srcset = seal_mobile_1x | append: ' 90w, ' | append: seal_mobile_2x | append: ' 180w, ' | append: seal_mobile_3x | append: ' 270w'
+          -%}
           <span class="dev-main-product__seal">
-            {{
-              section.settings.seal_image
-              | image_url: width: 270
-              | image_tag:
-                loading: 'lazy',
-                widths: '90, 180, 270',
-                sizes: '90px',
-                alt: seal_alt,
-                class: 'dev-main-product__seal-image'
-            }}
+            {%- comment -%}
+              Art direction, not a second size of the same file: the mobile box is 10:7 and the
+              desktop one is not, so a merchant with a differently-proportioned seal can supply a
+              crop that fits instead of being stretched into the ratio (see the note on
+              __seal-image in the CSS). Optional — with no mobile pick the <source> is not written
+              at all and every width falls through to the one image, exactly as before.
+            {%- endcomment -%}
+            <picture>
+              {%- if seal_mobile != blank -%}
+                <source media="(max-width: 768px)" srcset="{{ seal_mobile_srcset }}" sizes="90px">
+              {%- endif -%}
+              {{
+                section.settings.seal_image
+                | image_url: width: 270
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '90, 180, 270',
+                  sizes: '90px',
+                  alt: seal_alt,
+                  class: 'dev-main-product__seal-image'
+              }}
+            </picture>
           </span>
         {%- endif -%}
 
@@ -1179,6 +1200,7 @@
     { "type": "text", "id": "badge_text", "label": "Image badge", "default": "Smooth & Breezy" },
     { "type": "checkbox", "id": "show_seal", "label": "Show approval seal", "default": true },
     { "type": "image_picker", "id": "seal_image", "label": "Approval seal", "info": "Pick the seal from Files. Leave it empty and no seal is drawn — the theme no longer bundles one." },
+    { "type": "image_picker", "id": "seal_image_mobile", "label": "Approval seal (mobile)", "info": "Optional. On phones the seal sits in a 10:7 box and a source at another ratio is stretched to fill it — pick a 10:7 crop here to avoid that. Leave it empty and the seal above is used at every width." },
     { "type": "text", "id": "seal_alt", "label": "Approval seal alt text", "default": "Good Housekeeping Institute approved" },
 
     { "type": "header", "content": "Guides" },
