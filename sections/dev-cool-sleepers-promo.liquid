@@ -64,10 +64,26 @@
     --image-aspect-mobile: 375 / 250;
 
     /* Marquee. The strip is 55px tall on BOTH artboards and the logos are the same size
-       on each — the mobile crop simply shows fewer of them. So there is no mobile
-       override here: scaling the gap down would invent a measurement Figma never gave. */
+       on each — the mobile crop simply shows fewer of them, so the height carries across. */
     --logos-height: 55px;
     --logo-gap: 83px;
+  }
+
+  /* Mobile tightens the logo spacing to 40 (owner's call, 2026-07-22 — the desktop 83 leaves
+     barely two logos on a 375 screen).
+
+     It has to be declared HERE and not in dev-cool-sleepers-promo.css: that file is linked above
+     this <style>, and a media query there would carry the same 0,1,0 specificity as the rule it is
+     trying to beat — so it would lose on source order and do nothing.
+
+     Retuning the TOKEN, not __set's gap. The same value spaces logos inside a set, sets inside a
+     half, and the two halves against each other; changing one of the three leaves the strip
+     evenly spaced everywhere except at the seams. The keyframe reads it too, so its -50% wrap
+     correction follows automatically. */
+  @media (max-width: 768px) {
+    .cool-sleepers-promo {
+      --logo-gap: 40px;
+    }
   }
 </style>
 

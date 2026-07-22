@@ -42,6 +42,9 @@
        exactly. The button drops to the small master size on mobile — 12/18 padding and a
        16px label, against 18/24 and 18px on desktop. Icon labels stay at their desktop 14px. */
     --font-heading-size-m: calc(var(--font-heading-size) * 0.75);
+    /* The "(and last)" run drops BELOW the heading it sits in on mobile — 24 against the line's 28.
+       Its own token because it does not follow the 0.75 scale the rest of the heading does. */
+    --font-heading-size-aside-m: 24px;
     --font-body-size-m: 18px;
     --font-button-size-m: 16px;
     --button-pad-y-m: 12px;

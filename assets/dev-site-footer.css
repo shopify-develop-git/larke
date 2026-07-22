@@ -608,6 +608,12 @@
     width: 100%;
   }
 
+  /* Centred on one line the address runs nearly the full card width; capped at 150 it wraps into
+     the short stacked block the mobile artboard draws. */
+  .site-footer__address-text {
+    max-width: 150px;
+  }
+
   /* payment icons get their own rule above AND below on mobile */
   .site-footer__payments {
     width: 100%;

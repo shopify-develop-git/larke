@@ -663,6 +663,13 @@
     flex-shrink: 0;
   }
 
+  /* The image goes full-bleed on mobile and loses its 32px radius, so the desktop's 28px inset —
+     which was clearing that curve — becomes too much. 16px matches the seal in the opposite corner. */
+  .dev-main-product__badge {
+    top: 16px;
+    left: 16px;
+  }
+
   .dev-main-product__arrows {
     bottom: 16px;
     left: auto;
@@ -1006,6 +1013,13 @@
   .dev-main-product__acc-body ul {
     gap: 8px;
   }
+
+  /* The mobile artboard opens the stack with the heading, not a rule: the first row carries no
+     divider above it. Every later row keeps its own, so the separators still read as separators
+     between rows rather than a border around the block. */
+  .dev-main-product__acc:first-child {
+    border-top: 0;
+  }
 }
 
 /* The copy fades up out of nothing as the row opens — opacity ONLY. It used to slide as well, and
@@ -1060,6 +1074,14 @@
 @media (max-width: 768px) {
   .dev-main-product__pc {
     margin-top: calc(var(--pc-lead) + 16px);
+    /* Full-bleed on mobile: this card is the one child of __buy that must NOT sit inside the
+       column's 16px gutter, so it pulls itself back out by exactly that much. Every sibling keeps
+       the gutter, which is why the escape is written here and not taken off the container.
+       Its own 24px padding stays and does the insetting instead, and the corners go because there
+       is no longer an edge for them to round against. */
+    margin-right: calc(var(--section-px-mobile) * -1);
+    margin-left: calc(var(--section-px-mobile) * -1);
+    border-radius: 0;
   }
 }
 

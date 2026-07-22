@@ -279,6 +279,19 @@
     transform: translate(-50%, -50%);
   }
 
+  /* Mobile-only scrim: the artboard darkens the bottom of the poster so the heading and button
+     hold contrast once the tile shrinks and the copy sits over the busy part of the photo.
+
+     Painted on ::after, not as __media's own `background`. __media CONTAINS the poster, so a
+     background on it is painted behind that image and would never be seen — the gradient has to be
+     a layer on top. __content carries z-index: 1, so it still sits above this. */
+  .video-promo-banner__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(3deg, rgb(0 0 0 / 60%) -7.85%, rgb(0 0 0 / 0%) 59.45%);
+  }
+
   .video-promo-banner__text {
     max-width: var(--text-max-m);
   }

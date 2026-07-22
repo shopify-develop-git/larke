@@ -250,6 +250,14 @@
     font-size: calc(var(--font-heading-size-m) + 1px);
   }
 
+  /* Family, weight, style, colour and the 1.2 line-height all already resolve correctly here —
+     inherited from the heading — so only the size is restated. line-height stays unitless upstream,
+     which is what makes it re-resolve against this smaller size instead of freezing at the
+     heading's 33.6px. */
+  .featured-product__heading em {
+    font-size: var(--font-heading-size-aside-m);
+  }
+
   /* Full-width photo band — reset the desktop bleed crop back to a plain cover fill. */
   .featured-product__media {
     flex: 0 0 auto;
