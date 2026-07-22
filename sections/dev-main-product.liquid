@@ -743,7 +743,18 @@
               <span class="dev-main-product__compare-text">
                 <span class="dev-main-product__compare-heading">{{ block.settings.heading }}</span>
                 <span class="dev-main-product__compare-row">
-                  <span class="dev-main-product__compare-link">{{ block.settings.label | escape }}</span>
+                  {%- comment -%}
+                    Two settings, not one: the artboard underlines only the last word ("compares"),
+                    not the whole sentence. Splitting it is the only way the merchant can move that
+                    word without the underline either swallowing the lead-in or being nailed to a
+                    hardcoded split of the default copy.
+                  {%- endcomment -%}
+                  <span class="dev-main-product__compare-label">
+                    {{- block.settings.label | escape -}}
+                    {%- if block.settings.link_label != blank -%}
+                      {{ ' ' }}<span class="dev-main-product__compare-link">{{ block.settings.link_label | escape }}</span>
+                    {%- endif -%}
+                  </span>
                   <span class="dev-main-product__compare-arrow" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
                       <path d="M17 16L21 12L17 8M21 12L3 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1263,7 +1274,8 @@
       "limit": 1,
       "settings": [
         { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Still undecided?" },
-        { "type": "text", "id": "label", "label": "Link text", "default": "See how our duvet compares" },
+        { "type": "text", "id": "label", "label": "Text", "default": "See how our duvet" },
+        { "type": "text", "id": "link_label", "label": "Link text", "default": "compares", "info": "Only this part is underlined." },
         { "type": "url", "id": "link", "label": "Link", "info": "Point it at the price comparison block: #compare" }
       ]
     },

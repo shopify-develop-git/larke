@@ -225,7 +225,6 @@
   border: 0;
   border-radius: var(--arrow-radius);
   background-color: var(--surface);
-  color: var(--color);
   cursor: pointer;
 }
 
@@ -233,6 +232,9 @@
   display: block;
   width: var(--icon-size);
   height: var(--icon-size);
+  /* Not --color: the slider arrows are pure black in the design, unlike the section's body token.
+     A per-element colour is intentional information here, not an inconsistency to unify away. */
+  color: #000000;
 }
 
 /* ---- Buy column --------------------------------------------------------- */
@@ -842,10 +844,15 @@
   gap: var(--variant-gap);
 }
 
-.dev-main-product__compare-link {
+.dev-main-product__compare-label {
   font-size: var(--font-label-size);
   font-weight: var(--w-medium);
   line-height: var(--font-body-lh);
+}
+
+/* Underline is on the link word alone — the artboard underlines "compares", not the sentence
+   that leads into it. The type is on the parent so both halves stay one uninterrupted line. */
+.dev-main-product__compare-link {
   text-decoration: underline;
   text-underline-position: from-font;
 }

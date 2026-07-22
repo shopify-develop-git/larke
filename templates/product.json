@@ -34,7 +34,8 @@
           "type": "compare",
           "settings": {
             "heading": "Still undecided?",
-            "label": "See how our duvet compares",
+            "label": "See how our duvet",
+            "link_label": "compares",
             "link": "#compare"
           }
         },
