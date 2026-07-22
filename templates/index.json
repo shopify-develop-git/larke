@@ -205,6 +205,7 @@
         "button_label": "Shop Your Duvet",
         "button_link": "/products/natural-duvet",
         "product_image": "shopify://shop_images/master_promo_tiles_3dc13547-6e92-4782-86f0-e7536b3a7500.webp",
+        "product_image_mobile": "shopify://shop_images/master_promo_tiles_32e7c18c-8684-4436-8535-27552599253a.webp",
         "background_color": "#fcf5e3",
         "text_color": "#333333",
         "accent_color": "#f1b500",
