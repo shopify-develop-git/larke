@@ -132,13 +132,23 @@
   assign product_media = product.media
   assign current = product.selected_or_first_available_variant
 
-  # The zoom lightbox is images only: a video carries its own controls and a 3D model its own viewer,
-  # and neither has anything to magnify. Counted here, never looped over — the loops below walk
-  # product.media itself, so every zoom slide keeps the SAME index the gallery already works in and
-  # the two can address each other with no mapping table to get out of step.
-  assign zoom_images = product_media | where: 'media_type', 'image'
+  # What the lightbox will carry: photos AND videos. The gallery strips the video of its controls so
+  # it reads as motion between the photos, which leaves the lightbox as the only place a buyer can
+  # actually watch it — play, scrub, unmute, go full screen. Opening on a tap is the same gesture the
+  # photos already answer to, so the video is not a second kind of thing to learn.
+  #
+  # A 3D model still stays out: it has its own viewer, and its preview image is not a photo of the
+  # product to magnify.
+  #
+  # Two `where`s and an add, because Liquid's `where` cannot express an OR. Counted here, never
+  # looped over — the loops below walk product.media itself, so every zoom slide keeps the SAME index
+  # the gallery already works in and the two can address each other with no mapping table to get out
+  # of step.
+  assign zoom_photos = product_media | where: 'media_type', 'image'
+  assign zoom_videos = product_media | where: 'media_type', 'video'
+  assign zoom_count = zoom_photos.size | plus: zoom_videos.size
   assign zoom_on = false
-  if section.settings.enable_zoom and zoom_images.size > 0
+  if section.settings.enable_zoom and zoom_count > 0
     assign zoom_on = true
   endif
 
@@ -264,9 +274,21 @@
                   not about the design.
                 {%- endcomment -%}
                 {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+                  {%- comment -%}
+                    Icon/Outline/play-solid, Figma 45060:2114 — path exported from the file, not
+                    drawn by hand. It is a rounded-corner triangle, which the old hand-written
+                    M8 5.5V18.5L19 12L8 5.5Z was not.
+
+                    The node is 24x24 sitting at x=2,y=2 inside its 28px parent, so the glyph is
+                    24px and the 2px inset comes from the badge, not from a smaller svg.
+
+                    fill stays currentColor: --color defaults to #333333, which is the exact
+                    Neutral/700 the design gives this icon, and keeping it inherited leaves the
+                    merchant's Text color setting in charge.
+                  {%- endcomment -%}
                   <span class="dev-main-product__play" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
-                      <path d="M8 5.5V18.5L19 12L8 5.5Z" fill="currentColor"/>
+                      <path d="M15.7519 11.1679L9.5547 7.03647C8.89015 6.59343 8 7.06982 8 7.86852V16.1315C8 16.9302 8.89015 17.4066 9.5547 16.9635L15.7519 12.8321C16.3457 12.4362 16.3457 11.5638 15.7519 11.1679Z" fill="currentColor"/>
                     </svg>
                   </span>
                 {%- endif -%}
@@ -313,14 +335,44 @@
                 assign slide_loading = 'eager'
                 assign slide_priority = 'high'
               endif
+
+              # Which media the lightbox will take. Worked out here rather than in the `if` below
+              # because Liquid gives `and` and `or` no precedence and evaluates them right to left —
+              # `a and b or a and c` does not mean what it reads like. Two plain assigns cannot be
+              # got wrong.
+              assign slide_zoomable = false
+              if media.media_type == 'image' or media.media_type == 'video'
+                assign slide_zoomable = true
+              endif
             -%}
             <li
               class="dev-main-product__slide{% if forloop.first %} dev-main-product__slide--active{% endif %}"
               data-slide
               data-index="{{ forloop.index0 }}"
             >
+              {%- comment -%}
+                Two things video_tag gets wrong if you let it default.
+
+                image_size: the poster it picks on its own is Shopify's `_small`, which is 100px
+                wide — blown up to the 668px stage that is the blur the gallery was showing before
+                the video started. 1400 matches the ladder the photo slides use next door.
+                Horizon's own snippets/video.liquid overrides this for the same reason.
+
+                controls: false — the native control bar is a black strip across the bottom of the
+                stage that collides with the slider arrows and belongs to no design. The clip is
+                muted and looping, so it reads as gallery motion, the same treatment Horizon gives
+                its own slides (blocks/_slide.liquid). No autoplay attribute on purpose: every
+                slide is in the DOM at once, and `autoplay` would have all of them pulling a
+                7.2 Mbps stream behind a hidden slide. The JS starts the one the buyer is on.
+
+                external_video keeps its provider chrome — a YouTube/Vimeo iframe is not ours to
+                strip, and it cannot be play()ed from here anyway.
+              {%- endcomment -%}
               {%- if media.media_type == 'video' -%}
-                {{ media | video_tag: controls: true, class: 'dev-main-product__media' }}
+                {{
+                  media
+                  | video_tag: image_size: '1400x', loop: true, muted: true, controls: false, class: 'dev-main-product__media'
+                }}
               {%- elsif media.media_type == 'external_video' -%}
                 {{ media | external_video_tag: class: 'dev-main-product__media' }}
               {%- else -%}
@@ -344,8 +396,13 @@
                 seal: those are siblings of the slide LIST, later in the DOM, so they paint above it.
                 And an inactive slide is visibility:hidden, which takes its button out of the tab ring
                 and out of hit-testing for free — only the photo on screen is clickable.
+
+                A video gets one too. It has no controls of its own in here, so without this the
+                clip is inert — nothing to press, nothing to enlarge. The button makes the whole
+                frame open the lightbox, which is the same gesture the photos answer to and the
+                place where the video does have controls.
               {%- endcomment -%}
-              {%- if zoom_on and media.media_type == 'image' -%}
+              {%- if zoom_on and slide_zoomable -%}
                 <button
                   type="button"
                   class="dev-main-product__zoom-open"
@@ -1105,22 +1162,28 @@
         <ul class="dev-main-product__zoom-slides" role="list">
           {%- comment -%}
             Walks product.media, not the filtered list, so data-media-index IS the gallery's own index
-            — one index space for both, and nothing to keep in sync. Images only: the `else` branch of
-            the gallery above also catches 3D models, and a model's preview image is not a photo of the
-            product to magnify.
+            — one index space for both, and nothing to keep in sync. Photos and videos both; a 3D
+            model (which the gallery's `else` branch also catches) stays out, because its preview
+            image is not a photo of the product to magnify and it owns its own viewer.
           {%- endcomment -%}
           {%- assign zoom_n = 0 -%}
           {%- for media in product_media -%}
-            {%- if media.media_type == 'image' -%}
+            {%- liquid
+              assign zoom_slide = false
+              if media.media_type == 'image' or media.media_type == 'video'
+                assign zoom_slide = true
+              endif
+            -%}
+            {%- if zoom_slide -%}
               {%- liquid
-                # forloop.index counts MEDIA, and a video in the middle of the gallery would make the
-                # spoken count skip a number ("photo 3 of 5" with only 4 photos). This counts photos.
+                # forloop.index counts ALL media, and a 3D model in the middle of the gallery would
+                # make the spoken count skip a number. This counts what the lightbox actually holds.
                 assign zoom_n = zoom_n | plus: 1
 
                 # Both computed before the tag: a filter chain inside a named image_tag argument does
                 # not parse. Same trap as the thumbnails above.
                 assign zoom_alt = media.alt | default: product.title | escape
-                assign zoom_label = 'accessibility.slide_status' | t: index: zoom_n, length: zoom_images.size
+                assign zoom_label = 'accessibility.slide_status' | t: index: zoom_n, length: zoom_count
               -%}
               {%- comment -%}
                 The 3840 source hangs on the LI, not the img: image_tag takes named arguments, and a
@@ -1131,24 +1194,43 @@
                 Why swap at all, when the srcset already picks a candidate for this viewport: pinch
                 scales the image with a CSS transform, and a transform never makes the browser fetch a
                 bigger candidate. The 3840 file is the resolution held in reserve for the gesture.
+
+                A video carries no data-max-res: there is no bigger still to swap in, and upgrade()
+                already bails when the attribute or the <img> is missing.
               {%- endcomment -%}
               <li
                 class="dev-main-product__zoom-slide{% if zoom_n == 1 %} dev-main-product__zoom-slide--active{% endif %}"
                 data-zoom-slide
                 data-media-index="{{ forloop.index0 }}"
-                data-max-res="{{ media | image_url: width: 3840 }}"
+                {% if media.media_type == 'image' %}data-max-res="{{ media | image_url: width: 3840 }}"{% endif %}
                 data-zoom-label="{{ zoom_label | escape }}"
               >
-                {{
-                  media
-                  | image_url: width: 2048
-                  | image_tag:
-                    loading: 'lazy',
-                    widths: '768, 1024, 1536, 2048',
-                    sizes: '100vw',
-                    alt: zoom_alt,
-                    class: 'dev-main-product__zoom-image'
-                }}
+                {%- if media.media_type == 'video' -%}
+                  {%- comment -%}
+                    controls: true — the opposite call to the gallery, and the reason the video is in
+                    here at all. The gallery slide is a silent looping frame with no chrome; this is
+                    where the buyer gets to scrub it, unmute it and go full screen.
+
+                    Still muted and looping, because the JS starts it on open and no browser will
+                    autoplay a clip with sound. The controls are what let the buyer turn it back on —
+                    the muting is a starting state, not a restriction.
+                  {%- endcomment -%}
+                  {{
+                    media
+                    | video_tag: image_size: '2048x', loop: true, muted: true, controls: true, class: 'dev-main-product__zoom-video'
+                  }}
+                {%- else -%}
+                  {{
+                    media
+                    | image_url: width: 2048
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '768, 1024, 1536, 2048',
+                      sizes: '100vw',
+                      alt: zoom_alt,
+                      class: 'dev-main-product__zoom-image'
+                  }}
+                {%- endif -%}
               </li>
             {%- endif -%}
           {%- endfor -%}
@@ -1162,7 +1244,7 @@
         </svg>
       </button>
 
-      {%- if zoom_images.size > 1 -%}
+      {%- if zoom_count > 1 -%}
         <div class="dev-main-product__zoom-nav">
           <button type="button" class="dev-main-product__zoom-arrow" data-zoom-prev aria-label="{{ 'accessibility.slideshow_previous' | t | escape }}">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
@@ -1174,7 +1256,7 @@
             The count is decoration for a screen reader — "1 slash 7" is not a sentence. The live
             region below carries the same fact as one, and the JS writes both.
           {%- endcomment -%}
-          <p class="dev-main-product__zoom-counter" data-zoom-counter aria-hidden="true">1 / {{ zoom_images.size }}</p>
+          <p class="dev-main-product__zoom-counter" data-zoom-counter aria-hidden="true">1 / {{ zoom_count }}</p>
 
           <button type="button" class="dev-main-product__zoom-arrow" data-zoom-next aria-label="{{ 'accessibility.slideshow_next' | t | escape }}">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">

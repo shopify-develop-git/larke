@@ -126,10 +126,12 @@
   transform: translate(-50%, -50%);
 }
 
+/* 24px, not 16px: Figma 45060:2114 is a 24x24 icon at x=2,y=2 inside the 28px badge. The inset is
+   the badge's, so shrinking the svg would draw the glyph at 2/3 the size the design asks for. */
 .dev-main-product__play svg {
   display: block;
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
 }
 
 .dev-main-product__stage {
@@ -1904,6 +1906,20 @@
   /* scale() THEN translate() — the order the JS's maths assumes. Swap them and a translate of 1px
      silently stops meaning 1px, and the pan bounds drift by a factor of the scale. */
   transform: scale(var(--zoom-scale, 1)) translate(var(--zoom-x, 0px), var(--zoom-y, 0px));
+}
+
+/* Capped exactly like the photo, and for the same reason: the element has to BE the video, so the
+   space beside a portrait clip belongs to the frame and still closes the lightbox on a click.
+
+   No transform and no --zoom-* vars. A video is not the pinch surface — the JS's activeImage()
+   only ever finds .dev-main-product__zoom-image, so the gesture layer skips these slides on its
+   own and there is nothing here to keep in sync with it. */
+.dev-main-product__zoom-video {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 /* ---- The controls ---- */

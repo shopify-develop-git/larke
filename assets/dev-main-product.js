@@ -23,9 +23,38 @@
     const prev = root.querySelector('[data-prev]');
     const next = root.querySelector('[data-next]');
 
-    if (slides.length < 2) return;
-
     let index = 0;
+
+    /* The gallery videos carry no controls — they are muted, looping motion sitting between the
+       photos, so the slide the buyer is on is the one that plays and every other one is stopped.
+
+       Pausing the ones we left is the half that was always here: a video still running behind a
+       hidden slide is how a product page ends up with sound coming from nowhere. Starting the
+       active one is the half the markup used to do with an `autoplay` attribute, and it belongs
+       here instead: all slides are in the DOM at once, so `autoplay` would have every video in
+       the gallery pulling its stream on page load whether or not it is the one on screen.
+
+       currentTime is reset so coming back to the clip starts it from the top rather than from
+       wherever it was abandoned — a half-played frame is not a product photo.
+
+       play() returns a promise that rejects when the browser refuses (a data-saver profile, or a
+       muted-autoplay block). Swallowed: the poster staying up is the correct fallback, and an
+       unhandled rejection in the console is not. */
+    function syncVideo() {
+      slides.forEach((slide, n) => {
+        slide.querySelectorAll('video').forEach((video) => {
+          if (n !== index) {
+            video.pause();
+            // Only once metadata exists. With readyState HAVE_NOTHING there is no timeline to
+            // seek yet, and the assignment is at best ignored and at worst throws.
+            if (video.readyState > 0) video.currentTime = 0;
+            return;
+          }
+          const started = video.play();
+          if (started && typeof started.catch === 'function') started.catch(() => {});
+        });
+      });
+    }
 
     function show(i) {
       // Wrap around: the artboard draws no disabled arrow, so there is no end to hit.
@@ -41,12 +70,7 @@
         thumb.setAttribute('aria-current', String(on));
       });
 
-      // Pause a video we are scrolling away from. Leaving it playing behind a hidden slide is
-      // how a product page ends up with audio coming from nowhere.
-      slides.forEach((slide, n) => {
-        if (n === index) return;
-        slide.querySelectorAll('video').forEach((video) => video.pause());
-      });
+      syncVideo();
 
       const active = thumbs[index];
       if (active && active.parentElement && active.parentElement.parentElement) {
@@ -60,9 +84,14 @@
       }
     }
 
-    thumbs.forEach((thumb, n) => thumb.addEventListener('click', () => show(n)));
-    if (prev) prev.addEventListener('click', () => show(index - 1));
-    if (next) next.addEventListener('click', () => show(index + 1));
+    /* A gallery of one has nowhere to navigate to. This used to be an early return; it is a guard
+       now, because syncVideo() has to run for the single-media case too and nothing may sit
+       between it and the end of this function. */
+    if (slides.length > 1) {
+      thumbs.forEach((thumb, n) => thumb.addEventListener('click', () => show(n)));
+      if (prev) prev.addEventListener('click', () => show(index - 1));
+      if (next) next.addEventListener('click', () => show(index + 1));
+    }
 
     /* The zoom lightbox announcing which photo the buyer left it on. Open the lightbox on photo 1,
        page through to photo 4, close it — and photo 4 is what is behind it. Without this the gallery
@@ -70,11 +99,27 @@
 
        It arrives as an event because show() is a closure in here and the lightbox is a different
        IIFE: there is no name it could call. The event carries the index into product.media, which is
-       the same number both sides count in. */
+       the same number both sides count in.
+
+       OUTSIDE the navigation guard above. The lightbox pauses this gallery's video while it is open
+       and leans on this event to start it again on the way out — and a product whose only media is
+       that video is a gallery of one, with no thumb and no arrow, which the guard would have shut
+       out. show(0) on a single slide is a no-op apart from exactly that restart. */
     root.addEventListener('dev-main-product:zoom-select', (event) => {
       const to = event.detail ? event.detail.index : null;
       if (typeof to === 'number' && to >= 0) show(to);
     });
+
+    /* Start whatever is already on screen. The markup marks slide 0 active server-side, so show()
+       never runs for it — without this a product whose first media is a video would sit on a poster
+       forever, and there is no play button to rescue it.
+
+       DEAD LAST on purpose. This line touches the media element, which is the one thing in here
+       that can throw for reasons that have nothing to do with us — a codec the browser will not
+       open, a seek it refuses. Run it before the listeners above and any such throw takes the
+       whole gallery with it: no thumb click, no arrow, and a slider that looks empty. Run it last
+       and the worst case is a video that does not start, with navigation still working. */
+    syncVideo();
   }
 
   /* ---- Thumbnail scroll indicator --------------------------------------- */
@@ -449,6 +494,26 @@
       return slide ? slide.querySelector('.dev-main-product__zoom-image') : null;
     }
 
+    /* The video slides. Everything above this line is written for a photo — activeImage() returns
+       null on a video slide, so the pinch, the pan and the 3840 upgrade all bail out on their own
+       and none of them needed a special case. Playback is the one thing that did.
+
+       `play` false stops every clip, which is what closing needs; the argument exists so cleanup()
+       does not have to fake an index nobody is on. */
+    function syncZoomVideo(play) {
+      slides.forEach((slide, n) => {
+        slide.querySelectorAll('video').forEach((video) => {
+          if (!play || n !== index) {
+            video.pause();
+            if (video.readyState > 0) video.currentTime = 0;
+            return;
+          }
+          const started = video.play();
+          if (started && typeof started.catch === 'function') started.catch(() => {});
+        });
+      });
+    }
+
     function show(i) {
       index = (i + slides.length) % slides.length;
 
@@ -461,6 +526,7 @@
       });
 
       upgrade(slides[index]);
+      syncZoomVideo(true);
 
       if (counter) counter.textContent = index + 1 + ' / ' + slides.length;
       // The counter reads "1 slash 7", which is not a sentence. The live region carries the same fact
@@ -620,11 +686,21 @@
       applyTransform();
     }
 
+    /* A touch that landed on the video belongs to the video. The gesture layer below reads a
+       horizontal drag as "next slide" and two quick taps as a zoom — which is exactly what dragging
+       the scrubber and tapping play look like from out here. Without this guard the buyer cannot
+       seek: every attempt pages to the next photo instead. */
+    function onVideo(event) {
+      const target = event.target;
+      return !!(target && target.closest && target.closest('.dev-main-product__zoom-video'));
+    }
+
     if (frame) {
       frame.addEventListener(
         'touchstart',
         (event) => {
           if (!isPhone()) return;
+          if (onVideo(event)) return;
 
           if (event.touches.length === 2) {
             startDistance = touchDistance(event.touches[0], event.touches[1]);
@@ -647,6 +723,7 @@
         'touchmove',
         (event) => {
           if (!isPhone()) return;
+          if (onVideo(event)) return;
 
           if (event.touches.length === 2) {
             event.preventDefault();
@@ -668,6 +745,7 @@
         'touchend',
         (event) => {
           if (!isPhone()) return;
+          if (onVideo(event)) return;
           // A finger coming off a pinch leaves one still down. That is not the end of the gesture.
           if (event.touches.length > 0) return;
 
@@ -715,6 +793,13 @@
       openedViaKeyboard = !!event && event.detail === 0;
       lastTrigger = trigger;
 
+      /* Stop the gallery's copy of the clip. The lightbox holds a second <video> on the same file,
+         and leaving both running means two decoders on one stream for no one's benefit — the
+         gallery is behind a modal backdrop. cleanup() starts it again through zoom-select. */
+      root.querySelectorAll('video').forEach((video) => {
+        if (!dialog.contains(video)) video.pause();
+      });
+
       show(at < 0 ? 0 : at);
 
       dialog.showModal();
@@ -742,6 +827,9 @@
       unlockScroll();
       delete dialog.dataset.modalState;
       resetTransform();
+      // Before the dispatch below, or the clip carries on playing with the modal gone — and if the
+      // buyer had unmuted it, audibly.
+      syncZoomVideo(false);
 
       const slide = slides[index];
       const media = slide ? Number(slide.dataset.mediaIndex) : -1;
@@ -820,8 +908,13 @@
     /* Anything that is not the photo and not a control: the dialog's own box, the frame, the space
        beside a portrait photo. The photo is exempt on purpose — on a phone it is the pinch surface,
        and the two clicks of a double-tap must not be read as "close". The nav is exempt as a whole
-       and not just its buttons, or the 4px of padding around them would be a hidden close button. */
-    const KEEP_OPEN = '.dev-main-product__zoom-image, .dev-main-product__zoom-nav, [data-zoom-close]';
+       and not just its buttons, or the 4px of padding around them would be a hidden close button.
+
+       The video is exempt for a blunter reason: its controls are inside it. Without this line the
+       first press on play, on the scrubber or on the volume would close the lightbox instead, which
+       would make putting the video in here pointless. */
+    const KEEP_OPEN =
+      '.dev-main-product__zoom-image, .dev-main-product__zoom-video, .dev-main-product__zoom-nav, [data-zoom-close]';
 
     dialog.addEventListener('click', (event) => {
       if (event.target.closest(KEEP_OPEN)) return;
