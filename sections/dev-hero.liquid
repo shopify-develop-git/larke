@@ -42,8 +42,24 @@
     --spacing-md: 24px;
     --spacing-lg: 64px;
 
-    /* Frame — 550px tall on BOTH artboards (Brief, Note 4: not responsive) */
-    --hero-min-h: 550px;
+    /* Frame — 550px on BOTH artboards (Brief, Note 4), and that is still what every width up to
+       1440 gets. Past 1440 the artboard stops describing the screen: the photo is the whole
+       section, so a wider viewport crops a thinner and thinner band out of it, and the hero
+       flattens. The frame grows with the extra width instead.
+
+       Read the middle term as the design rule it is — 550 plus five twelfths of however far past
+       1440 we are. Five twelfths is 200/480: +200px over the 480px from 1440 to 1920, so 1920
+       lands on exactly 750px. Written as the fraction rather than a pre-multiplied 41.667vw so
+       the three numbers that were chosen (550, 1440, the 5/12 slope) stay legible and editable.
+
+       The 750px ceiling stops it at 1920 rather than letting it run. Nothing in the design
+       describes what happens past there, and the slope does not stay sensible on its own: an
+       ultrawide 3440 display would ask for a 1383px hero, taller than the screen it is on.
+
+       clamp's lower bound is what keeps every narrower breakpoint at exactly 550px, so the
+       mobile artboards below are untouched — at 375px the middle term computes to 106px and
+       loses to the 550px floor. */
+    --hero-min-h: clamp(550px, calc(550px + (100vw - 1440px) * 5 / 12), 750px);
     --radius-bottom: 32px;
     --text-col-w: 533px;
 
