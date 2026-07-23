@@ -31,9 +31,12 @@
 
 /* --- heading --- */
 
+/* --gutter, not --section-px, on both this and the track below: it IS --section-px up to 1440 and
+   takes the surplus past it, which holds the heading and the first tile on a 1312 line without a
+   wrapper the track would have to escape from. Derived in the section's <style> block. */
 .values-we-cherish__heading {
   margin: 0;
-  padding: 0 var(--section-px);
+  padding: 0 var(--gutter);
 
   font-family: var(--font-heading);
   font-size: var(--font-heading-size);
@@ -92,7 +95,7 @@
   align-items: flex-start;
   gap: var(--gap-tiles);
   margin: 0;
-  padding: 0 var(--section-px);
+  padding: 0 var(--gutter);
   list-style: none;
 }
 

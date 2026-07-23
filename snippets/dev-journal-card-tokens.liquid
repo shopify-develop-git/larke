@@ -21,9 +21,17 @@
 <style>
   {{ scope }} {
     /* Brand params (Brief → Brand Params). Faces are loaded by snippets/dev-brand-fonts.liquid. */
-    /* The Figma content frame is 1440 − 2×64 = 1312, i.e. it is the section's padding box, not an
-       independent cap. Per the Brief's container caveat this is 100%, not a hardcoded 1312px. */
-    --container-max: 100%;
+    /* The Figma content frame is 1440 − 2×64 = 1312. This used to read 100% — the frame described
+       as the section's padding box rather than a cap of its own — which is true up to 1440 and
+       nothing but true up to 1440: past it the row simply kept growing with the window and the
+       three cards stretched with it. 1312 is the same number the artboard draws, now enforced.
+
+       Both callers already centre on this (.journal-cards__inner and .dev-blog__inner are
+       `max-width: var(--container-max); margin-inline: auto`), so the one value caps both — which
+       is the point of this file. Capping only the Our Story strip would have made a card there a
+       different width from the same card on the blog index at >1440, and a reader clicking
+       between the two would see it change. */
+    --container-max: 1312px;
     --section-px: 64px;
     --section-px-m: 16px;
 

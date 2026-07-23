@@ -26,11 +26,21 @@
 <style>
   .values-we-cherish {
 
-    /* No --container-max: the section is full-bleed and the inset is --section-px alone, exactly
-       as on the sibling "Image and Text" frames. On mobile the track deliberately runs out past
-       the gutter, so the padding lives on the track, not on a centred frame. */
     --section-px: 64px;
     --section-px-m: 16px;
+
+    /* The section stays full-bleed and there is still no centred frame element: the padding lives
+       on the heading and on the track, never on a wrapper, because the track deliberately runs out
+       past the gutter and a frame would clip it.
+
+       That is exactly why the cap is a GUTTER. Past 1440 the heading and the first tile hold the
+       1312 line the artboard draws (1440 - 2x64) while the track keeps scrolling out to the window
+       edge as before — a max-width on a wrapper could not have both.
+
+       max() leaves every existing breakpoint untouched: below 1440 --section-px wins, including
+       the 16px the mobile block hands it. */
+    --container-max: 1312px;
+    --gutter: max(var(--section-px), (100% - var(--container-max)) / 2);
 
     /* The artboards state their own top spacers (Section padding: 80 desktop, 48 mobile) — fixed
        tokens, not a scale factor. Desktop --pt is the merchant's, like every other section; the

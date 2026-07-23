@@ -12,8 +12,11 @@
   color: var(--color);
   padding-top: var(--pt);
   padding-bottom: var(--pb);
-  padding-left: var(--section-px);
-  padding-right: var(--section-px);
+  /* --gutter, not --section-px: it IS --section-px up to 1440 and grows past it, which is what
+     holds the content at 1312 while the strip itself stays full-bleed. Derived in the section's
+     <style> block. */
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
   font-family: var(--font-body);
 }
 

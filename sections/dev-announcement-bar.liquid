@@ -10,6 +10,23 @@
     {%- endcomment -%}
     --section-px: 64px;
     --section-px-mobile: 16px;
+
+    {%- comment -%}
+      Past 1440 the bar's CONTENT stops growing with the window. The bar itself must stay
+      full-bleed — it is a coloured strip across the top of the page, and a floating one with
+      the page showing either side would read as a mistake — so the cap is expressed as a
+      gutter rather than a max-width, and the background is untouched.
+
+      1312 is 1440 - 2x64: the content width the artboard actually draws.
+
+      max() is what makes this safe at every width already signed off. Below 1440 the second
+      term is smaller than --section-px (and below 1312 it is negative), so --section-px wins
+      and every existing breakpoint resolves to exactly the padding it has now. Above 1440 the
+      gutter takes the surplus and the content sits centred at 1312.
+    {%- endcomment -%}
+    --container-max: 1312px;
+    --gutter: max(var(--section-px), (100% - var(--container-max)) / 2);
+
     --font-body-size: 16px;
     --font-body-size-sm: 14px;
     --font-body-lh: 1.4;

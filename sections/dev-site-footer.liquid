@@ -18,8 +18,16 @@
   .site-footer {
     /* brand params */
     --section-px: 64px;
-    /* No --container-max by design: like dev-site-header, this is full-bleed shared chrome.
-       The cream card is 100% of the section frame; content is inset only by --section-px. */
+
+    /* The cream card stays 100% of the section frame — its rounded top corners are meant to meet
+       the window edges, and a card floating in the middle of a 1920 screen is a different design.
+       What is capped is what the card HOLDS: past 1440 the newsletter row, the menus and the
+       bottom bar stop stretching and hold the 1312 the artboard draws (1440 - 2x64).
+
+       Hence a gutter, not a max-width. max() means nothing below 1440 moves: --section-px wins
+       there, including the 16px this block hands it at <=768. */
+    --container-max: 1312px;
+    --gutter: max(var(--section-px), (100% - var(--container-max)) / 2);
 
     /* structure */
     --footer-top-spacer: 80px;

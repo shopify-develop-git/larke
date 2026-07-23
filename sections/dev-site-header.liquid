@@ -5,11 +5,20 @@
 <style>
   .site-header {
 
-    /* Horizontal gutters. No --container-max: this header is full-bleed by
-       design (Brief note #1 — no centred max-width frame exists in Figma);
-       the inset comes entirely from --section-px. */
+    /* Horizontal gutters. */
     --section-px: 64px;
     --section-px-mobile: 16px;
+
+    /* The header BAR stays full-bleed — Brief note #1 is right that Figma draws no centred frame,
+       and a header that stops short of the window edges is not a header. What is capped is the row
+       inside it: past 1440 the logo, the menu and the cart stop drifting further apart and hold the
+       1312 the artboard draws (1440 - 2x64).
+
+       A gutter rather than a max-width, so the bar's background and its bottom rule still run the
+       full width. max() keeps every signed-off breakpoint exactly as it is: below 1440 the second
+       term loses to --section-px, and only above it does the gutter start taking the surplus. */
+    --container-max: 1312px;
+    --gutter: max(var(--section-px), (100% - var(--container-max)) / 2);
 
     /* Mobile artboard specifies its own fixed padding, not a scale factor. */
     --pt-mobile: 16px;

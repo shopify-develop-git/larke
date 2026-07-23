@@ -22,14 +22,15 @@
 }
 
 .site-footer__content {
-  /* No --container-max by design — full-bleed shared chrome, same as dev-site-header.
-     Horizontal inset comes entirely from --section-px. */
+  /* The card is full-bleed — same call as dev-site-header, and its top corners are drawn meeting
+     the window edges. Its CONTENTS are capped: --gutter is --section-px up to 1440 and takes the
+     surplus past it. Derived in the section's <style> block. */
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--gap-section);
   width: 100%;
-  padding: var(--pt) var(--section-px) var(--pb);
+  padding: var(--pt) var(--gutter) var(--pb);
   border-radius: var(--radius-card) var(--radius-card) 0 0;
   background-color: var(--bg);
   overflow: hidden;

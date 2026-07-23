@@ -90,14 +90,16 @@
 }
 
 .site-header__inner {
-  /* Full-bleed by design — no --container-max (Brief note #1: no centred
-     max-width frame exists). Horizontal inset comes entirely from --section-px. */
+  /* The bar around this row is full-bleed (Brief note #1: Figma draws no centred frame, and a
+     header cannot stop short of the window edges). The ROW is capped: --gutter is --section-px up
+     to 1440 and takes the surplus past it, so the logo/menu/cart hold a 1312 line while the
+     background behind them still runs edge to edge. Derived in the section's <style> block. */
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 0 var(--section-px);
+  padding: 0 var(--gutter);
 }
 
 /* --- buttons / links --- */
