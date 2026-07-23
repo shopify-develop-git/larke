@@ -53,8 +53,14 @@
   /* `clip`, not `hidden`: `hidden` on the cross axis would silently make this a scroll container
      vertically too, and the tiles' rounded corners would sit on a scrollable overflow region. */
   overflow-y: clip;
-  scroll-snap-type: x proximity;
-  scroll-padding-inline: var(--section-px);
+
+  /* FREE scrolling — no scroll-snap on this track, deliberately. It carried
+     `scroll-snap-type: x proximity` with `scroll-snap-align: start` on every tile, which pulled
+     the row onto a tile edge at the end of every gesture: let go of a drag and it kept sliding up
+     to half a tile further on its own. The track loops, so there is no "correct" tile to land on
+     anyway, and these tiles are captions to be read at whatever offset the visitor stopped at.
+     `scroll-padding-inline` went with it — it existed only to place those snap points. */
+
   -webkit-overflow-scrolling: touch;
 
   /* The native bar is replaced by the artboard's own rail (.story-slider__rail). */
@@ -63,6 +69,28 @@
 
 .story-slider__track::-webkit-scrollbar {
   display: none;
+}
+
+/* The cursor is the only affordance the artboard does not draw, and the one place the section
+   cannot do without one: the native scrollbar is hidden above, a wheel scrolls the page, and the
+   row gives a mouse user no other sign that it moves. Gated on a fine pointer so a phone, which
+   scrolls this natively and never sees the JS drag, is not given a grab cursor it cannot use. */
+@media (hover: hover) and (pointer: fine) {
+  .story-slider__track {
+    cursor: grab;
+  }
+
+  .story-slider__track--dragging {
+    cursor: grabbing;
+  }
+}
+
+/* Only while a drag is actually live. Left on permanently this would stop a visitor selecting and
+   copying the captions, which are the story. */
+.story-slider__track--dragging,
+.story-slider__track--dragging * {
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .story-slider__tile {
@@ -75,7 +103,6 @@
      the row is the entire point of a scroller. */
   flex: 0 0 var(--tile-w);
   width: var(--tile-w);
-  scroll-snap-align: start;
 }
 
 /* --- media --- */

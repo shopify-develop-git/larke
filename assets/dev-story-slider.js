@@ -83,21 +83,30 @@
     /* Move scrollLeft by exactly one set. The pixels under the cursor do not change, because the
        content repeats on exactly that period — so the jump is invisible.
 
-       scroll-snap is switched off around the write and restored on the next frame. `proximity`
-       snapping re-targets a programmatic scroll after it settles, which was pulling the jump back
-       to where it came from — the track then sat at 0 with a dead left arrow instead of wrapping. */
+       This used to switch scroll-snap off around the write and hand it back a frame later:
+       `proximity` re-targeted the programmatic scroll after it settled and pulled the jump back to
+       where it came from. The track scrolls free now — no snapping anywhere on it — so the write
+       is just a write. */
     function jump(to) {
-      const snap = track.style.scrollSnapType;
-      track.style.scrollSnapType = 'none';
       track.scrollLeft = to;
-      requestAnimationFrame(() => { track.style.scrollSnapType = snap; });
     }
 
+    /* Forwards only. The track used to wrap both ways, which made it endless in both directions;
+       it is now endless to the RIGHT and stops on the left at the first tile, flush.
+
+       That stop is real, not a trick: the browser's own clamp at scrollLeft 0 provides it, and
+       nothing here ever pushes the scroll back up past it.
+
+       The threshold is TWO sets rather than one, and that is the whole ergonomics of the thing.
+       Wrapping at one set would drop the scroll to 0 every lap and leave the buyer standing on the
+       left stop with a dead back arrow. Wrapping at two drops it to one set instead, so there is
+       always a full lap of runway behind you — you can always re-read the story you just passed.
+
+       The jump itself is invisible either way: the content repeats on exactly this period, so the
+       pixels under the cursor do not move. */
     function wrap() {
       if (!canLoop || setWidth <= 0) return;
-      const x = track.scrollLeft;
-      if (x < setWidth) jump(x + setWidth);
-      else if (x >= setWidth * 2) jump(x - setWidth);
+      if (track.scrollLeft >= setWidth * 2) jump(track.scrollLeft - setWidth);
     }
 
     function render() {
@@ -112,8 +121,10 @@
         return;
       }
 
-      /* Looping: there is no end to stop at, so the arrows never disable. */
-      if (prev) prev.disabled = false;
+      /* Forward is endless, so the next arrow never disables. Back has a real end now — the first
+         tile, flush left — and the arrow says so there, exactly as it does on a track too short to
+         loop at all. */
+      if (prev) prev.disabled = track.scrollLeft <= 1;
       if (next) next.disabled = false;
       if (setWidth <= 0) return;
 
@@ -125,7 +136,7 @@
 
          It fills to 100% as the fourth tile arrives, then resets: you have come back around, and
          that is exactly what the reset says. */
-      const pos = (((track.scrollLeft - setWidth) % setWidth) + setWidth) % setWidth;
+      const pos = ((track.scrollLeft % setWidth) + setWidth) % setWidth;
       const read = Math.min(1, (pos + step()) / setWidth);
       progress.style.width = read * 100 + '%';
       progress.style.transform = 'translateX(0)';
@@ -137,10 +148,12 @@
     function layout() {
       if (!canLoop) { render(); return; }
 
-      const lap = setWidth > 0 ? (track.scrollLeft - setWidth) / setWidth : 0;
+      // How far along the story we are, counted in sets, so the same point survives a re-measure.
+      // Zero on the first run, which is what parks the track on the first tile.
+      const at = setWidth > 0 ? track.scrollLeft / setWidth : 0;
       setWidth = measureSet();
       syncCopies();
-      jump(setWidth + lap * setWidth);
+      jump(at * setWidth);
       render();
     }
 
@@ -168,6 +181,87 @@
         behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
       });
     }
+
+    /* ---- Drag to scroll ------------------------------------------------------
+       On a phone and on a trackpad the native scroll container already IS the interaction. A mouse
+       is the gap it leaves: the native scrollbar is hidden (the artboard draws its own rail
+       instead) and a wheel scrolls the page, so up to now the two arrows were the only way a
+       desktop visitor could move the story at all.
+
+       Mouse only, on purpose. Touch and pen scroll this element natively already, and taking their
+       events over would mean reimplementing rubber-banding and snapping worse than the browser
+       does them, on the devices where it does them best.
+
+       No momentum: the track goes exactly as far as the cursor took it and stops the instant the
+       button comes up. A throw would keep moving content the visitor has stopped steering, and
+       these tiles are text to be read, not a reel to be flicked past.
+
+       Every move is applied as a DELTA from the previous one, never as an offset from where the
+       press began. wrap() rewrites scrollLeft underneath a drag that crosses the seam, and an
+       absolute origin would be stale from that instant on: the track would kick back by a whole
+       set on the next mouse move. */
+
+    const DRAG_SLOP = 4; // px of travel before a press stops being a click
+
+    let dragId = null;
+    let lastX = 0;
+    let travelled = 0;
+
+    function onDragMove(event) {
+      if (event.pointerId !== dragId) return;
+
+      const dx = event.clientX - lastX;
+      travelled += Math.abs(dx);
+
+      // The content follows the cursor, so the scroll goes the other way.
+      track.scrollLeft -= dx;
+      lastX = event.clientX;
+    }
+
+    function endDrag(event) {
+      if (event && event.pointerId !== dragId) return;
+
+      window.removeEventListener('pointermove', onDragMove);
+      window.removeEventListener('pointerup', endDrag);
+      window.removeEventListener('pointercancel', endDrag);
+
+      dragId = null;
+      track.classList.remove('story-slider__track--dragging');
+    }
+
+    track.addEventListener('pointerdown', (event) => {
+      if (event.pointerType !== 'mouse' || event.button !== 0) return;
+
+      dragId = event.pointerId;
+      lastX = event.clientX;
+      travelled = 0;
+
+      track.classList.add('story-slider__track--dragging');
+
+      /* Listened for on the window, not captured on the track: setPointerCapture would retarget
+         the click that follows, and a caption is rich text that may hold a link. This way the
+         drag survives the cursor leaving the track and the click still lands where it was aimed. */
+      window.addEventListener('pointermove', onDragMove);
+      window.addEventListener('pointerup', endDrag);
+      window.addEventListener('pointercancel', endDrag);
+    });
+
+    // Without this the browser's own image drag starts the moment the press moves over a photo,
+    // and the pointer stream stops arriving mid-gesture.
+    track.addEventListener('dragstart', (event) => event.preventDefault());
+
+    /* A drag that happens to finish on a link must not also follow it. Capture phase, so it is
+       gone before the link sees it; `travelled` is zeroed by the next press, so a real click is
+       never caught by this. */
+    track.addEventListener(
+      'click',
+      (event) => {
+        if (travelled <= DRAG_SLOP) return;
+        event.preventDefault();
+        event.stopPropagation();
+      },
+      true
+    );
 
     if (prev) prev.addEventListener('click', () => scrollByStep(-1));
     if (next) next.addEventListener('click', () => scrollByStep(1));
