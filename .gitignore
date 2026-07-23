@@ -31,3 +31,6 @@ templates/index.qa*.json
 .figma-assets/
 .claude/state/
 .backups/
+
+# Local working notes — not part of the theme
+.instructions/
