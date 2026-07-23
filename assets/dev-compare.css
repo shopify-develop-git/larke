@@ -233,13 +233,26 @@
 .dev-compare__logo {
   display: inline-flex;
   align-items: center;
+  max-height: var(--logo-h);
 }
 
+/* The height cap has to reach the <img> as well, not just the box around it — a cap on the flex
+   parent alone would leave a tall logo overflowing it rather than being resized.
+
+   It works WITH `width: var(--logo-w)` rather than replacing it: for a replaced element the
+   min/max algorithm keeps the intrinsic ratio, so a logo that comes out taller than 33px at 110px
+   wide is scaled down proportionally on both axes instead of being squashed. A wordmark shaped
+   like Larke's is unaffected; a squarish mark lands at 33x33.
+
+   That matters because the competitor logos are merchant uploads at whatever size and ratio the
+   brand publishes, and --logo-w on its own would let a square one render 110px tall and push the
+   row apart. --logo-h was declared for this and until now went unused. */
 .dev-compare__logo img {
   display: block;
   width: var(--logo-w);
   height: auto;
   max-width: 100%;
+  max-height: var(--logo-h);
 }
 
 .dev-compare__rows {
