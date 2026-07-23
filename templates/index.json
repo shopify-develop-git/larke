@@ -216,53 +216,53 @@
     "dev-cool-sleepers-promo": {
       "type": "dev-cool-sleepers-promo",
       "blocks": {
-        "logo-vogue": {
+        "logo_ENMBfi": {
           "type": "logo",
           "settings": {
-            "image": "shopify://shop_images/press-vogue.svg",
-            "alt_text": "Vogue",
+            "image": "shopify://shop_images/house_and_garden_logo_transparent.png",
+            "alt_text": "",
             "logo_height": 21
           }
         },
-        "logo-mail-online": {
+        "logo_iRJ4Yj": {
           "type": "logo",
           "settings": {
-            "image": "shopify://shop_images/press-mail-online.svg",
-            "alt_text": "Mail Online",
-            "logo_height": 17
-          }
-        },
-        "logo-refinery29": {
-          "type": "logo",
-          "settings": {
-            "image": "shopify://shop_images/press-refinery29.svg",
-            "alt_text": "Refinery29",
-            "logo_height": 39
-          }
-        },
-        "logo-grazia": {
-          "type": "logo",
-          "settings": {
-            "image": "shopify://shop_images/press-grazia.svg",
-            "alt_text": "Grazia",
+            "image": "shopify://shop_images/good_housekeeping_logo_exact_transparent_6000px.png",
+            "alt_text": "",
             "logo_height": 21
           }
         },
-        "logo-womens-health": {
+        "logo_V7BmpD": {
           "type": "logo",
           "settings": {
-            "image": "shopify://shop_images/press-womens-health.svg",
-            "alt_text": "Women's Health",
+            "image": "shopify://shop_images/Womens-Health-Logo.png",
+            "alt_text": "",
+            "logo_height": 21
+          }
+        },
+        "logo_THxTyD": {
+          "type": "logo",
+          "settings": {
+            "image": "shopify://shop_images/Glamour_logo_svg.webp",
+            "alt_text": "",
+            "logo_height": 21
+          }
+        },
+        "logo_ii4Rpb": {
+          "type": "logo",
+          "settings": {
+            "image": "shopify://shop_images/English-Home-Logo-AI-Black-RGB.svg",
+            "alt_text": "",
             "logo_height": 21
           }
         }
       },
       "block_order": [
-        "logo-vogue",
-        "logo-mail-online",
-        "logo-refinery29",
-        "logo-grazia",
-        "logo-womens-health"
+        "logo_ENMBfi",
+        "logo_iRJ4Yj",
+        "logo_V7BmpD",
+        "logo_THxTyD",
+        "logo_ii4Rpb"
       ],
       "settings": {
         "heading": "As seen in",

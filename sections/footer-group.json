@@ -1,45 +1,41 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "type": "footer",
   "name": "Footer",
   "sections": {
     "dev-site-footer": {
       "type": "dev-site-footer",
-      "settings": {
-        "newsletter_heading": "Be the first to know.",
-        "newsletter_subheading": "Stay in touch – only for the good stuff like new launches and offers.",
-        "newsletter_placeholder": "Your Email",
-        "newsletter_button_label": "Subscribe",
-        "brand_tagline": "Nature-based sleep for the everyday.",
-        "address_text": "Monks Way, London, NW11 0AF",
-        "social_heading": "Social",
-        "social_facebook_url": "https://www.facebook.com/",
-        "social_instagram_url": "https://www.instagram.com/",
-        "show_payment_icons": true,
-        "copyright_text": "<p>Copyright © 2026 <a href=\"https://wearelarke.com/\">Larke</a></p>",
-        "background_color": "#FCF5E3",
-        "page_background_color": "#FFFCF4",
-        "text_color": "#333333",
-        "accent_color": "#4EA448",
-        "padding_top": 64,
-        "padding_bottom": 32
-      },
       "blocks": {
         "menu-inside-larke": {
           "type": "footer_menu",
           "settings": {
             "title": "Inside Larke",
+            "menu": "",
             "link_1_label": "Shop Our Duvet",
             "link_1_url": "/products/natures-blend-duvet-copy",
             "link_2_label": "Our Story",
             "link_2_url": "/pages/about?view=our-story",
             "link_3_label": "Discover Tree-Fibre",
-            "link_3_url": "/pages/about?view=tree-fibre"
+            "link_3_url": "/pages/about?view=tree-fibre",
+            "link_4_label": "",
+            "link_4_url": "",
+            "link_5_label": "",
+            "link_5_url": ""
           }
         },
         "menu-help-centre": {
           "type": "footer_menu",
           "settings": {
             "title": "Help Centre",
+            "menu": "",
             "link_1_label": "FAQs",
             "link_1_url": "/pages/faq?view=faq",
             "link_2_label": "Delivery",
@@ -56,7 +52,27 @@
       "block_order": [
         "menu-inside-larke",
         "menu-help-centre"
-      ]
+      ],
+      "settings": {
+        "newsletter_heading": "Be the first to know.",
+        "newsletter_subheading": "Stay in touch – only for the good stuff like new launches and offers.",
+        "newsletter_placeholder": "Your Email",
+        "newsletter_button_label": "Subscribe",
+        "brand_tagline": "Nature-based sleep for the everyday.",
+        "address_text": "Monks Way, London, NW11 0AF",
+        "social_heading": "Social",
+        "social_facebook_url": "https://www.facebook.com/",
+        "social_instagram_url": "https://www.instagram.com/wearelarke/",
+        "copyright_text": "<p>Copyright © 2026 <a href=\"https://wearelarke.com/\">Larke</a></p>",
+        "show_payment_icons": true,
+        "payment_icons_source": "dynamic",
+        "background_color": "#fcf5e3",
+        "page_background_color": "#fffcf4",
+        "text_color": "#333333",
+        "accent_color": "#4ea448",
+        "padding_top": 64,
+        "padding_bottom": 32
+      }
     }
   },
   "order": [
