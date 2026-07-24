@@ -112,12 +112,28 @@
   position: relative; /* anchors .site-header__cart-count */
   padding: var(--spacing-sm);
   border: none;
-  border-radius: var(--radius-icon-btn);
+  /* Clamped to the painted radius (half the 38px box) so the hover morph animates
+     from the value actually drawn — the raw 60px token leaves a clamped dead zone
+     that makes the un-hover snap (same fix as .dev-btn's --dev-btn-pill-r). */
+  border-radius: min(var(--radius-icon-btn), calc(var(--spacing-sm) + var(--icon-size) / 2));
   background: transparent; /* circular hit target only — no visible fill in Figma */
   color: var(--color);
   text-decoration: none;
   appearance: none;
   cursor: pointer;
+  transition:
+    background-color 0.3s ease-out,
+    border-radius 0.3s ease-out;
+}
+
+/* Figma "Tertiary / Icon=Only / Sm" hover: the bare circle takes a cream fill and
+   the corners morph to 16px — the same 300ms ease-out morph as every CTA. */
+@media (hover: hover) {
+  .site-header__menu-toggle:hover,
+  .site-header__cart-toggle:hover {
+    background-color: var(--icon-btn-hover-bg);
+    border-radius: var(--radius-icon-btn-hover);
+  }
 }
 
 .site-header__logo {

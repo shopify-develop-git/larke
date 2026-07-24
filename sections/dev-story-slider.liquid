@@ -50,6 +50,14 @@
     --icon-size: 24px;
     --icon-stroke: 1.4;
 
+    {%- comment -%}
+      Hover — the arrows are "Tertiary / Icon=Only" in the Figma buttons set (61:7492):
+      on hover the bare circle takes a #FCF5E3 fill and its corners morph to 16px,
+      300ms ease-out, same as every other CTA. Fixed design colour, not merchant-tunable.
+    {%- endcomment -%}
+    --button-hover-bg: #fcf5e3;
+    --button-hover-r: 16px;
+
     /* The progress rail is a 2px round-capped line. Figma draws it as a single stroke with a
        hard gradient stop — #262626 up to 21.6%, #DADADA after — i.e. it is a scrollbar THUMB,
        not decoration. So the fill below is computed from real scroll position by the JS, and

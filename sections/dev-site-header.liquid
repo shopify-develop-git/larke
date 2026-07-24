@@ -28,6 +28,14 @@
     --radius-icon-btn: 60px;
     --icon-size: 24px;
 
+    {%- comment -%}
+      Hover — the menu and cart toggles are "Tertiary / Icon=Only / Sm" in the
+      Figma buttons set (61:7492): on hover the bare circle takes a #FCF5E3 fill
+      and its corners morph to 16px, 300ms ease-out, like every other CTA.
+    {%- endcomment -%}
+    --icon-btn-hover-bg: #fcf5e3;
+    --radius-icon-btn-hover: 16px;
+
     /* Two DISTINCT logo assets (Brief note #4), not one scaled by CSS.
        Desktop mark is 140x42 (viewBox 140 42).
        Mobile mark is 110x33.016 (viewBox 110 33.0161) centred in a 124x34 box.

@@ -58,6 +58,16 @@
     /* Fixed, like every other button on the site. No section lets a merchant recolour one. */
     --cta-text-color: #333333;
 
+    {%- comment -%}
+      Hover fill — one cream step down, from the Figma buttons set (61:7492).
+      This tile's "Our Story" is Hierarchy=Secondary (#FFFCF4 -> #FCF5E3 + corner
+      morph) and its play circle is Primary - White (#FFFFFF -> #FFFCF4, corners
+      KEPT — White is the one hierarchy that does not morph). The site's resting
+      fill for both comes from the merchant --accent (#FFFCF4), so both land on
+      the same #FCF5E3 hover step. Fixed design colour, not merchant-tunable.
+    {%- endcomment -%}
+    --btn-hover-bg: #fcf5e3;
+
     /* Play button */
     --play-btn-size: 62px;
     --play-btn-padding: 19px;

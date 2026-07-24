@@ -223,15 +223,24 @@
   justify-content: center;
   padding: var(--button-p);
   border: 0;
-  border-radius: 60px;
+  /* Clamped to the painted radius (half the 62px box) so the hover morph animates
+     from the value actually drawn — a raw 60px leaves a clamped dead zone that
+     makes the un-hover snap (same fix as .dev-btn's --dev-btn-pill-r). */
+  border-radius: min(60px, calc(var(--button-p) + var(--icon-size) / 2));
   background: none;
   color: var(--color);
   cursor: pointer;
-  transition: opacity 0.15s ease-out;
+  transition:
+    opacity 0.15s ease-out,
+    background-color 0.3s ease-out,
+    border-radius 0.3s ease-out;
 }
 
-.story-slider__button:hover {
-  opacity: 0.7;
+/* Figma "Tertiary / Icon=Only" hover: the bare circle takes a cream fill and the
+   60px corners morph to 16px — the same 300ms ease-out morph as every CTA. */
+.story-slider__button:not([disabled]):hover {
+  background-color: var(--button-hover-bg);
+  border-radius: var(--button-hover-r);
 }
 
 /* Both ends of a scroller are reachable states, so the button is disabled rather than hidden —

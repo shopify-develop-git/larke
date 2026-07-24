@@ -86,6 +86,15 @@
   color: var(--cta-text-color);
   cursor: pointer;
   appearance: none;
+  transition: background-color 0.3s ease-out;
+}
+
+/* Figma "Primary - White / Icon=Only" hover: the fill takes one cream step and the
+   circle KEEPS its 60px corners — White is the one hierarchy without the morph. */
+@media (hover: hover) {
+  .video-promo-banner__play:hover {
+    background-color: var(--btn-hover-bg);
+  }
 }
 
 .video-promo-banner__play-icon {
@@ -131,6 +140,10 @@
    needed: the button is centred by __content's flex align-items. */
 .video-promo-banner__button {
   --dev-btn-color: var(--cta-text-color);
+  /* This "Our Story" is Hierarchy=Secondary in Figma, not Primary - Colour: its
+     resting fill is already the cream --accent, so the component's default green
+     hover pair would be wrong here. #FCF5E3 is Secondary's own hover fill. */
+  --dev-btn-bg-hover: var(--btn-hover-bg);
 }
 
 /* --- modal (video lightbox) --- */
