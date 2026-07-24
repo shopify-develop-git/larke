@@ -1133,7 +1133,9 @@
 .dev-main-product__pc-title i::after {
   content: '';
   position: absolute;
-  left: 0;
+  /* Starts 10px before the word: `right` stays put, so the stroke is simply 10px longer on the
+     leading side rather than sliding out from under the word. */
+  left: -10px;
   right: 0;
   top: 100%;
   margin-top: var(--underline-gap);
@@ -1163,16 +1165,7 @@
    take. Its own block, immediately after the rule it overrides, for the reason spelled out above
    .dev-main-product__pc: every earlier <=768 block sits BEFORE this declaration in the file, so at
    equal specificity the base rule would win and the override would silently do nothing. */
-/* The swoosh starts 10px before the word on mobile. Same placement rule as the block above: it has
-   to sit after the base ::after declaration, since every earlier <=768 block is further up the file
-   and would lose on source order at equal specificity. `right` is left alone, so the stroke simply
-   gets 10px longer on the leading side rather than sliding out from under the word. */
 @media (max-width: 768px) {
-  .dev-main-product__pc-title em::after,
-  .dev-main-product__pc-title i::after {
-    left: -10px;
-  }
-
   .dev-main-product__pc-sub {
     font-size: var(--font-sub-size-mobile);
   }
