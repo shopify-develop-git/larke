@@ -330,12 +330,6 @@
                 actually the largest paint — the other slides stay lazy and default.
               endcomment
               assign slide_alt = media.alt | default: product.title | escape
-              assign slide_loading = 'lazy'
-              assign slide_priority = 'auto'
-              if forloop.first
-                assign slide_loading = 'eager'
-                assign slide_priority = 'high'
-              endif
 
               # Which media the lightbox will take. Worked out here rather than in the `if` below
               # because Liquid gives `and` and `or` no precedence and evaluates them right to left —
@@ -370,24 +364,81 @@
                 strip, and it cannot be play()ed from here anyway.
               {%- endcomment -%}
               {%- if media.media_type == 'video' -%}
+                {%- comment -%}
+                  preload: 'none' — every slide is in the DOM at once, and the default
+                  ("metadata") had the hidden video opening its stream on page load, in the
+                  same breath as the LCP image. The poster still paints the frame; the JS
+                  play() on activation is what triggers the real load, exactly when the
+                  buyer arrives on the slide.
+                {%- endcomment -%}
                 {{
                   media
-                  | video_tag: image_size: '1400x', loop: true, muted: true, controls: false, class: 'dev-main-product__media'
+                  | video_tag: image_size: '1400x', loop: true, muted: true, controls: false, preload: 'none', class: 'dev-main-product__media'
                 }}
               {%- elsif media.media_type == 'external_video' -%}
                 {{ media | external_video_tag: class: 'dev-main-product__media' }}
               {%- else -%}
-                {{
-                  media
-                  | image_url: width: 1400
-                  | image_tag:
-                    loading: slide_loading,
-                    fetchpriority: slide_priority,
-                    widths: '668, 1000, 1336, 1400',
-                    sizes: '(max-width: 768px) 100vw, 668px',
-                    alt: slide_alt,
-                    class: 'dev-main-product__media'
-                }}
+                {%- comment -%}
+                  Compression, with the thumbnails' own extension guard: quality is free wins
+                  on jpg/webp sources, but image_url hard-errors with it on a png unless the
+                  format changes too — and webp (unlike jpg) keeps the alpha channel, so a
+                  cut-out product photo on transparency survives. gif is left alone: webp
+                  would freeze an animated source's first frame.
+                {%- endcomment -%}
+                {%- liquid
+                  assign slide_ext = media.preview_image | image_url: width: 1 | split: '?' | first | split: '.' | last | downcase
+                  if slide_ext == 'gif'
+                    assign s668 = media | image_url: width: 668
+                    assign s1000 = media | image_url: width: 1000
+                    assign s1336 = media | image_url: width: 1336
+                    assign s1400 = media | image_url: width: 1400
+                  elsif slide_ext == 'png'
+                    assign s668 = media | image_url: width: 668, format: 'webp', quality: 80
+                    assign s1000 = media | image_url: width: 1000, format: 'webp', quality: 80
+                    assign s1336 = media | image_url: width: 1336, format: 'webp', quality: 80
+                    assign s1400 = media | image_url: width: 1400, format: 'webp', quality: 80
+                  else
+                    assign s668 = media | image_url: width: 668, quality: 80
+                    assign s1000 = media | image_url: width: 1000, quality: 80
+                    assign s1336 = media | image_url: width: 1336, quality: 80
+                    assign s1400 = media | image_url: width: 1400, quality: 80
+                  endif
+                  assign slide_srcset = s668 | append: ' 668w, ' | append: s1000 | append: ' 1000w, ' | append: s1336 | append: ' 1336w, ' | append: s1400 | append: ' 1400w'
+                -%}
+                {%- if forloop.first -%}
+                  <img
+                    src="{{ s1400 }}"
+                    srcset="{{ slide_srcset }}"
+                    sizes="(max-width: 768px) 100vw, 668px"
+                    loading="eager"
+                    fetchpriority="high"
+                    width="{{ media.preview_image.width }}"
+                    height="{{ media.preview_image.height }}"
+                    alt="{{ slide_alt }}"
+                    class="dev-main-product__media"
+                  >
+                {%- else -%}
+                  {%- comment -%}
+                    No src at all — deliberate. loading="lazy" cannot defer these: the slides
+                    are stacked absolutely inside the on-screen stage, so every hidden one
+                    "intersects" the viewport and all of them were downloading at full width
+                    alongside the first paint. The real URLs ride in data-defer-* and the JS
+                    attaches them when the slide is shown (or, for the swipe-is-instant
+                    behaviour the stacking bought, for every slide once the page has loaded
+                    and gone idle).
+                  {%- endcomment -%}
+                  <img
+                    data-defer-src="{{ s1400 }}"
+                    data-defer-srcset="{{ slide_srcset }}"
+                    data-defer-sizes="(max-width: 768px) 100vw, 668px"
+                    loading="lazy"
+                    decoding="async"
+                    width="{{ media.preview_image.width }}"
+                    height="{{ media.preview_image.height }}"
+                    alt="{{ slide_alt }}"
+                    class="dev-main-product__media"
+                  >
+                {%- endif -%}
               {%- endif -%}
 
               {%- comment -%}
@@ -1216,9 +1267,14 @@
                     autoplay a clip with sound. The controls are what let the buyer turn it back on —
                     the muting is a starting state, not a restriction.
                   {%- endcomment -%}
+                  {%- comment -%}
+                    preload: 'none' — this copy sits in a closed <dialog> and was still pulling
+                    its metadata on page load. The lightbox JS play()s it on open, which is
+                    what makes the real load happen.
+                  {%- endcomment -%}
                   {{
                     media
-                    | video_tag: image_size: '2048x', loop: true, muted: true, controls: true, class: 'dev-main-product__zoom-video'
+                    | video_tag: image_size: '2048x', loop: true, muted: true, controls: true, preload: 'none', class: 'dev-main-product__zoom-video'
                   }}
                 {%- else -%}
                   {{

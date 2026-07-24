@@ -26,6 +26,41 @@
 
     let index = 0;
 
+    /* The hidden slides' image URLs ride in data-defer-* — the section file explains why
+       loading="lazy" cannot defer them (stacked absolutely inside the on-screen stage, every
+       hidden slide "intersects" the viewport, so all of them raced the LCP at full width).
+       Attaching the URLs is idempotent: the slide being shown hydrates on demand, and the
+       whole set hydrates together once the page has loaded and the browser has gone idle,
+       which restores the swipe-is-instant preloading the stacking was built for. */
+    function hydrate(slide) {
+      slide.querySelectorAll('img[data-defer-src]').forEach((img) => {
+        if (img.dataset.deferSizes) img.sizes = img.dataset.deferSizes;
+        if (img.dataset.deferSrcset) img.srcset = img.dataset.deferSrcset;
+        img.src = img.dataset.deferSrc;
+        delete img.dataset.deferSrc;
+        delete img.dataset.deferSrcset;
+        delete img.dataset.deferSizes;
+      });
+    }
+
+    function hydrateAll() {
+      slides.forEach(hydrate);
+    }
+
+    function idleHydrate() {
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(hydrateAll, { timeout: 3000 });
+      } else {
+        setTimeout(hydrateAll, 1500);
+      }
+    }
+
+    if (document.readyState === 'complete') {
+      idleHydrate();
+    } else {
+      window.addEventListener('load', idleHydrate, { once: true });
+    }
+
     /* The gallery videos carry no controls — they are muted, looping motion sitting between the
        photos, so the slide the buyer is on is the one that plays and every other one is stopped.
 
@@ -60,6 +95,10 @@
     function show(i) {
       // Wrap around: the artboard draws no disabled arrow, so there is no end to hit.
       index = (i + slides.length) % slides.length;
+
+      // Before anything toggles: a deferred image must be requested the moment its slide is
+      // asked for, or a click that beats the idle hydration lands on an empty frame.
+      hydrate(slides[index]);
 
       // The approval seal vouches for the product, not for every photo: it belongs to the first
       // image only. The server marks slide 0 active with the seal visible, so navigation is the
