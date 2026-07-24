@@ -200,6 +200,7 @@
   data-main-product
   data-cart-add-url="{{ routes.cart_add_url }}"
   data-cart-url="{{ routes.cart_url }}"
+  {% if section.settings.guide_chat_link %}data-guide-chat{% endif %}
 >
   <div class="dev-main-product__inner">
     {%- comment -%} ---------- Gallery ---------- {%- endcomment -%}
@@ -1301,6 +1302,7 @@
     { "type": "text", "id": "tog_label_temp", "label": "Label: temperature", "default": "Temperature:" },
     { "type": "text", "id": "tog_label_feel", "label": "Label: feel", "default": "How it feels over you:" },
     { "type": "text", "id": "tog_label_best", "label": "Label: best for", "default": "Best for:" },
+    { "type": "checkbox", "id": "guide_chat_link", "label": "Open live chat from guide \"chat\" links", "default": true, "info": "A guide-footer link whose sentence mentions \"chat\" opens the store's live chat (Shopify Inbox) instead of navigating. Needs the Inbox chat app embed enabled; without it — or with this unticked — the link follows its own URL." },
 
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },

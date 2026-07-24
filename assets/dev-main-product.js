@@ -379,6 +379,25 @@
     guides.forEach((guide) => {
       guide.addEventListener('click', (event) => {
         if (event.target.closest('[data-guide-close]')) close(guide);
+
+        // "Chat with us" in a guide's footer opens the store's live chat — the
+        // Shopify Inbox app embed's <shopify-chat> element, whose public show()
+        // method opens the panel. Merchant-controlled twice over: the section
+        // setting (data-guide-chat on the root) turns the behaviour off
+        // entirely, and the footer is richtext, so only a link whose sentence
+        // mentions "chat" is hijacked — and only while the widget is actually
+        // on the page; otherwise the link keeps its own href (/pages/contact)
+        // as the no-widget fallback.
+        if (!root.hasAttribute('data-guide-chat')) return;
+        const footLink = event.target.closest('.dev-main-product__guide-foot a');
+        if (footLink && /chat/i.test((footLink.closest('p') || footLink).textContent)) {
+          const chat = document.querySelector('shopify-chat');
+          if (chat && typeof chat.show === 'function') {
+            event.preventDefault();
+            close(guide);
+            chat.show();
+          }
+        }
       });
 
       guide.addEventListener('keydown', (event) => {
