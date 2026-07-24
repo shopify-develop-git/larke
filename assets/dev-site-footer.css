@@ -353,6 +353,8 @@
 }
 
 .site-footer__link {
+  position: relative; /* containing block for the hover underline */
+  display: inline-block; /* gives ::after a real box to anchor to */
   font-size: var(--font-body-sm-size);
   font-weight: 500;
   line-height: var(--font-body-lh);
@@ -360,8 +362,31 @@
   text-decoration: none;
 }
 
-.site-footer__link:hover {
-  text-decoration: underline;
+/* The announcement bar's hover underline, verbatim: the Text link component's
+   tapered stroke as a mask, appearing instantly (the Figma variant swap has no
+   transition). -0.8px mirrors the bar's geometry — there the stroke centre sits
+   0.8px below the 22.4px text box inside the 24px link box; here the
+   inline-block IS the text box, so the offset is written out. */
+.site-footer__link::after {
+  content: "";
+  position: absolute;
+  left: var(--link-underline-inset);
+  right: var(--link-underline-inset);
+  bottom: calc(-0.8px - var(--link-underline-h) / 2);
+  height: var(--link-underline-h);
+  background-color: var(--link-underline-color);
+  -webkit-mask-image: var(--link-underline-svg);
+  mask-image: var(--link-underline-svg);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  opacity: 0;
+}
+
+.site-footer__link:hover::after,
+.site-footer__link:focus-visible::after {
+  opacity: 1;
 }
 
 .site-footer__copyright {

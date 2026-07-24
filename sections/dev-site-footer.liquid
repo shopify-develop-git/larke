@@ -54,6 +54,18 @@
     --font-button-size: 18px;
     --font-button-weight: 700;
 
+    {%- comment -%}
+      Menu-link hover underline — the same "Text link" hover variant as the
+      announcement bar (Figma 45201:1588): a tapered 1.4px hand-drawn stroke,
+      #666666, inset 8px from each end of the label, applied as a mask so the
+      colour stays a CSS token. The SVG is this section's own copy of the
+      export (preserveAspectRatio="none", stretches to any label width).
+    {%- endcomment -%}
+    --link-underline-svg: url('{{ 'dev-site-footer-underline.svg' | asset_url }}');
+    --link-underline-h: 1.4px;
+    --link-underline-inset: 8px;
+    --link-underline-color: #666666;
+
     /* newsletter form */
     --input-bg: #ffffff;
     --input-padding: 18px 24px;
