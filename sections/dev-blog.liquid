@@ -133,11 +133,12 @@
               word count as the fallback. Three surfaces, one number.
             {%- endcomment -%}
             {%- capture read_minutes -%}{%- render 'dev-article-read-time', article: article -%}{%- endcapture -%}
+            {%- capture article_byline -%}{%- render 'dev-article-author', article: article -%}{%- endcapture -%}
 
             {%- liquid
               assign card_meta = read_minutes | append: ' ' | append: section.settings.read_time_label
-              if article.author != blank
-                assign card_meta = card_meta | append: ' ㆍ' | append: section.settings.author_prefix | append: ' ' | append: article.author
+              if article_byline != blank
+                assign card_meta = card_meta | append: ' ㆍ' | append: section.settings.author_prefix | append: ' ' | append: article_byline
               endif
 
               assign card_badge = article.tags | first
