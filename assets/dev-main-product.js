@@ -22,6 +22,7 @@
     const thumbs = Array.from(root.querySelectorAll('[data-thumb]'));
     const prev = root.querySelector('[data-prev]');
     const next = root.querySelector('[data-next]');
+    const gallery = root.querySelector('.dev-main-product__gallery');
 
     let index = 0;
 
@@ -59,6 +60,14 @@
     function show(i) {
       // Wrap around: the artboard draws no disabled arrow, so there is no end to hit.
       index = (i + slides.length) % slides.length;
+
+      // The approval seal vouches for the product, not for every photo: it belongs to the first
+      // image only. The server marks slide 0 active with the seal visible, so navigation is the
+      // only time this state can change — and show() is every navigation path (arrows, thumbs,
+      // and the lightbox's zoom-select).
+      if (gallery) {
+        gallery.classList.toggle('dev-main-product__gallery--off-first', index !== 0);
+      }
 
       slides.forEach((slide, n) => {
         slide.classList.toggle('dev-main-product__slide--active', n === index);

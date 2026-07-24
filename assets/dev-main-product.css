@@ -211,6 +211,13 @@
   border-radius: var(--thumb-radius);
 }
 
+/* The seal shows on the FIRST slide only — the class arrives from show() in the JS whenever the
+   gallery moves off slide 0. Without JS the class never appears and the seal simply stays, which
+   is the right failure: a visible award beats a vanished one. */
+.dev-main-product__gallery--off-first .dev-main-product__seal {
+  display: none;
+}
+
 .dev-main-product__arrows {
   position: absolute;
   bottom: 32px;
