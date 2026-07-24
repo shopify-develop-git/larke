@@ -55,6 +55,13 @@
     {{ 'dev-stars.css' | asset_url | stylesheet_tag }}
 
     {%- comment -%}
+      Accessibility patches for markup the theme does not author: video_tag's alt-less
+      fallback <img>, and the untitled utility iframes Shopify injects (web-pixels,
+      dynamic checkout buttons). See the file's header comment.
+    {%- endcomment -%}
+    <script src="{{ 'dev-a11y-patches.js' | asset_url }}" defer></script>
+
+    {%- comment -%}
       NO SCROLL-REVEAL. The theme used to fade + rise every content row into view as it was reached,
       from assets/dev-reveal.{css,js}, loaded here on every page.
 
