@@ -89,6 +89,7 @@
 /* --- buttons / links --- */
 
 .dev-announcement-bar__link {
+  position: relative; /* containing block for the hover underline */
   display: inline-flex;
   align-items: center;
   min-height: var(--link-h);
@@ -101,8 +102,34 @@
   white-space: nowrap;
 }
 
-.dev-announcement-bar__link:hover {
-  text-decoration: underline;
+/* Hover underline from the Text link component's hover variant: a free-standing
+   hand-drawn stroke, not text-decoration — thinner (1.4px at the middle, tapering
+   to ~0.5px at curved ends), lighter (#666666) and 8px shorter at each end than
+   the label. The exported SVG is a MASK so the colour stays a CSS token; it
+   carries preserveAspectRatio="none", which is what lets one 101px export fit
+   every label width. The variant swap in Figma has no transition, so it appears
+   instantly here too. */
+.dev-announcement-bar__link::after {
+  content: "";
+  position: absolute;
+  left: var(--link-underline-inset);
+  right: var(--link-underline-inset);
+  /* Figma centres the 1.4px stroke on the link box's bottom edge */
+  bottom: calc(var(--link-underline-h) / -2);
+  height: var(--link-underline-h);
+  background-color: var(--link-underline-color);
+  -webkit-mask-image: var(--link-underline-svg);
+  mask-image: var(--link-underline-svg);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  opacity: 0;
+}
+
+.dev-announcement-bar__link:hover::after,
+.dev-announcement-bar__link:focus-visible::after {
+  opacity: 1;
 }
 
 /* =============================================

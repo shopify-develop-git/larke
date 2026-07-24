@@ -39,6 +39,21 @@
     --link-h: 24px;
     --divider-w: 1px;
     --divider-h: 18px;
+
+    {%- comment -%}
+      Hover underline — the "Text link" component's hover variant (Figma 45201:1588).
+      Not a straight rule: the exported stroke is a tapered lens, 1.4px in the middle
+      thinning to ~0.5px at softly curved ends, inset 8px from each end of the label,
+      centred on the bottom edge of the 24px link box. The geometry lives in
+      dev-announcement-bar-underline.svg (exported verbatim, preserveAspectRatio="none"
+      so it stretches to each label's width) and is applied as a mask so the colour
+      stays in CSS. #666666 is the variant's own colour, deliberately distinct from
+      the #333333 label — do not unify it with --color.
+    {%- endcomment -%}
+    --link-underline-svg: url('{{ 'dev-announcement-bar-underline.svg' | asset_url }}');
+    --link-underline-h: 1.4px;
+    --link-underline-inset: 8px;
+    --link-underline-color: #666666;
   }
 </style>
 
