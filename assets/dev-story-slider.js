@@ -40,15 +40,18 @@
 
     let setWidth = 0; // ONE set of real tiles, including the gap trailing the last one
 
-    const gap = () => parseFloat(getComputedStyle(track).columnGap) || 0;
+    /* Both cached, re-measured only in layout() (init + resize). They used to be read fresh
+       on every call — and render() runs on every scroll frame, so the getComputedStyle and
+       getBoundingClientRect in there were a forced style/layout resolution in the middle of
+       a scroll. Neither value can change without a resize, which is exactly when layout()
+       re-runs. */
+    let gapPx = 0;
+    let stepWidth = 0;
 
     /* The set has as many gaps as tiles: one between each pair, plus the one between the last tile
        and the first tile of the next copy. Miss that and the seam drifts by a gap every lap. */
     const measureSet = () =>
-      realTiles.reduce((w, tile) => w + tile.getBoundingClientRect().width + gap(), 0);
-
-    const step = () =>
-      realTiles[0] ? realTiles[0].getBoundingClientRect().width + gap() : track.clientWidth;
+      realTiles.reduce((w, tile) => w + tile.getBoundingClientRect().width + gapPx, 0);
 
     /* Enough copies that the middle band [setWidth, 2*setWidth) is reachable: the track must be at
        least one viewport plus two sets wide, or scrollLeft cannot sit in the band and the wrap would
@@ -137,7 +140,7 @@
          It fills to 100% as the fourth tile arrives, then resets: you have come back around, and
          that is exactly what the reset says. */
       const pos = ((track.scrollLeft % setWidth) + setWidth) % setWidth;
-      const read = Math.min(1, (pos + step()) / setWidth);
+      const read = Math.min(1, (pos + stepWidth) / setWidth);
       progress.style.width = read * 100 + '%';
       progress.style.transform = 'translateX(0)';
     }
@@ -146,6 +149,11 @@
        resize: tiles are 407 on desktop and 260 on mobile, so setWidth changes with the breakpoint
        and a stale one would wrap to the wrong pixel. */
     function layout() {
+      // The one place the cached measurements refresh — nothing else may read computed
+      // style or tile rects.
+      gapPx = parseFloat(getComputedStyle(track).columnGap) || 0;
+      stepWidth = realTiles[0] ? realTiles[0].getBoundingClientRect().width + gapPx : track.clientWidth;
+
       if (!canLoop) { render(); return; }
 
       // How far along the story we are, counted in sets, so the same point survives a re-measure.
@@ -171,7 +179,7 @@
          single tile, always shorter than a set, so the whole animation stays inside the track. */
       wrap();
 
-      const delta = direction * step();
+      const delta = direction * stepWidth;
       if (!smoothSupported) {
         track.scrollLeft += delta;
         return;
@@ -267,8 +275,25 @@
     if (next) next.addEventListener('click', () => scrollByStep(1));
 
     /* passive: the handler never calls preventDefault, and saying so keeps scrolling off the
-       main thread. */
-    track.addEventListener('scroll', () => { wrap(); render(); }, { passive: true });
+       main thread. rAF-gated on top: scroll events arrive faster than frames during a drag
+       or momentum, and wrap()+render() only ever need to run once per painted frame — the
+       same queued+rAF pattern as the PDP thumb-scroll indicator. Deferring wrap() a frame is
+       safe: the seam jump is invisible at any scroll position past the threshold, and the
+       drag applies deltas, never absolute offsets. */
+    let scrollQueued = false;
+    track.addEventListener(
+      'scroll',
+      () => {
+        if (scrollQueued) return;
+        scrollQueued = true;
+        requestAnimationFrame(() => {
+          scrollQueued = false;
+          wrap();
+          render();
+        });
+      },
+      { passive: true }
+    );
 
     if ('ResizeObserver' in window) {
       new ResizeObserver(layout).observe(track);

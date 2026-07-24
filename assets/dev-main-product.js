@@ -680,7 +680,7 @@
       // the frame with object-fit, so there are no letterbox bands inside the element to measure
       // around. That is the whole reason for sizing it that way — stock has to reconstruct the
       // contain geometry from naturalWidth/naturalHeight to find the same numbers.
-      const bounds = frame.getBoundingClientRect();
+      const bounds = frameRect();
       const overflowX = Math.max(0, image.clientWidth * scale - bounds.width);
       const overflowY = Math.max(0, image.clientHeight * scale - bounds.height);
 
@@ -695,8 +695,19 @@
 
     /* ---- Gestures (phones only, as in stock) ---- */
 
+    /* The frame is the full-screen lightbox — its rect cannot change in the middle of a touch
+       gesture, yet constrain() and centreOf() run on EVERY touchmove of a pinch or pan, and
+       getBoundingClientRect there forces a synchronous layout right before the transform
+       write. So the rect is measured once per gesture (touchstart) and dropped on touchend;
+       outside a gesture the fallback measures fresh. */
+    let gestureRect = null;
+
+    function frameRect() {
+      return gestureRect || frame.getBoundingClientRect();
+    }
+
     function centreOf() {
-      const bounds = frame.getBoundingClientRect();
+      const bounds = frameRect();
       return { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
     }
 
@@ -768,6 +779,8 @@
         (event) => {
           if (!isPhone()) return;
           if (onVideo(event)) return;
+
+          gestureRect = frame.getBoundingClientRect();
 
           if (event.touches.length === 2) {
             startDistance = touchDistance(event.touches[0], event.touches[1]);
@@ -847,6 +860,18 @@
         },
         { passive: true }
       );
+
+      /* Registered AFTER the gesture touchend above, so the cached rect is still valid inside
+         it (doubleTap measures through frameRect()); dropped once the last finger lifts so a
+         later non-gesture caller can never see a stale rect. */
+      frame.addEventListener(
+        'touchend',
+        (event) => {
+          if (event.touches.length === 0) gestureRect = null;
+        },
+        { passive: true }
+      );
+      frame.addEventListener('touchcancel', () => { gestureRect = null; }, { passive: true });
     }
 
     /* ---- Open / close ---- */

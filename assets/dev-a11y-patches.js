@@ -36,9 +36,27 @@
     });
   }
 
+  /* The observer watches the whole body subtree, and mutations arrive in bursts —
+     a cart-drawer swap or a Judge.me render fires dozens in one frame. Left raw,
+     each burst would run the two document-wide scans above once PER MUTATION
+     BATCH; gated on requestAnimationFrame it runs them at most once per frame,
+     whatever the burst size. Same queued+rAF pattern as the PDP thumb-scroll
+     indicator. The attribute writes in patch() are not childList mutations, so
+     the observer never re-fires on its own work. */
+  var queued = false;
+
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function () {
+      queued = false;
+      patch();
+    });
+  }
+
   function start() {
     patch();
-    new MutationObserver(patch).observe(document.body, { childList: true, subtree: true });
+    new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
   }
 
   if (document.readyState === 'loading') {
