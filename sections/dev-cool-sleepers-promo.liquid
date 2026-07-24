@@ -40,11 +40,15 @@
        over any scale factor (code standards, "Responsive type"). */
     --font-heading-size-mobile: 24px;
     --font-body-size-mobile: 16px;
-    --pt-mobile: 48px;
+    --pt-mobile: 32px;
 
+    /* The banner (everything above the lifestyle image) is trimmed ~20% against the artboard —
+       client call, 2026-07-24: "too imposing". Only the AIR shrinks: the type sizes and the
+       55px logo strip stay exactly as designed. Desktop 286 → 230 (pt 80→48 in the template +
+       these gaps 40→28); mobile follows the same rhythm (pt 48→32, gaps 24→16). */
     --spacing-sm: 8px; /* heading → subheading */
-    --spacing-md: 40px; /* heading block → logos → image */
-    --spacing-md-mobile: 24px;
+    --spacing-md: 28px; /* heading block → logos → image (artboard 40, see trim note) */
+    --spacing-md-mobile: 16px;
     --spacing-lg: 54px; /* lifestyle image horizontal inset (desktop only) */
 
     /* Text frame is a fixed 421.33px centred column on desktop, fluid on mobile. */
