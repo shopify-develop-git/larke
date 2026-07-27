@@ -429,6 +429,21 @@
   opacity: 1;
 }
 
+/* Input Fields, State=Hover: a 1px #666666 stroke on the white box, everything
+   else unchanged. Figma sets strokeAlign INSIDE, so it is an inset shadow rather
+   than a border — a real border would eat 1px of the padding box and shift the
+   16px placeholder. Instant, like the link underline above: the Figma variant
+   swap carries no transition.
+
+   Focus reuses the hover treatment verbatim, so the field reads the same whether
+   it is reached by pointer or by keyboard. Figma's own State=Focssed variant is a
+   heavier 2px #333333; matching hover here is a deliberate override. */
+.site-footer__input:hover,
+.site-footer__input:focus,
+.site-footer__input:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--input-border-color);
+}
+
 /* Only positioning stays local; all visual styling comes from .dev-btn / .dev-btn--ghost. */
 .site-footer__button {
   flex: 0 0 auto;
@@ -685,7 +700,6 @@
 .site-footer__link:focus-visible,
 .site-footer__logo:focus-visible,
 .site-footer__social-link:focus-visible,
-.site-footer__input:focus-visible,
 .site-footer__copyright a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -694,8 +708,16 @@
 .site-footer__link:focus:not(:focus-visible),
 .site-footer__logo:focus:not(:focus-visible),
 .site-footer__social-link:focus:not(:focus-visible),
-.site-footer__input:focus:not(:focus-visible),
 .site-footer__copyright a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* The newsletter input opts out of the shared accent ring above because it
+   carries its own focus indicator — the inset border it shares with hover. Both
+   :focus and :focus-visible are suppressed so the browser's own default ring
+   does not double up on it. */
+.site-footer__input:focus,
+.site-footer__input:focus-visible {
   outline: none;
 }
 

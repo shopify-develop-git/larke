@@ -30,6 +30,11 @@
     --col-gap: clamp(40px, 9.4444vw, 136px);
     --card-w: clamp(280px, 37.0139vw, 533px);
 
+    /* The 1440 artboard less its two 64px insets. Above 1440 the vw terms above have all hit
+       their max, so without this cap the card and gutter would freeze at 533/136 and the form
+       column alone would absorb every extra pixel of viewport. */
+    --container-max: 1312px;
+
     --section-px-mobile: 16px;
     --section-py-mobile: 16px;
     --stack-gap-mobile: 24px;
@@ -89,6 +94,7 @@
     --color: {{ section.settings.text_color }};
     --card-bg: {{ section.settings.card_color }};
     --field-border: {{ section.settings.field_border_color }};
+    --field-border-hover: {{ section.settings.field_border_hover_color }};
     --field-placeholder: {{ section.settings.placeholder_color }};
     --pt: {{ section.settings.padding_top }}px;
     --pb: {{ section.settings.padding_bottom }}px;
@@ -201,7 +207,8 @@
     { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
     { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
     { "type": "color", "id": "card_color", "label": "Card background", "default": "#FCF5E3" },
-    { "type": "color", "id": "field_border_color", "label": "Field border", "default": "#666666" },
+    { "type": "color", "id": "field_border_color", "label": "Field border", "default": "#D8D1C0" },
+    { "type": "color", "id": "field_border_hover_color", "label": "Field border (hover / focus)", "default": "#666666" },
     { "type": "color", "id": "placeholder_color", "label": "Placeholder text", "default": "#666666" },
 
     { "type": "header", "content": "Spacing" },

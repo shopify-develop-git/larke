@@ -12,12 +12,19 @@
 
 /* ---- Split: card left, questions right (Delivery & Returns) ------------- */
 
+/* content-box for the same reason as the centered variant below: --section-px sits on this
+   element, so the cap has to measure the content row on its own. At 1440 the two resolve to
+   1312 + 64x2 = the artboard exactly; past that the row centres instead of stretching. The
+   mobile block already resets max-width/margin-inline for both variants. */
 .dev-policy--split .dev-policy__inner {
   display: flex;
   align-items: flex-start;
   justify-content: center;
   gap: var(--col-gap);
+  max-width: var(--container-max);
+  margin-inline: auto;
   padding: var(--section-py) var(--section-px);
+  box-sizing: content-box;
 }
 
 .dev-policy--split .dev-policy__card {
