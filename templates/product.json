@@ -148,6 +148,7 @@
         "tog_label_temp": "Temperature:",
         "tog_label_feel": "How it feels over you:",
         "tog_label_best": "Best for:",
+        "guide_chat_link": true,
         "background_color": "#fffcf4",
         "text_color": "#333333",
         "accent_color": "#a8cf78",
@@ -262,10 +263,10 @@
         "judge_me_reviews_review_widget_RXkthF": {
           "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
           "settings": {
-            "review_data": "sample_data",
+            "review_data": "real_data",
             "max_width": 1200,
             "show_shop_reviews": false,
-            "empty_state": "empty_widget"
+            "empty_state": "other_products_reviews"
           }
         }
       },
@@ -273,6 +274,7 @@
         "judge_me_reviews_review_widget_RXkthF"
       ],
       "settings": {
+        "load_more_label": "Show More Reviews",
         "background_color": "#fffcf4",
         "text_color": "#333333",
         "card_color": "#fcf5e3",
