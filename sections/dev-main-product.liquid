@@ -1004,10 +1004,28 @@
               point at the SAME entry — the guide is a fact about the product line, not about the
               template it happens to be rendered in.
 
-              Inches are DERIVED, never typed. The entry stores a real dimension (width x length) and
-              the imperial column is computed from it, so the two columns cannot drift apart the way
-              two hand-typed text fields eventually do. The artboard's numbers fall out exactly:
-              135->53, 200->79, 230->91, 220->87, 260->102.
+              Inches come from the entry's own width_in / length_in, NOT from the centimetres.
+
+              This looks like duplicated data and is not. The design's inch column is the published UK
+              duvet chart (53x78, 78x78, 90x87, 102x87), fixed by convention rather than converted:
+              78.74 is printed 78 while 86.61 is printed 87 — a smaller fraction rounding up than one
+              that rounded down. Checked over EVERY conversion factor, not just 1/2.54, and for floor,
+              round and ceil alike the 200cm and 220cm rows demand contradictory factors:
+
+                floor  200->78 needs k < 0.395000 ;  220->87 needs k >= 0.395455
+                round  200->78 needs k < 0.392500 ;  220->87 needs k >= 0.393182
+                ceil   200->78 needs k < 0.390000 ;  220->87 needs k >= 0.390909
+
+              Every mode is empty on that pair alone, so no formula can produce this table. The inch
+              column is a published label; the centimetres are the measurement. Different kinds of
+              fact, hence different fields.
+
+              (An earlier version of this note claimed the artboard's numbers "fall out exactly" from
+              the conversion. They never did — do not restore a formula on the strength of it.)
+
+              Both fields are OPTIONAL. A row that leaves them empty still renders the converted value,
+              so adding a size cannot produce a blank cell — it just needs its chart numbers typed in
+              to match a design.
             {%- endcomment -%}
             <dl class="dev-main-product__size-rows">
               {%- for row in size_guide.rows.value -%}
@@ -1080,6 +1098,18 @@
                         endcase
                         assign wv = w_cm | times: factor | round: dec
                         assign lv = l_cm | times: factor | round: dec
+
+                        # THE INCH COLUMN IS NOT ARITHMETIC — see the note above the <dl>. When the
+                        # entry carries width_in / length_in, those win: they are the published chart,
+                        # which no conversion factor can reproduce. Both must be present, or the row
+                        # would show one typed number beside one computed one.
+                        #
+                        # Every other unit, and any row that leaves these empty, still falls through to
+                        # the conversion above — so adding a size can never render a blank cell.
+                        if u.settings.unit == 'in' and row.width_in.value != blank and row.length_in.value != blank
+                          assign wv = row.width_in.value
+                          assign lv = row.length_in.value
+                        endif
                       -%}
                       <dd class="dev-main-product__size-value" data-unit-value="{{ u.id }}"{% unless forloop.first %} hidden{% endunless %}>{{ wv }} {{ suffix }} x {{ lv }} {{ suffix }}</dd>
                     {%- endfor -%}
