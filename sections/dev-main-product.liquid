@@ -1074,10 +1074,14 @@
                       {%- liquid
                         # The unit type carries its own cm-conversion factor, suffix and rounding, so a
                         # column can never drift from the stored dimension the way a typed value would.
+                        # suffix_gap is the space before the suffix — every unit is a word and takes one,
+                        # except inches, written as the symbol it sits flush against: 53" x 78".
+                        assign suffix_gap = ' '
                         case u.settings.unit
                           when 'in'
                             assign factor = 0.3937008
-                            assign suffix = 'in'
+                            assign suffix = '"'
+                            assign suffix_gap = ''
                             assign dec = 0
                           when 'mm'
                             assign factor = 10.0
@@ -1111,7 +1115,7 @@
                           assign lv = row.length_in.value
                         endif
                       -%}
-                      <dd class="dev-main-product__size-value" data-unit-value="{{ u.id }}"{% unless forloop.first %} hidden{% endunless %}>{{ wv }} {{ suffix }} x {{ lv }} {{ suffix }}</dd>
+                      <dd class="dev-main-product__size-value" data-unit-value="{{ u.id }}"{% unless forloop.first %} hidden{% endunless %}>{{ wv }}{{ suffix_gap }}{{ suffix }} x {{ lv }}{{ suffix_gap }}{{ suffix }}</dd>
                     {%- endfor -%}
                   {%- else -%}
                     {%- comment -%} No unit blocks configured — centimetres so the table still reads. {%- endcomment -%}
