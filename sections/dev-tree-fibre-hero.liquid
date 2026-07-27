@@ -8,8 +8,9 @@
 <style>
   .tree-fibre-hero {
     /* Brand params. The faces themselves are loaded theme-wide by snippets/dev-brand-fonts.liquid —
-       this only selects them. --container-max is deliberately absent: the hero is full-bleed, there
-       is no inner max-width frame (same call as dev-hero / dev-site-header). */
+       this only selects them. --container-max is deliberately absent: there is no inner max-width
+       frame inside the hero — the heading's own column is --text-col-w, and the horizontal inset is
+       --section-px. What IS capped is the whole section box; see --section-max. */
     --section-px: 64px;
     --section-px-m: 16px;
 
@@ -36,6 +37,18 @@
     /* Frame — 550px tall on BOTH artboards (1440x550 desktop, 375x550 mobile). */
     --hero-min-h: 550px;
     --radius-bottom: 32px;
+
+    /* The SECTION BOX, not an inner content frame — the whole hero (photo, scrim and both bottom
+       corners) stops at the desktop artboard's own width and centres past it. Owner's call, and it
+       is a deliberate break from the site's chrome: dev-site-header / dev-site-footer stay
+       full-bleed and cap only their content line with --gutter. Below 1440 nothing changes — the
+       cap is inert and the hero still fills the window, so every artboard width renders exactly as
+       it did (1440 and 375 both verified by QA against Figma).
+
+       Past 1440 the page background shows either side of the hero, so it is `background` on the
+       page/body that fills those stripes, NOT --bg: that one paints the section box and is now
+       clipped to 1440 with it. */
+    --section-max: 1440px;
 
     /* Desktop text column: w-[480px] on the artboard. */
     --text-col-w: 480px;
@@ -251,13 +264,29 @@
           >
         {%- endif -%}
 
+        {%- comment -%}
+          The `(min-width: 1440px) 1440px` term in `sizes` is there because of --section-max: past
+          1440 the box STOPS growing, so a plain 100vw keeps ordering the WINDOW's width for a photo
+          that is no longer that wide. Same form snippets/background-media.liquid already uses.
+
+          It changes the chosen entry on 1x screens, which is where the waste was:
+
+            1920 / DPR 1    2000w -> 1600w
+            2560 / DPR 1    2600w -> 1600w
+
+          At DPR 2 nothing moves — capped or not, the ask (2880 or 3840) is past the top of the
+          ladder and 2600 wins either way. That is the ladder being short, not the cap being idle.
+
+          `sizes` takes the FIRST matching term, so the mobile one has to stay first: swap them and
+          every phone silently starts using the 1440 branch.
+        {%- endcomment -%}
         {{
           bg_src
           | image_tag:
             loading: 'eager',
             fetchpriority: 'high',
             widths: '400, 600, 800, 1000, 1200, 1600, 2000, 2200, 2600',
-            sizes: '(max-width: 768px) 112vw, 100vw',
+            sizes: '(max-width: 768px) 112vw, (min-width: 1440px) 1440px, 100vw',
             alt: '',
             class: 'tree-fibre-hero__bg'
         }}

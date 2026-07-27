@@ -25,9 +25,11 @@
 
 /* --- layout --- */
 
-/* No --container-max and no horizontal padding on the wrapper by design: the padding lives on the
-   heading, the track and the controls SEPARATELY, so the track can scroll its tiles out past the
-   right gutter instead of being clipped inside a centred frame. */
+/* No max-width and no horizontal padding on the wrapper by design: the inset lives on the heading,
+   the track and the controls SEPARATELY, so the track can scroll its tiles out past the right
+   gutter instead of being clipped inside a centred frame. That is also why the 1440 cap arrives
+   here as --gutter padding on those three children rather than as a max-width on this element —
+   see the note in the section's <style> block. */
 .story-slider__inner {
   display: flex;
   flex-direction: column;
@@ -46,7 +48,12 @@
   align-items: flex-start;
   gap: var(--gap-tiles);
   margin: 0;
-  padding: 0 var(--section-px);
+
+  /* ASYMMETRIC on purpose. Left is --gutter, so the first tile starts on the same 1312 line as the
+     heading and the rail. Right stays --section-px: it is the scroll-END inset, not a cap, and the
+     tiles are meant to run off that edge unbounded. Give this side --gutter and the row stops
+     304px short of the window at 1920, which is the centred frame this section exists to avoid. */
+  padding: 0 var(--section-px) 0 var(--gutter);
   list-style: none;
 
   overflow-x: auto;
@@ -137,7 +144,8 @@
 
 .story-slider__heading {
   margin: 0;
-  padding: 0 var(--section-px);
+  /* Contained content — takes the gutter on both sides, unlike the track. */
+  padding: 0 var(--gutter);
 
   font-family: var(--font-heading);
   font-size: var(--font-heading-size);
@@ -173,7 +181,9 @@
   flex-direction: row;
   align-items: center;
   gap: var(--gap-controls);
-  padding: 0 var(--section-px);
+  /* Both sides: the rail is contained content, so it ends on the 1312 line rather than tracking
+     the window. The arrows stay flush to that right edge. */
+  padding: 0 var(--gutter);
 }
 
 /* The rail is the scrollbar the track no longer draws. Figma renders it as one 2px round-capped

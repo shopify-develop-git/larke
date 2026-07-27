@@ -5,10 +5,28 @@
 <style>
   .story-slider {
     /* Brand params. The faces are loaded theme-wide by snippets/dev-brand-fonts.liquid; this
-       only selects them. No --container-max: the track is deliberately full-bleed so tiles can
-       scroll out past the right gutter — the only inset is --section-px. */
+       only selects them. */
     --section-px: 64px;
     --section-px-m: 16px;
+
+    /* A GUTTER, not a max-width, and here that distinction is doing real work. The track has to
+       stay full-bleed — tiles scrolling out past the right edge IS the section — so a centred
+       1312 box is exactly what it must not become: that would clip the row 304px short of the
+       window at 1920 and leave dead cream where the next tile should be sliding in.
+
+       So the cap is applied as padding, and only on the LEFT of the track. The heading and the
+       controls take it on both sides (they are ordinary contained content); the track takes it
+       left-only and keeps --section-px as its right-hand scroll-end inset. Result: everything
+       starts on the same 1312 line, and the tiles still run off the right edge unbounded.
+
+         1440   max(64,  64)  ->  64   unchanged
+         1920   max(64, 304)  -> 304   heading, first tile and rail all on the 1312 line
+         1100   max(64, -106) ->  64   unchanged
+
+       Mobile never sees it — that breakpoint re-declares both paddings as --section-px-m and
+       hides the controls entirely. */
+    --container-max: 1312px;
+    --gutter: max(var(--section-px), (100% - var(--container-max)) / 2);
 
     /* Typography. Desktop/Title 3 -> Mobile/Title 3 (32 -> 24); the mobile artboard states its
        own size, so it wins over a scale factor. Captions are Body/Lg (18) -> Body/Md (16). */
