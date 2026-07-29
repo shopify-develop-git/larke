@@ -1,5 +1,18 @@
 {{ 'dev-brand-social-gallery.css' | asset_url | stylesheet_tag }}
-{%- comment -%} No JS: Brief → Interactivity: none. Static badge + 4-image gallery grid. {%- endcomment -%}
+{%- comment -%}
+  No JS of our own: Brief → Interactivity: none. Static badge + 4-image gallery grid.
+
+  The grid has two modes and the geometry is identical in both:
+    1. gallery_image blocks — four merchant-picked photos (the original design).
+    2. an @app block — the LIVE feed from "Instafeed - Instagram Feed" (Mintt Studio),
+       a Shopify 2.0 theme app extension that renders into its own #insta-feed element.
+  Either way the children sit inside .brand-social-gallery__grid, so the 2px gap,
+  overflow:hidden and 32px radius still fuse them into ONE rounded slab.
+
+  App blocks render inline in the page DOM (no iframe), so this theme's stylesheet can
+  reach #insta-feed directly — the app's own "Custom HTML code" box is only needed as a
+  last resort if the app ever ships higher-specificity styles of its own.
+{%- endcomment -%}
 
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
@@ -47,6 +60,34 @@
     /* Profile badge: a single full 58px circle — ring and content are one image,
        no longer split into a ring layer + inset mark. */
     --badge-size: 58px;
+
+    /* --- Instafeed app-block tokens -----------------------------------------------
+       Consumed by dev-brand-social-gallery.css. THE NAMES ARE A CONTRACT — the CSS
+       owns the rules, this file owns the numbers; renaming one silently drops a rule.
+
+       Why a min-height exists at all: Instafeed fetches and injects its posts
+       CLIENT-SIDE (the item markup is NOT in the server HTML). Between first paint
+       and the app's 'instafeedAppLoaded' event, #insta-feed is an EMPTY element
+       inside a flex row with nothing to give it height, so the 32px slab collapses
+       to 0 and then pops open — a full-width layout shift on every cold load.
+       Reserving exactly the height the four static tiles occupied makes the swap
+       cost nothing. */
+
+    /* Identical derivation to .brand-social-gallery__tile: 4 across the 953px grid
+       with three 2px gaps → (953 - 3×2) / 4 = 236.75. Floored to 236 so the
+       reservation can never exceed what finally renders — over-reserving leaves a
+       dead strip inside the slab, under-reserving costs at most 0.75px. */
+    --app-tile-min-h: 236px;
+
+    /* Mobile 2-up on the 375 artboard, one 2px gap → (375 - 2) / 2 = 186.5, floored
+       for the same reason. Same number as the ≤768px tile (Brief note #4's 186.5px
+       belongs HERE, on mobile — never on desktop). */
+    --app-tile-min-h-mobile: 186px;
+
+    /* Column counts, so the CSS can size the app's own items without re-deriving the
+       artboard: 4 across at 1440, 2 across at 375 — matching the static tiles. */
+    --app-cols: 4;
+    --app-cols-mobile: 2;
   }
 </style>
 
@@ -130,32 +171,108 @@
       {%- endif -%}
     </div>
 
+    {%- comment -%}
+      "Is one of these blocks the Instagram feed?" has to be answered BEFORE the render
+      loop starts, because block #1 (a photo) needs to know about block #5 (the feed) in
+      order to decide whether to draw itself — and by the time the loop reaches #5 it has
+      already emitted #1. Liquid has no `any?` predicate, so the boolean has to be built by
+      walking the blocks once, up front, before a single tile is printed. `break` leaves the
+      loop the moment it finds the feed.
+    {%- endcomment -%}
+    {%- liquid
+      assign has_app_block = false
+      for block in section.blocks
+        if block.type == '@app'
+          assign has_app_block = true
+          break
+        endif
+      endfor
+
+      assign hide_static_images = false
+      if has_app_block and section.settings.hide_static_when_app
+        assign hide_static_images = true
+      endif
+    -%}
+
     {%- if section.blocks.size > 0 -%}
       <div class="brand-social-gallery__grid">
         {%- for block in section.blocks -%}
-          <figure class="brand-social-gallery__tile" {{ block.shopify_attributes }}>
-            {%- if block.settings.image != blank -%}
-              {%- liquid
-                assign tile_src = block.settings.image | image_url: width: 800
-                assign tile_alt = block.settings.alt | default: block.settings.image.alt | escape
-              -%}
-              {{
-                tile_src
-                | image_tag:
-                  loading: 'lazy',
-                  widths: '200, 300, 400, 600, 800',
-                  sizes: '(min-width: 769px) 20vw, 50vw',
-                  alt: tile_alt,
-                  class: 'brand-social-gallery__image'
-              }}
-            {%- endif -%}
-          </figure>
+          {%- case block.type -%}
+            {%- when 'gallery_image' -%}
+              {%- comment -%}
+                Unchanged from the static design. Skipped — not deleted — once the live
+                feed is in place and the merchant has left `hide_static_when_app` on, so
+                the four photos survive in the editor as a fallback if the app is removed.
+              {%- endcomment -%}
+              {%- unless hide_static_images -%}
+                <figure class="brand-social-gallery__tile" {{ block.shopify_attributes }}>
+                  {%- if block.settings.image != blank -%}
+                    {%- liquid
+                      assign tile_src = block.settings.image | image_url: width: 800
+                      assign tile_alt = block.settings.alt | default: block.settings.image.alt | escape
+                    -%}
+                    {{
+                      tile_src
+                      | image_tag:
+                        loading: 'lazy',
+                        widths: '200, 300, 400, 600, 800',
+                        sizes: '(min-width: 769px) 20vw, 50vw',
+                        alt: tile_alt,
+                        class: 'brand-social-gallery__image'
+                    }}
+                  {%- endif -%}
+                </figure>
+              {%- endunless -%}
+
+            {%- when '@app' -%}
+              {%- comment -%}
+                The Instafeed app block. A bare `render block` is the ONLY supported way to
+                output one — `block` here is not a snippet name and takes no arguments.
+
+                The wrapper exists so the theme has a stable hook of its own: the app owns
+                everything from #insta-feed down, and we own .brand-social-gallery__app.
+                It is what carries --app-tile-min-h (see the token block above) and what
+                the CSS uses to force whatever the app renders back onto our 4-up / 2-up,
+                2px-gap geometry so the feed lands inside the same rounded slab.
+
+                UNVERIFIED, and it must stay that way in the comments until someone checks:
+                the app injects post markup client-side, so its per-item class names could
+                not be inspected. The two anchors that CANNOT rot are the documented
+                container id `#insta-feed` and the fact that every post links to
+                instagram.com (a[href*="instagram.com"]); anything more specific than those
+                is a guess and is labelled as one in the CSS. To verify: load the page,
+                wait for the document event 'instafeedAppLoaded', then inspect the children
+                of #insta-feed and record the real class names here.
+              {%- endcomment -%}
+              <div class="brand-social-gallery__app" {{ block.shopify_attributes }}>
+                {% render block %}
+              </div>
+          {%- endcase -%}
         {%- endfor -%}
       </div>
     {%- endif -%}
   </div>
 </div>
 
+{%- comment -%}
+  Schema notes — they live OUT here because the schema block below must stay strictly valid
+  JSON (no comments, no trailing commas), so there is nowhere inside it to explain itself.
+
+  1. "blocks" now contains { "type": "@app" }. Shopify only offers app blocks in the theme
+     editor for a section whose schema declares @app; without that line the Instafeed block
+     simply never appears in the "Add block" list. "gallery_image" is untouched.
+
+  2. "max_blocks" went 4 → 5 ON PURPOSE. DO NOT PUT IT BACK. An app block counts against the
+     same budget as the photos, so at 4 the preset's four gallery_image blocks fill the section
+     completely and the merchant physically cannot add the feed — the block limit locks out the
+     very thing this section now exists to host. 5 is the exact ceiling needed: 4 photos + 1
+     feed. It is not "room for a fifth photo" — gallery_image keeps its own "limit": 4.
+
+  3. The preset still ships four gallery_image blocks and no app block: app blocks cannot be
+     declared in a preset, so the merchant adds the Instafeed block by hand in the editor. The
+     photos are what a freshly-added section shows until they do, which is also why
+     hide_static_when_app defaults to true — the swap then happens the moment the app arrives.
+{%- endcomment -%}
 {% schema %}
 {
   "name": "Brand social gallery",
@@ -175,6 +292,15 @@
       "id": "profile_badge_logo",
       "label": "Profile badge",
       "info": "58×58 circle — the whole badge is one image. Falls back to the Figma vector when empty."
+    },
+
+    { "type": "header", "content": "Instagram feed" },
+    {
+      "type": "checkbox",
+      "id": "hide_static_when_app",
+      "label": "Hide static images when the Instagram feed block is present",
+      "default": true,
+      "info": "Add the Instafeed app block to this section to show the live feed. Leave this on and the four gallery images stay saved but hidden, so removing the app brings them straight back."
     },
 
     { "type": "header", "content": "Colors" },
@@ -214,9 +340,10 @@
         { "type": "image_picker", "id": "image", "label": "Image" },
         { "type": "text", "id": "alt", "label": "Alt text", "info": "Describes the photo for screen readers." }
       ]
-    }
+    },
+    { "type": "@app" }
   ],
-  "max_blocks": 4,
+  "max_blocks": 5,
   "presets": [
     {
       "name": "Brand social gallery",

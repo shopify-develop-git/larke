@@ -1,12 +1,64 @@
-{%- liquid
-  assign compare = product.metafields.larke.compare.value
-  assign competitors = compare.competitors.value
--%}
-{%- if compare != blank and competitors.size > 0 -%}
+{%- comment -%}
+  ============================================================================
+  dev-compare — "How we compare" modal
+  ============================================================================
+
+  DATA SOURCE CHANGED — product.metafields.larke.compare IS NO LONGER READ.
+
+  This section used to render from the product's `larke.compare` metaobject
+  (compare -> competitors -> compare_competitor -> rows -> compare_row) and
+  guarded the whole overlay on that metafield existing. It does not any more.
+  Nothing in this file touches product.metafields.larke.compare, and no code
+  path resurrects it. If you grepped for that metafield and landed here: this
+  note is the answer, the metaobject is dead as far as the storefront is
+  concerned, and you should not wire it back up.
+
+  WHY: the owner asked for a single source of truth that they can edit without
+  leaving the theme editor. Two authoring surfaces (metaobject + section
+  settings) meant the modal could disagree with itself depending on which one
+  was touched last, and a metaobject edit produced no theme diff for review.
+  The competitors are now section BLOCKS, so the live content is committed in
+  templates/product.json, is reviewable in a diff, and is editable in the
+  theme editor by anyone. The overlay is guarded on section.blocks.size
+  instead — a product template with no competitor blocks ships nothing at all,
+  exactly as the metafield guard used to.
+
+  Contract with assets/dev-compare.js (do not rename any of it): #compare-modal,
+  [data-open] on the root, [data-compare-open], [data-compare-close],
+  [data-compare-tab="<key>"], [data-compare-panel="<key>"], .dev-compare__panel,
+  .dev-compare__panel-content, .dev-compare__toggle-indicator, the ARIA tablist
+  roles, aria-selected, tabindex, and [hidden] on inactive panels. Tab and panel
+  keys are the competitor name run through | handleize.
+  ============================================================================
+{%- endcomment -%}
+
+{%- if section.blocks.size > 0 -%}
 {{ 'dev-compare.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'dev-compare.js' | asset_url }}" defer></script>
 
-{%- comment -%} Fixed design tokens from Figma (45075:8383 desktop / 44837:5678 mobile) — not merchant-controlled {%- endcomment -%}
+{%- liquid
+  # Content is theme-authored now (see the note above): heading falls back through the
+  # section setting to a hardcoded string so the modal can never render an empty <h2>.
+  assign heading = section.settings.heading | default: 'How we compare'
+  assign close_label = 'actions.close' | t
+  assign backdrop_opacity = section.settings.backdrop_opacity | divided_by: 100.0
+  assign is_open = section.settings.open_on_load
+
+  # Competitor wordmark treatment. The 100.0 is load-bearing: `divided_by: 100` is
+  # INTEGER division in Liquid and every value below 100 collapses to 0, which would
+  # render brightness(0) — a solid black rectangle where the logo should be.
+  assign logo_comp_brightness = 100 | minus: section.settings.comp_logo_darkness | divided_by: 100.0
+  assign logo_comp_grayscale = 0
+  if section.settings.comp_logo_desaturate
+    assign logo_comp_grayscale = 1
+  endif
+-%}
+
+{%- comment -%}
+  Design tokens from Figma (45075:8383 desktop / 44837:5678 mobile). Everything here is
+  fixed except the three --logo-comp-* tokens at the bottom, which are merchant-controlled
+  because competitor artwork arrives at whatever lightness the brand publishes.
+{%- endcomment -%}
 <style>
   .dev-compare {
 
@@ -71,19 +123,25 @@
 
     /* Toggle-indicator slide only. */
     --transition: 300ms;
+
+    /* --- Competitor wordmark treatment (merchant-controlled) ---------------------
+       Competitor logos are supplied as the brands' own full-colour marks. In the Figma
+       comp they read as flat dark grey, so they sit visually *behind* the Larke mark
+       instead of competing with it — and so three unrelated brand palettes don't turn
+       the panel into a colour clash. Both knobs are settings because every brand's
+       artwork starts at a different lightness: a mark that is already near-black needs
+       0% darkness, a pale one needs 70%+.
+         --logo-comp-grayscale  1 = desaturate, 0 = leave the brand colours alone
+         --logo-comp-brightness computed above; darkness 55% → 0.45 */
+    --logo-comp-grayscale: {{ logo_comp_grayscale }};
+    --logo-comp-brightness: {{ logo_comp_brightness }};
+    /* Fixed, not a setting: dimming a wordmark also flattens its internal contrast, so
+       thin letterforms and tight counters smear together. A small constant contrast bump
+       buys that legibility back at every brightness we allow, and exposing it would just
+       be one more way to break the logos. */
+    --logo-comp-contrast: 1.1;
   }
 </style>
-
-{%- liquid
-  # Data comes from the product's larke.compare metaobject (compare → competitors →
-  # compare_competitor → rows → compare_row). Mirrors the size/season guide wiring.
-  # The whole overlay (assets included) is guarded above on the metafield existing, like
-  # dev-promo-bar guards its own tag — a product without the metafield ships nothing.
-  assign heading = compare.title.value | default: section.settings.heading | default: 'How we compare'
-  assign close_label = 'actions.close' | t
-  assign backdrop_opacity = section.settings.backdrop_opacity | divided_by: 100.0
-  assign is_open = section.settings.open_on_load
--%}
 
 {%- comment -%} Reusable inline icons (Figma Icon/Outline/check-circle + x-circle, stroke-width 1.4). {%- endcomment -%}
 {%- capture icon_check -%}
@@ -129,11 +187,22 @@
 
     <div class="dev-compare__body">
       <div class="dev-compare__inner">
-        {%- comment -%} Segmented toggle — one competitor active at a time; the white indicator slides. {%- endcomment -%}
+        {%- comment -%}
+          Segmented toggle — one competitor active at a time; the white indicator slides.
+          The tab loop and the panel loop below MUST derive `key` identically: it is the id
+          glue (compare-tab-<key> / compare-panel-<key>) that dev-compare.js pairs on.
+          A blank name would handleize to '' and produce duplicate ids across blocks, so a
+          positional fallback keeps every block addressable even while it is being authored.
+        {%- endcomment -%}
         <div class="dev-compare__toggle" role="tablist" aria-label="Compare Larke against">
           <span class="dev-compare__toggle-indicator" aria-hidden="true"></span>
-          {%- for competitor in competitors -%}
-            {%- assign key = competitor.name.value | handleize -%}
+          {%- for block in section.blocks -%}
+            {%- liquid
+              assign key = block.settings.name | handleize
+              if key == blank
+                assign key = 'competitor-' | append: forloop.index
+              endif
+            -%}
             <button
               type="button"
               class="dev-compare__toggle-btn"
@@ -144,13 +213,30 @@
               aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
               tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
             >
-              {{- competitor.name.value | escape -}}
+              {{- block.settings.name | default: 'Competitor' | escape -}}
             </button>
           {%- endfor -%}
         </div>
 
-        {%- for competitor in competitors -%}
-          {%- assign key = competitor.name.value | handleize -%}
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign key = block.settings.name | handleize
+            if key == blank
+              assign key = 'competitor-' | append: forloop.index
+            endif
+            assign comp_name = block.settings.name | default: 'Competitor'
+
+            # Logo: an uploaded override always wins, otherwise fall back to one of the
+            # wordmarks bundled in /assets. image_picker gives an Image drop, which needs
+            # image_url; the bundled files are plain theme assets, which need asset_url —
+            # the two are not interchangeable, hence the branch rather than one filter.
+            assign comp_logo_src = ''
+            if block.settings.logo != blank
+              assign comp_logo_src = block.settings.logo | image_url: width: 220
+            elsif block.settings.logo_asset != blank
+              assign comp_logo_src = block.settings.logo_asset | asset_url
+            endif
+          -%}
           <div
             class="dev-compare__panel-content"
             role="tabpanel"
@@ -158,44 +244,64 @@
             data-compare-panel="{{ key }}"
             aria-labelledby="compare-tab-{{ key }}"
             {% unless forloop.first %}hidden{% endunless %}
+            {{ block.shopify_attributes }}
           >
             <div class="dev-compare__logos">
               <span class="dev-compare__logo dev-compare__logo--larke">
                 <img src="{{ 'dev-compare-logo-larke.svg' | asset_url }}" width="110" height="33" alt="Larke" loading="lazy">
               </span>
               <span class="dev-compare__logo dev-compare__logo--comp">
-                {%- assign comp_logo = competitor.logo.value -%}
-                {%- if comp_logo != blank -%}
-                  {%- comment -%} File field: an image file (MediaImage) uses image_url; a non-image
-                    generic file exposes .url. image_url wins on `shopify theme dev`, where a
-                    GenericFile's .url renders as a broken relative `files/…` path. {%- endcomment -%}
-                  {%- if comp_logo.media_type == 'image' or comp_logo.width != blank -%}
-                    <img src="{{ comp_logo | image_url: width: 220 }}" width="110" height="33" alt="{{ competitor.name.value | escape }}" loading="lazy">
-                  {%- else -%}
-                    <img src="{{ comp_logo.url }}" width="110" height="33" alt="{{ competitor.name.value | escape }}" loading="lazy">
-                  {%- endif -%}
+                {%- if comp_logo_src != blank -%}
+                  <img src="{{ comp_logo_src }}" width="110" height="33" alt="{{ comp_name | escape }}" loading="lazy">
                 {%- endif -%}
               </span>
             </div>
 
+            {%- comment -%}
+              Four fixed row slots. The LABEL is a section setting (all competitors compare on
+              the same four axes, so the labels are authored once), the VALUES are per block.
+              Both are read by bracket access on a key built from the loop index — four
+              near-identical copies of this markup was the alternative.
+              A row whose Larke *and* competitor values are both blank is skipped entirely, so
+              a competitor with only three meaningful rows doesn't render a hollow fourth.
+            {%- endcomment -%}
             <div class="dev-compare__rows">
-              {%- for row in competitor.rows.value -%}
+              {%- for i in (1..4) -%}
+                {%- liquid
+                  assign k_label = 'row_' | append: i | append: '_label'
+                  assign k_larke = 'r' | append: i | append: '_larke'
+                  assign k_badge = 'r' | append: i | append: '_badge'
+                  assign k_comp = 'r' | append: i | append: '_comp'
+
+                  assign row_label = section.settings[k_label]
+                  assign row_larke = block.settings[k_larke]
+                  assign row_badge = block.settings[k_badge]
+                  assign row_comp = block.settings[k_comp]
+                -%}
+                {%- if row_larke == blank and row_comp == blank -%}
+                  {%- continue -%}
+                {%- endif -%}
                 <div class="dev-compare__row">
-                  <p class="dev-compare__row-label">{{ row.label.value | escape }}</p>
+                  <p class="dev-compare__row-label">{{ row_label | escape }}</p>
                   <div class="dev-compare__cells">
                     <div class="dev-compare__cell dev-compare__cell--larke">
                       <div class="dev-compare__cell-main">
                         {{ icon_check }}
-                        <p class="dev-compare__value">{{ row.larke_value.value | escape }}</p>
+                        <p class="dev-compare__value">{{ row_larke | escape }}</p>
                       </div>
-                      {%- if row.larke_badge.value != blank -%}
-                        <span class="dev-compare__badge">{{ row.larke_badge.value | escape }}</span>
+                      {%- comment -%}
+                        The badge span is only emitted when it has text. It is an outlined pill,
+                        so an empty one is not invisible — it renders as a bare 1px rectangle,
+                        which is exactly the artefact in the client's mockup.
+                      {%- endcomment -%}
+                      {%- if row_badge != blank -%}
+                        <span class="dev-compare__badge">{{ row_badge | escape }}</span>
                       {%- endif -%}
                     </div>
                     <div class="dev-compare__cell dev-compare__cell--comp">
                       <div class="dev-compare__cell-main">
                         {{ icon_x }}
-                        <p class="dev-compare__value dev-compare__value--comp">{{ row.competitor_value.value | escape }}</p>
+                        <p class="dev-compare__value dev-compare__value--comp">{{ row_comp | escape }}</p>
                       </div>
                     </div>
                   </div>
@@ -203,8 +309,21 @@
               {%- endfor -%}
             </div>
 
-            {%- if competitor.footnote.value != blank -%}
-              <p class="dev-compare__footnote">{{ competitor.footnote.value | escape }}</p>
+            {%- comment -%}
+              Two footnote lines, each its own <p> so they wrap and space as separate
+              paragraphs rather than one run of text broken by a <br>. The wrapper is only
+              emitted when at least one line has content — an empty flex container still
+              contributes its parent's 24px gap and would leave a visible hole under the rows.
+            {%- endcomment -%}
+            {%- if block.settings.footnote_1 != blank or block.settings.footnote_2 != blank -%}
+              <div class="dev-compare__footnotes">
+                {%- if block.settings.footnote_1 != blank -%}
+                  <p class="dev-compare__footnote">{{ block.settings.footnote_1 | escape }}</p>
+                {%- endif -%}
+                {%- if block.settings.footnote_2 != blank -%}
+                  <p class="dev-compare__footnote">{{ block.settings.footnote_2 | escape }}</p>
+                {%- endif -%}
+              </div>
             {%- endif -%}
           </div>
         {%- endfor -%}
@@ -214,13 +333,34 @@
 </div>
 {%- endif -%}
 
+{%- comment -%}
+  The preset deliberately ships ZERO blocks. Dropping this section onto a template gives an
+  empty (and therefore invisible) modal on purpose: the real competitor content — Woolroom,
+  R&F, Simba, with the priced-and-dated claims — lives in templates/product.json, where it is
+  committed, diffable and reviewable. Starter blocks here would be a second, silently stale
+  copy of legally-sensitive comparative pricing, and whichever one a merchant edited would be
+  the wrong one. Copy from templates/product.json instead.
+
+  Note also: the schema tag below must be STRICTLY valid JSON — no comments, no trailing
+  commas — which is why this explanation sits outside it.
+{%- endcomment -%}
 {% schema %}
 {
   "name": "How we compare",
   "tag": "section",
   "settings": [
     { "type": "header", "content": "Content" },
-    { "type": "text", "id": "heading", "label": "Heading", "default": "How we compare", "info": "Fallback only — the visible title comes from the product's Compare metaobject." },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "How we compare", "info": "The modal title." },
+
+    { "type": "header", "content": "Row labels" },
+    { "type": "text", "id": "row_1_label", "label": "Row 1 label", "default": "Price" },
+    { "type": "text", "id": "row_2_label", "label": "Row 2 label", "default": "Filling" },
+    { "type": "text", "id": "row_3_label", "label": "Row 3 label", "default": "Free Trial" },
+    { "type": "text", "id": "row_4_label", "label": "Row 4 label", "default": "Warranty" },
+
+    { "type": "header", "content": "Competitor logos" },
+    { "type": "range", "id": "comp_logo_darkness", "min": 0, "max": 90, "step": 5, "unit": "%", "label": "Competitor logo darkness", "default": 55, "info": "Dims competitor wordmarks so they sit behind the Larke mark. 0% leaves the artwork as supplied." },
+    { "type": "checkbox", "id": "comp_logo_desaturate", "label": "Desaturate competitor logos", "default": true, "info": "Strips brand colour so three unrelated palettes don't clash." },
 
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
@@ -231,8 +371,55 @@
     { "type": "header", "content": "Layout" },
     { "type": "checkbox", "id": "open_on_load", "label": "Open on page load", "default": false, "info": "Preview only — lets the modal be designed in the editor. Leave off in production." }
   ],
+  "blocks": [
+    {
+      "type": "competitor",
+      "name": "Competitor",
+      "limit": 5,
+      "settings": [
+        { "type": "text", "id": "name", "label": "Name", "info": "Shown on the toggle. Also generates the tab/panel ids — keep it unique." },
+        { "type": "image_picker", "id": "logo", "label": "Logo override", "info": "Optional. Overrides the bundled logo below." },
+        {
+          "type": "select",
+          "id": "logo_asset",
+          "label": "Bundled logo",
+          "default": "",
+          "options": [
+            { "value": "", "label": "None" },
+            { "value": "dev-compare-logo-woolroom.svg", "label": "Woolroom" },
+            { "value": "dev-compare-logo-rise-and-fall.svg", "label": "Rise & Fall" },
+            { "value": "dev-compare-logo-simba.svg", "label": "Simba" }
+          ]
+        },
+
+        { "type": "header", "content": "Row 1" },
+        { "type": "text", "id": "r1_larke", "label": "Larke value" },
+        { "type": "text", "id": "r1_badge", "label": "Badge", "info": "Leave blank to hide the badge." },
+        { "type": "text", "id": "r1_comp", "label": "Competitor value" },
+
+        { "type": "header", "content": "Row 2" },
+        { "type": "text", "id": "r2_larke", "label": "Larke value" },
+        { "type": "text", "id": "r2_badge", "label": "Badge", "info": "Leave blank to hide the badge." },
+        { "type": "text", "id": "r2_comp", "label": "Competitor value" },
+
+        { "type": "header", "content": "Row 3" },
+        { "type": "text", "id": "r3_larke", "label": "Larke value" },
+        { "type": "text", "id": "r3_badge", "label": "Badge", "info": "Leave blank to hide the badge." },
+        { "type": "text", "id": "r3_comp", "label": "Competitor value" },
+
+        { "type": "header", "content": "Row 4" },
+        { "type": "text", "id": "r4_larke", "label": "Larke value" },
+        { "type": "text", "id": "r4_badge", "label": "Badge", "info": "Leave blank to hide the badge." },
+        { "type": "text", "id": "r4_comp", "label": "Competitor value" },
+
+        { "type": "header", "content": "Footnotes" },
+        { "type": "text", "id": "footnote_1", "label": "Footnote line 1" },
+        { "type": "text", "id": "footnote_2", "label": "Footnote line 2", "default": "Valid as of 2026*" }
+      ]
+    }
+  ],
   "presets": [
-    { "name": "How we compare" }
+    { "name": "How we compare", "blocks": [] }
   ]
 }
 {% endschema %}

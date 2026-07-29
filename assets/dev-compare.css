@@ -233,13 +233,46 @@
 .dev-compare__logo {
   display: inline-flex;
   align-items: center;
+  max-height: var(--logo-h);
 }
 
+/* The height cap has to reach the <img> as well, not just the box around it — a cap on the flex
+   parent alone would leave a tall logo overflowing it rather than being resized.
+
+   It works WITH `width: var(--logo-w)` rather than replacing it: for a replaced element the
+   min/max algorithm keeps the intrinsic ratio, so a logo that comes out taller than 33px at 110px
+   wide is scaled down proportionally on both axes instead of being squashed. A wordmark shaped
+   like Larke's is unaffected; a squarish mark lands at 33x33.
+
+   That matters because the competitor logos are merchant uploads at whatever size and ratio the
+   brand publishes, and --logo-w on its own would let a square one render 110px tall and push the
+   row apart. --logo-h was declared for this and until now went unused. */
 .dev-compare__logo img {
   display: block;
   width: var(--logo-w);
   height: auto;
   max-width: 100%;
+  max-height: var(--logo-h);
+}
+
+/* Competitor logos are deliberately shaded down — the brief is for the rival marks to read dark
+   and unappealing next to a full-colour Larke. How far is merchant-tunable: --logo-comp-grayscale
+   and --logo-comp-brightness come off section settings, --logo-comp-contrast is fixed at 1.1 so a
+   heavily darkened wordmark keeps its edges instead of turning to mush. All three are declared in
+   the section's <style> block — consumed here, never redeclared here.
+
+   filter, NOT a mask: these marks are arbitrary merchant uploads and brand SVGs whose
+   transparency cannot be assumed. A mask paints every opaque pixel, so any logo shipped on a
+   filled background — Simba's own wordmark sits on a solid cyan tile — becomes one dark
+   rectangle. A filter only re-maps the pixels that are actually there, so it degrades gracefully
+   across transparent SVGs, tiled PNGs and flat JPEGs alike.
+
+   Scoped to the --comp modifier on purpose: the `.dev-compare__logo img` rule above is shared
+   with `.dev-compare__logo--larke`, so hanging the filter off the base block would grey out our
+   own green mark too. Nothing in this rule can reach the Larke logo. */
+.dev-compare__logo--comp img {
+  filter: grayscale(var(--logo-comp-grayscale)) brightness(var(--logo-comp-brightness))
+    contrast(var(--logo-comp-contrast));
 }
 
 .dev-compare__rows {
@@ -346,9 +379,22 @@
   white-space: nowrap;
 }
 
+/* Two footnote lines now stack under the grid. The 4px is measured off the client's mockup, where
+   the two lines sit slightly further apart than leading alone would put them — a plain <br> or a
+   second line inside one <p> gives var(--body-lh) and reads too tight. */
+.dev-compare__footnotes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-xs); /* 4px */
+  width: 100%;
+}
+
+/* The wrapper now owns the block-level width and the centring, so the footnote itself carries only
+   type. text-align stays: align-items centres the BOX, it does not centre the lines inside a
+   footnote long enough to wrap. */
 .dev-compare__footnote {
   margin: 0;
-  width: 100%;
   font-family: var(--font-body);
   font-size: var(--footnote-size);
   font-weight: var(--weight-medium);
@@ -461,6 +507,21 @@
   outline: none;
 }
 
+/* The shading is a persuasion device, not information — but at the darker end of the range
+   (comp_logo_darkness 70–90%) a competitor wordmark drops to near-black on the cream panel and
+   the mark stops being legible for low-vision users, who then cannot tell WHICH brand they are
+   being compared against. So when the user has asked for more contrast we walk the brightness
+   half-way back towards 1, keeping the intent (still greyed, still duller than Larke) while
+   restoring readable separation. Halved rather than reset, because a full reset would flip the
+   two logos back to visually equal and lose the comparison the section exists to make. */
+@media (prefers-contrast: more) {
+  .dev-compare__logo--comp img {
+    filter: grayscale(var(--logo-comp-grayscale))
+      brightness(calc(var(--logo-comp-brightness) + (1 - var(--logo-comp-brightness)) / 2))
+      contrast(var(--logo-comp-contrast));
+  }
+}
+
 /* =============================================
    REDUCED MOTION
    ============================================= */
@@ -477,6 +538,9 @@
   }
 }
 
+/* Nothing here for the competitor-logo shading: a filter is a static paint operation, it neither
+   animates nor transitions, so prefers-reduced-motion has no opinion on it. Softening it here
+   would be answering a motion preference with a contrast change. */
 @media (prefers-reduced-motion: reduce) {
   /* No motion means no motion: the drawer still opens, it just does not travel to get there. */
   .dev-compare__backdrop,

@@ -282,8 +282,84 @@
     },
     "dev_compare": {
       "type": "dev-compare",
+      "blocks": {
+        "competitor_woolroom": {
+          "type": "competitor",
+          "settings": {
+            "name": "Woolroom",
+            "logo_asset": "dev-compare-logo-woolroom.svg",
+            "r1_larke": "£205",
+            "r1_badge": "24% cheaper",
+            "r1_comp": "£270",
+            "r2_larke": "100% tree-fibre",
+            "r2_badge": "Scent-Free",
+            "r2_comp": "Wool",
+            "r3_larke": "60 nights",
+            "r3_badge": "Twice the trial",
+            "r3_comp": "30 nights",
+            "r4_larke": "5 years",
+            "r4_badge": "+3 years",
+            "r4_comp": "2 years",
+            "footnote_1": "Compared to The Organic Washable Wool Duvet.",
+            "footnote_2": "Valid as of 2026*"
+          }
+        },
+        "competitor_rise_and_fall": {
+          "type": "competitor",
+          "settings": {
+            "name": "R&F",
+            "logo_asset": "dev-compare-logo-rise-and-fall.svg",
+            "r1_larke": "£180",
+            "r1_badge": "18% cheaper",
+            "r1_comp": "£220",
+            "r2_larke": "100% tree-fibre",
+            "r2_badge": "Washable",
+            "r2_comp": "Recycled Down",
+            "r3_larke": "60 nights",
+            "r3_badge": "Twice the trial",
+            "r3_comp": "30 nights",
+            "r4_larke": "5 years",
+            "r4_badge": "+5 years",
+            "r4_comp": "0 years",
+            "footnote_1": "Compared to The Recycled Down Duvet.",
+            "footnote_2": "Valid as of 2026*"
+          }
+        },
+        "competitor_simba": {
+          "type": "competitor",
+          "settings": {
+            "name": "Simba",
+            "logo_asset": "dev-compare-logo-simba.svg",
+            "r1_larke": "£245",
+            "r1_badge": "5% cheaper",
+            "r1_comp": "£259",
+            "r2_larke": "100% tree-fibre",
+            "r2_badge": "Chemical free",
+            "r2_comp": "Microfibre plastic filling",
+            "r3_larke": "60 nights",
+            "r3_badge": "Twice the trial",
+            "r3_comp": "30 nights",
+            "r4_larke": "5 years",
+            "r4_badge": "+4 years",
+            "r4_comp": "1 year",
+            "footnote_1": "Compared to The Hybrid Duvet.",
+            "footnote_2": "Valid as of 2026*"
+          }
+        }
+      },
+      "block_order": [
+        "competitor_woolroom",
+        "competitor_rise_and_fall",
+        "competitor_simba"
+      ],
       "settings": {
         "heading": "How we compare",
+        "row_1_label": "Price",
+        "row_2_label": "Filling",
+        "row_3_label": "Free Trial",
+        "row_4_label": "Warranty",
+        "comp_logo_darkness": 55,
+        "comp_logo_desaturate": true,
         "background_color": "#fffcf4",
         "text_color": "#333333",
         "backdrop_color": "#333333",

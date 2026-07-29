@@ -126,6 +126,258 @@
 /* --- buttons / links --- */
 /* None — Figma shows no link or button affordance on any tile (Brief: Interactivity none). */
 
+/* --- Instafeed app mode — START ------------------------------------------
+
+   The four static tiles above stay the fallback. When the merchant drops the
+   Mintt Studio "Instafeed" app block into the grid, the liquid wraps it in
+   .brand-social-gallery__app and the LIVE feed has to land inside the same
+   32px slab, on the same 2px gap, at the same ~236px squares — the posts must
+   read as ONE rounded slab exactly like the four static images do.
+
+   What is actually DOCUMENTED (docs.minttstudio.com/instafeed/docs):
+     • the app renders into a container with id  #insta-feed;
+     • it fires 'instafeedAppLoaded' on document once it has finished injecting;
+     • merchant CSS goes in the app's "Custom HTML code" box inside <style>
+       tags, and the documented example is  #insta-feed h2 { … }  — so SOME
+       heading element exists in there, though not what it holds.
+
+   What is NOT documented: everything else. The posts are fetched and injected
+   CLIENT-SIDE, so there was no server HTML to inspect before this was written.
+   Every selector below that names an internal class, tag or depth inside the
+   app is a GUESS, marked UNVERIFIED with the exact thing to check in devtools
+   once a real feed renders. Ordering is always most-likely-guess first,
+   rot-proof structural selector last.
+
+   Two invariants for the whole subsection:
+     1. nothing here may reach .brand-social-gallery__tile — with zero app
+        blocks the section must render exactly as it does today;
+     2. the child combinators below are written against the APP's DOM chain,
+        never against `.brand-social-gallery__grid > *`. display:contents (§1)
+        removes boxes, it does NOT move nodes — selector matching still walks
+        the original tree, so `__grid > *` keeps matching only __app.
+
+   :has() is load-bearing in §1b, §2, §3 and §4b. Where it is unsupported those
+   rules drop out and the section degrades to "app renders, roughly styled,
+   inside our slab" rather than breaking — the §1 flatten needs no :has().
+*/
+
+/* §1 — FLATTEN THE APP'S OWN LAYOUT.
+   The chain from our grid down to the posts:
+
+     .brand-social-gallery__grid                        (ours — the flex line)
+       └ .brand-social-gallery__app                     (ours — from the liquid)
+         └ .shopify-app-block / [id^="shopify-block-"]  (Shopify's app wrapper)
+           └ #insta-feed                                (documented app container)
+             └ app header + app grid                    (UNVERIFIED — see §1b/§1c)
+               └ posts
+
+   display: contents removes the box an element would generate but keeps its
+   children in the layout tree, so those children are laid out by the nearest
+   ancestor that DOES generate a box — our __grid. That is exactly the tool we
+   want here: an element with no box has no layout to hand out, so Instafeed's
+   own display:grid / grid-template-columns / column-gap stop applying, while
+   our gap: 2px, our flex-wrap and our overflow:hidden clip keep governing.
+   Giving these wrappers `display: flex` instead would leave a nested
+   formatting context (and its own gap) between us and the posts, and the posts
+   would size against that wrapper rather than against our row.
+
+   !important because third-party JS can write `style="display:grid"` straight
+   onto #insta-feed, and an inline declaration outranks any selector we can
+   author — !important is the only lever left. Scoped inside __grid, so nothing
+   else on the page is affected.
+
+   UNVERIFIED: .shopify-app-block / [id^="shopify-block-"] is the wrapper
+   Shopify is known to emit around an app block, but it was not confirmed
+   against this theme's rendered output.
+   CHECK: inspect the rendered app block and confirm the wrapper's class and id
+   prefix. Both forms are listed so a mismatch on one still leaves the other
+   matching; an extra app wrapper of the app's own would need adding here. */
+.brand-social-gallery__grid .brand-social-gallery__app,
+.brand-social-gallery__grid .shopify-app-block,
+.brand-social-gallery__grid [id^="shopify-block-"],
+.brand-social-gallery__grid #insta-feed {
+  display: contents !important;
+}
+
+/* §1b — one level further, for the app's OWN grid wrapper.
+   UNVERIFIED: whether Instafeed puts its posts directly inside #insta-feed or
+   inside an intermediate div of its own. Written structurally so a class
+   rename cannot rot it — a direct child of #insta-feed that is not itself a
+   link yet contains links to instagram.com is a wrapper, not a post.
+   CHECK: inspect one post and count the elements between it and #insta-feed.
+   Zero → this rule matches nothing and is inert. Two or more → add the next
+   level here, or those posts never reach our flex line.
+   If the app instead wraps each post individually (div > a > img), this rule
+   flattens the per-post div and promotes the <a> to be the tile — the same end
+   state, because the <a> is exactly what §2 sizes. Either shape lands on a
+   square. */
+.brand-social-gallery__grid #insta-feed > *:not(a):has(a[href*="instagram.com"]) {
+  display: contents !important;
+}
+
+/* §1c — hide the app's own chrome.
+   Our text column already renders heading → badge → handle, so Instafeed's
+   profile picture, username and "Follow" button duplicate all three, and a
+   "powered by" footer is not in the design at all. Three layers, ALL guesses:
+
+     (a) tag guess — the app's docs style `#insta-feed h2`, so a heading
+         element exists in there. UNVERIFIED whether it is a profile name, a
+         section title, or something the merchant typed.
+         CHECK: does #insta-feed contain an h2/h3/header once rendered?
+     (b) class-substring guesses. UNVERIFIED — the app's internal class names
+         were never observable. CHECK: read the real class names off the
+         rendered container and replace these with exact ones.
+     (c) structural fallback that cannot rot: a direct child of #insta-feed
+         that is not media, not a link, and contains no <img>/<video> anywhere
+         inside it cannot be a row of posts, so it is chrome.
+         CHECK, and this one matters: that posts really do contain <img>. If
+         Instafeed paints posts as background-image divs, DELETE rule (c) — it
+         would hide the entire feed. The :not(img):not(video):not(picture)
+         guard is not decoration: an <img> contains no <img>, so without it (c)
+         would match every image and blank the slab.
+
+   A "Follow" link pointing at instagram.com at this depth is NOT
+   distinguishable from a post by href alone; if one survives, §2 sizes it as
+   an extra square. CHECK that first if the row ever looks one tile too long. */
+.brand-social-gallery__grid #insta-feed > h2,
+.brand-social-gallery__grid #insta-feed > h3,
+.brand-social-gallery__grid #insta-feed > header,
+.brand-social-gallery__grid #insta-feed [class*="header" i],
+.brand-social-gallery__grid #insta-feed [class*="profile" i],
+.brand-social-gallery__grid #insta-feed [class*="username" i],
+.brand-social-gallery__grid #insta-feed [class*="follow" i],
+.brand-social-gallery__grid #insta-feed [class*="powered" i],
+.brand-social-gallery__grid
+  #insta-feed
+  > *:not(a):not(img):not(video):not(picture):not(:has(img)):not(:has(video)) {
+  display: none !important;
+}
+
+/* §2 — SIZE THE POSTS.
+   The same flex: 1 0 0 and the same aspect-ratio 1/1 as
+   .brand-social-gallery__tile, so a live post and a static image are
+   dimensionally the same object: four across at 1440 → (953 - 3×2) / 4 =
+   236.75px each — derived, never hardcoded (Brief note #4). margin: 0 because
+   app CSS routinely ships item margins, and a margin here would break the 2px
+   gap that makes the squares read as one slab.
+
+   Layered, most-likely first:
+     • a[href*="instagram.com"] — every Instafeed post links out to Instagram.
+       The one selector that cannot rot on a class rename. Scoped to __grid so
+       the section's own handle link (in __intro) is untouched.
+     • the two structural depths — an element inside #insta-feed that DIRECTLY
+       contains the media. UNVERIFIED, both: they encode a guess about how deep
+       the app nests posts. `:has(> img)` matches only the innermost media
+       holder, so a wrapper and its child can never both be squared.
+       CHECK which depth actually matches, then delete the other so the rule
+       states something true.
+
+   .brand-social-gallery__tile is deliberately unreachable from every selector
+   here: static mode keeps its own rules verbatim. */
+.brand-social-gallery__grid a[href*="instagram.com"],
+.brand-social-gallery__grid #insta-feed > *:has(> img),
+.brand-social-gallery__grid #insta-feed > *:has(> video),
+.brand-social-gallery__grid #insta-feed > * > *:has(> img),
+.brand-social-gallery__grid #insta-feed > * > *:has(> video) {
+  flex: 1 0 0;
+  min-width: 0;
+  margin: 0;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+/* The media itself — identical to .brand-social-gallery__image. Kept as a
+   blunt descendant selector rather than a guessed class: every <img>/<video>
+   left in our slab is a post image, because §1c has already removed the
+   profile picture and any footer mark. object-fit: cover is what lets a
+   non-square Instagram crop fill a square tile the way the static images do.
+   UNVERIFIED: that posts use <img>/<video> at all (see §1c note (c)).
+   CHECK: confirm the media element type in devtools. */
+.brand-social-gallery__grid a[href*="instagram.com"] :is(img, video),
+.brand-social-gallery__grid #insta-feed img,
+.brand-social-gallery__grid #insta-feed video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* §3 — RESERVE THE SLAB'S HEIGHT (CLS).
+   The feed is injected client-side, so between first paint and
+   'instafeedAppLoaded' the grid has no in-flow children at all: the 32px slab
+   collapses to zero, then pops to ~236px and shoves everything below it down
+   the page. On a homepage section that is a guaranteed layout-shift hit.
+
+   The obvious place for the reservation is .brand-social-gallery__app — and it
+   is the WRONG place. §1 gives that element display: contents, which removes
+   its box, and min-height is a property OF a box: with no box generated there
+   is nothing for it to apply to, so the declaration would be silently inert.
+   Dropping display:contents to keep the min-height would trade a 236px
+   reservation for the app's own grid taking over our layout, which is the
+   whole problem this subsection exists to solve.
+
+   So the height is reserved on the element that definitely keeps its box —
+   __grid — and only when an app block is present. That :has() scope is not
+   decoration: an unscoped min-height would letterbox the STATIC tiles at every
+   width where they are smaller than 236px (222px at 1024, 176px at 850),
+   padding dead space above and below the slab. __grid carries no background of
+   its own, so the reserved space is invisible against the section's --bg until
+   the posts land: it holds the page open without drawing an empty box. */
+.brand-social-gallery__grid:has(.brand-social-gallery__app) {
+  min-height: var(--app-tile-min-h);
+}
+
+/* §4 — CAP THE POST COUNT AT --app-cols (4).
+   Instafeed can be configured to return 8, 12 or 20 posts; our slab is a
+   single row of four, and the surplus would wrap into second and third rows,
+   doubling and tripling the section's height.
+
+   :nth-child() takes an <An+B> integer expression and CANNOT read a custom
+   property — var() is substituted at computed-value time, long after selector
+   matching, so :nth-child(n + calc(var(--app-cols) + 1)) is invalid and the
+   whole rule would be thrown away. The 5 below is therefore hardcoded as
+   --app-cols + 1, with the token named here as the source of truth: change
+   --app-cols and this number changes with it.
+
+   `of S` is load-bearing, not clever: plain :nth-child counts ALL siblings,
+   and a header sibling counts even while display:none, which would shift every
+   post by one and hide the wrong ones. `of a[href*="instagram.com"]` counts
+   only the posts, whatever else sits beside them.
+
+   Rejected alternative: clipping the surplus with a max-height on __grid plus
+   the existing overflow:hidden. It cannot work — the row's height is derived
+   from the tiles' aspect-ratio and moves with the viewport (236.75px at 1440,
+   237px from 1400 down to 1104, 222px at 1024), so any fixed max-height either
+   crops the first row or letterboxes it.
+
+   This only HIDES the surplus: the app still fetches and downloads those
+   images. The real fix is setting the app's post count to 4 in the theme
+   editor — this rule is the safety net for when nobody does. */
+.brand-social-gallery__grid :nth-child(n + 5 of a[href*="instagram.com"]) {
+  display: none !important;
+}
+
+/* §4b — structural twin of the cap, for a post element that is not itself the
+   link. UNVERIFIED — same depth guess as §2, and `:has()` inside `of` may be
+   rejected by older engines, in which case this ONE rule is dropped and the
+   link-based cap above still carries the section.
+   CHECK: whether posts are <a> (the cap above suffices — delete this) or
+   wrappers (this one does the work). */
+.brand-social-gallery__grid #insta-feed > :nth-child(n + 5 of *:has(> img)),
+.brand-social-gallery__grid #insta-feed > * > :nth-child(n + 5 of *:has(> img)) {
+  display: none !important;
+}
+
+/* Focus rings need nothing extra here: the ACCESSIBILITY block's
+   `.brand-social-gallery a:focus-visible` is a descendant selector, so it
+   already covers every post link the app injects.
+
+   The ≤1400px block needs nothing either — the app's posts are flex items of
+   __grid, and that block only changes __inner's axis and caps __grid at
+   --social-grid-w (953px), which the posts inherit by being inside it. */
+
+/* --- Instafeed app mode — END -------------------------------------------- */
+
 /* =============================================
    TABLET  ≤ 1024px
    ============================================= */
@@ -203,6 +455,55 @@
   .brand-social-gallery__tile {
     flex: 0 0 calc((100% - var(--spacing-sm)) / 2);
   }
+
+  /* --- Instafeed app mode — START (mobile) -------------------------------
+
+     Only two things change below 768: the posts go 2-up like the static tiles,
+     and the reserved height drops to the mobile tile. §1 (flatten), §1b/§1c
+     (chrome) and §2's media rules are breakpoint-independent and are NOT
+     repeated — they already apply here.
+  */
+
+  /* Same basis as .brand-social-gallery__tile above, so a live post and a
+     static image are the same 186.5px square on the 375 artboard. Repeating
+     the whole §2 selector list is unavoidable: these are separate selectors,
+     not a shared class, and flex: 1 0 0 from the base block would otherwise
+     keep the posts on one row and squeeze them to ~93px.
+     UNVERIFIED for the same reason as §2 — the two structural depths are a
+     guess at how deep the app nests posts. CHECK against the live DOM. */
+  .brand-social-gallery__grid a[href*="instagram.com"],
+  .brand-social-gallery__grid #insta-feed > *:has(> img),
+  .brand-social-gallery__grid #insta-feed > *:has(> video),
+  .brand-social-gallery__grid #insta-feed > * > *:has(> img),
+  .brand-social-gallery__grid #insta-feed > * > *:has(> video) {
+    flex: 0 0 calc((100% - var(--spacing-sm)) / 2);
+  }
+
+  /* Mobile reservation. The desktop 236px would over-reserve against a 186.5px
+     mobile tile and leave a visible strip under the slab before the feed
+     lands, so the override is required, not optional.
+     It reserves ONE row deliberately: the token is a single tile's height, and
+     with 4 posts at 2-up the mobile slab is two rows (~375px). Reserving both
+     rows — calc(2 × --app-tile-min-h-mobile + --spacing-sm) — would kill the
+     rest of the shift, but it would also hold 375px of dead space open forever
+     whenever the merchant's feed returns fewer than 3 posts. min-height is a
+     floor, so under-reserving costs at most one row of shift while
+     over-reserving costs permanent whitespace: the floor wins. */
+  .brand-social-gallery__grid:has(.brand-social-gallery__app) {
+    min-height: var(--app-tile-min-h-mobile);
+  }
+
+  /* No mobile override of §4's cap, and that is a decision, not an omission.
+     --app-cols-mobile (2) is a COLUMN count, not an item count — on desktop
+     4 columns × 1 row happens to equal 4 items, which is why the two numbers
+     coincide up there. The mobile artboard is 2 × 2 = FOUR tiles, so the item
+     cap stays 4 and what changes at this breakpoint is the column count, via
+     the flex-basis above. Capping at 2 items here would render one row of two
+     against a design that shows four, which is the opposite of the goal.
+     If the owner ever does want a single mobile row, the change is one line:
+     re-declare §4 here with `n + 3` (--app-cols-mobile + 1). */
+
+  /* --- Instafeed app mode — END (mobile) --------------------------------- */
 }
 
 /* =============================================
