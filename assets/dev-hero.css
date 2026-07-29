@@ -44,15 +44,18 @@
      rounded corners together, not just the text. Inert below 1440, so every breakpoint renders as
      it did; above it the page background shows down each side.
 
-     box-sizing: border-box above is load-bearing here, not tidiness: the cap INCLUDES the 64px
+     border-box is what makes the cap land on the site's own grid: the 1440 INCLUDES the 64px
      gutters, so the copy's line tops out at 1312px — the same --container-max dev-site-header and
      dev-site-footer centre their own rows on, which is why the hero's text and the header's logo
-     stay on one line past 1440. Under content-box the box would render 1568 and that alignment
-     would be off by 128px.
+     stay on one line past 1440. (base.css line 1 sets `* { box-sizing: border-box }` theme-wide;
+     the re-declaration above is belt-and-braces, same as dev-tree-fibre-hero.) Under content-box
+     the box would render 1568, the copy's column would be 1440 instead of 1312, and its left edge
+     would sit 64px outboard of the header's.
 
      A second effect to know before touching --bg-*-d: those offsets are percentages of THIS box,
-     so capping it also freezes the stretch crop. Under the stretch toggle the framing at any width
-     is now the 1440 framing, which is the one that was derived against Figma. */
+     so capping it also stops the stretch crop drifting above 1440 — at 1920 and beyond the framing
+     is the 1440 framing, the one that was derived against Figma. Below 1440 nothing changed:
+     object-fit: cover still narrows the horizontal field as the box narrows, exactly as before. */
   max-width: var(--section-max);
   margin-inline: auto;
 
