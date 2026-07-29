@@ -33,11 +33,28 @@
   justify-content: flex-end; /* content is bottom-aligned in Figma */
   align-items: flex-start;
 
-  /* No --container-max by design: full-bleed section, no inner max-width frame
-     (Brief, Note 1). The horizontal inset is entirely --section-px. */
+  /* No --container-max by design: there is no inner max-width frame in this section
+     (Brief, Note 1) — the copy's column is --text-col-w and the horizontal inset is entirely
+     --section-px. The section BOX is capped, though; see --section-max below. */
   min-height: var(--hero-min-h);
   box-sizing: border-box;
   padding: var(--pt) var(--section-px) var(--pb);
+
+  /* The WHOLE box stops at the desktop artboard width and centres past it — photo, scrim and both
+     rounded corners together, not just the text. Inert below 1440, so every breakpoint renders as
+     it did; above it the page background shows down each side.
+
+     box-sizing: border-box above is load-bearing here, not tidiness: the cap INCLUDES the 64px
+     gutters, so the copy's line tops out at 1312px — the same --container-max dev-site-header and
+     dev-site-footer centre their own rows on, which is why the hero's text and the header's logo
+     stay on one line past 1440. Under content-box the box would render 1568 and that alignment
+     would be off by 128px.
+
+     A second effect to know before touching --bg-*-d: those offsets are percentages of THIS box,
+     so capping it also freezes the stretch crop. Under the stretch toggle the framing at any width
+     is now the 1440 framing, which is the one that was derived against Figma. */
+  max-width: var(--section-max);
+  margin-inline: auto;
 
   /* Top corners are square; only the bottom two are rounded. */
   border-radius: 0 0 var(--radius-bottom) var(--radius-bottom);
