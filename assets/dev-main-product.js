@@ -12,6 +12,7 @@
   function init(root) {
     initGallery(root);
     initVariants(root);
+    initThumbScroll(root);
   }
 
   /* ---- Gallery ---------------------------------------------------------- */
@@ -21,14 +22,91 @@
     const thumbs = Array.from(root.querySelectorAll('[data-thumb]'));
     const prev = root.querySelector('[data-prev]');
     const next = root.querySelector('[data-next]');
-
-    if (slides.length < 2) return;
+    const gallery = root.querySelector('.dev-main-product__gallery');
 
     let index = 0;
+
+    /* The hidden slides' image URLs ride in data-defer-* — the section file explains why
+       loading="lazy" cannot defer them (stacked absolutely inside the on-screen stage, every
+       hidden slide "intersects" the viewport, so all of them raced the LCP at full width).
+       Attaching the URLs is idempotent: the slide being shown hydrates on demand, and the
+       whole set hydrates together once the page has loaded and the browser has gone idle,
+       which restores the swipe-is-instant preloading the stacking was built for. */
+    function hydrate(slide) {
+      slide.querySelectorAll('img[data-defer-src]').forEach((img) => {
+        if (img.dataset.deferSizes) img.sizes = img.dataset.deferSizes;
+        if (img.dataset.deferSrcset) img.srcset = img.dataset.deferSrcset;
+        img.src = img.dataset.deferSrc;
+        delete img.dataset.deferSrc;
+        delete img.dataset.deferSrcset;
+        delete img.dataset.deferSizes;
+      });
+    }
+
+    function hydrateAll() {
+      slides.forEach(hydrate);
+    }
+
+    function idleHydrate() {
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(hydrateAll, { timeout: 3000 });
+      } else {
+        setTimeout(hydrateAll, 1500);
+      }
+    }
+
+    if (document.readyState === 'complete') {
+      idleHydrate();
+    } else {
+      window.addEventListener('load', idleHydrate, { once: true });
+    }
+
+    /* The gallery videos carry no controls — they are muted, looping motion sitting between the
+       photos, so the slide the buyer is on is the one that plays and every other one is stopped.
+
+       Pausing the ones we left is the half that was always here: a video still running behind a
+       hidden slide is how a product page ends up with sound coming from nowhere. Starting the
+       active one is the half the markup used to do with an `autoplay` attribute, and it belongs
+       here instead: all slides are in the DOM at once, so `autoplay` would have every video in
+       the gallery pulling its stream on page load whether or not it is the one on screen.
+
+       currentTime is reset so coming back to the clip starts it from the top rather than from
+       wherever it was abandoned — a half-played frame is not a product photo.
+
+       play() returns a promise that rejects when the browser refuses (a data-saver profile, or a
+       muted-autoplay block). Swallowed: the poster staying up is the correct fallback, and an
+       unhandled rejection in the console is not. */
+    function syncVideo() {
+      slides.forEach((slide, n) => {
+        slide.querySelectorAll('video').forEach((video) => {
+          if (n !== index) {
+            video.pause();
+            // Only once metadata exists. With readyState HAVE_NOTHING there is no timeline to
+            // seek yet, and the assignment is at best ignored and at worst throws.
+            if (video.readyState > 0) video.currentTime = 0;
+            return;
+          }
+          const started = video.play();
+          if (started && typeof started.catch === 'function') started.catch(() => {});
+        });
+      });
+    }
 
     function show(i) {
       // Wrap around: the artboard draws no disabled arrow, so there is no end to hit.
       index = (i + slides.length) % slides.length;
+
+      // Before anything toggles: a deferred image must be requested the moment its slide is
+      // asked for, or a click that beats the idle hydration lands on an empty frame.
+      hydrate(slides[index]);
+
+      // The approval seal vouches for the product, not for every photo: it belongs to the first
+      // image only. The server marks slide 0 active with the seal visible, so navigation is the
+      // only time this state can change — and show() is every navigation path (arrows, thumbs,
+      // and the lightbox's zoom-select).
+      if (gallery) {
+        gallery.classList.toggle('dev-main-product__gallery--off-first', index !== 0);
+      }
 
       slides.forEach((slide, n) => {
         slide.classList.toggle('dev-main-product__slide--active', n === index);
@@ -40,12 +118,7 @@
         thumb.setAttribute('aria-current', String(on));
       });
 
-      // Pause a video we are scrolling away from. Leaving it playing behind a hidden slide is
-      // how a product page ends up with audio coming from nowhere.
-      slides.forEach((slide, n) => {
-        if (n === index) return;
-        slide.querySelectorAll('video').forEach((video) => video.pause());
-      });
+      syncVideo();
 
       const active = thumbs[index];
       if (active && active.parentElement && active.parentElement.parentElement) {
@@ -59,9 +132,14 @@
       }
     }
 
-    thumbs.forEach((thumb, n) => thumb.addEventListener('click', () => show(n)));
-    if (prev) prev.addEventListener('click', () => show(index - 1));
-    if (next) next.addEventListener('click', () => show(index + 1));
+    /* A gallery of one has nowhere to navigate to. This used to be an early return; it is a guard
+       now, because syncVideo() has to run for the single-media case too and nothing may sit
+       between it and the end of this function. */
+    if (slides.length > 1) {
+      thumbs.forEach((thumb, n) => thumb.addEventListener('click', () => show(n)));
+      if (prev) prev.addEventListener('click', () => show(index - 1));
+      if (next) next.addEventListener('click', () => show(index + 1));
+    }
 
     /* The zoom lightbox announcing which photo the buyer left it on. Open the lightbox on photo 1,
        page through to photo 4, close it — and photo 4 is what is behind it. Without this the gallery
@@ -69,11 +147,97 @@
 
        It arrives as an event because show() is a closure in here and the lightbox is a different
        IIFE: there is no name it could call. The event carries the index into product.media, which is
-       the same number both sides count in. */
+       the same number both sides count in.
+
+       OUTSIDE the navigation guard above. The lightbox pauses this gallery's video while it is open
+       and leans on this event to start it again on the way out — and a product whose only media is
+       that video is a gallery of one, with no thumb and no arrow, which the guard would have shut
+       out. show(0) on a single slide is a no-op apart from exactly that restart. */
     root.addEventListener('dev-main-product:zoom-select', (event) => {
       const to = event.detail ? event.detail.index : null;
       if (typeof to === 'number' && to >= 0) show(to);
     });
+
+    /* Start whatever is already on screen. The markup marks slide 0 active server-side, so show()
+       never runs for it — without this a product whose first media is a video would sit on a poster
+       forever, and there is no play button to rescue it.
+
+       DEAD LAST on purpose. This line touches the media element, which is the one thing in here
+       that can throw for reasons that have nothing to do with us — a codec the browser will not
+       open, a seek it refuses. Run it before the listeners above and any such throw takes the
+       whole gallery with it: no thumb click, no arrow, and a slider that looks empty. Run it last
+       and the worst case is a video that does not start, with navigation still working. */
+    syncVideo();
+  }
+
+  /* ---- Thumbnail scroll indicator --------------------------------------- */
+
+  /* The mobile strip hides the native scrollbar, so this draws the one the artboard specifies
+     (44948:821): a bar whose WIDTH is the fraction of the strip currently visible and whose OFFSET
+     is how far through it the buyer is. Both are measured off the element actually being scrolled,
+     so it stays truthful for any number of photos — the artboard's fixed 17.8% is one product's
+     media count frozen into a drawing, not a value to reproduce.
+
+     Runs on every breakpoint; the CSS only paints it below 769px. Cheaper than teaching the JS
+     about the breakpoint, and it means a desktop window dragged narrow is already correct. */
+  function initThumbScroll(root) {
+    const strip = root.querySelector('.dev-main-product__thumbs');
+    const rail = root.querySelector('[data-thumb-scroll]');
+    const bar = rail ? rail.querySelector('[data-thumb-scroll-bar]') : null;
+
+    if (!strip || !rail || !bar) return;
+
+    let queued = false;
+
+    function update() {
+      queued = false;
+
+      const overflow = strip.scrollWidth - strip.clientWidth;
+
+      /* Not `> 0`: sub-pixel layout rounding leaves a fraction of a pixel of phantom overflow on
+         strips that genuinely fit, and that would show a full-width bar advertising a scroll the
+         buyer cannot perform. */
+      if (overflow <= 1) {
+        rail.hidden = true;
+        return;
+      }
+
+      rail.hidden = false;
+
+      const visible = strip.clientWidth / strip.scrollWidth;
+      const progress = ratio(strip.scrollLeft / overflow);
+
+      /* translateX percentages resolve against the BAR's own width, not the track's — so the full
+         journey is (track - bar) / bar, which reduces to 1/visible - 1. Getting this wrong is the
+         classic way a scroll indicator stops short of, or overshoots, the right-hand end. */
+      bar.style.width = visible * 100 + '%';
+      bar.style.transform = 'translateX(' + progress * (1 / visible - 1) * 100 + '%)';
+    }
+
+    function schedule() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(update);
+    }
+
+    strip.addEventListener('scroll', schedule, { passive: true });
+
+    /* Catches the viewport changing AND the strip being resized by anything else — including the
+       breakpoint flip, where the strip goes from a column that cannot scroll to a row that can. */
+    if ('ResizeObserver' in window) {
+      new ResizeObserver(schedule).observe(strip);
+    } else {
+      window.addEventListener('resize', schedule);
+    }
+
+    update();
+  }
+
+  /* Guards the division: an empty strip gives 0/0, and a rubber-band overscroll on iOS reports a
+     scrollLeft past the end. Either would be written straight into a transform. */
+  function ratio(value) {
+    if (!isFinite(value) || value < 0) return 0;
+    return value > 1 ? 1 : value;
   }
 
   /* ---- Variants --------------------------------------------------------- */
@@ -130,10 +294,20 @@
 
           const label = input.nextElementSibling;
           if (!label) return;
-          label.classList.toggle(
-            'dev-main-product__chip--unavailable',
-            !match || !match.available
-          );
+          const unavailable = !match || !match.available;
+          label.classList.toggle('dev-main-product__chip--unavailable', unavailable);
+
+          // The unavailable state is drawn with opacity: 0.4, which takes the label text down to
+          // a 1.8:1 contrast ratio — a colour-contrast failure on every sold-out chip. WCAG 1.4.3
+          // exempts inactive controls, but nothing in the markup said these were inactive, so the
+          // audit judged them as live text. aria-disabled states it, and unlike the `disabled`
+          // attribute it leaves the chip focusable, so a keyboard user can still reach a sold-out
+          // option and hear that it is unavailable rather than have it vanish from the tab order.
+          if (unavailable) {
+            input.setAttribute('aria-disabled', 'true');
+          } else {
+            input.removeAttribute('aria-disabled');
+          }
         });
       });
     }
@@ -253,6 +427,25 @@
     guides.forEach((guide) => {
       guide.addEventListener('click', (event) => {
         if (event.target.closest('[data-guide-close]')) close(guide);
+
+        // "Chat with us" in a guide's footer opens the store's live chat — the
+        // Shopify Inbox app embed's <shopify-chat> element, whose public show()
+        // method opens the panel. Merchant-controlled twice over: the section
+        // setting (data-guide-chat on the root) turns the behaviour off
+        // entirely, and the footer is richtext, so only a link whose sentence
+        // mentions "chat" is hijacked — and only while the widget is actually
+        // on the page; otherwise the link keeps its own href (/pages/contact)
+        // as the no-widget fallback.
+        if (!root.hasAttribute('data-guide-chat')) return;
+        const footLink = event.target.closest('.dev-main-product__guide-foot a');
+        if (footLink && /chat/i.test((footLink.closest('p') || footLink).textContent)) {
+          const chat = document.querySelector('shopify-chat');
+          if (chat && typeof chat.show === 'function') {
+            event.preventDefault();
+            close(guide);
+            chat.show();
+          }
+        }
       });
 
       guide.addEventListener('keydown', (event) => {
@@ -368,6 +561,26 @@
       return slide ? slide.querySelector('.dev-main-product__zoom-image') : null;
     }
 
+    /* The video slides. Everything above this line is written for a photo — activeImage() returns
+       null on a video slide, so the pinch, the pan and the 3840 upgrade all bail out on their own
+       and none of them needed a special case. Playback is the one thing that did.
+
+       `play` false stops every clip, which is what closing needs; the argument exists so cleanup()
+       does not have to fake an index nobody is on. */
+    function syncZoomVideo(play) {
+      slides.forEach((slide, n) => {
+        slide.querySelectorAll('video').forEach((video) => {
+          if (!play || n !== index) {
+            video.pause();
+            if (video.readyState > 0) video.currentTime = 0;
+            return;
+          }
+          const started = video.play();
+          if (started && typeof started.catch === 'function') started.catch(() => {});
+        });
+      });
+    }
+
     function show(i) {
       index = (i + slides.length) % slides.length;
 
@@ -380,6 +593,7 @@
       });
 
       upgrade(slides[index]);
+      syncZoomVideo(true);
 
       if (counter) counter.textContent = index + 1 + ' / ' + slides.length;
       // The counter reads "1 slash 7", which is not a sentence. The live region carries the same fact
@@ -466,7 +680,7 @@
       // the frame with object-fit, so there are no letterbox bands inside the element to measure
       // around. That is the whole reason for sizing it that way — stock has to reconstruct the
       // contain geometry from naturalWidth/naturalHeight to find the same numbers.
-      const bounds = frame.getBoundingClientRect();
+      const bounds = frameRect();
       const overflowX = Math.max(0, image.clientWidth * scale - bounds.width);
       const overflowY = Math.max(0, image.clientHeight * scale - bounds.height);
 
@@ -481,8 +695,19 @@
 
     /* ---- Gestures (phones only, as in stock) ---- */
 
+    /* The frame is the full-screen lightbox — its rect cannot change in the middle of a touch
+       gesture, yet constrain() and centreOf() run on EVERY touchmove of a pinch or pan, and
+       getBoundingClientRect there forces a synchronous layout right before the transform
+       write. So the rect is measured once per gesture (touchstart) and dropped on touchend;
+       outside a gesture the fallback measures fresh. */
+    let gestureRect = null;
+
+    function frameRect() {
+      return gestureRect || frame.getBoundingClientRect();
+    }
+
     function centreOf() {
-      const bounds = frame.getBoundingClientRect();
+      const bounds = frameRect();
       return { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
     }
 
@@ -539,11 +764,23 @@
       applyTransform();
     }
 
+    /* A touch that landed on the video belongs to the video. The gesture layer below reads a
+       horizontal drag as "next slide" and two quick taps as a zoom — which is exactly what dragging
+       the scrubber and tapping play look like from out here. Without this guard the buyer cannot
+       seek: every attempt pages to the next photo instead. */
+    function onVideo(event) {
+      const target = event.target;
+      return !!(target && target.closest && target.closest('.dev-main-product__zoom-video'));
+    }
+
     if (frame) {
       frame.addEventListener(
         'touchstart',
         (event) => {
           if (!isPhone()) return;
+          if (onVideo(event)) return;
+
+          gestureRect = frame.getBoundingClientRect();
 
           if (event.touches.length === 2) {
             startDistance = touchDistance(event.touches[0], event.touches[1]);
@@ -566,6 +803,7 @@
         'touchmove',
         (event) => {
           if (!isPhone()) return;
+          if (onVideo(event)) return;
 
           if (event.touches.length === 2) {
             event.preventDefault();
@@ -587,6 +825,7 @@
         'touchend',
         (event) => {
           if (!isPhone()) return;
+          if (onVideo(event)) return;
           // A finger coming off a pinch leaves one still down. That is not the end of the gesture.
           if (event.touches.length > 0) return;
 
@@ -621,6 +860,18 @@
         },
         { passive: true }
       );
+
+      /* Registered AFTER the gesture touchend above, so the cached rect is still valid inside
+         it (doubleTap measures through frameRect()); dropped once the last finger lifts so a
+         later non-gesture caller can never see a stale rect. */
+      frame.addEventListener(
+        'touchend',
+        (event) => {
+          if (event.touches.length === 0) gestureRect = null;
+        },
+        { passive: true }
+      );
+      frame.addEventListener('touchcancel', () => { gestureRect = null; }, { passive: true });
     }
 
     /* ---- Open / close ---- */
@@ -633,6 +884,13 @@
       // focus goes on the way out — see cleanup().
       openedViaKeyboard = !!event && event.detail === 0;
       lastTrigger = trigger;
+
+      /* Stop the gallery's copy of the clip. The lightbox holds a second <video> on the same file,
+         and leaving both running means two decoders on one stream for no one's benefit — the
+         gallery is behind a modal backdrop. cleanup() starts it again through zoom-select. */
+      root.querySelectorAll('video').forEach((video) => {
+        if (!dialog.contains(video)) video.pause();
+      });
 
       show(at < 0 ? 0 : at);
 
@@ -661,6 +919,9 @@
       unlockScroll();
       delete dialog.dataset.modalState;
       resetTransform();
+      // Before the dispatch below, or the clip carries on playing with the modal gone — and if the
+      // buyer had unmuted it, audibly.
+      syncZoomVideo(false);
 
       const slide = slides[index];
       const media = slide ? Number(slide.dataset.mediaIndex) : -1;
@@ -739,8 +1000,13 @@
     /* Anything that is not the photo and not a control: the dialog's own box, the frame, the space
        beside a portrait photo. The photo is exempt on purpose — on a phone it is the pinch surface,
        and the two clicks of a double-tap must not be read as "close". The nav is exempt as a whole
-       and not just its buttons, or the 4px of padding around them would be a hidden close button. */
-    const KEEP_OPEN = '.dev-main-product__zoom-image, .dev-main-product__zoom-nav, [data-zoom-close]';
+       and not just its buttons, or the 4px of padding around them would be a hidden close button.
+
+       The video is exempt for a blunter reason: its controls are inside it. Without this line the
+       first press on play, on the scrubber or on the volume would close the lightbox instead, which
+       would make putting the video in here pointless. */
+    const KEEP_OPEN =
+      '.dev-main-product__zoom-image, .dev-main-product__zoom-video, .dev-main-product__zoom-nav, [data-zoom-close]';
 
     dialog.addEventListener('click', (event) => {
       if (event.target.closest(KEEP_OPEN)) return;
@@ -1030,11 +1296,19 @@
     const fresh = doc.querySelector(DRAWER_SELECTOR);
     const live = document.querySelector(DRAWER_SELECTOR);
     if (fresh && live) {
-      const next = fresh.querySelector('.cart-drawer__content');
-      const current = live.querySelector('.cart-drawer__content');
-      // Only the content is swapped. The drawer's listeners sit on its ROOT and are delegated, so
-      // replacing what is inside it cannot unbind the close button, the backdrop or the focus trap.
-      if (next && current) current.replaceWith(next);
+      /* Content AND footer — the footer carries the checkout button, which the drawer renders only
+         when the basket has contents. This add is precisely the moment that flips: the buyer landed
+         with an empty basket (every first visit), so the footer came down WITHOUT a checkout button
+         and swapping the content alone left it that way — drawer open, duvet in it, nothing to
+         click. Keep the two regions in step with the server's own render.
+
+         The drawer's listeners sit on its ROOT and are delegated, so replacing what is inside it
+         cannot unbind the close button, the backdrop or the focus trap. */
+      ['.cart-drawer__content', '.cart-drawer__footer'].forEach((selector) => {
+        const next = fresh.querySelector(selector);
+        const current = live.querySelector(selector);
+        if (next && current) current.replaceWith(next);
+      });
     }
 
     const toggle = document.querySelector('.site-header__cart-toggle');

@@ -5,10 +5,28 @@
 <style>
   .story-slider {
     /* Brand params. The faces are loaded theme-wide by snippets/dev-brand-fonts.liquid; this
-       only selects them. No --container-max: the track is deliberately full-bleed so tiles can
-       scroll out past the right gutter — the only inset is --section-px. */
+       only selects them. */
     --section-px: 64px;
     --section-px-m: 16px;
+
+    /* A GUTTER, not a max-width, and here that distinction is doing real work. The track has to
+       stay full-bleed — tiles scrolling out past the right edge IS the section — so a centred
+       1312 box is exactly what it must not become: that would clip the row 304px short of the
+       window at 1920 and leave dead cream where the next tile should be sliding in.
+
+       So the cap is applied as padding, and only on the LEFT of the track. The heading and the
+       controls take it on both sides (they are ordinary contained content); the track takes it
+       left-only and keeps --section-px as its right-hand scroll-end inset. Result: everything
+       starts on the same 1312 line, and the tiles still run off the right edge unbounded.
+
+         1440   max(64,  64)  ->  64   unchanged
+         1920   max(64, 304)  -> 304   heading, first tile and rail all on the 1312 line
+         1100   max(64, -106) ->  64   unchanged
+
+       Mobile never sees it — that breakpoint re-declares both paddings as --section-px-m and
+       hides the controls entirely. */
+    --container-max: 1312px;
+    --gutter: max(var(--section-px), (100% - var(--container-max)) / 2);
 
     /* Typography. Desktop/Title 3 -> Mobile/Title 3 (32 -> 24); the mobile artboard states its
        own size, so it wins over a scale factor. Captions are Body/Lg (18) -> Body/Md (16). */
@@ -49,6 +67,14 @@
     --button-p: 19px;
     --icon-size: 24px;
     --icon-stroke: 1.4;
+
+    {%- comment -%}
+      Hover — the arrows are "Tertiary / Icon=Only" in the Figma buttons set (61:7492):
+      on hover the bare circle takes a #FCF5E3 fill and its corners morph to 16px,
+      300ms ease-out, same as every other CTA. Fixed design colour, not merchant-tunable.
+    {%- endcomment -%}
+    --button-hover-bg: #fcf5e3;
+    --button-hover-r: 16px;
 
     /* The progress rail is a 2px round-capped line. Figma draws it as a single stroke with a
        hard gradient stop — #262626 up to 21.6%, #DADADA after — i.e. it is a scrollbar THUMB,
@@ -102,24 +128,75 @@
             {%- continue -%}
           {%- endif -%}
 
-          {%- comment -%}
-            data-reveal-skip is load-bearing, not decoration. dev-reveal.js treats any <ul> as a grid
-            and tags each child with [data-reveal], which dev-reveal.css holds at opacity:0 until the
-            child intersects the viewport. That breaks a looping track twice over: the JS clones are
-            created after the observer has already collected its targets, so they are never revealed
-            and stay invisible forever — and a real tile parked off the left edge by the loop has
-            never intersected either, so it is invisible until it happens to scroll back in.
-            The track manages its own visibility; the reveal must not touch these tiles.
-          {%- endcomment -%}
-          <li class="story-slider__tile" data-reveal-skip {{ block.shopify_attributes }}>
+                    <li class="story-slider__tile" {{ block.shopify_attributes }}>
             <div class="story-slider__media story-slider__media--{{ block.settings.crop }}">
               {%- if block.settings.image != blank -%}
-                {%- assign tile_src = block.settings.image | image_url: width: 814 -%}
+                {%- comment -%}
+                  The tile's box is an aspect-ratio, and it is the SAME ratio on both breakpoints —
+                  260/312 short, 260/373 tall, which is why the media wrapper can carry it as a
+                  ratio rather than the artboard's pixel heights. So the CDN crop can follow the
+                  block's own `crop` setting exactly, and one source serves every width. That is
+                  unusual here and worth stating: no <picture> is needed on this section.
+
+                  What the browser was doing instead, measured on Our Story at 1440 / DPR 2:
+
+                    tile-3  box 407 x 488 -> delivered 814 x 1220, 20% of the height cropped away
+                    tile-1  box 407 x 488 -> delivered 814 x 1016, 4% cropped away
+                    tile-2  528 KB
+
+                  The crop is the small half here — these sources are already near the box aspect.
+                  The weight is the encode, and one tile is a genuine dead end. tile-2 is a dark,
+                  grainy photograph, and noise is exactly what a lossy codec cannot throw away.
+                  Measured on the delivered WebP at the 814x1168 desktop crop:
+
+                    q75  388 KB  <- was      q60  341 KB
+                    q70  375 KB              q55  324 KB
+                    q65  353 KB              q50  302 KB (and the CDN flips to jpeg here)
+
+                  25 points of quality buy 22%. Lighthouse asks this image to reach ~65 KB and no
+                  setting on this filter gets near it. THAT ONE NEEDS A RE-ENCODED SOURCE UPLOADED
+                  TO FILES — the original is 2.24 MB — and no markup change substitutes for it.
+
+                  70 for every tile, png and jpg alike. They sit side by side in one track, so a
+                  visitor would see two of them crisper than the others if the branches disagreed.
+
+                  png takes format: 'webp', not 'jpg'. jpg would flatten alpha; webp keeps it and
+                  still accepts quality, and it is the only reason a png is compressible at all
+                  here — tile-1 and tile-4 were shipping at full weight before this, 76 KB and
+                  124 KB, now 35 KB and 58 KB.
+
+                  tile-1 and tile-4 are png. Both are colour-type 2 — no alpha channel at all, so
+                  there is nothing for jpg to flatten — but that is a fact about TODAY'S artwork,
+                  not about the setting, and a merchant can swap either for a png that does have
+                  alpha. So the extension is read off the URL and a png keeps the crop and skips
+                  the recompression, rather than being converted on an assumption.
+                {%- endcomment -%}
+                {%- liquid
+                  comment
+                    Base 1221 = the top of the ladder, not the size of any box. `image_tag` drops
+                    every `widths:` entry wider than the base url without saying so, and a base of
+                    814 quietly capped the srcset there. The base is only the `src` fallback.
+                  endcomment
+                  if block.settings.crop == 'tall'
+                    assign tile_h = 1752
+                  else
+                    assign tile_h = 1465
+                  endif
+
+                  assign tile_ext = block.settings.image | image_url: width: 1 | split: '?' | first | split: '.' | last | downcase
+                  if tile_ext == 'gif'
+                    assign tile_src = block.settings.image | image_url: width: 1221, height: tile_h, crop: 'center'
+                  elsif tile_ext == 'png'
+                    assign tile_src = block.settings.image | image_url: width: 1221, height: tile_h, crop: 'center', format: 'webp', quality: 70
+                  else
+                    assign tile_src = block.settings.image | image_url: width: 1221, height: tile_h, crop: 'center', quality: 70
+                  endif
+                -%}
                 {{
                   tile_src
                   | image_tag:
                     loading: 'lazy',
-                    widths: '260, 407, 520, 814',
+                    widths: '260, 320, 407, 520, 620, 720, 814, 960, 1221',
                     sizes: '(max-width: 768px) 260px, 407px',
                     alt: block.settings.image_alt,
                     class: 'story-slider__image'

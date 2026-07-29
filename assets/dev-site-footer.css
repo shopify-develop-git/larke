@@ -22,14 +22,15 @@
 }
 
 .site-footer__content {
-  /* No --container-max by design — full-bleed shared chrome, same as dev-site-header.
-     Horizontal inset comes entirely from --section-px. */
+  /* The card is full-bleed — same call as dev-site-header, and its top corners are drawn meeting
+     the window edges. Its CONTENTS are capped: --gutter is --section-px up to 1440 and takes the
+     surplus past it. Derived in the section's <style> block. */
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--gap-section);
   width: 100%;
-  padding: var(--pt) var(--section-px) var(--pb);
+  padding: var(--pt) var(--gutter) var(--pb);
   border-radius: var(--radius-card) var(--radius-card) 0 0;
   background-color: var(--bg);
   overflow: hidden;
@@ -352,6 +353,8 @@
 }
 
 .site-footer__link {
+  position: relative; /* containing block for the hover underline */
+  display: inline-block; /* gives ::after a real box to anchor to */
   font-size: var(--font-body-sm-size);
   font-weight: 500;
   line-height: var(--font-body-lh);
@@ -359,8 +362,31 @@
   text-decoration: none;
 }
 
-.site-footer__link:hover {
-  text-decoration: underline;
+/* The announcement bar's hover underline, verbatim: the Text link component's
+   tapered stroke as a mask, appearing instantly (the Figma variant swap has no
+   transition). -0.8px mirrors the bar's geometry — there the stroke centre sits
+   0.8px below the 22.4px text box inside the 24px link box; here the
+   inline-block IS the text box, so the offset is written out. */
+.site-footer__link::after {
+  content: "";
+  position: absolute;
+  left: var(--link-underline-inset);
+  right: var(--link-underline-inset);
+  bottom: calc(-0.8px - var(--link-underline-h) / 2);
+  height: var(--link-underline-h);
+  background-color: var(--link-underline-color);
+  -webkit-mask-image: var(--link-underline-svg);
+  mask-image: var(--link-underline-svg);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  opacity: 0;
+}
+
+.site-footer__link:hover::after,
+.site-footer__link:focus-visible::after {
+  opacity: 1;
 }
 
 .site-footer__copyright {
@@ -401,6 +427,21 @@
 .site-footer__input::placeholder {
   color: var(--color);
   opacity: 1;
+}
+
+/* Input Fields, State=Hover: a 1px #666666 stroke on the white box, everything
+   else unchanged. Figma sets strokeAlign INSIDE, so it is an inset shadow rather
+   than a border — a real border would eat 1px of the padding box and shift the
+   16px placeholder. Instant, like the link underline above: the Figma variant
+   swap carries no transition.
+
+   Focus reuses the hover treatment verbatim, so the field reads the same whether
+   it is reached by pointer or by keyboard. Figma's own State=Focssed variant is a
+   heavier 2px #333333; matching hover here is a deliberate override. */
+.site-footer__input:hover,
+.site-footer__input:focus,
+.site-footer__input:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--input-border-color);
 }
 
 /* Only positioning stays local; all visual styling comes from .dev-btn / .dev-btn--ghost. */
@@ -556,6 +597,21 @@
     justify-content: center;
   }
 
+  /* WCAG 2.2 target size (2.5.8). The mobile artboard stacks these links flush — the section
+     sets --gap-link-list and --link-row-min-h to 0 there — so each <a> rendered at its 22.4px
+     line box with 20.8px of safe clickable space, under the 24px minimum, and every footer link
+     failed the audit.
+
+     The min-height goes on the ANCHOR, not the row: target size measures the interactive
+     element's own box, so growing .site-footer__menu-item alone would leave the <a> at 22.4px
+     and the audit still failing. The anchor stays a flex item that hugs its text, so link
+     widths are unchanged; only the row grows, by 1.6px each. */
+  .site-footer__link {
+    display: flex;
+    align-items: center;
+    min-height: 24px;
+  }
+
   /* brand identity: logo + tagline centred, no "Social" label, address stacks */
   .site-footer__identity {
     align-items: center;
@@ -591,6 +647,12 @@
     flex-direction: column;
     align-items: center;
     width: 100%;
+  }
+
+  /* Centred on one line the address runs nearly the full card width; capped at 150 it wraps into
+     the short stacked block the mobile artboard draws. */
+  .site-footer__address-text {
+    max-width: 150px;
   }
 
   /* payment icons get their own rule above AND below on mobile */
@@ -638,7 +700,6 @@
 .site-footer__link:focus-visible,
 .site-footer__logo:focus-visible,
 .site-footer__social-link:focus-visible,
-.site-footer__input:focus-visible,
 .site-footer__copyright a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -647,8 +708,16 @@
 .site-footer__link:focus:not(:focus-visible),
 .site-footer__logo:focus:not(:focus-visible),
 .site-footer__social-link:focus:not(:focus-visible),
-.site-footer__input:focus:not(:focus-visible),
 .site-footer__copyright a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* The newsletter input opts out of the shared accent ring above because it
+   carries its own focus indicator — the inset border it shares with hover. Both
+   :focus and :focus-visible are suppressed so the browser's own default ring
+   does not double up on it. */
+.site-footer__input:focus,
+.site-footer__input:focus-visible {
   outline: none;
 }
 

@@ -34,7 +34,8 @@
           "type": "compare",
           "settings": {
             "heading": "Still undecided?",
-            "label": "See how our duvet compares",
+            "label": "See how our duvet",
+            "link_label": "compares",
             "link": "#compare"
           }
         },
@@ -138,13 +139,16 @@
         "rating_value": 4.9,
         "rating_label": "4.9/5",
         "rating_link": "",
+        "enable_zoom": true,
         "badge_text": "Smooth & Breezy",
         "show_seal": true,
-        "seal_image": "shopify://shop_images/dev-main-product-seal.webp",
+        "seal_image": "shopify://shop_images/5edfe05061b0017ad3a5f03c1cea177e6235f5a9_8738cbeb-87e7-4f70-b03e-5de5c4ea5473.png",
+        "seal_image_mobile": "shopify://shop_images/ghk_26_1.webp",
         "seal_alt": "Good Housekeeping Institute approved",
         "tog_label_temp": "Temperature:",
         "tog_label_feel": "How it feels over you:",
         "tog_label_best": "Best for:",
+        "guide_chat_link": true,
         "background_color": "#fffcf4",
         "text_color": "#333333",
         "accent_color": "#a8cf78",
@@ -259,10 +263,10 @@
         "judge_me_reviews_review_widget_RXkthF": {
           "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
           "settings": {
-            "review_data": "sample_data",
+            "review_data": "real_data",
             "max_width": 1200,
             "show_shop_reviews": false,
-            "empty_state": "empty_widget"
+            "empty_state": "other_products_reviews"
           }
         }
       },
@@ -270,6 +274,7 @@
         "judge_me_reviews_review_widget_RXkthF"
       ],
       "settings": {
+        "load_more_label": "Show More Reviews",
         "background_color": "#fffcf4",
         "text_color": "#333333",
         "card_color": "#fcf5e3",

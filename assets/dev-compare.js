@@ -186,13 +186,29 @@
     });
 
     /* Initial paint of the sliding indicator, plus re-measures for the moments that
-       change tab widths: web-font swap, full load, and viewport resize. */
+       change tab widths: web-font swap, full load, and viewport resize. Resize is
+       debounced (same 150ms as dev-three-step) — it used to run the offsetWidth read
+       + style write on every resize event, modal open or not; now it settles once,
+       and a closed modal skips the work entirely (open() repositions the indicator
+       on the way back in anyway). */
     positionIndicator(activeTab());
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(() => positionIndicator(activeTab()));
     }
     window.addEventListener('load', () => positionIndicator(activeTab()));
-    window.addEventListener('resize', () => positionIndicator(activeTab()), { passive: true });
+
+    let resizeTimer = 0;
+    window.addEventListener(
+      'resize',
+      () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          if (root.dataset.open !== 'true') return;
+          positionIndicator(activeTab());
+        }, 150);
+      },
+      { passive: true }
+    );
 
     syncState();
   }

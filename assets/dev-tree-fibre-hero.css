@@ -11,6 +11,17 @@
   flex-direction: column;
   align-items: flex-start;
   min-height: var(--hero-min-h);
+
+  /* The WHOLE section box is capped at the desktop artboard width and centred past it — photo,
+     scrim and both bottom corners together, not just the text. Inert below 1440, so the artboard
+     widths are untouched; above it the page background shows down each side.
+
+     A second effect worth knowing before you touch --bg-*-d: those offsets are percentages of this
+     box, so capping it also stops the photo's crop from drifting. At 1920 the framing is now the
+     1440 framing, which is the one that was measured against Figma. */
+  max-width: var(--section-max);
+  margin-inline: auto;
+
   overflow: hidden;
   border-bottom-left-radius: var(--radius-bottom);
   border-bottom-right-radius: var(--radius-bottom);

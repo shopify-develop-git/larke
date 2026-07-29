@@ -42,6 +42,21 @@
   >
     {% render 'skip-to-content-link', href: '#ResultsList', text: 'accessibility.skip_to_results_list' %}
 
+    {%- comment -%}
+      Gives the results region a level-2 heading so the outline does not skip a level.
+
+      Product-card titles are hardcoded to aria-level 3 in blocks/product-title.liquid. On desktop
+      the facets are visible and their "Active filters" h2 sat between them and the collection's
+      h1, so the outline held. On mobile the facets collapse into a closed drawer, which axe drops
+      from the accessibility tree entirely — leaving h1 straight to h3 and failing heading-order on
+      every collection page.
+
+      A hidden h2 here is the narrow fix. The alternative was demoting every product-card title to
+      aria-level 2 site-wide, which would have changed the outline on search, cart recommendations
+      and the PDP as well, to fix one template.
+    {%- endcomment -%}
+    <h2 class="visually-hidden">{{ 'accessibility.skip_to_results_list' | t }}</h2>
+
     <div
       class="collection-wrapper grid gap-style{% if section.settings.product_grid_width == 'full-width' %} collection-wrapper--grid-full-width{% endif %}"
     >

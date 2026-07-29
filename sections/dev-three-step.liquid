@@ -111,12 +111,50 @@
 
           <div class="dev-three-step__media">
             {%- if img != blank -%}
+              {%- comment -%}
+                The media box is 332 x 250 on desktop and 100vw x 250 on mobile — fixed height,
+                fluid width, object-fit: cover. The source was requested at its own aspect and the
+                browser cropped it. Measured at a 500px viewport / DPR 2:
+
+                  box      489 x 250 CSS  ->  978 x 500 device
+                  shipped  1000 x 800     ->  37% of the height downloaded and discarded
+                  image 1  212,968 B, against 24,278 B for image 3 in the identical box
+
+                1.3 is one ratio for both breakpoints, and it is the desktop box (332 / 250 = 1.328)
+                rounded DOWN rather than the mobile one: mobile only gets wider as the viewport
+                grows (1.5 at 375, 3.07 at 768), so the desktop tile is the tallest box either
+                breakpoint asks for and a crop no wider than it can never run out of height. The
+                floor is a 320px phone at 1.28, where 1.3 is 1.5% short — below anything visible.
+
+                CDN, 664x500 at q80: image 1  212,968 -> 85,188, image 2  62,278 -> 30,360,
+                image 3  24,278 -> 13,508. The spread between the three is the sources, not the
+                settings; image 1 is simply a busier photograph.
+
+                These are .webp sources today, where `quality` is legal, but the setting is an
+                image_picker and the next upload could be a png — which makes image_url raise
+                "quality can't be used with ext png" and renders the src as an error string. Hence
+                the extension check rather than a bare quality argument.
+              {%- endcomment -%}
+              {%- liquid
+                comment
+                  Base 1536 = the top of the ladder. `image_tag` drops every `widths:` entry wider
+                  than the base url and says nothing about it, so a base of 1000 capped the srcset
+                  three rungs early. The base itself is only the `src` fallback.
+                endcomment
+                assign step_ext = img | image_url: width: 1 | split: '?' | first | split: '.' | last | downcase
+                if step_ext == 'gif'
+                  assign step_src = img | image_url: width: 1536, height: 1182, crop: 'center'
+                elsif step_ext == 'png'
+                  assign step_src = img | image_url: width: 1536, height: 1182, crop: 'center', format: 'webp', quality: 70
+                else
+                  assign step_src = img | image_url: width: 1536, height: 1182, crop: 'center', quality: 70
+                endif
+              -%}
               {{
-                img
-                | image_url: width: 1000
+                step_src
                 | image_tag:
                   loading: 'lazy',
-                  widths: '332, 375, 664, 750, 1000',
+                  widths: '332, 400, 500, 600, 664, 760, 860, 1000, 1150, 1300, 1536',
                   sizes: '(max-width: 768px) 100vw, 332px',
                   alt: img_alt,
                   class: 'dev-three-step__image'

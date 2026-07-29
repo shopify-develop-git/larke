@@ -36,10 +36,19 @@
 
   comment
     A regular 5-point star drawn with straight lines only — sharp points, NO rounded corners.
-    viewBox 24×24, outer radius 11 / inner radius ~4.2 (the regular {5/2} ratio), centred on x.
+    Outer radius 11 / inner radius ~4.2 (the regular {5/2} ratio).
+
+    The viewBox starts at y = -1.05, and that offset is load-bearing. The path runs y 1 -> 20.9,
+    so it is 19.9 tall inside a 24 box and its centre is at 10.95, not 12 — a star sitting 1.05
+    units high in its own box. Every consumer centres the BOX (align-items: center), so that bias
+    came straight through as ink ~0.6px above the text it sits beside at 13px, which is what made
+    the drawer's rating row read as misaligned. Offsetting the viewBox by (24 - 19.9) / 2 - 1
+    re-centres the box on the ink without touching the path or the rendered size.
+
+    Horizontally the path is already symmetric (1.54 -> 22.46, centre 12), so x stays 0.
   endcomment
   capture star_svg
-    echo '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M12 1L14.47 8.6L22.46 8.6L15.99 13.3L18.47 20.9L12 16.2L5.53 20.9L8.01 13.3L1.54 8.6L9.53 8.6Z"/></svg>'
+    echo '<svg viewBox="0 -1.05 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M12 1L14.47 8.6L22.46 8.6L15.99 13.3L18.47 20.9L12 16.2L5.53 20.9L8.01 13.3L1.54 8.6L9.53 8.6Z"/></svg>'
   endcapture
 -%}
 <span

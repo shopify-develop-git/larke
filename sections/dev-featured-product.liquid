@@ -5,8 +5,8 @@
 
   Inline SVG (all 3 icons are < 8KB, per the Assets report → INLINE route). Every `d` below is
   copied BYTE-FOR-BYTE from the owner's Figma export in .figma-assets/featured-product/
-  (icon-wind.svg, icon-care.svg, icon-organic.svg). Only `stroke` was rewritten to currentColor
-  so the icons inherit --color. Nothing was retyped, rounded or "tidied".
+  (icon-wind.svg, icon-care.svg, icon-organic.svg). Only `stroke` was rewritten to currentColor,
+  which --color-icon then drives. Nothing was retyped, rounded or "tidied".
   Verify with: node .claude/tools/svg-fidelity.mjs --section featured-product
 
   Note (Brief §5): despite the name, this section has NO dynamic product binding in Figma —
@@ -39,10 +39,16 @@
     /* Typography — mobile. Both confirmed off the mobile artboard (node 44821:5733):
        subheading is Body/Lg_Body_Medium 18px (line-advance 25px = 18 × 1.4); the heading
        measures ~27px (line-advance 32px = 27 × 1.2), which the 0.75 scale factor lands on
-       exactly. Label + button sizes are held at their desktop values — the mobile screenshot
-       shows no smaller mobile button. */
+       exactly. The button drops to the small master size on mobile — 12/18 padding and a
+       16px label, against 18/24 and 18px on desktop. Icon labels stay at their desktop 14px. */
     --font-heading-size-m: calc(var(--font-heading-size) * 0.75);
+    /* The "(and last)" run drops BELOW the heading it sits in on mobile — 24 against the line's 28.
+       Its own token because it does not follow the 0.75 scale the rest of the heading does. */
+    --font-heading-size-aside-m: 24px;
     --font-body-size-m: 18px;
+    --font-button-size-m: 16px;
+    --button-pad-y-m: 12px;
+    --button-pad-x-m: 18px;
 
     /* Spacing */
     --spacing-sm: 8px;
@@ -54,6 +60,7 @@
 
     /* Layout */
     --media-w: 655px;
+    --content-w: 646px; /* 655 + 646 = 1301, the section content box at 1440 — no gap in Figma */
     --media-h: 511px;
     --media-ratio: 655 / 511;
     --media-ratio-m: 343 / 319; /* mobile: image is a full-width band (343 @375px) × 319 tall */
@@ -85,6 +92,7 @@
     --color-badge-border: #c4bca9;
     --color-button-bg: #333333;
     --color-button-text: #ffffff;
+    --color-icon: #666666; /* icon strokes sit lighter than the label beside them */
   }
 </style>
 
@@ -98,6 +106,22 @@
 
   assign hero = section.settings.product_image
   assign hero_alt = hero.alt | default: '' | escape
+
+  comment
+    Art direction, not a second size of the same file: the desktop tile is 655x511 (1.28) and the
+    mobile band is 343x319 (1.08), so a merchant with a landscape hero can supply a portrait crop
+    for phones instead of letting object-fit: cover shave the sides off it. Optional — with no
+    mobile pick the <source> is not written at all and every width falls through to the one image.
+
+    343 is the tile at 375; the ladder is that at 1x/2x/3x.
+  endcomment
+  assign hero_mobile = section.settings.product_image_mobile
+
+  assign hero_mobile_1x = hero_mobile | image_url: width: 343
+  assign hero_mobile_2x = hero_mobile | image_url: width: 686
+  assign hero_mobile_3x = hero_mobile | image_url: width: 1029
+
+  assign hero_mobile_srcset = hero_mobile_1x | append: ' 343w, ' | append: hero_mobile_2x | append: ' 686w, ' | append: hero_mobile_3x | append: ' 1029w'
 -%}
 
 <div
@@ -114,16 +138,21 @@
     <div class="featured-product__card">
       {%- if hero != blank -%}
         <div class="featured-product__media">
-          {{
-            hero
-            | image_url: width: 1400
-            | image_tag:
-              loading: 'lazy',
-              widths: '400, 655, 800, 1000, 1310, 1400',
-              sizes: '(min-width: 769px) 655px, 100vw',
-              alt: hero_alt,
-              class: 'featured-product__image'
-          }}
+          <picture>
+            {%- if hero_mobile != blank -%}
+              <source media="(max-width: 768px)" srcset="{{ hero_mobile_srcset }}" sizes="100vw">
+            {%- endif -%}
+            {{
+              hero
+              | image_url: width: 1400
+              | image_tag:
+                loading: 'lazy',
+                widths: '400, 655, 800, 1000, 1310, 1400',
+                sizes: '(min-width: 769px) 655px, 100vw',
+                alt: hero_alt,
+                class: 'featured-product__image'
+            }}
+          </picture>
         </div>
       {%- endif -%}
 
@@ -252,6 +281,7 @@
     { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop Your Duvet" },
     { "type": "url", "id": "button_link", "label": "Button link" },
     { "type": "image_picker", "id": "product_image", "label": "Product image" },
+    { "type": "image_picker", "id": "product_image_mobile", "label": "Product image (mobile)", "info": "Optional. On phones the image is a shorter, near-square band — pick a crop made for it here. Leave it empty and the image above is used at every width." },
 
     { "type": "header", "content": "Colors" },
     {

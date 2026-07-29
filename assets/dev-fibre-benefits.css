@@ -9,8 +9,9 @@
    TWO NESTED BACKGROUND LAYERS (Brief note #2). This is the whole shape of the section:
 
      .fibre-benefits         root — PAGE background + the top spacer (+ the side gutter on mobile)
-       .fibre-benefits__inner  the cream BAND — full-bleed and square on desktop,
-                               a 32px-rounded inset card on mobile
+       .fibre-benefits__inner  the cream BAND — full-bleed and square on desktop at every width
+                               (its --gutter padding, not a cap, holds the cards to 1312 past
+                               1440), a 32px-rounded inset card on mobile
          .fibre-benefits__card × 3   the white cards
 
    Verified against both artboards, not inferred: the 80px desktop spacer and the 48px mobile
@@ -36,16 +37,22 @@
 /* --- layout --- */
 
 .fibre-benefits__inner {
-  /* Full-bleed by design — no --container-max (Brief note #1: the content row is w-full, there
-     is no centred max-width frame in this node). Figma: row / align stretch / gap 24 /
-     padding 24px 64px. Each card is flex:1 0 0, so the three divide the row evenly. */
+  /* Figma: row / align stretch / gap 24 / padding 24px 64px. Each card is flex:1 0 0, so the
+     three divide the row evenly. */
   background-color: var(--bg);
   display: flex;
   flex-direction: row;
   align-items: stretch;
   gap: var(--spacing-lg);
-  padding: var(--spacing-lg) var(--section-px);
   width: 100%;
+
+  /* --gutter, NOT --section-px, and NOT a max-width on this element. The band's background has to
+     reach both window edges, so the band itself must stay full-bleed — it is its PADDING that
+     grows past 1440, holding the cards on a 1312 line while the cream keeps running. --gutter is
+     --section-px up to 1440 and takes the surplus above it (derived in the section's <style>).
+     Putting a max-width here instead would stop the cream at 1440 and stripe the page either
+     side, which is the thing this is deliberately not doing. */
+  padding: var(--spacing-lg) var(--gutter);
 }
 
 /* --- blocks / children --- */

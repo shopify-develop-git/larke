@@ -15,12 +15,12 @@
         "heading": "<p>Not just any<br/>ordinary duvet</p>",
         "subtext": "<p>This one begins with <em>trees</em>.</p>",
         "cta_label": "Discover Our Duvet",
-        "cta_link": "/products/natural-duvet",
+        "cta_link": "/products/natures-blend-duvet-copy",
         "background_image": "shopify://shop_images/master_hero_media_619dff07-6390-4b1e-ba79-c1622cdf6972.webp",
         "background_image_mobile": "shopify://shop_images/hero-bg.jpg",
         "stretch_background": false,
         "show_underline_accent": true,
-        "background_color": "#333333",
+        "background_color": "rgba(0,0,0,0)",
         "text_color": "#ffffff",
         "accent_color": "#a8cf78",
         "padding_top": 64,
@@ -82,7 +82,7 @@
         "tile-line-drying": {
           "type": "image_tile",
           "settings": {
-            "image": "shopify://shop_images/wash-dry-repeat-promo-tile-2.jpg",
+            "image": "shopify://shop_images/master_promo_tiles.webp",
             "alt_text": "A Larke duvet drying outdoors on a washing line",
             "border_color": "#c4bca9"
           }
@@ -96,7 +96,7 @@
         "heading": "Naturally Better.",
         "subheading": "<p>From trees, to the most breathable duvet.</p>",
         "cta_label": "Start your 60-night trial",
-        "cta_link": "/products/natural-duvet",
+        "cta_link": "/products/natures-blend-duvet-copy",
         "background_color": "#fcf5e3",
         "text_color": "#333333",
         "accent_color": "#c4bca9",
@@ -198,13 +198,14 @@
       ],
       "settings": {
         "heading": "<p>Meet your new<br/><em>(and last)</em> duvet</p>",
-        "subheading": "<p>A naturally breathable, cosier, all-season duvet</p>",
+        "subheading": "<p>A naturally breathable, cosier, all-⁠season duvet</p>",
         "show_rating_stars": true,
         "rating_stars": "★★★★★",
         "rating_text": "Rated 4.9/5* by real sleepers",
         "button_label": "Shop Your Duvet",
-        "button_link": "/products/natural-duvet",
-        "product_image": "shopify://shop_images/featured-product-hero.jpg",
+        "button_link": "/products/natures-blend-duvet-copy",
+        "product_image": "shopify://shop_images/master_promo_tiles_3dc13547-6e92-4782-86f0-e7536b3a7500.webp",
+        "product_image_mobile": "shopify://shop_images/master_promo_tiles_32e7c18c-8684-4436-8535-27552599253a.webp",
         "background_color": "#fcf5e3",
         "text_color": "#333333",
         "accent_color": "#f1b500",
@@ -215,53 +216,53 @@
     "dev-cool-sleepers-promo": {
       "type": "dev-cool-sleepers-promo",
       "blocks": {
-        "logo-vogue": {
+        "logo_ENMBfi": {
           "type": "logo",
           "settings": {
-            "image": "shopify://shop_images/press-vogue.svg",
-            "alt_text": "Vogue",
-            "logo_height": 21
+            "image": "shopify://shop_images/house_and_garden_logo_transparent.png",
+            "alt_text": "",
+            "logo_height": 30
           }
         },
-        "logo-mail-online": {
+        "logo_iRJ4Yj": {
           "type": "logo",
           "settings": {
-            "image": "shopify://shop_images/press-mail-online.svg",
-            "alt_text": "Mail Online",
-            "logo_height": 17
+            "image": "shopify://shop_images/good_housekeeping_logo_exact_transparent_6000px.png",
+            "alt_text": "",
+            "logo_height": 28
           }
         },
-        "logo-refinery29": {
+        "logo_V7BmpD": {
           "type": "logo",
           "settings": {
-            "image": "shopify://shop_images/press-refinery29.svg",
-            "alt_text": "Refinery29",
-            "logo_height": 39
+            "image": "shopify://shop_images/Womens-Health-Logo.png",
+            "alt_text": "",
+            "logo_height": 24
           }
         },
-        "logo-grazia": {
+        "logo_THxTyD": {
           "type": "logo",
           "settings": {
-            "image": "shopify://shop_images/press-grazia.svg",
-            "alt_text": "Grazia",
-            "logo_height": 21
+            "image": "shopify://shop_images/Glamour_logo_svg.webp",
+            "alt_text": "",
+            "logo_height": 23
           }
         },
-        "logo-womens-health": {
+        "logo_ii4Rpb": {
           "type": "logo",
           "settings": {
-            "image": "shopify://shop_images/press-womens-health.svg",
-            "alt_text": "Women's Health",
-            "logo_height": 21
+            "image": "shopify://shop_images/English-Home-Logo-AI-Black-RGB.svg",
+            "alt_text": "",
+            "logo_height": 32
           }
         }
       },
       "block_order": [
-        "logo-vogue",
-        "logo-mail-online",
-        "logo-refinery29",
-        "logo-grazia",
-        "logo-womens-health"
+        "logo_ENMBfi",
+        "logo_iRJ4Yj",
+        "logo_V7BmpD",
+        "logo_THxTyD",
+        "logo_ii4Rpb"
       ],
       "settings": {
         "heading": "As seen in",
@@ -272,7 +273,7 @@
         "text_color": "#333333",
         "accent_color": "#333333",
         "marquee_duration": 30,
-        "padding_top": 80,
+        "padding_top": 48,
         "padding_bottom": 0
       }
     },
@@ -335,7 +336,7 @@
         "button_link": "/pages/about?view=our-story",
         "image": "shopify://shop_images/our-story-video-banner-bg.jpg",
         "image_mobile": "shopify://shop_images/our-story-video-banner-bg.jpg",
-        "background_color": "#FFFCF4",
+        "background_color": "#fffcf4",
         "text_color": "#ffffff",
         "accent_color": "#a8cf78",
         "padding_top": 80,

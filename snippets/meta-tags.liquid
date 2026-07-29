@@ -115,9 +115,17 @@
   href="{{ canonical_url }}"
 >
 
-{% if page_description %}
-  <meta
-    name="description"
-    content="{{ page_description | escape }}"
-  >
-{% endif %}
+{%- comment -%}
+  Falls back the same way og:description already does (page → shop → shop name), rather than
+  emitting nothing. /cart, /pages/about and /pages/faq carry no description in the admin, so the
+  guarded version shipped those pages with no <meta name="description"> at all — an SEO audit
+  failure on every template except the homepage and the PDP.
+
+  og_description is reused deliberately: one fallback chain, so the description a crawler reads
+  and the one a social card shows can never drift apart. Setting a real per-page description in
+  the admin still wins — this is the floor, not a substitute.
+{%- endcomment -%}
+<meta
+  name="description"
+  content="{{ og_description | escape }}"
+>

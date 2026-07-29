@@ -18,8 +18,16 @@
   .site-footer {
     /* brand params */
     --section-px: 64px;
-    /* No --container-max by design: like dev-site-header, this is full-bleed shared chrome.
-       The cream card is 100% of the section frame; content is inset only by --section-px. */
+
+    /* The cream card stays 100% of the section frame — its rounded top corners are meant to meet
+       the window edges, and a card floating in the middle of a 1920 screen is a different design.
+       What is capped is what the card HOLDS: past 1440 the newsletter row, the menus and the
+       bottom bar stop stretching and hold the 1312 the artboard draws (1440 - 2x64).
+
+       Hence a gutter, not a max-width. max() means nothing below 1440 moves: --section-px wins
+       there, including the 16px this block hands it at <=768. */
+    --container-max: 1312px;
+    --gutter: max(var(--section-px), (100% - var(--container-max)) / 2);
 
     /* structure */
     --footer-top-spacer: 80px;
@@ -46,8 +54,21 @@
     --font-button-size: 18px;
     --font-button-weight: 700;
 
+    {%- comment -%}
+      Menu-link hover underline — the same "Text link" hover variant as the
+      announcement bar (Figma 45201:1588): a tapered 1.4px hand-drawn stroke,
+      #666666, inset 8px from each end of the label, applied as a mask so the
+      colour stays a CSS token. The SVG is this section's own copy of the
+      export (preserveAspectRatio="none", stretches to any label width).
+    {%- endcomment -%}
+    --link-underline-svg: url('{{ 'dev-site-footer-underline.svg' | asset_url }}');
+    --link-underline-h: 1.4px;
+    --link-underline-inset: 8px;
+    --link-underline-color: #666666;
+
     /* newsletter form */
     --input-bg: #ffffff;
+    --input-border-color: #666666; /* paints only in the hover / focus states */
     --input-padding: 18px 24px;
     --button-bg: rgba(52, 52, 52, 0.66);
     --button-color: #ffffff;

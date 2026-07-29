@@ -5,11 +5,27 @@
 <style>
   .fibre-benefits {
 
-    /* Full-bleed by design. No --container-max: Brief note #1 — the content row is w-full,
-       there is no centred max-width frame in this node (same precedent as dev-trust-badges
-       and dev-site-header). The only horizontal inset is --section-px. */
     --section-px: 64px;
     --section-px-mobile: 16px;
+
+    /* A GUTTER, not a max-width, and that is the whole point: the cream band has to keep running
+       edge to edge, so it cannot be a capped centred box. Instead its own horizontal padding grows
+       past 1440 and the CARDS hold the line while the background behind them still reaches both
+       window edges. Same construction as dev-site-header / dev-site-footer / dev-values-we-cherish.
+
+       Below 1440 the second term goes negative and --section-px wins, so the desktop artboard
+       renders exactly as it did; only above 1440 does the gutter start taking the surplus:
+
+         1440   max(64,  64)  ->  64   unchanged
+         1920   max(64, 304)  -> 304   cards on a 1312 line
+         1100   max(64, -106) ->  64   unchanged
+
+       1312 is 1440 - 2x64: the artboard's width less its own padding, i.e. the cards keep the
+       content line they have at 1440 instead of growing with the window. Brief note #1 still
+       holds — there is no centred max-width FRAME in the markup, this is padding on the band.
+       Mobile never sees it: that breakpoint overrides padding with a uniform 24px. */
+    --container-max: 1312px;
+    --gutter: max(var(--section-px), (100% - var(--container-max)) / 2);
 
     /* Mobile artboard specifies its own top spacer (48px), not a scale factor off desktop. */
     --pt-mobile: 48px;
@@ -75,7 +91,9 @@
     Verified against both artboards — the 80px desktop spacer and the 48px mobile spacer are
     page-cream (#FFFCF4), NOT band-cream (#FCF5E3); the band starts below them. On mobile the
     band becomes a 32px-rounded card inset by a 16px gutter; on desktop it is full-bleed and
-    square. Same element, two skins — no CSS trick, a real wrapper with its own 24px padding.
+    square at every width — past 1440 it is the band's --gutter padding that grows, so the cards
+    stop widening while the cream still reaches both window edges.
+    Same element, two skins — no CSS trick, a real wrapper with its own 24px padding.
   {%- endcomment -%}
   <div class="fibre-benefits__inner">
     {%- for block in section.blocks -%}

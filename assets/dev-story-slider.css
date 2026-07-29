@@ -25,9 +25,11 @@
 
 /* --- layout --- */
 
-/* No --container-max and no horizontal padding on the wrapper by design: the padding lives on the
-   heading, the track and the controls SEPARATELY, so the track can scroll its tiles out past the
-   right gutter instead of being clipped inside a centred frame. */
+/* No max-width and no horizontal padding on the wrapper by design: the inset lives on the heading,
+   the track and the controls SEPARATELY, so the track can scroll its tiles out past the right
+   gutter instead of being clipped inside a centred frame. That is also why the 1440 cap arrives
+   here as --gutter padding on those three children rather than as a max-width on this element —
+   see the note in the section's <style> block. */
 .story-slider__inner {
   display: flex;
   flex-direction: column;
@@ -46,15 +48,26 @@
   align-items: flex-start;
   gap: var(--gap-tiles);
   margin: 0;
-  padding: 0 var(--section-px);
+
+  /* ASYMMETRIC on purpose. Left is --gutter, so the first tile starts on the same 1312 line as the
+     heading and the rail. Right stays --section-px: it is the scroll-END inset, not a cap, and the
+     tiles are meant to run off that edge unbounded. Give this side --gutter and the row stops
+     304px short of the window at 1920, which is the centred frame this section exists to avoid. */
+  padding: 0 var(--section-px) 0 var(--gutter);
   list-style: none;
 
   overflow-x: auto;
   /* `clip`, not `hidden`: `hidden` on the cross axis would silently make this a scroll container
      vertically too, and the tiles' rounded corners would sit on a scrollable overflow region. */
   overflow-y: clip;
-  scroll-snap-type: x proximity;
-  scroll-padding-inline: var(--section-px);
+
+  /* FREE scrolling — no scroll-snap on this track, deliberately. It carried
+     `scroll-snap-type: x proximity` with `scroll-snap-align: start` on every tile, which pulled
+     the row onto a tile edge at the end of every gesture: let go of a drag and it kept sliding up
+     to half a tile further on its own. The track loops, so there is no "correct" tile to land on
+     anyway, and these tiles are captions to be read at whatever offset the visitor stopped at.
+     `scroll-padding-inline` went with it — it existed only to place those snap points. */
+
   -webkit-overflow-scrolling: touch;
 
   /* The native bar is replaced by the artboard's own rail (.story-slider__rail). */
@@ -63,6 +76,28 @@
 
 .story-slider__track::-webkit-scrollbar {
   display: none;
+}
+
+/* The cursor is the only affordance the artboard does not draw, and the one place the section
+   cannot do without one: the native scrollbar is hidden above, a wheel scrolls the page, and the
+   row gives a mouse user no other sign that it moves. Gated on a fine pointer so a phone, which
+   scrolls this natively and never sees the JS drag, is not given a grab cursor it cannot use. */
+@media (hover: hover) and (pointer: fine) {
+  .story-slider__track {
+    cursor: grab;
+  }
+
+  .story-slider__track--dragging {
+    cursor: grabbing;
+  }
+}
+
+/* Only while a drag is actually live. Left on permanently this would stop a visitor selecting and
+   copying the captions, which are the story. */
+.story-slider__track--dragging,
+.story-slider__track--dragging * {
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .story-slider__tile {
@@ -75,7 +110,6 @@
      the row is the entire point of a scroller. */
   flex: 0 0 var(--tile-w);
   width: var(--tile-w);
-  scroll-snap-align: start;
 }
 
 /* --- media --- */
@@ -110,7 +144,8 @@
 
 .story-slider__heading {
   margin: 0;
-  padding: 0 var(--section-px);
+  /* Contained content — takes the gutter on both sides, unlike the track. */
+  padding: 0 var(--gutter);
 
   font-family: var(--font-heading);
   font-size: var(--font-heading-size);
@@ -146,7 +181,9 @@
   flex-direction: row;
   align-items: center;
   gap: var(--gap-controls);
-  padding: 0 var(--section-px);
+  /* Both sides: the rail is contained content, so it ends on the 1312 line rather than tracking
+     the window. The arrows stay flush to that right edge. */
+  padding: 0 var(--gutter);
 }
 
 /* The rail is the scrollbar the track no longer draws. Figma renders it as one 2px round-capped
@@ -196,15 +233,24 @@
   justify-content: center;
   padding: var(--button-p);
   border: 0;
-  border-radius: 60px;
+  /* Clamped to the painted radius (half the 62px box) so the hover morph animates
+     from the value actually drawn — a raw 60px leaves a clamped dead zone that
+     makes the un-hover snap (same fix as .dev-btn's --dev-btn-pill-r). */
+  border-radius: min(60px, calc(var(--button-p) + var(--icon-size) / 2));
   background: none;
   color: var(--color);
   cursor: pointer;
-  transition: opacity 0.15s ease-out;
+  transition:
+    opacity 0.15s ease-out,
+    background-color 0.3s ease-out,
+    border-radius 0.3s ease-out;
 }
 
-.story-slider__button:hover {
-  opacity: 0.7;
+/* Figma "Tertiary / Icon=Only" hover: the bare circle takes a cream fill and the
+   60px corners morph to 16px — the same 300ms ease-out morph as every CTA. */
+.story-slider__button:not([disabled]):hover {
+  background-color: var(--button-hover-bg);
+  border-radius: var(--button-hover-r);
 }
 
 /* Both ends of a scroller are reachable states, so the button is disabled rather than hidden —

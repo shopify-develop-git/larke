@@ -157,26 +157,38 @@ body[data-menu-drawer-open='true'] {
   border: 0;
 }
 
-.dev-menu-drawer__promo-rating,
-.dev-menu-drawer__promo-label,
-.dev-menu-drawer__promo-stars {
+/* font-size: 0 is load-bearing — DO NOT REMOVE. The value / separator / label are inline spans, so
+   any whitespace between them collapses into a rendered space (0.26em ≈ 4px each) and silently adds
+   drift the design does not have. The dash tags in the Liquid already emit them with no whitespace
+   between; this is the second line of defence against a later reformat. Each span restores its own
+   size below, which leaves the em margins as the only horizontal spacing. Mirrors .promo-bar__rating
+   exactly — the two rows must never disagree. */
+.dev-menu-drawer__promo-rating {
+  margin: 0;
+  flex-shrink: 0;
+  font-size: 0;
   line-height: var(--font-body-lh);
+  color: var(--color);
 }
 
-.dev-menu-drawer__promo-rating {
+.dev-menu-drawer__promo-value {
   font-size: var(--promo-rating-size);
   font-weight: var(--promo-rating-weight);
+  line-height: var(--font-body-lh);
+  margin-left: var(--space-advance); /* the single leading space in ` 4.6/5` */
+}
+
+.dev-menu-drawer__promo-separator {
+  font-size: var(--promo-rating-size);
+  font-weight: var(--promo-sep-weight);
+  line-height: var(--font-body-lh);
+  margin-inline: calc(var(--space-advance) * var(--sep-spaces)); /* `   |   ` */
 }
 
 .dev-menu-drawer__promo-label {
   font-size: var(--promo-rating-size);
   font-weight: var(--promo-label-weight);
-}
-
-.dev-menu-drawer__promo-stars {
-  color: var(--accent);
-  font-size: var(--promo-stars-size);
-  font-weight: var(--promo-stars-weight);
+  line-height: var(--font-body-lh);
 }
 
 /* --- buttons / links --- */
@@ -283,8 +295,11 @@ body[data-menu-drawer-open='true'] {
     padding-bottom: 0;
   }
 
+  /* Back to the base 8. The mobile links are set in the big display size, so the line boxes already
+     carry most of the air between the rows — 16 on top of that read as a gap, not a rhythm. The
+     footer list is untouched and keeps its own 8. */
   .dev-menu-drawer__nav-list {
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
   }
 
   .dev-menu-drawer__nav-link {
@@ -306,7 +321,10 @@ body[data-menu-drawer-open='true'] {
     padding-bottom: var(--spacing-sm);
   }
 
-  .dev-menu-drawer__promo-rating,
+  /* The wrapper stays at font-size: 0 — only the three spans step down. The star size does not
+     change at mobile, same as the promo bar. */
+  .dev-menu-drawer__promo-value,
+  .dev-menu-drawer__promo-separator,
   .dev-menu-drawer__promo-label {
     font-size: var(--promo-rating-size-mobile);
   }

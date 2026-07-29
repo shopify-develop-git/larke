@@ -36,6 +36,20 @@
   inset: 0;
 }
 
+/* The art-directed poster is wrapped in <picture>, and <picture> is a real box in the layout
+   tree — not a passthrough. Without this the poster's `height: 100%` resolved against the
+   <picture>, whose own height is auto, so the percentage was dropped and the image sized to its
+   intrinsic aspect instead of filling the 500px tile.
+
+   `display: contents` removes the wrapper from the box tree so the <img> stays a direct child of
+   __media for layout, and every rule below keeps working unchanged.
+
+   dev-hero does not need this because .hero__bg is position: absolute and resolves against
+   .hero__bg-layer regardless of the wrapper. This one fills its box statically, so it does. */
+.video-promo-banner__media picture {
+  display: contents;
+}
+
 .video-promo-banner__poster {
   display: block;
   width: 100%;
@@ -72,6 +86,15 @@
   color: var(--cta-text-color);
   cursor: pointer;
   appearance: none;
+  transition: background-color 0.3s ease-out;
+}
+
+/* Figma "Primary - White / Icon=Only" hover: the fill takes one cream step and the
+   circle KEEPS its 60px corners — White is the one hierarchy without the morph. */
+@media (hover: hover) {
+  .video-promo-banner__play:hover {
+    background-color: var(--btn-hover-bg);
+  }
 }
 
 .video-promo-banner__play-icon {
@@ -117,6 +140,10 @@
    needed: the button is centred by __content's flex align-items. */
 .video-promo-banner__button {
   --dev-btn-color: var(--cta-text-color);
+  /* This "Our Story" is Hierarchy=Secondary in Figma, not Primary - Colour: its
+     resting fill is already the cream --accent, so the component's default green
+     hover pair would be wrong here. #FCF5E3 is Secondary's own hover fill. */
+  --dev-btn-bg-hover: var(--btn-hover-bg);
 }
 
 /* --- modal (video lightbox) --- */
@@ -265,15 +292,17 @@
     transform: translate(-50%, -50%);
   }
 
-  /* The play button above is absolutely centred on the TILE. The global scroll-reveal (dev-reveal.js)
-     tags __content and briefly transforms it — and a transformed ancestor becomes the containing block
-     for an absolutely-positioned descendant. So while __content carried the reveal transform the play
-     button anchored to __content (low, near the text); the instant the transform settled on `none` it
-     re-anchored to the tile and jumped ~160px up — and Safari left it stranded there. Drop ONLY the
-     rise on __content here (its fade still plays), so the button's containing block stays the tile at
-     every frame and it never moves. Desktop is unaffected: there the play button is in normal flow. */
-  html.dev-reveal .video-promo-banner__content[data-reveal] {
-    transform: none;
+  /* Mobile-only scrim: the artboard darkens the bottom of the poster so the heading and button
+     hold contrast once the tile shrinks and the copy sits over the busy part of the photo.
+
+     Painted on ::after, not as __media's own `background`. __media CONTAINS the poster, so a
+     background on it is painted behind that image and would never be seen — the gradient has to be
+     a layer on top. __content carries z-index: 1, so it still sits above this. */
+  .video-promo-banner__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(3deg, rgb(0 0 0 / 60%) -7.85%, rgb(0 0 0 / 0%) 59.45%);
   }
 
   .video-promo-banner__text {

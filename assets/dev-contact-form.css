@@ -2,8 +2,11 @@
    Desktop 45246:3640 — cream card left (sticky), form right.
    Mobile  45246:1199 — banner (heading only, centred), the card's copy below it, then the form. */
 
+/* The horizontal inset lives on the root and the width cap on __inner — the same split every
+   other section uses — so --container-max measures the content row itself and does not have to
+   be read net of padding. The root still spans full width, which is what --bg paints. */
 .dev-contact-form {
-  padding: var(--pt) 0 var(--pb);
+  padding: var(--pt) var(--section-px) var(--pb);
   background-color: var(--bg);
   color: var(--color);
   font-family: var(--font-body);
@@ -14,7 +17,9 @@
   align-items: flex-start;
   justify-content: center;
   gap: var(--col-gap);
-  padding: var(--section-py) var(--section-px);
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-block: var(--section-py);
 }
 
 .dev-contact-form__card {
@@ -144,6 +149,23 @@
   opacity: 1;
 }
 
+/* Input Fields, State=Hover: the 1px stroke darkens to #666666 and nothing else moves.
+   The field already carries a real border — unlike the footer's input, which has none and
+   needs an inset shadow to fake one — so this is a plain border-color swap. The 1px stays
+   1px, so the box cannot reflow. Instant: the Figma variant swap carries no transition.
+
+   Focus reuses the hover treatment, so the field reads the same whether it is reached by
+   pointer or by keyboard. Figma's own State=Focssed is a heavier 2px #333333; matching
+   hover here is a deliberate override.
+
+   The parent class is repeated for the same reason as the base rule above — Horizon's
+   base.css:1280 sets border-color on a bare `input:not(...)` at (0,1,1). */
+.dev-contact-form .dev-contact-form__input:hover,
+.dev-contact-form .dev-contact-form__input:focus,
+.dev-contact-form .dev-contact-form__input:focus-visible {
+  border-color: var(--field-border-hover);
+}
+
 /* Ghost variant via the shared dev-button component. bg/border/color already equal the ghost
    defaults (rgba(52,52,52,.66) / 1px #fff / #fff), so only the deviations are overridden here:
    the combined --button-pad shorthand (11px 17px, can't be split into two token vars) and the
@@ -167,9 +189,12 @@
   padding-left: 1.2em;
 }
 
+/* The fields opt out of an accent focus ring because they carry their own focus
+   indicator — the darkened border above, shared with hover. Both :focus and
+   :focus-visible are suppressed so the browser's own default ring does not double up. */
+.dev-contact-form__input:focus,
 .dev-contact-form__input:focus-visible {
-  outline: 2px solid var(--color);
-  outline-offset: 2px;
+  outline: none;
 }
 
 /* ---- Tablet (769–1200) ---------------------------------------------------
@@ -183,11 +208,18 @@
 /* ---- Mobile (<=768) ---------------------------------------------------- */
 
 @media (max-width: 768px) {
+  /* The inset moved to the root, so the mobile override follows it there. Longhands, not the
+     shorthand, so the merchant's --pt / --pb survive. */
+  .dev-contact-form {
+    padding-left: var(--section-px-mobile);
+    padding-right: var(--section-px-mobile);
+  }
+
   .dev-contact-form__inner {
     flex-direction: column;
     align-items: stretch;
     gap: var(--stack-gap-mobile);
-    padding: var(--section-py-mobile) var(--section-px-mobile);
+    padding-block: var(--section-py-mobile);
   }
 
   /* The card stops being a box: its two children become direct children of __inner, so the

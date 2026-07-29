@@ -1,0 +1,23 @@
+{%- comment -%}
+  The article's byline. ONE source of truth — the Journal cards, the blog grid and the article
+  page all render through this, so the name can never disagree between them.
+
+  Order of precedence:
+    1. the `custom.author` metafield on the article  (an editor said so — always wins)
+    2. otherwise article.author, Shopify's own field
+
+  The metafield exists because Shopify's native author is a STAFF ACCOUNT name — the list of
+  store users, not a byline. A guest writer or a pen name cannot be made a staff account, so
+  the editor needs a field Shopify does not limit. The fallback keeps every article that has
+  no override rendering exactly what it rendered before.
+
+  Outputs the bare name, nothing else. The caller supplies the "By" prefix, so wording stays
+  in the section's settings where a merchant can translate it.
+
+  @param {object} article - a Shopify article
+{%- endcomment -%}
+
+{%- liquid
+  assign byline = article.metafields.custom.author.value | default: article.author
+  echo byline
+-%}

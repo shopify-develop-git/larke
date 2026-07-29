@@ -216,8 +216,9 @@
 
 @media (max-width: 768px) {
   .cool-sleepers-promo {
-    /* The Mobile artboard specifies its own top offset (48px spacer), not a scaled
-       desktop value. Padding-bottom stays 0 — verified by math (460 = 48 + 412). */
+    /* The Mobile artboard specifies its own top offset (48px spacer), not a scaled desktop
+       value. The token now carries 32px — the artboard's 48 minus the banner trim the client
+       asked for (see the note on the tokens in the section file). Padding-bottom stays 0. */
     padding-top: var(--pt-mobile);
   }
 

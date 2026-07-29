@@ -43,6 +43,36 @@
   list-style: none;
 }
 
+/* Scroll indicator for the thumbnail strip. Mobile-only: the desktop strip is a vertical column
+   that never scrolls sideways, and the artboard draws no indicator there. Display is switched on
+   in the <=768 block; the [hidden] rule outranks it (0,2,0 vs 0,1,0) whatever the source order,
+   which is what lets the JS take it away again when the strip has nothing to scroll. */
+.dev-main-product__thumb-scroll {
+  display: none;
+  position: relative;
+  height: var(--thumb-scroll-h);
+  border-radius: calc(var(--thumb-scroll-h) / 2);
+  background-color: var(--thumb-scroll-track);
+  overflow: hidden;
+}
+
+.dev-main-product__thumb-scroll[hidden] {
+  display: none;
+}
+
+/* Width and translate are both written by the JS. The bar is positioned by transform rather than
+   `left` so a scroll repaints on the compositor instead of relaying out the strip beside it, and
+   it carries NO transition on purpose — the bar has to track the finger exactly, and easing it
+   would make it drift behind the content it is reporting on. */
+.dev-main-product__thumb-scroll-bar {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background-color: var(--color);
+  will-change: transform;
+}
+
 .dev-main-product__thumb {
   display: block;
   position: relative;
@@ -96,10 +126,12 @@
   transform: translate(-50%, -50%);
 }
 
+/* 24px, not 16px: Figma 45060:2114 is a 24x24 icon at x=2,y=2 inside the 28px badge. The inset is
+   the badge's, so shrinking the svg would draw the glyph at 2/3 the size the design asks for. */
 .dev-main-product__play svg {
   display: block;
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
 }
 
 .dev-main-product__stage {
@@ -163,11 +195,27 @@
   right: 16px;
 }
 
+/* The seal is art-directed, so it is wrapped in <picture> — and <picture> is a real box in the
+   layout tree, not a passthrough. Left inline it adds a line-box strut under the image, which shows
+   up as a couple of stray pixels below the seal. `display: contents` takes the wrapper out of the
+   box tree so the <img> stays the direct child of __seal and the rule below keeps working as it did
+   when the img was on its own. Same move as .video-promo-banner__media picture. */
+.dev-main-product__seal picture {
+  display: contents;
+}
+
 .dev-main-product__seal-image {
   display: block;
   width: 90px;
   height: auto;
   border-radius: var(--thumb-radius);
+}
+
+/* The seal shows on the FIRST slide only — the class arrives from show() in the JS whenever the
+   gallery moves off slide 0. Without JS the class never appears and the seal simply stays, which
+   is the right failure: a visible award beats a vanished one. */
+.dev-main-product__gallery--off-first .dev-main-product__seal {
+  display: none;
 }
 
 .dev-main-product__arrows {
@@ -186,7 +234,6 @@
   border: 0;
   border-radius: var(--arrow-radius);
   background-color: var(--surface);
-  color: var(--color);
   cursor: pointer;
 }
 
@@ -194,6 +241,9 @@
   display: block;
   width: var(--icon-size);
   height: var(--icon-size);
+  /* Not --color: the slider arrows are pure black in the design, unlike the section's body token.
+     A per-element colour is intentional information here, not an inconsistency to unify away. */
+  color: #000000;
 }
 
 /* ---- Buy column --------------------------------------------------------- */
@@ -570,6 +620,10 @@
   .dev-main-product__gallery {
     position: static;
     flex-direction: column;
+    /* --gallery-gap is the 24px between the desktop's two COLUMNS. Stacked, it became 24px of dead
+       space between the photo, the strip and the indicator — none of which the artboard has: the
+       strip carries its own 8px of padding and the indicator its own margins. */
+    gap: 0;
     width: 100%;
     padding-top: 0;
   }
@@ -594,6 +648,7 @@
   .dev-main-product__thumbs {
     order: 2;
     flex-direction: row;
+    gap: var(--thumb-gap-mobile);
     width: 100%;
     padding: 8px var(--section-px-mobile);
     overflow-x: auto;
@@ -604,8 +659,35 @@
     display: none;
   }
 
+  /* Sits under the strip, inset to the same gutter. The artboard puts 12px between the thumbs and
+     the bar; 8 of those are already the strip's own bottom padding, so only 4 are added here.
+
+     order: 3 because the gallery is a column on mobile and the DOM runs thumbs -> stage: the stage
+     is pulled to 1 and the strip to 2, so the indicator has to name its place too or it would sit
+     above the photo.
+
+     align-self is NOT tidying. The gallery keeps align-items: flex-start from its base rule, and
+     once it turns into a column that governs the HORIZONTAL axis — so every child shrinks to its
+     content width. This rail's only content is a bar the JS starts at width 0, which makes the
+     whole thing 0 wide and perfectly invisible while looking correct in the inspector. The strip
+     above dodges the same trap with an explicit width: 100%; stretch is the equivalent here,
+     because it leaves the horizontal margins free to do the 16px inset. */
+  .dev-main-product__thumb-scroll {
+    display: block;
+    order: 3;
+    align-self: stretch;
+    margin: 4px var(--section-px-mobile) 8px;
+  }
+
   .dev-main-product__thumb-item {
     flex-shrink: 0;
+  }
+
+  /* The image goes full-bleed on mobile and loses its 32px radius, so the desktop's 28px inset —
+     which was clearing that curve — becomes too much. 16px matches the seal in the opposite corner. */
+  .dev-main-product__badge {
+    top: 16px;
+    left: 16px;
   }
 
   .dev-main-product__arrows {
@@ -616,6 +698,24 @@
 
   .dev-main-product__arrow {
     padding: 7px;
+  }
+
+  /* The seal sits in a fixed 10:7 box on mobile — the artboard's box. Width stays the base rule's
+     90px, so the ratio resolves to exactly 63px tall, expressed as a ratio rather than a height so
+     it keeps holding if that width is ever retuned. `height: auto` is restated rather than inherited
+     because it is what lets the ratio drive the height at all.
+
+     NO object-fit here, deliberately, so the artwork fills the box edge to edge at the full 90px the
+     design specifies. The trade-off is real and is the owner's call: the seal currently on the
+     product is 709x564 (1.257), not 10:7 (1.429), so `fill` draws it ~13% wide. `object-fit: contain`
+     was tried and removed — it does stop the stretching, but by shrinking the artwork to 80x63 inside
+     the box, which left 5px of dead space down each side and read as a seal 11% too small.
+
+     If the stretch ever needs to go, the fix is a 10:7 seal asset, not another object-fit: only a
+     source at the box's own ratio fills it edge to edge without distortion. */
+  .dev-main-product__seal-image {
+    aspect-ratio: 10 / 7;
+    height: auto;
   }
 
   /* Centre the buy CONTAINER on mobile (not its content): align-self stops it stretching to the
@@ -753,10 +853,15 @@
   gap: var(--variant-gap);
 }
 
-.dev-main-product__compare-link {
+.dev-main-product__compare-label {
   font-size: var(--font-label-size);
   font-weight: var(--w-medium);
   line-height: var(--font-body-lh);
+}
+
+/* Underline is on the link word alone — the artboard underlines "compares", not the sentence
+   that leads into it. The type is on the parent so both halves stay one uninterrupted line. */
+.dev-main-product__compare-link {
   text-decoration: underline;
   text-underline-position: from-font;
 }
@@ -933,6 +1038,13 @@
   .dev-main-product__acc-body ul {
     gap: 8px;
   }
+
+  /* The mobile artboard opens the stack with the heading, not a rule: the first row carries no
+     divider above it. Every later row keeps its own, so the separators still read as separators
+     between rows rather than a border around the block. */
+  .dev-main-product__acc:first-child {
+    border-top: 0;
+  }
 }
 
 /* The copy fades up out of nothing as the row opens — opacity ONLY. It used to slide as well, and
@@ -987,6 +1099,14 @@
 @media (max-width: 768px) {
   .dev-main-product__pc {
     margin-top: calc(var(--pc-lead) + 16px);
+    /* Full-bleed on mobile: this card is the one child of __buy that must NOT sit inside the
+       column's 16px gutter, so it pulls itself back out by exactly that much. Every sibling keeps
+       the gutter, which is why the escape is written here and not taken off the container.
+       Its own 24px padding stays and does the insetting instead, and the corners go because there
+       is no longer an edge for them to round against. */
+    margin-right: calc(var(--section-px-mobile) * -1);
+    margin-left: calc(var(--section-px-mobile) * -1);
+    border-radius: 0;
   }
 }
 
@@ -1020,7 +1140,9 @@
 .dev-main-product__pc-title i::after {
   content: '';
   position: absolute;
-  left: 0;
+  /* Starts 10px before the word: `right` stays put, so the stroke is simply 10px longer on the
+     leading side rather than sliding out from under the word. */
+  left: -10px;
   right: 0;
   top: 100%;
   margin-top: var(--underline-gap);
@@ -1044,6 +1166,16 @@
   font-size: var(--font-sub-size);
   font-weight: var(--w-medium);
   line-height: var(--font-body-lh);
+}
+
+/* 18 -> 16 on mobile, the same step the buy column's sub, the guide copy and the tog text already
+   take. Its own block, immediately after the rule it overrides, for the reason spelled out above
+   .dev-main-product__pc: every earlier <=768 block sits BEFORE this declaration in the file, so at
+   equal specificity the base rule would win and the override would silently do nothing. */
+@media (max-width: 768px) {
+  .dev-main-product__pc-sub {
+    font-size: var(--font-sub-size-mobile);
+  }
 }
 
 .dev-main-product__pc-rows {
@@ -1365,18 +1497,31 @@
   margin: 0;
 }
 
+/* 19 above each rule, not --group-gap's 16. A literal, because that token still sets the gap
+   BETWEEN the label and the value on this same row and everywhere else in the table — retuning it
+   would move all of that too. The <=768 block below takes this to 22. */
 .dev-main-product__size-row {
   display: flex;
   align-items: baseline;
   gap: var(--group-gap);
-  padding-bottom: var(--group-gap);
+  padding-bottom: 19px;
   border-bottom: 1px solid #d8d1c0;
 }
 
-/* Figma rules off between the rows, not under the last one. */
+/* Figma rules off BETWEEN the rows, not under the last one — so only the rule goes. The padding
+   stays on every row including the last, where it is what holds the table off whatever follows it
+   in the drawer. */
 .dev-main-product__size-row:last-child {
-  padding-bottom: 0;
   border-bottom: 0;
+}
+
+/* Mobile opens the rows a little further, 19 -> 22. Placed after the base rules for the usual
+   reason: the section's earlier <=768 blocks sit further up the file and would lose on source order
+   at equal specificity. The plain class is enough — :last-child no longer touches padding. */
+@media (max-width: 768px) {
+  .dev-main-product__size-row {
+    padding-bottom: 22px;
+  }
 }
 
 .dev-main-product__size-label {
@@ -1761,6 +1906,20 @@
   /* scale() THEN translate() — the order the JS's maths assumes. Swap them and a translate of 1px
      silently stops meaning 1px, and the pan bounds drift by a factor of the scale. */
   transform: scale(var(--zoom-scale, 1)) translate(var(--zoom-x, 0px), var(--zoom-y, 0px));
+}
+
+/* Capped exactly like the photo, and for the same reason: the element has to BE the video, so the
+   space beside a portrait clip belongs to the frame and still closes the lightbox on a click.
+
+   No transform and no --zoom-* vars. A video is not the pinch surface — the JS's activeImage()
+   only ever finds .dev-main-product__zoom-image, so the gesture layer skips these slides on its
+   own and there is nothing here to keep in sync with it. */
+.dev-main-product__zoom-video {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 /* ---- The controls ---- */

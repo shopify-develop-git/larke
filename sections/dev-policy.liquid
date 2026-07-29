@@ -41,6 +41,11 @@
     --card-w: clamp(280px, 37.0139vw, 533px);
     --qa-gap: 24px;
 
+    /* The 1440 artboard less its two 64px insets. Above 1440 the three clamps above have all hit
+       their max, so without this cap the card and gutter would freeze at 533/136 and the answers
+       column alone would absorb every extra pixel of viewport. */
+    --container-max: 1312px;
+
     /* Centered (Shipping policy, 45246:4418). Figma states px-[400px] at 1440, which is a
        640px column dead-centre — expressed as a max-width so it survives narrower viewports. */
     --centered-max: 640px;

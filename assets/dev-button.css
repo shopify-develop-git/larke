@@ -30,7 +30,19 @@
   gap: var(--dev-btn-gap, 8px);
   padding: var(--dev-btn-py, 18px) var(--dev-btn-px, 24px);
   border: var(--dev-btn-bw, 0) solid var(--dev-btn-bc, transparent);
-  border-radius: var(--dev-btn-radius, 60px);
+  /* The pill's PAINTED radius is the design token clamped to half the button's
+     height, and the hover morph must animate from that painted value, not from
+     the token: transitions interpolate the specified 60px, so the clamped span
+     (60 -> half-height) renders as dead time on the way in and as a near-instant
+     snap on the way out. --dev-btn-pill-r rebuilds half the single-line height
+     from the button's own tokens so the min() below equals the painted radius
+     and the morph runs at one honest speed in both directions. */
+  --dev-btn-pill-r: calc(
+    var(--dev-btn-py, 18px)
+    + var(--dev-btn-bw, 0px)
+    + var(--dev-btn-fs, 18px) * var(--dev-btn-lh, 1.4) / 2
+  );
+  border-radius: min(var(--dev-btn-radius, 60px), var(--dev-btn-pill-r));
   background-color: var(--dev-btn-bg, transparent);
   color: var(--dev-btn-color, var(--color));
   font-family: var(--font-body);
@@ -42,13 +54,16 @@
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
+  /* 0.3s ease-out is Figma's hover transition (SMART_ANIMATE, EASE_OUT, 300ms) —
+     the same curve animates the colour shift AND the corner morph. border-width
+     is deliberately NOT animated (and not changed on hover at all): interpolating
+     border and a compensating padding as separate properties let the box height
+     drift ~1px mid-transition, which visibly nudged the text above the button. */
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    filter 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    background-color 0.3s ease-out,
+    border-color 0.3s ease-out,
+    color 0.3s ease-out,
+    border-radius 0.3s ease-out;
 }
 
 .dev-btn__label {
@@ -60,7 +75,6 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease;
 }
 
 .dev-btn__icon svg {
@@ -116,44 +130,50 @@
    HOVER — fill / invert (pointer devices only)
    ============================================= */
 
+/* The whole hover state is Figma's "buttons" component set (node 61:7492): every
+   Default variant is prototype-wired ON_HOVER -> its Hover variant with
+   SMART_ANIMATE 300ms ease-out. The animated diff is the same for every
+   hierarchy — the pill's 60px corners morph to 16px and the fill shifts one
+   step — and NOTHING else: no lift, no shadow, no icon travel, no text invert.
+   Colour pairs from the file:
+     Primary - Colour   #A8CF78 -> #96C857   (dev-btn--filled)
+     Primary - Black    #333333 -> #666666   (dev-btn--dark)
+     Outlined - Dark    transparent -> #FFFCF4 fill                     (--outline)
+     Outlined - Light   fill holds its own bg                           (--ghost)
+     Utility            text #333333 -> #666666, no underline           (--text)
+   Figma's hover variants also thicken the outlined strokes 1px -> 2px; that part
+   is intentionally NOT reproduced — animating border + compensating padding as
+   separate properties drifts the box height mid-transition and jiggles the
+   surrounding layout (owner call, 2026-07-24). */
+
 @media (hover: hover) {
-  /* Every boxed button lifts on a soft shadow — a clear, palette-independent affordance
-     that never touches the text colour, so it can't hide the label on any background. */
+  /* The "movement": every boxed button's pill relaxes into a 16px rounded rect. */
   .dev-btn:not(.dev-btn--text):not([disabled]):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+    border-radius: var(--dev-btn-radius-hover, 16px);
   }
 
-  /* Filled / dark also deepen a touch. */
-  .dev-btn--filled:not([disabled]):hover,
+  .dev-btn--filled:not([disabled]):hover {
+    background-color: var(--dev-btn-bg-hover, #96c857);
+  }
+
   .dev-btn--dark:not([disabled]):hover {
-    filter: brightness(0.93);
+    background-color: var(--dev-btn-bg-hover, #666666);
   }
 
-  /* Outline inverts to a solid dark pill. Text is pinned to a fixed light colour
-     (--dev-btn-invert-text, default #fff) — NOT var(--bg), which is blank on some
-     sections and made the label vanish. Override per-button if a section needs a
-     different invert text. */
   .dev-btn--outline:not([disabled]):hover {
-    background-color: var(--dev-btn-color, var(--color));
-    color: var(--dev-btn-invert-text, #ffffff);
+    background-color: var(--dev-btn-bg-hover, #fffcf4);
   }
 
-  /* Ghost goes fully opaque; the lift above makes the change read on any backdrop. */
+  /* Ghost keeps its own fill by default (Figma preserves per-instance fill
+     overrides through the variant swap) and reads the corner morph instead.
+     Sections wanting the component-sheet 40%->60% step set --dev-btn-ghost-hover. */
   .dev-btn--ghost:not([disabled]):hover {
-    background-color: var(--dev-btn-ghost-hover, #343434);
+    background-color: var(--dev-btn-ghost-hover, var(--dev-btn-ghost-bg, rgba(52, 52, 52, 0.66)));
   }
 
-  .dev-btn--text:not([disabled]):hover .dev-btn__label {
-    text-decoration: underline;
-  }
-
-  .dev-btn--text:not([disabled]):hover .dev-btn__icon {
-    transform: translateX(3px);
-  }
-
-  .dev-btn--text.dev-btn--icon-left:not([disabled]):hover .dev-btn__icon {
-    transform: translateX(-3px);
+  /* Utility text link: the label greys, nothing moves, nothing underlines. */
+  .dev-btn--text:not([disabled]):hover {
+    color: var(--dev-btn-text-hover, #666666);
   }
 }
 

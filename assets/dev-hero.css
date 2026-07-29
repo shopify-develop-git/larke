@@ -75,26 +75,18 @@
   max-width: none;
 }
 
-.hero__bg--mobile {
-  display: none;
-}
-
 /* OPT-IN: Figma's own fill transforms (derivation in dev-hero.liquid). The photo is blown up to
    ~393% of the frame's height and dragged up out of it, so one source file yields the desktop slice
    and, at the mobile sizes below, a different slice for the phone. It reproduces the artboard
-   exactly and it only works for the photo it was measured against — hence a toggle, not a default. */
-.hero--stretch-bg .hero__bg--desktop {
+   exactly and it only works for the photo it was measured against — hence a toggle, not a default.
+
+   One <img> serves both crops now (<picture> swaps the file), so the phone's offsets override the
+   properties in the media query below — never the tokens, which are inline and unreachable. */
+.hero--stretch-bg .hero__bg {
   top: var(--bg-top-d);
   left: var(--bg-left-d);
   width: var(--bg-w-d);
   height: var(--bg-h-d);
-}
-
-.hero--stretch-bg .hero__bg--mobile {
-  top: var(--bg-top-m);
-  left: var(--bg-left-m);
-  width: var(--bg-w-m);
-  height: var(--bg-h-m);
 }
 
 .hero__overlay {
@@ -252,14 +244,14 @@
     padding: var(--pt-m) var(--section-px-m) var(--pb-m);
   }
 
-  /* Two DISTINCT crops, per the Brief — not one image re-cropped in CSS. Swapping them is
-     the design's intent, which is why display:none is justified here. */
-  .hero__bg--desktop {
-    display: none;
-  }
-
-  .hero__bg--mobile {
-    display: block;
+  /* Two DISTINCT crops, per the Brief — not one image re-cropped in CSS. The swap lives in the
+     <source media="(max-width: 768px)"> in dev-hero.liquid, so the phone downloads only the crop
+     it shows; this breakpoint just carries the phone's stretch offsets. */
+  .hero--stretch-bg .hero__bg {
+    top: var(--bg-top-m);
+    left: var(--bg-left-m);
+    width: var(--bg-w-m);
+    height: var(--bg-h-m);
   }
 
   /* No overlay override: Brief Note 4 resolves both breakpoints' scrim angles to 0deg, so

@@ -90,7 +90,30 @@ function restoreSavedScrollTop(savedScrollTop) {
   container.scrollTo({ top: targetScrollTop, behavior: 'instant' });
 }
 
-window.addEventListener('pageshow', () => {
+/**
+ * LARKE PATCH — restore only on a traversal, never on a fresh navigation.
+ *
+ * The handler below used to run on every `pageshow`, and the comment above still says why that
+ * seemed safe: with cross-document view transitions `pageshow` fires on all navigations. The gap is
+ * that it never asked WHICH navigation. `pagehide` writes `scrollTop` into the history entry you are
+ * leaving; if that entry is shown again for any reason other than back/forward — a reload, a link to
+ * the URL you are already on, a bfcache-adjacent restore — the position is replayed onto what the
+ * visitor experiences as a fresh page, and they land wherever they last were.
+ *
+ * Clicking a link in the FOOTER is the case that surfaces it, because it is the one place where a
+ * visitor is reliably scrolled to the bottom when they navigate. The footer also links to pages the
+ * footer itself appears on, so "the URL you are already on" is a normal click, not an edge case.
+ *
+ * Restoring scroll is only ever correct when the visitor is returning to a page they had scrolled:
+ * a bfcache restore (`event.persisted`) or a back/forward traversal (navigation type
+ * `back_forward`). On a plain `navigate` or `reload` the right answer is always the top of the page,
+ * so this guard can only remove wrong behaviour — the back button still restores exactly as before.
+ */
+window.addEventListener('pageshow', (event) => {
+  const navigationType = performance.getEntriesByType('navigation')[0]?.type;
+  const isTraversal = event.persisted === true || navigationType === 'back_forward';
+  if (!isTraversal) return;
+
   const scrollTop = history.state?.scrollTop;
   if (scrollTop == null) return;
 
