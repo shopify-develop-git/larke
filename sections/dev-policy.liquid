@@ -1,4 +1,11 @@
 {{ 'dev-policy.css' | asset_url | stylesheet_tag }}
+{%- if section.settings.accordion -%}
+  {%- comment -%}
+    Loaded only when the accordion is on: the flat layout has no interactivity, and the Shipping
+    policy page (centered layout, accordion off) must keep shipping zero bytes of JS.
+  {%- endcomment -%}
+  <script src="{{ 'dev-policy.js' | asset_url }}" defer></script>
+{%- endif -%}
 
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
@@ -56,6 +63,18 @@
     --section-px-mobile: 16px;
     --section-py-mobile: 16px;
     --qa-gap-mobile: 24px;
+
+    /* Accordion (the opt-in "Collapsible questions" mode). No Figma artboard covers this state —
+       the owner asked for the PDP's "Why you'll love it" behaviour on Delivery & Returns. The
+       mechanism and the 24px chevron are the PDP's, but the motion values below are copied from
+       dev-faq (300ms, cubic-bezier(0.32, 0.72, 0, 1)) — which itself deliberately differs from
+       dev-main-product's 320ms / cubic-bezier(0.4, 0, 0.2, 1), so the theme's two accordions do
+       NOT share one motion set and this section cannot match both. Which set Delivery & Returns
+       should follow is an open owner call; until then it moves with dev-faq. The JS reads
+       --acc-dur back out (parseFloat on the computed value), so keep it in ms. */
+    --icon-size: 24px;
+    --acc-dur: 300ms;
+    --acc-ease: cubic-bezier(0.32, 0.72, 0, 1);
   }
 </style>
 
@@ -63,6 +82,9 @@
   assign qa_blocks = section.blocks | where: 'type', 'qa'
   assign note_blocks = section.blocks | where: 'type', 'note'
   assign layout_class = 'dev-policy--' | append: section.settings.layout
+  if section.settings.accordion
+    assign layout_class = layout_class | append: ' dev-policy--accordion'
+  endif
 -%}
 
 {%- comment -%}
@@ -109,16 +131,46 @@
     </div>
 
     {%- if qa_blocks.size > 0 or note_blocks.size > 0 -%}
-      <div class="dev-policy__list">
+      <div class="dev-policy__list" {% if section.settings.accordion %}data-policy-group{% endif %}>
         {%- for block in qa_blocks -%}
-          <div class="dev-policy__item" {{ block.shopify_attributes }}>
-            {%- if block.settings.heading != blank -%}
-              <h2 class="dev-policy__question">{{ block.settings.heading }}</h2>
-            {%- endif -%}
-            {%- if block.settings.body != blank -%}
-              <div class="dev-policy__answer">{{ block.settings.body }}</div>
-            {%- endif -%}
-          </div>
+          {%- if section.settings.accordion -%}
+            {%- comment -%}
+              The PDP's "Why you'll love it" mechanism, reused rather than reinvented:
+              <details>/<summary> (keyboard operable, expanded/collapsed state announced for free,
+              Ctrl+F still finds closed answers), a per-block "Open by default" checkbox for the
+              only-first-open behaviour, and dev-policy.js — the same one-open-at-a-time height
+              animation dev-main-product.js and dev-faq.js carry. Same chevron path, same 1.4
+              stroke, as both of those.
+            {%- endcomment -%}
+            <details
+              class="dev-policy__item dev-policy__item--acc"
+              data-policy-item
+              {% if block.settings.open_by_default %}open{% endif %}
+              {{ block.shopify_attributes }}
+            >
+              <summary class="dev-policy__summary">
+                <h2 class="dev-policy__question">{{ block.settings.heading }}</h2>
+                <span class="dev-policy__icon" aria-hidden="true">
+                  <svg class="dev-policy__chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                    <path d="M19 9L12 16L5 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </summary>
+
+              {%- if block.settings.body != blank -%}
+                <div class="dev-policy__answer">{{ block.settings.body }}</div>
+              {%- endif -%}
+            </details>
+          {%- else -%}
+            <div class="dev-policy__item" {{ block.shopify_attributes }}>
+              {%- if block.settings.heading != blank -%}
+                <h2 class="dev-policy__question">{{ block.settings.heading }}</h2>
+              {%- endif -%}
+              {%- if block.settings.body != blank -%}
+                <div class="dev-policy__answer">{{ block.settings.body }}</div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
         {%- endfor -%}
 
         {%- comment -%}
@@ -160,6 +212,13 @@
         { "value": "centered", "label": "Centered — banner above, questions below" }
       ]
     },
+    {
+      "type": "checkbox",
+      "id": "accordion",
+      "label": "Collapsible questions",
+      "default": false,
+      "info": "Turns each question into an accordion row — the same open/close behaviour as the product page's \"Why you'll love it\". Which rows start open is each question's own \"Open by default\" setting. Off, the questions render flat, as before."
+    },
 
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
@@ -176,7 +235,8 @@
       "name": "Question",
       "settings": [
         { "type": "inline_richtext", "id": "heading", "label": "Question", "default": "How much does delivery cost?" },
-        { "type": "richtext", "id": "body", "label": "Answer", "default": "<p>We offer free standard delivery to all UK addresses.</p>" }
+        { "type": "richtext", "id": "body", "label": "Answer", "default": "<p>We offer free standard delivery to all UK addresses.</p>" },
+        { "type": "checkbox", "id": "open_by_default", "label": "Open by default", "default": false, "info": "Only read when the section's \"Collapsible questions\" is on." }
       ]
     },
     {

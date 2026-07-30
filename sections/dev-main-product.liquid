@@ -552,7 +552,7 @@
               {%- comment -%}
                 Shared inline-SVG stars (not the ★ glyph). See dev-stars.
 
-                The row rounds DOWN to the nearest half star, so 4.9 draws four solid and a half —
+                The row rounds DOWN to the nearest half star, so 4.7 draws four solid and a half —
                 the owner's call, asked for explicitly against a reference of a half-filled star.
 
                 This is the third position this row has held, so the history matters. It first
@@ -565,8 +565,9 @@
                 understate the product, never flatter it.
 
                 The two readings DISAGREE on purpose: the stars say 4.5 while the label and the
-                aria-label beside them say the true 4.9/5. That was raised with the owner and chosen
-                anyway — do not "fix" the mismatch without asking them first.
+                aria-label beside them say the true value (4.7/5 since the owner's "all 4.7"
+                ruling; 4.9/5 before it). That was raised with the owner and chosen anyway — do
+                not "fix" the mismatch without asking them first.
               {%- endcomment -%}
               {%- liquid
                 assign stars_label = rating | append: ' / 5'
@@ -1375,8 +1376,8 @@
     { "type": "header", "content": "Rating" },
     { "type": "checkbox", "id": "show_rating", "label": "Show rating", "default": true },
     { "type": "checkbox", "id": "show_rating_stars", "label": "Show rating stars", "default": true, "info": "Hides only the stars — the rating label stays." },
-    { "type": "range", "id": "rating_value", "min": 0, "max": 5, "step": 0.1, "label": "Rating", "default": 4.9, "info": "Fills the stars proportionally — 4.9 leaves the fifth star 90% full, as drawn." },
-    { "type": "text", "id": "rating_label", "label": "Rating label", "default": "4.9/5" },
+    { "type": "range", "id": "rating_value", "min": 0, "max": 5, "step": 0.1, "label": "Rating", "default": 4.7, "info": "Stars round DOWN to the nearest half — 4.7 draws four and a half. Deliberate: the label beside them states the exact value." },
+    { "type": "text", "id": "rating_label", "label": "Rating label", "default": "4.7/5" },
     { "type": "url", "id": "rating_link", "label": "Rating link", "info": "Point it at the reviews section." },
 
     { "type": "header", "content": "Gallery" },

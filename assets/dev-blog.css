@@ -50,6 +50,13 @@
   color: var(--color);
 }
 
+/* The opt-in "Stack the heading" mode: min-content makes the box only as wide as its longest
+   word, so every space becomes a line break and "Larke Snooze" stacks as "Larke" / "Snooze".
+   CSS rather than injected <br>s — see the note in dev-blog.liquid. */
+.dev-blog__title--stacked {
+  width: min-content;
+}
+
 .dev-blog__intro {
   margin: 0;
   font-size: var(--font-intro-size);
