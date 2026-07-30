@@ -33,8 +33,16 @@
   justify-content: flex-end; /* content is bottom-aligned in Figma */
   align-items: flex-start;
 
-  /* No --container-max by design: full-bleed section, no inner max-width frame
-     (Brief, Note 1). The horizontal inset is entirely --section-px. */
+  /* The WHOLE section box is capped at the desktop artboard width and centred past it — photo,
+     scrim and both bottom corners together — same call as dev-tree-fibre-hero. Inert below 1440,
+     so every artboard width renders as it did; above it the page background shows down each side.
+     There is still no INNER max-width frame (Brief, Note 1): the horizontal inset stays
+     --section-px. A second effect worth knowing: the stretch offsets (--bg-*-d) are percentages
+     of this box, so capping it also freezes the photo's crop at the 1440 framing — the one that
+     was measured against Figma. */
+  max-width: var(--section-max);
+  margin-inline: auto;
+
   min-height: var(--hero-min-h);
   box-sizing: border-box;
   padding: var(--pt) var(--section-px) var(--pb);
