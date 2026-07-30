@@ -87,7 +87,12 @@
 
     --text-col-w: 533px;
 
-    /* CTA */
+    /* CTA
+       DEAD TOKENS — these six are consumed by NOTHING. dev-hero.css's .hero__button rule only
+       forwards --dev-btn-color / --dev-btn-focus, so the CTA's resting geometry comes from
+       assets/dev-button.css's own --dev-btn-* fallbacks, overridden for desktop in dev-hero.css's
+       @media (min-width: 769px) block. Editing the numbers below changes nothing on screen; kept
+       (not deleted, not rewired) because they still record the Figma values. */
     --cta-size: 18px;
     --cta-weight: 700;
     --cta-lh: 1.4;

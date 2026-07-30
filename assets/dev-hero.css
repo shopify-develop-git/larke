@@ -242,6 +242,46 @@
   --dev-btn-focus: var(--color);
 }
 
+/* DESKTOP-ONLY CTA reduction, -16.7% (owner ask: 15-20% smaller on desktop, phone untouched).
+   The six --cta-* tokens in dev-hero.liquid's <style> block are dead — nothing reads them (grep
+   the theme) — so what actually paints this button is dev-button.css's OWN fallbacks:
+   --dev-btn-fs 18px / --dev-btn-py 18px / --dev-btn-px 24px. Resting single-line box height was
+   18 + 18 + (18 * 1.4) = 61.2px; it is now 15 + 15 + 21 = 51px.
+   Width shrinks from BOTH edits, not from the padding alone: 24px -> 20px px accounts for exactly
+   -8px (2 x 4px), and 18px -> 15px fs narrows the label's own advance width by a further ~1/6, so
+   the painted button ends up considerably more than 8px narrower. No total is quoted here because
+   the label is merchant-editable free text ("Discover Our Duvet" on the homepage today) and its
+   advance in Public Sans 700 has not been measured — measure the live button rather than
+   re-deriving the hero's 533px text column or the CTA's position from a figure in this comment.
+
+   WHY a min-width query here rather than smaller numbers in the section's inline <style>:
+   above 769px these tokens are set, below it they are simply UNSET, so dev-button.css's own
+   fallbacks paint the phone and the mobile artboard cannot move — no mobile override to write,
+   nothing to keep in sync. It also sidesteps the cascade trap this file already documents at the
+   mobile ::after rule below ("Override the PROPERTY, not the token: the tokens live in the
+   section's inline <style> block, which a media query in this file cannot outrank") — a token set
+   in the inline <style> outranks this file regardless of media query, so the deviation has to be
+   expressed as the --dev-btn-* property the component reads, on the button's own selector.
+   769px is the integer complement of the (max-width: 768px) block below — no overlap, and the same
+   integer pairing every other breakpoint in this file uses. One honest caveat: a viewport strictly
+   between 768 and 769 CSS px (Windows Chrome at 125% zoom, some fractional-DPR tablets) matches
+   NEITHER block, so there the tokens stay unset and the CTA paints dev-button.css's 61.2px fallback
+   inside an otherwise desktop layout. Benign — that is the pre-existing desktop size, not a broken
+   one — but if anyone ever reports that the reduction "sometimes doesn't apply", that band is why.
+
+   Deliberately NOT touched: --dev-btn-radius / --radius-cta / --dev-btn-radius-hover. dev-button.css
+   rebuilds --dev-btn-pill-r from py/bw/fs/lh and paints min(60px, that) — at the new numbers that is
+   min(60px, 25.5px) = an exact pill, automatically. Hardcoding a radius would desync the documented
+   hover corner-morph timing. --dev-btn-fw (700) and --dev-btn-lh (1.4) also stay: weight and leading
+   are brand type, not size. */
+@media (min-width: 769px) {
+  .hero__button {
+    --dev-btn-fs: 15px;
+    --dev-btn-py: 15px;
+    --dev-btn-px: 20px;
+  }
+}
+
 /* =============================================
    TABLET  ≤ 1024px
    ============================================= */

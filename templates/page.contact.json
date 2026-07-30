@@ -11,10 +11,10 @@
   "sections": {
     "contact": {
       "type": "dev-contact-form",
-      "name": "Contact",
+      "name": "Contact Form",
       "settings": {
-        "title": "Contact",
-        "body": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet consectetur ex, nec tristique odio. Curabitur mollis dui eget sapien semper, id laoreet massa gravida.</p>",
+        "title": "Contact Form",
+        "body": "<p>Need a hand? Send us a message and someone from our team will help.</p>",
         "name_placeholder": "Your name",
         "email_placeholder": "Your email",
         "message_placeholder": "Your message",
