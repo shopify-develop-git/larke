@@ -152,11 +152,16 @@
   color: var(--color-icon);
 }
 
+/* --color-icon-label, not the inherited --color: the owner asked for these three labels darker
+   than the body text around them, and the icons lighter (see the token block's note — a reasoned
+   proposal, no Figma reference exists for it). The token block is not overridden in the mobile
+   media query below, so both values hold on both breakpoints. */
 .featured-product__icon-label {
   font-weight: var(--font-label-weight);
   font-size: var(--font-label-size);
   line-height: var(--font-label-lh);
   white-space: nowrap;
+  color: var(--color-icon-label);
 }
 
 /* --- typography --- */

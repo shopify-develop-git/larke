@@ -244,10 +244,46 @@
   border-top: var(--border-width) solid var(--border);
 }
 
-.site-footer__copyright {
+/* The bottom bar's left-hand item is now the copyright + legal-links COLUMN, so `flex: 1 1 0`
+   lives here rather than on .site-footer__copyright — inside a content-sized column container a
+   zero flex-basis on the copyright would contribute 0 to the container's height and collapse it. */
+.site-footer__legal {
+  display: flex;
   flex: 1 1 0;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  gap: var(--spacing-md);
+}
+
+.site-footer__copyright {
   min-width: 0;
 }
+
+/* NO FIGMA ARTBOARD EXISTS FOR THIS ROW — not on the Desktop board, not on the Mobile one. The
+   owner asked for the policy links "placed neatly side by side below copyright @larke" and there is
+   no measured design to match, so every number here is EXTRAPOLATED from tokens this section
+   already defines, never invented: the gap is --spacing-md (16px, the section's existing mid step)
+   and the type size is --font-copyright-size (14px, so the row reads as a sibling of the copyright
+   line above it rather than as a third menu). Treat this as an implementation awaiting design
+   sign-off, not a matched artboard — if a board arrives, these two tokens are what to re-measure.
+
+   flex-wrap is on because the four titles are merchant-editable free text: a renamed policy or a
+   fifth one must wrap onto a second line, never overflow the card or squash the payment icons. */
+.site-footer__legal-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* .site-footer__legal-link's type size is NOT set here — see the typography section below. It has
+   the same specificity as the base .site-footer__link rule, which is declared later in this file,
+   so a font-size written here would silently lose the cascade tie and paint --font-body-sm-size. */
 
 .site-footer__payments {
   flex: 0 0 auto;
@@ -396,6 +432,15 @@
   color: var(--color);
 }
 
+/* The legal links inherit the whole menu-link look from .site-footer__link — colour, weight and the
+   hand-drawn hover underline — and change only the size, down to the copyright's 14px so the row
+   reads as a sibling of the line above it rather than a third link menu. It MUST sit after
+   .site-footer__link: both selectors are one class, so at equal specificity source order decides
+   and anything earlier in the file would be overridden by that rule's --font-body-sm-size. */
+.site-footer__legal-link {
+  font-size: var(--font-copyright-size);
+}
+
 .site-footer__copyright p {
   margin: 0;
 }
@@ -515,7 +560,8 @@
   .site-footer__columns,
   .site-footer__brand,
   .site-footer__column-group,
-  .site-footer__bottom {
+  .site-footer__bottom,
+  .site-footer__legal {
     display: contents;
   }
 
@@ -538,6 +584,10 @@
   .site-footer__address { order: 7; }
   .site-footer__payments { order: 8; }
   .site-footer__copyright { order: 9; }
+  /* .site-footer__legal is display: contents above, so its two children stay direct flex children
+     of __content and the artboard's order scheme keeps working — the legal row simply takes the
+     next value after the copyright it sits under. */
+  .site-footer__legal-nav { order: 10; }
 
   .site-footer__divider,
   .site-footer__menu,
@@ -673,6 +723,46 @@
     margin-top: 0;
     padding-top: var(--copyright-pt);
     text-align: center;
+  }
+
+  /* Full width and centred, matching every other stacked block on the mobile card. The wrapper's
+     `gap` is gone with its `display: contents`, so the 16px it provided on desktop is restated as
+     a margin here — same --spacing-md token, same visual step. No artboard for this row on mobile
+     either (see the desktop rule).
+
+     What centres the row is `justify-content: center` on .site-footer__legal-list two rules below —
+     NOT __content's `text-align: center`, which cannot align flex items and so has no effect on
+     this row at all. Delete that justify-content and the nav stays 100% wide while its links
+     left-align against the card's 16px inset, out of step with the centred copyright above them.
+
+     Touch targets: nothing new is needed — these anchors carry .site-footer__link, so the
+     `min-height: 24px` rule above already gives each one a >=24px target (WCAG 2.5.8), and the
+     16px row gap keeps adjacent targets from crowding. */
+  .site-footer__legal-nav {
+    width: 100%;
+    flex: 0 0 auto;
+    margin-top: var(--spacing-md);
+  }
+
+  .site-footer__legal-list {
+    justify-content: center;
+  }
+
+  /* The 24px target height above makes the anchor's box TALLER than its text box, and the base
+     ::after offset (bottom: calc(-0.8px - h/2)) is measured from the anchor's box, not its text —
+     it was written for the 16px link, whose 22.4px line box leaves 0.8px of slack in that 24px box.
+     At the legal row's 14px the line box is 19.6px, so the slack doubles to 2.2px and the same
+     offset would drop the hand-drawn squiggle a further 1.4px below its word than on every other
+     footer link. Adding that slack back keeps the stroke the same distance from the text as the
+     links directly above it. The 24px is restated as a literal because the mobile rule hardcodes
+     it too (--link-row-min-h is 0 at this breakpoint); the rest is read off the row's own tokens,
+     so re-sizing the row re-derives this offset instead of stranding it.
+     Desktop needs no counterpart: there the anchor is inline-block, box == line box, slack 0. */
+  .site-footer__legal-link::after {
+    bottom: calc(
+      (24px - var(--font-copyright-size) * var(--font-body-lh)) / 2 - 0.8px -
+        var(--link-underline-h) / 2
+    );
   }
 
   /* Touch targets: the Mobile artboard specifies 24x24 social marks and a tight 22.4px link

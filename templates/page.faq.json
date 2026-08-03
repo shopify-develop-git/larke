@@ -18,11 +18,47 @@
             "body": "<p>Delivery within UK Mainland is always free. We do also offer an express local delivery option for any postcode within a 5 mile radius of Larke HQ</p>",
             "open_by_default": false
           }
+        },
+        "q_london_next_day": {
+          "type": "question",
+          "settings": {
+            "heading": "Do you offer next-day delivery in London?",
+            "body": "<p>Yes — we offer free next-day delivery within certain qualifying postcodes in London. To be eligible, place your order by 5:00 PM (GMT); orders placed after 5:00 PM are processed for delivery the following business day.</p>",
+            "open_by_default": false
+          }
+        },
+        "q_tracking": {
+          "type": "question",
+          "settings": {
+            "heading": "How can I track my order?",
+            "body": "<p>Once your order has been processed you’ll receive an order confirmation email, followed by tracking details directly from your local delivery provider so you can follow your package’s journey.</p>",
+            "open_by_default": false
+          }
+        },
+        "q_returns": {
+          "type": "question",
+          "settings": {
+            "heading": "How do I return my duvet?",
+            "body": "<p>Start by requesting a return — email us at hello@wearelarke.com or use our returns portal, and we’ll send you a free pre-paid return label. Please keep the original packaging, as it’s required for your return, and don’t send anything back without requesting a return first — it may not be accepted. We aim to follow up on every return request within 1 working day.</p><p>For the full terms, see our <a href=\"/policies/refund-policy\">Returns policy</a>.</p>",
+            "open_by_default": false
+          }
+        },
+        "q_damaged": {
+          "type": "question",
+          "settings": {
+            "heading": "What if my order arrives damaged or incorrect?",
+            "body": "<p>Please inspect your order when it arrives and contact us immediately at hello@wearelarke.com if your item is defective, damaged, or if you’ve received the wrong item — we’ll evaluate the issue and make it right.</p>",
+            "open_by_default": false
+          }
         }
       },
       "block_order": [
         "q_delivery_time",
-        "q_delivery_cost"
+        "q_delivery_cost",
+        "q_london_next_day",
+        "q_tracking",
+        "q_returns",
+        "q_damaged"
       ],
       "settings": {
         "heading": "Frequently Asked Questions",

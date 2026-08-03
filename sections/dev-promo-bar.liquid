@@ -1,7 +1,7 @@
 {%- comment -%}
   The bar is a section of the header GROUP, so it is rendered on every page there is. The product
   page is the one place that does not want it: the PDP opens with its own rating right beside the
-  title, and a second "Rated Excellent 4.6/5" a few pixels above it is the same claim twice.
+  title, and a second "Rated Excellent 4.7/5" a few pixels above it is the same claim twice.
 
   The guard wraps the whole section, stylesheet tag included — a hidden bar should not cost the PDP
   a CSS request. It must NOT wrap {% schema %}, which is read statically and belongs to the file,
@@ -103,7 +103,7 @@
       glyph. The spec's exact-fidelity requirement calls for SVG here precisely because the glyph
       falls back to a system font and varies across platforms. Figma ships no star vector, so the
       canonical dev-stars vector is an authorised substitution (client-confirmed).
-      Decorative: "4.6/5" + "Rated Excellent" already carry the meaning to a screen reader.
+      Decorative: "4.7/5" + "Rated Excellent" already carry the meaning to a screen reader.
     {%- endcomment -%}
     {%- if section.settings.show_rating_stars -%}
       {%- render 'dev-stars', rating: 5, size: 13, gap: 1, color: section.settings.star_color -%}
@@ -143,7 +143,7 @@
   "settings": [
     { "type": "header", "content": "Content" },
     { "type": "checkbox", "id": "show_rating_stars", "label": "Show rating stars", "default": true },
-    { "type": "text", "id": "rating_value", "label": "Rating value", "default": "4.6/5" },
+    { "type": "text", "id": "rating_value", "label": "Rating value", "default": "4.7/5" },
     { "type": "text", "id": "rating_label", "label": "Rating label", "default": "Rated Excellent" },
 
     { "type": "header", "content": "Colors" },

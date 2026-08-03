@@ -27,8 +27,11 @@
 {%- comment -%} Tokens for the PAGE around the cards — this section's own {%- endcomment -%}
 <style>
   .dev-blog {
-    --font-title-size: 48px;
-    --font-title-size-m: 32px;
+    /* Title/intro scale mirrors dev-proudest-moments ("Our proudest moments" on Our Story) at the
+       owner's ask — its measured tokens are 38px heading / 18px body on desktop and 28 / 16 on
+       mobile, a ~2.1:1 contrast. Was 48 / 32 before; the intro sizes already matched. */
+    --font-title-size: 38px;
+    --font-title-size-m: 28px;
     --font-title-lh: 1.2;
     --font-intro-size: 18px;
     --font-intro-size-m: 16px;
@@ -81,10 +84,20 @@
         from Shopify, so escaping it would print the merchant's italics as visible tags. blog.title is
         raw store data and must still be escaped. `default:` would have forced one filter on both.
       {%- endcomment -%}
+      {%- liquid
+        # "Stack the title" puts every word of the title on its own line — "Larke Snooze" becomes
+        # "Larke" / "Snooze". Done in CSS (width: min-content), not by rewriting the string with
+        # <br>: the heading is inline_richtext and may carry markup whose attributes a naive
+        # space-to-<br> replace would corrupt.
+        assign title_class = 'dev-blog__title'
+        if section.settings.stack_heading
+          assign title_class = title_class | append: ' dev-blog__title--stacked'
+        endif
+      -%}
       {%- if section.settings.heading != blank -%}
-        <h1 class="dev-blog__title">{{ section.settings.heading }}</h1>
+        <h1 class="{{ title_class }}">{{ section.settings.heading }}</h1>
       {%- else -%}
-        <h1 class="dev-blog__title">{{ blog.title | escape }}</h1>
+        <h1 class="{{ title_class }}">{{ blog.title | escape }}</h1>
       {%- endif -%}
 
       {%- if section.settings.intro != blank -%}
@@ -283,6 +296,7 @@
   "settings": [
     { "type": "header", "content": "Content" },
     { "type": "inline_richtext", "id": "heading", "label": "Heading", "info": "Leave empty to use the blog's own title." },
+    { "type": "checkbox", "id": "stack_heading", "label": "Stack the heading", "default": false, "info": "Puts each word of the heading on its own line — \"Larke Snooze\" becomes \"Larke\" over \"Snooze\". Off, the heading renders on one line as before." },
     { "type": "text", "id": "intro", "label": "Intro line", "default": "Sleep, trees and everything in between." },
     { "type": "text", "id": "empty_text", "label": "Empty state message", "default": "Nothing here yet — check back soon." },
 

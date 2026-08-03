@@ -9,9 +9,10 @@
   .hero {
     /* Brand params (Brief → Brand Params). The faces themselves are loaded theme-wide by
        snippets/dev-brand-fonts.liquid — this only selects them.
-       --container-max is deliberately absent: there is no inner max-width frame (Brief, Note 1 —
-       same call already made in dev-site-header.css). What IS capped is the whole section box;
-       see --section-max. */
+       --container-max is still deliberately absent, and still for the reason in Brief Note 1:
+       there is no inner max-width frame inside this section — the copy's own column is
+       --text-col-w and the horizontal inset is entirely --section-px. What IS capped is the
+       whole section box; see --section-max. */
     --section-px: 64px;
     --section-px-m: 24px;
 
@@ -43,26 +44,55 @@
     --spacing-md: 24px;
     --spacing-lg: 64px;
 
-    /* Frame — 550px tall on BOTH artboards (Brief, Note 4). This used to be a clamp that grew
-       to 750px past 1440: the section was full-bleed then, so a wider viewport cropped a thinner
-       and thinner band out of the photo and the hero flattened — the frame grew to compensate.
-       --section-max now stops the box at 1440, so the section never widens past the artboard,
-       the flattening cannot happen, and the growth's premise is gone. Fixed 550px at every
-       width, same geometry as dev-tree-fibre-hero. */
+    /* Frame — 550px on BOTH artboards (Brief, Note 4), and now flat at every width, because
+       --section-max below stops the box at 1440.
+
+       This used to be clamp(550px, calc(550px + (100vw - 1440px) * 5 / 12), 750px): 550 plus five
+       twelfths of however far past 1440 we were, ceilinged at 750 so 1920 landed on exactly 750px.
+       The growth term had one premise — the section was full-bleed and the photo was the whole of
+       it, so a wider viewport cropped a thinner and thinner band out of the photo and the hero
+       flattened; growing the height put the band back. Capping the box retires that premise
+       outright: past 1440 the box no longer widens, so nothing crops thinner and there is nothing
+       left to compensate for. Written down so it does not get re-derived and re-added.
+
+       Kept alongside the cap it would be actively wrong, not merely idle, because it reads 100vw —
+       the WINDOW — to size a box that stops at 1440. Every screen from 1920 up would render
+       1440 x 750, a 1.92:1 box. Measured against the file actually configured on the homepage
+       (master_hero_media_….webp, 4320 x 1650): that export is 2.618:1, which is exactly 3x the
+       1440 x 550 artboard, so the capped 550 box reproduces it with ZERO crop — object-fit: cover
+       scales it by 1/3 and it lands on the box edge to edge. The 1440 x 750 box would instead
+       scale it to 1963.6 x 750 and throw away 26.7% of its WIDTH. Under stretch_background it is
+       worse again: the --bg-*-d offsets are percentages of this box, so 392.83% of 750 is 2946px,
+       and cover fits a 2.618:1 photo into a 1440 x 2946 element by blowing it up to 7713 x 2946 —
+       81.3% of the width gone. Flat 550 holds the >=1440 box on the artboard's own 2.618:1
+       instead, and leaves 1024 / 768 / 375 exactly where the clamp's floor already had them. */
     --hero-min-h: 550px;
     --radius-bottom: 32px;
 
-    /* The SECTION BOX, not an inner content frame — the whole hero (photo, scrim and both bottom
-       corners) stops at the desktop artboard's own width and centres past it. Same call as
-       dev-tree-fibre-hero, and the same deliberate break from the site's chrome: dev-site-header /
-       dev-site-footer stay full-bleed and cap only their content line. Below 1440 the cap is
-       inert and the hero still fills the window, so every artboard width renders exactly as
-       QA verified it. Past 1440 the page background fills the side stripes, NOT --bg: that one
-       paints the section box and is clipped to 1440 with it. */
+    /* The SECTION BOX, not an inner content frame — the photo, the scrim over it and both rounded
+       bottom corners all stop at the desktop artboard's own width, and the whole box centres past
+       that. Owner's call, and a deliberate break from the site chrome: dev-site-header and
+       dev-site-footer stay full-bleed and cap only their content line with --gutter.
+
+       Below 1440 the cap is inert. The box already fits inside it, so margin-inline: auto has no
+       surplus to absorb and 1440 / 1024 / 768 / 375 render exactly as they did — no artboard width
+       moves and no media query is involved, it is arithmetic.
+
+       Past 1440 the page background fills the stripes either side, NOT --bg: --bg is
+       background-color on the section box (dev-hero.css), which is now clipped to 1440 along with
+       the photo and the corners. On the homepage --bg is transparent anyway and the stripes come
+       from body's page background, the same colour the section below the hero paints — so the cap
+       shows as two rounded corners cut into one continuous canvas, not as a band. */
     --section-max: 1440px;
+
     --text-col-w: 533px;
 
-    /* CTA */
+    /* CTA
+       DEAD TOKENS — these six are consumed by NOTHING. dev-hero.css's .hero__button rule only
+       forwards --dev-btn-color / --dev-btn-focus, so the CTA's resting geometry comes from
+       assets/dev-button.css's own --dev-btn-* fallbacks, overridden for desktop in dev-hero.css's
+       @media (min-width: 769px) block. Editing the numbers below changes nothing on screen; kept
+       (not deleted, not rewired) because they still record the Figma values. */
     --cta-size: 18px;
     --cta-weight: 700;
     --cta-lh: 1.4;
@@ -82,7 +112,13 @@
          width 100% (1440px) -> height 1440 * 4096/2730 = 2160.6px = 392.83% of 550
          Figma shows the band 34.57%..57.71% of the photo's height (centre 46.14%)
          top = 275 - (0.46137 * 2160.6) = -721.9px = -131.25% of 550
-       object-fit: cover in the CSS is a belt-and-braces against sub-pixel aspect drift. */
+       object-fit: cover in the CSS is a belt-and-braces against sub-pixel aspect drift.
+
+       Scope note: every number in this block, --bg-*-m AND --bg-*-d, is derived against
+       hero-bg.jpg (2730x4096, aspect 0.6665) — the tall source both artboards were cropped from.
+       The desktop file configured on the homepage today is a different export (4320x1650, 2.618:1)
+       and these offsets do not describe it, which is why stretch_background is off there and why
+       the setting's own info string says a different picture will land somewhere else. */
     --bg-w-d: 100%;
     --bg-h-d: 392.83%;
     --bg-top-d: -131.25%;
@@ -169,10 +205,25 @@
   endif
   # The <img> is the desktop candidate but still has to describe the phone, for the browsers that
   # fall back to it when no <source> matches.
-  # The `(min-width: 1440px) 1440px` term is there because of --section-max: past 1440 the box
-  # STOPS growing, so a plain 100vw keeps ordering the WINDOW's width for a photo that is no
-  # longer that wide (see dev-tree-fibre-hero for the measured effect). `sizes` takes the FIRST
-  # matching term, so the mobile one has to stay first.
+  #
+  # The `(min-width: 1440px) 1440px` term is --section-max's doing: past 1440 the box STOPS
+  # growing, so a bare 100vw keeps ordering the WINDOW's width for a photo that is no longer that
+  # wide. Same form snippets/background-media.liquid already uses. Measured on the CDN against this
+  # section's own q65 encode of the current desktop file, served WebP — i.e. `curl -H 'Accept:
+  # image/webp'`, which is what every browser that reaches this srcset sends, and the same basis as
+  # the byte table further down. (The JPEG fallback path is ~3x heavier at every rung, so quoting it
+  # here would overstate the saving.)
+  #
+  #   1920 / DPR 1   2000w (22,490 B)  ->  1600w (17,080 B)
+  #   2560 / DPR 1   2600w (34,582 B)  ->  1600w (17,080 B)
+  #
+  # At DPR 2 nothing moves — capped or not, the ask (2880 or 3840) is past the top of the ladder and
+  # 2600 wins either way. That is the ladder being short, not the cap being idle — so the whole
+  # saving is on 1x screens, which is where the waste was.
+  #
+  # `sizes` takes the FIRST matching term, so the mobile one has to stay first. The two conditions
+  # happen to be mutually exclusive today; they stop being so the moment either breakpoint moves,
+  # and nobody should have to check before editing.
   assign img_sizes = '(max-width: 768px) ' | append: mobile_sizes | append: ', (min-width: 1440px) 1440px, 100vw'
 
   assign cta_link = section.settings.cta_link
@@ -218,15 +269,18 @@
         frame and pulls it out, and those offsets are measured against the whole picture. Only the
         ladder and the encode are touched.
 
-        Measured on the rendered homepage at 1440 / DPR 2:
+        Measured on the rendered homepage at a 1440 viewport / DPR 2, where the scrollbar leaves
+        1429 for the body:
 
           box    1429 x 550 CSS  ->  2858 device px needed
           picked 3200w, 105,336 B  — it was simply the last rung, not the right one
 
-        The ladder now stops at 2600, which is 9% under what DPR 2 asks for, on a decorative
-        background sitting under a scrim with an h1 over it. It also gains four rungs in the
-        middle: it used to be 800/1200/1600/2000/2600/3200, and an 820px tablet needs 1618 — so it
-        jumped to 2000 and paid 24% over. 1000/1400/1800/2200 close those gaps.
+        Since --section-max the box tops out at 1440 CSS px flat — that is now the WIDE case, and
+        the 1429 above is the narrow one — so the worst ask is 2880 device px at DPR 2. The ladder
+        now stops at 2600, which is 9.7% under that, on a decorative background sitting under a
+        scrim with an h1 over it. It also gains four rungs in the middle: it used to be
+        800/1200/1600/2000/2600/3200, and an 820px tablet needs 1618 — so it jumped to 2000 and
+        paid 24% over. 1000/1400/1800/2200 close those gaps.
 
         CDN, same file: 3200 = 105,336 B, 2600 = 72,816, 2600 at q75 = 40,592. Mobile hero-bg.jpg
         at 1200 goes 65,858 -> 40,270.

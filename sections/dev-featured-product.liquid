@@ -92,7 +92,18 @@
     --color-badge-border: #c4bca9;
     --color-button-bg: #333333;
     --color-button-text: #ffffff;
-    --color-icon: #666666; /* icon strokes sit lighter than the label beside them */
+
+    /* Owner's ask (remaining-work item 11): the three trust labels ("Breathable" / "Easy care" /
+       "Hypoallergenic") darker for stronger contrast, their icons lighter and less prominent, on
+       both breakpoints. NOT Figma-verified — there is no Figma access here and the referenced
+       .figma-assets/ export directory does not exist in this checkout, so these two values are a
+       reasoned proposal, not a matched artboard. Measured against the card's cream (#FCF5E3):
+         label #1A1A1A ≈ 16.0:1 (was the section text #333333 ≈ 11.6:1) — WCAG AAA
+         icon  #858585 ≈ 3.4:1  (was #666666 ≈ 5.3:1) — still above the 3:1 non-text floor
+       Two tokens, not one: the label previously inherited the merchant --color, so darkening it
+       there would have darkened the heading and subheading with it. */
+    --color-icon: #858585; /* icon strokes — deliberately lighter than the label beside them */
+    --color-icon-label: #1a1a1a; /* the trust label text only */
   }
 </style>
 
@@ -277,7 +288,7 @@
     },
     { "type": "checkbox", "id": "show_rating_stars", "label": "Show rating stars", "default": true },
     { "type": "text", "id": "rating_stars", "label": "Rating stars", "default": "★★★★★" },
-    { "type": "text", "id": "rating_text", "label": "Rating text", "default": "Rated 4.9/5* by real sleepers" },
+    { "type": "text", "id": "rating_text", "label": "Rating text", "default": "Rated 4.7/5* by real sleepers" },
     { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop Your Duvet" },
     { "type": "url", "id": "button_link", "label": "Button link" },
     { "type": "image_picker", "id": "product_image", "label": "Product image" },

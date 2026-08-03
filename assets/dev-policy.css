@@ -147,6 +147,114 @@
   text-underline-position: from-font;
 }
 
+/* ---- Accordion (opt-in "Collapsible questions" mode) --------------------
+   No artboard covers this state. It is the PDP's "Why you'll love it" rows carried over at the
+   owner's ask — same <details>/<summary> construction and chevron as dev-faq.css and
+   dev-main-product's accordion. The duration and curve are dev-faq's (300ms,
+   cubic-bezier(0.32, 0.72, 0, 1)), NOT the PDP's — dev-main-product runs 320ms,
+   cubic-bezier(0.4, 0, 0.2, 1), and the two deliberately differ, so one had to be picked (see the
+   token block in dev-policy.liquid). Everything is restated here against this section's own type
+   tokens. The flat layout above is untouched: every rule in this block is scoped to
+   .dev-policy--accordion. */
+
+/* `padding: 0` is load-bearing. Horizon's base.css carries a BARE `summary { padding: var(--padding-sm) }`
+   and it loads on every page, so it lands on these rows and nothing else in this file refuses it. */
+.dev-policy--accordion .dev-policy__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+/* Safari draws its own disclosure triangle through ::-webkit-details-marker and ignores
+   `list-style: none`. Both rules are needed, or the chevron sits next to a stray arrow. */
+.dev-policy--accordion .dev-policy__summary::-webkit-details-marker {
+  display: none;
+}
+
+.dev-policy--accordion .dev-policy__summary:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 4px;
+}
+
+/* The heading rides inside the summary row now, so it gives up the item's column gap and lets
+   the summary's own flex place it. */
+.dev-policy--accordion .dev-policy__summary .dev-policy__question {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.dev-policy--accordion .dev-policy__icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.dev-policy--accordion .dev-policy__chevron {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  transition: transform var(--acc-dur) var(--acc-ease);
+}
+
+.dev-policy--accordion .dev-policy__item--acc[open] .dev-policy__chevron {
+  transform: rotate(180deg);
+}
+
+/* A closing row keeps [open] until its height animation lands — the content has to stay in the
+   DOM to be animated out of — so the chevron must be told to turn back NOW, not at the end. Same
+   specificity as the rule above: it wins on source order, so it must stay below it. */
+.dev-policy--accordion .dev-policy__item--acc[data-policy-state='closing'] .dev-policy__chevron {
+  transform: none;
+}
+
+/* The base .dev-policy__item rule is flex + gap, and <details> honours it — left alone the item's
+   8px gap AND the answer's 8px padding would stack to 16px between question and answer, and a
+   CLOSED row's zero-height content box would still trigger the gap, which dev-policy.js's
+   closedHeight() (summary + padding + borders — no gap term) cannot see, so every collapse would
+   land 8px short of the row's resting height and visibly snap. Block, matching dev-faq's and the
+   PDP's plain-block rows, makes the answer's padding below the single source of the offset,
+   sized by the same token the flat layout's gap uses. */
+.dev-policy--accordion .dev-policy__item--acc {
+  display: block;
+}
+
+.dev-policy--accordion .dev-policy__item--acc .dev-policy__answer {
+  padding-top: var(--qa-item-gap);
+}
+
+/* The answer fades up out of nothing as the row opens — opacity ONLY, same reasoning as
+   dev-faq.css: the row is already growing underneath it. Closing has no rule; the shrinking row
+   clips the copy away. */
+.dev-policy--accordion .dev-policy__item--acc[data-policy-state='opening'] > :not(summary) {
+  animation: dev-policy-acc-in calc(var(--acc-dur) * 0.75) var(--acc-ease) both;
+}
+
+@keyframes dev-policy-acc-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-policy--accordion .dev-policy__chevron {
+    transition: none;
+  }
+
+  /* The JS drops the height animation to 0ms on its own; this kills the answer's fade to match. */
+  .dev-policy--accordion .dev-policy__item--acc[data-policy-state] > :not(summary) {
+    animation: none;
+  }
+}
+
 /* ---- Tablet (769–1200) -------------------------------------------------
    No Figma reference at these widths, so the rules are: never overflow, never overlap, and never
    let one column absorb the whole loss. The card, the gutter and the page inset are all clamped to

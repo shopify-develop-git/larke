@@ -38,14 +38,14 @@
             "menu": "",
             "link_1_label": "FAQs",
             "link_1_url": "/pages/faq?view=faq",
-            "link_2_label": "Delivery",
+            "link_2_label": "Delivery & Returns",
             "link_2_url": "/pages/about?view=delivery",
-            "link_3_label": "Returns",
-            "link_3_url": "/pages/about?view=delivery",
-            "link_4_label": "Shipping",
-            "link_4_url": "/pages/about?view=shipping",
-            "link_5_label": "Contact",
-            "link_5_url": "/pages/contact"
+            "link_3_label": "Contact Us",
+            "link_3_url": "/pages/contact",
+            "link_4_label": "",
+            "link_4_url": "",
+            "link_5_label": "",
+            "link_5_url": ""
           }
         }
       },

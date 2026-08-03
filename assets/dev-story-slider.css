@@ -291,12 +291,14 @@
     gap: var(--gap-section-m);
   }
 
-  /* Centred on the mobile artboard, left-aligned on the desktop one. A genuine difference between
-     the two, not a reflow. */
+  /* Left on both breakpoints, on the owner's call. The mobile artboard centres this heading, but
+     the tiles below it align their captions left (--tile align-items: flex-start), so a centred
+     heading was the only centred thing on the screen. Deliberate divergence from Figma — do not
+     "fix" it back to `center` from the artboard alone. */
   .story-slider__heading {
     padding: 0 var(--section-px-m);
     font-size: var(--font-heading-size-m);
-    text-align: center;
+    text-align: left;
   }
 
   .story-slider__track {
