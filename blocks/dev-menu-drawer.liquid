@@ -185,35 +185,33 @@
             that was here before: Public Sans has no star, so the glyph fell back to a system font
             and drew a different shape on every platform. dev-stars.css is linked in theme.liquid,
             so nothing extra has to be loaded for this.
+
+            Both the fill and the number are the THEME rating (Theme settings > Rating). The stars
+            were hardcoded to a full five while the text beside them said 4.7 — the same mismatch
+            the "4.6" above was a symptom of. One number now feeds both, everywhere.
           {%- endcomment -%}
+          {%- assign rating = settings.store_rating -%}
           {%- if block.settings.show_rating_stars -%}
             {%- render 'dev-stars',
-              rating: 5,
+              rating: rating,
               size: 13,
               gap: 1,
               color: block.settings.accent_color
             -%}
           {%- endif -%}
 
-          {%- if block.settings.rating_value != blank or block.settings.rating_label != blank -%}
-            {%- comment -%}
-              .dev-menu-drawer__promo-rating is font-size: 0 so the whitespace between these spans
-              cannot render as a real space — every gap comes from the em margins instead.
-            {%- endcomment -%}
-            <p class="dev-menu-drawer__promo-rating">
-              {%- if block.settings.rating_value != blank -%}
-                <span class="dev-menu-drawer__promo-value">{{ block.settings.rating_value | escape }}</span>
-              {%- endif -%}
+          {%- comment -%}
+            .dev-menu-drawer__promo-rating is font-size: 0 so the whitespace between these spans
+            cannot render as a real space — every gap comes from the em margins instead.
+          {%- endcomment -%}
+          <p class="dev-menu-drawer__promo-rating">
+            <span class="dev-menu-drawer__promo-value">{{ rating }}/5</span>
 
-              {%- if block.settings.rating_value != blank and block.settings.rating_label != blank -%}
-                <span class="dev-menu-drawer__promo-separator" aria-hidden="true">|</span>
-              {%- endif -%}
-
-              {%- if block.settings.rating_label != blank -%}
-                <span class="dev-menu-drawer__promo-label">{{ block.settings.rating_label | escape }}</span>
-              {%- endif -%}
-            </p>
-          {%- endif -%}
+            {%- if block.settings.rating_label != blank -%}
+              <span class="dev-menu-drawer__promo-separator" aria-hidden="true">|</span>
+              <span class="dev-menu-drawer__promo-label">{{ block.settings.rating_label | escape }}</span>
+            {%- endif -%}
+          </p>
         </div>
       {%- endif -%}
     </div>
@@ -232,9 +230,9 @@
     { "type": "header", "content": "Content" },
     { "type": "text", "id": "drawer_heading", "label": "Drawer title (screen readers only)", "default": "Menu", "info": "Not visible — the Figma title layer is transparent. It names the dialog for assistive tech." },
     { "type": "checkbox", "id": "show_rating_bar", "label": "Show rating bar", "default": true },
-    { "type": "checkbox", "id": "show_rating_stars", "label": "Show rating stars", "default": true, "info": "Hides only the stars — the rating value and label stay." },
-    { "type": "text", "id": "rating_value", "label": "Rating value", "default": "4.7/5" },
-    { "type": "text", "id": "rating_label", "label": "Rating label", "default": "Rated Excellent" },
+    { "type": "checkbox", "id": "show_rating_stars", "label": "Show rating stars", "default": true, "info": "Hides only the stars — the score and label stay." },
+    { "type": "paragraph", "content": "The score comes from Theme settings > Rating — it fills the stars and writes the \"4.7/5\" beside them, so the drawer cannot state a different number from the rest of the site." },
+    { "type": "text", "id": "rating_label", "label": "Rating label", "default": "Rated Excellent", "info": "The words after the separator. Leave empty to show the score on its own." },
 
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },

@@ -167,7 +167,6 @@
     "dev-promo-bar": {
       "type": "dev-promo-bar",
       "settings": {
-        "rating_value": "4.7/5",
         "rating_label": "Rated Excellent",
         "background_color": "#FFFCF4",
         "text_color": "#333333",

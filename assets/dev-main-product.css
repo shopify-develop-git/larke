@@ -282,29 +282,9 @@
   outline: none;
 }
 
-/* A 4.9 is four stars and nine tenths, so the fill is clipped to --rating-pct rather than rounded
-   up to five. Two stacked copies: a muted row underneath, a gold row on top clipped by width. */
-.dev-main-product__stars {
-  position: relative;
-  display: inline-block;
-  font-size: var(--font-stars-size);
-  font-weight: var(--w-medium);
-  line-height: var(--font-body-lh);
-  white-space: nowrap;
-}
-
-.dev-main-product__stars-base {
-  color: #ededed;
-}
-
-.dev-main-product__stars-fill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: var(--rating-pct);
-  color: var(--star-color);
-  overflow: hidden;
-}
+/* The star row itself is the shared dev-stars component (snippets/dev-stars.liquid, styled by
+   dev-stars.css) — it does the same two-row clip this section used to do with ★ glyphs and a
+   --rating-pct variable. That local copy is gone; --star-color below is what feeds it. */
 
 .dev-main-product__rating-link {
   color: var(--color);

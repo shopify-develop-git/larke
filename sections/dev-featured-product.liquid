@@ -179,21 +179,25 @@
         {%- endif -%}
 
         {%- liquid
-          assign show_stars = false
-          if section.settings.show_rating_stars and section.settings.rating_stars != blank
-            assign show_stars = true
-          endif
+          # The badge reads off ONE number, Theme settings > Rating, like every other star row in
+          # the theme. The stars used to be hardcoded to a full five beside a line that said 4.7.
+          # {rating} in the text is written out from the same number, so the sentence and the ink
+          # beside it cannot drift apart the way two hand-typed values did.
+          assign rating = settings.store_rating
+          assign rating_text = section.settings.rating_text | replace: '{rating}', rating
+
+          assign show_stars = section.settings.show_rating_stars
         -%}
 
         <div class="featured-product__group">
-          {%- if section.settings.rating_text != blank or show_stars -%}
+          {%- if rating_text != blank or show_stars -%}
             <div class="featured-product__badge">
               {%- if show_stars -%}
                 {%- comment -%} Shared inline-SVG stars (not the ★ glyph) — see snippets/dev-stars.liquid. {%- endcomment -%}
-                {%- render 'dev-stars', rating: 5, size: 14, gap: 1, color: section.settings.accent_color -%}
+                {%- render 'dev-stars', rating: rating, size: 14, gap: 1, color: section.settings.accent_color -%}
               {%- endif -%}
-              {%- if section.settings.rating_text != blank -%}
-                <span class="featured-product__rating">{{ section.settings.rating_text | escape }}</span>
+              {%- if rating_text != blank -%}
+                <span class="featured-product__rating">{{ rating_text | escape }}</span>
               {%- endif -%}
             </div>
           {%- endif -%}
@@ -287,8 +291,7 @@
       "default": "<p>Cooler, cosier,<br/>kinder to the planet.</p>"
     },
     { "type": "checkbox", "id": "show_rating_stars", "label": "Show rating stars", "default": true },
-    { "type": "text", "id": "rating_stars", "label": "Rating stars", "default": "★★★★★" },
-    { "type": "text", "id": "rating_text", "label": "Rating text", "default": "Rated 4.7/5* by real sleepers" },
+    { "type": "text", "id": "rating_text", "label": "Rating text", "default": "Rated {rating}/5* by real sleepers", "info": "Write {rating} where the score belongs and it is filled in from Theme settings > Rating — the same number the stars are filled to. Typing the number by hand is how the two ended up disagreeing." },
     { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop Your Duvet" },
     { "type": "url", "id": "button_link", "label": "Button link" },
     { "type": "image_picker", "id": "product_image", "label": "Product image" },

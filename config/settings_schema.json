@@ -2127,5 +2127,24 @@
         "default": "equal-width-buttons"
       }
     ]
+  },
+  {
+    "name": "Rating",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "The one place the star rating is set. Every star row in the theme reads this number — the promo bar, the menu drawer, the featured product on the home page and the product page — so they can never disagree with each other."
+      },
+      {
+        "type": "range",
+        "id": "store_rating",
+        "min": 0,
+        "max": 5,
+        "step": 0.1,
+        "label": "Store rating",
+        "default": 4.7,
+        "info": "Stars fill to the exact value: 4.7 paints four solid stars and a nearly full fifth. The rating text beside them is written out from this number too."
+      }
+    ]
   }
 ]

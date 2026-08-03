@@ -99,35 +99,35 @@
   {%- endcomment -%}
   <div class="promo-bar__inner">
     {%- comment -%}
-      Five solid gold stars via the shared dev-stars component — inline SVG, not the ★ (U+2605)
-      glyph. The spec's exact-fidelity requirement calls for SVG here precisely because the glyph
-      falls back to a system font and varies across platforms. Figma ships no star vector, so the
-      canonical dev-stars vector is an authorised substitution (client-confirmed).
-      Decorative: "4.7/5" + "Rated Excellent" already carry the meaning to a screen reader.
+      Gold stars via the shared dev-stars component — inline SVG, not the ★ (U+2605) glyph. The
+      spec's exact-fidelity requirement calls for SVG here precisely because the glyph falls back
+      to a system font and varies across platforms. Figma ships no star vector, so the canonical
+      dev-stars vector is an authorised substitution (client-confirmed).
+
+      The row fills to the THEME rating, not to a hardcoded 5. It painted five solid stars beside
+      a "4.7/5" that sat two centimetres away, which read as a five-star claim the number beside
+      it contradicted. Decorative: the text carries the meaning to a screen reader.
     {%- endcomment -%}
+    {%- assign rating = settings.store_rating -%}
     {%- if section.settings.show_rating_stars -%}
-      {%- render 'dev-stars', rating: 5, size: 13, gap: 1, color: section.settings.star_color -%}
+      {%- render 'dev-stars', rating: rating, size: 13, gap: 1, color: section.settings.star_color -%}
     {%- endif -%}
 
-    {%- if section.settings.rating_value != blank or section.settings.rating_label != blank -%}
-      {%- comment -%}
-        .promo-bar__rating is font-size: 0 (see the CSS) so that the collapsed whitespace
-        between these spans has zero width — the gaps come only from the em margins.
-      {%- endcomment -%}
-      <p class="promo-bar__rating">
-        {%- if section.settings.rating_value != blank -%}
-          <span class="promo-bar__value">{{ section.settings.rating_value | escape }}</span>
-        {%- endif -%}
+    {%- comment -%}
+      .promo-bar__rating is font-size: 0 (see the CSS) so that the collapsed whitespace
+      between these spans has zero width — the gaps come only from the em margins.
 
-        {%- if section.settings.rating_value != blank and section.settings.rating_label != blank -%}
-          <span class="promo-bar__separator" aria-hidden="true">|</span>
-        {%- endif -%}
+      "4.7/5" is written out from the theme rating rather than typed into a text setting, so it
+      cannot drift from the stars it sits beside. Only the words after the separator are free text.
+    {%- endcomment -%}
+    <p class="promo-bar__rating">
+      <span class="promo-bar__value">{{ rating }}/5</span>
 
-        {%- if section.settings.rating_label != blank -%}
-          <span class="promo-bar__label">{{ section.settings.rating_label | escape }}</span>
-        {%- endif -%}
-      </p>
-    {%- endif -%}
+      {%- if section.settings.rating_label != blank -%}
+        <span class="promo-bar__separator" aria-hidden="true">|</span>
+        <span class="promo-bar__label">{{ section.settings.rating_label | escape }}</span>
+      {%- endif -%}
+    </p>
   </div>
 </div>
 
@@ -143,8 +143,8 @@
   "settings": [
     { "type": "header", "content": "Content" },
     { "type": "checkbox", "id": "show_rating_stars", "label": "Show rating stars", "default": true },
-    { "type": "text", "id": "rating_value", "label": "Rating value", "default": "4.7/5" },
-    { "type": "text", "id": "rating_label", "label": "Rating label", "default": "Rated Excellent" },
+    { "type": "paragraph", "content": "The score comes from Theme settings > Rating — it fills the stars and writes the \"4.7/5\" beside them, so the two cannot disagree." },
+    { "type": "text", "id": "rating_label", "label": "Rating label", "default": "Rated Excellent", "info": "The words after the separator. Leave empty to show the score on its own." },
 
     { "type": "header", "content": "Colors" },
     {

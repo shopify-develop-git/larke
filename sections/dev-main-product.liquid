@@ -36,7 +36,8 @@
     --font-cta-size: 20px;
     --font-cta-size-mobile: 18px;
     --font-badge-size: 14px;
-    --font-stars-size: 18px;
+    /* The stars are SVG, not text, so their 18px is passed to dev-stars as a size argument —
+       there is no --font-stars-size token here anymore. */
     /* The rating label alone drops to 14 on mobile — NOT --font-label-size, which the option rows and
        the zoom counter also read and which stays at 16. */
     --font-rating-size-mobile: 14px;
@@ -164,11 +165,10 @@
   # buttons and one value column per size row.
   assign units = section.blocks | where: 'type', 'unit'
 
-  assign rating = section.settings.rating_value
-  assign rating_pct = rating | times: 20.0
-  if rating_pct > 100
-    assign rating_pct = 100
-  endif
+  # The rating is a THEME setting (Theme settings > Rating), not a section one, so the buy box, the
+  # promo bar, the menu drawer and the home page's featured product cannot state different numbers.
+  # It used to be a per-section range, which is how the drawer once ended up claiming 4.6.
+  assign rating = settings.store_rating
 -%}
 
 {%- comment -%}
@@ -195,7 +195,6 @@
     --surface: {{ section.settings.surface_color }};
     --card-bg: {{ section.settings.card_color }};
     --border-color: {{ section.settings.border_color }};
-    --rating-pct: {{ rating_pct }}%;
   "
   data-main-product
   data-cart-add-url="{{ routes.cart_add_url }}"
@@ -552,29 +551,20 @@
               {%- comment -%}
                 Shared inline-SVG stars (not the ★ glyph). See dev-stars.
 
-                The row rounds DOWN to the nearest half star, so 4.7 draws four solid and a half —
-                the owner's call, asked for explicitly against a reference of a half-filled star.
+                The row paints the EXACT value: 4.7 fills the first four stars and 70% of the
+                fifth, which is what the artboard draws (44795:186 fades that star with a gradient
+                stopping at 89.413% for the 4.9 it was drawn at).
 
-                This is the third position this row has held, so the history matters. It first
-                clipped the fifth star to the true 4.9 (a ~90% sliver, which is what the artboard
-                draws — 44795:186 fades that star with a gradient stopping at 89.413%). It was then
-                rounded to whole stars, painting five solid ones. It now shows a half.
-
-                Floor, never round: rounding to the nearest half would send 4.9 back to five solid,
-                and rounding up would let a 4.2 claim four and a half. Flooring can only ever
-                understate the product, never flatter it.
-
-                The two readings DISAGREE on purpose: the stars say 4.5 while the label and the
-                aria-label beside them say the true value (4.7/5 since the owner's "all 4.7"
-                ruling; 4.9/5 before it). That was raised with the owner and chosen anyway — do
-                not "fix" the mismatch without asking them first.
+                This row has held three positions before this one, so the history matters. It
+                started exact, was rounded to whole stars (five solid — a 4.7 flattered into a
+                perfect score), then floored to the nearest half, which painted 4.5 and read as
+                noticeably WORSE than the 4.7 stated beside it. Both roundings made the stars
+                contradict the label; only the exact fill agrees with it, so nothing here should
+                round again. The owner asked for the exact fill on 2026-08-03.
               {%- endcomment -%}
-              {%- liquid
-                assign stars_label = rating | append: ' / 5'
-                assign stars_rating = rating | times: 2 | floor | divided_by: 2.0
-              -%}
+              {%- assign stars_label = rating | append: ' / 5' -%}
               {%- render 'dev-stars',
-                rating: stars_rating,
+                rating: rating,
                 max: 5,
                 size: 18,
                 gap: 1,
@@ -583,7 +573,11 @@
                 label: stars_label
               -%}
             {%- endif -%}
-            <span class="dev-main-product__rating-link">{{ section.settings.rating_label | escape }}</span>
+            {%- comment -%}
+              Written out from the same number the stars use, so the two readings cannot drift
+              apart — this text used to be its own free-text setting typed by hand.
+            {%- endcomment -%}
+            <span class="dev-main-product__rating-link">{{ rating }}/5</span>
           </a>
         {%- endif -%}
 
@@ -1375,9 +1369,8 @@
 
     { "type": "header", "content": "Rating" },
     { "type": "checkbox", "id": "show_rating", "label": "Show rating", "default": true },
-    { "type": "checkbox", "id": "show_rating_stars", "label": "Show rating stars", "default": true, "info": "Hides only the stars — the rating label stays." },
-    { "type": "range", "id": "rating_value", "min": 0, "max": 5, "step": 0.1, "label": "Rating", "default": 4.7, "info": "Stars round DOWN to the nearest half — 4.7 draws four and a half. Deliberate: the label beside them states the exact value." },
-    { "type": "text", "id": "rating_label", "label": "Rating label", "default": "4.7/5" },
+    { "type": "checkbox", "id": "show_rating_stars", "label": "Show rating stars", "default": true, "info": "Hides only the stars — the rating text stays." },
+    { "type": "paragraph", "content": "The number itself lives in Theme settings > Rating, so this row, the promo bar, the menu drawer and the home page all state the same score. The stars fill to the exact value and the \"4.7/5\" text is written out from it." },
     { "type": "url", "id": "rating_link", "label": "Rating link", "info": "Point it at the reviews section." },
 
     { "type": "header", "content": "Gallery" },
