@@ -375,9 +375,10 @@
         populated is skipped rather than rendering a dead link. Four are live today (privacy,
         shipping, refund, terms); native policies are store-level, so they render on any theme.
 
-        NO "Cookie preference" link. It is not a native shop policy and it is still undecided
-        whether the owner means a written page or a control that reopens Shopify's consent banner
-        (the latter is a customer-privacy API button, not a link). Deliberately absent until then.
+        Cookie policy is NOT one of those native policies — Shopify has no cookie-policy slot — so it
+        rides along as a normal content page, picked in the "Cookie policy page" setting. It is still
+        resolved to a page OBJECT, not a typed-in URL, so the row stays uniform: title and href come
+        from the page itself and a deleted page drops the link instead of leaving a 404 behind.
       {%- endcomment -%}
       <div class="site-footer__legal">
         {%- if section.settings.copyright_text != blank -%}
@@ -396,19 +397,35 @@
           --spacing-md gap under the copyright line. Four policies are populated on wearelarke, so
           this branch never fires in production — it exists so the layout cannot break elsewhere.
         {%- endcomment -%}
-        {%- if section.settings.show_policy_links -%}
-          {%- capture legal_links -%}
+        {%- comment -%}
+          The cookie page is resolved BEFORE the capture so the two sources can be tested the same
+          way. `pages[handle]` returns an EmptyDrop for a handle that does not exist, so the same
+          `!= blank` guard the policy loop uses covers "setting never filled in", "page deleted" and
+          "page unpublished" in one test. The explicit setting wins; with it empty the handle
+          `cookie-policy` is tried, so creating the page in admin lights the link up on its own —
+          the same self-maintaining behaviour the store policies already have.
+        {%- endcomment -%}
+        {%- assign cookie_page = pages[section.settings.cookie_policy_page] -%}
+        {%- if cookie_page == blank -%}
+          {%- assign cookie_page = pages['cookie-policy'] -%}
+        {%- endif -%}
+
+        {%- capture legal_links -%}
+          {%- if section.settings.show_policy_links -%}
             {%- for policy in shop.policies -%}
               {%- if policy != blank -%}
                 <li><a class="site-footer__link site-footer__legal-link" href="{{ policy.url }}">{{ policy.title | escape }}</a></li>
               {%- endif -%}
             {%- endfor -%}
-          {%- endcapture -%}
-          {%- if legal_links != blank -%}
-            <nav class="site-footer__legal-nav" aria-label="Legal">
-              <ul class="site-footer__legal-list" role="list">{{ legal_links }}</ul>
-            </nav>
           {%- endif -%}
+          {%- if cookie_page != blank -%}
+            <li><a class="site-footer__link site-footer__legal-link" href="{{ cookie_page.url }}">{{ cookie_page.title | escape }}</a></li>
+          {%- endif -%}
+        {%- endcapture -%}
+        {%- if legal_links != blank -%}
+          <nav class="site-footer__legal-nav" aria-label="Legal">
+            <ul class="site-footer__legal-list" role="list">{{ legal_links }}</ul>
+          </nav>
         {%- endif -%}
       </div>
 
@@ -566,6 +583,7 @@
 
     { "type": "header", "content": "Legal links" },
     { "type": "checkbox", "id": "show_policy_links", "label": "Show store policy links", "default": true, "info": "Lists the store policies you have written in Settings > Policies (privacy, shipping, refund, terms) in a row below the copyright. Titles and links come from Shopify, so editing a policy in admin updates this row. An empty policy is skipped." },
+    { "type": "page", "id": "cookie_policy_page", "label": "Cookie policy page", "info": "Adds your cookie policy to the end of the same row. Shopify has no cookie policy slot in Settings > Policies, so create it as a normal page (Content > Pages) and select it here. The link shows the page's own title, and disappears if the page is deleted or unpublished. Leave empty and a published page with the handle cookie-policy is picked up automatically." },
 
     { "type": "header", "content": "Payment icons" },
     { "type": "checkbox", "id": "show_payment_icons", "label": "Show payment icons", "default": true },
