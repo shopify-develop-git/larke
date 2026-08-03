@@ -363,7 +363,7 @@
         "row_2_label": "Filling",
         "row_3_label": "Free Trial",
         "row_4_label": "Warranty",
-        "comp_logo_darkness": 55,
+        "comp_logo_dim": 65,
         "comp_logo_desaturate": true,
         "background_color": "#fffcf4",
         "text_color": "#333333",

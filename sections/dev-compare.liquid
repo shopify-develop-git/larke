@@ -44,10 +44,26 @@
   assign backdrop_opacity = section.settings.backdrop_opacity | divided_by: 100.0
   assign is_open = section.settings.open_on_load
 
-  # Competitor wordmark treatment. The 100.0 is load-bearing: `divided_by: 100` is
-  # INTEGER division in Liquid and every value below 100 collapses to 0, which would
-  # render brightness(0) — a solid black rectangle where the logo should be.
-  assign logo_comp_brightness = 100 | minus: section.settings.comp_logo_darkness | divided_by: 100.0
+  # Competitor wordmark treatment.
+  #
+  # This used to DARKEN the marks (brightness < 1). That was the wrong direction: the logos
+  # ship at #3F3F3F, so darkening drove them towards black — which on a cream panel reads as
+  # crisp and deliberate, i.e. it made them look BETTER, not worse. The brief is the opposite:
+  # the competitor marks should look dull and washed out next to the Larke green.
+  #
+  # So the treatment now fades them TOWARDS the panel instead of away from it:
+  #   contrast < 1  flattens the ink towards mid-grey (kills the crisp black)
+  #   opacity  < 1  lets the cream panel bleed through (kills the presence)
+  # One slider drives both. At dim 65 the #3F3F3F ink lands near #9C9B98 over the cream —
+  # a flat, tired grey against a saturated green.
+  #
+  # The 100.0 is load-bearing throughout: `divided_by: 100` is INTEGER division in Liquid and
+  # every value below 100 collapses to 0 — which here would mean opacity(0), invisible logos.
+  assign dim = section.settings.comp_logo_dim | default: 65
+  assign dim_opacity = dim | times: 65 | divided_by: 100.0
+  assign logo_comp_opacity = 100 | minus: dim_opacity | divided_by: 100.0
+  assign dim_contrast = dim | times: 55 | divided_by: 100.0
+  assign logo_comp_contrast = 100 | minus: dim_contrast | divided_by: 100.0
   assign logo_comp_grayscale = 0
   if section.settings.comp_logo_desaturate
     assign logo_comp_grayscale = 1
@@ -126,20 +142,21 @@
 
     /* --- Competitor wordmark treatment (merchant-controlled) ---------------------
        Competitor logos are supplied as the brands' own full-colour marks. In the Figma
-       comp they read as flat dark grey, so they sit visually *behind* the Larke mark
-       instead of competing with it — and so three unrelated brand palettes don't turn
-       the panel into a colour clash. Both knobs are settings because every brand's
-       artwork starts at a different lightness: a mark that is already near-black needs
-       0% darkness, a pale one needs 70%+.
+       comp they read as flat, washed-out grey, so they sit visually *behind* the Larke
+       mark instead of competing with it — and so three unrelated brand palettes don't
+       turn the panel into a colour clash. It is a setting because every brand's artwork
+       starts at a different lightness: a mark that is already pale needs very little
+       dimming, a dense black one needs 70%+ before it stops looking deliberate.
          --logo-comp-grayscale  1 = desaturate, 0 = leave the brand colours alone
-         --logo-comp-brightness computed above; darkness 55% → 0.45 */
+         --logo-comp-opacity    computed above; dim 65% → 0.5775
+         --logo-comp-contrast   computed above; dim 65% → 0.6425
+
+       Both fall out of the single `comp_logo_dim` slider, so there is one knob to turn and
+       the two effects can never be set against each other (a flattened mark at full opacity
+       just looks blurry; a faded mark at full contrast still reads as crisp). */
     --logo-comp-grayscale: {{ logo_comp_grayscale }};
-    --logo-comp-brightness: {{ logo_comp_brightness }};
-    /* Fixed, not a setting: dimming a wordmark also flattens its internal contrast, so
-       thin letterforms and tight counters smear together. A small constant contrast bump
-       buys that legibility back at every brightness we allow, and exposing it would just
-       be one more way to break the logos. */
-    --logo-comp-contrast: 1.1;
+    --logo-comp-opacity: {{ logo_comp_opacity }};
+    --logo-comp-contrast: {{ logo_comp_contrast }};
   }
 </style>
 
@@ -359,7 +376,7 @@
     { "type": "text", "id": "row_4_label", "label": "Row 4 label", "default": "Warranty" },
 
     { "type": "header", "content": "Competitor logos" },
-    { "type": "range", "id": "comp_logo_darkness", "min": 0, "max": 90, "step": 5, "unit": "%", "label": "Competitor logo darkness", "default": 55, "info": "Dims competitor wordmarks so they sit behind the Larke mark. 0% leaves the artwork as supplied." },
+    { "type": "range", "id": "comp_logo_dim", "min": 0, "max": 90, "step": 5, "unit": "%", "label": "Competitor logo dimming", "default": 65, "info": "Fades competitor wordmarks towards the panel so they read as flat grey next to the Larke mark. 0% leaves the artwork as supplied; higher is duller." },
     { "type": "checkbox", "id": "comp_logo_desaturate", "label": "Desaturate competitor logos", "default": true, "info": "Strips brand colour so three unrelated palettes don't clash." },
 
     { "type": "header", "content": "Colors" },
