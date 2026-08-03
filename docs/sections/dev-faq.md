@@ -85,7 +85,7 @@ valid, and its interactivity does what the code says it does.
 | Check | Method | Result |
 |---|---|---|
 | Lint | `shopify theme check` | clean |
-| Content renders | `/pages/faq?view=faq` | both questions and both answers present |
+| Content renders | `/pages/faq` | both questions and both answers present |
 | Structured data | FAQPage JSON-LD parsed | valid JSON, holds both questions |
 | Click handling | DevTools assertion | `event.defaultPrevented: true` on summary click — JS, not the native `<details>` toggle, drives open/close |
 | Exclusivity | DevTools assertion | opening one row sets `data-faq-state="closing"` on the other |
@@ -112,15 +112,13 @@ flag, which only flips at animation-finish.
   `dev-main-product` through a shared asset to avoid duplicating ~40 lines was judged more
   expensive than the duplication itself — do not "helpfully" refactor this into a shared include.
 
-- **The template is deliberately not assigned to the page in the Shopify admin.** It's reached
-  today at `/pages/faq?view=faq`, and both the header and the footer link there
-  (`sections/header-group.json`, `sections/footer-group.json`) rather than to the clean
-  `/pages/faq`. Assigning the template the obvious way — Pages → FAQ → Theme template → `faq` —
-  sets `template_suffix` on the *page*, which is store-level data shared with whichever theme is
-  currently live. The live theme on `wearelarke.com` is a different theme with no `page.faq`
-  template, so making that assignment now would affect production for no benefit. Once this theme
-  is published, assigning the template is one click in the admin, and the `?view=faq` query comes
-  off both links at the same time.
+- **The template is now assigned to the page in the Shopify admin** (Pages → FAQ → Theme template →
+  `faq`), so the section is reached at the clean `/pages/faq`; the header and the footer link
+  there (`sections/header-group.json`, `sections/footer-group.json`). Note what that assignment
+  means: `template_suffix` lives on the *page*, which is store-level data shared with whichever
+  theme is currently live. The live theme on `wearelarke.com` is a different theme with no
+  `page.faq` template — if a page renders bare there, this is why, and Shopify falls back to the
+  default page template rather than erroring.
 
 - **The heading font cannot render `?`.** `Test Tiempos Headline` (`snippets/dev-brand-fonts.liquid`)
   is the free trial cut of a licensed Klim font: all six weights share the same 66-glyph subset

@@ -44,7 +44,6 @@ design spec instead.
 |---|---|---|---|---|---|---|
 | dev-faq | ✅ shipped | none — no FAQ artboard exists; accordion follows `Accordions - Desktop` 45068:1975 | yes — accordion | n/a (no artboard to diff) | n/a | 2026-07-14 |
 
-**dev-faq** — `/pages/faq?view=faq` (not yet the clean `/pages/faq`; the template is deliberately
-unassigned in the admin — see `docs/sections/dev-faq.md`). Full detail, including the accordion
+**dev-faq** — `/pages/faq`. Full detail, including the accordion
 JS's intentional duplication from `dev-main-product.js` and the heading font's missing `?` glyph:
 `docs/sections/dev-faq.md`.

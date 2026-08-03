@@ -16,7 +16,7 @@
           "type": "link",
           "settings": {
             "label": "Delivery",
-            "url": "/pages/about?view=delivery",
+            "url": "/pages/delivery-and-returns",
             "position": "left"
           }
         },
@@ -24,7 +24,7 @@
           "type": "link",
           "settings": {
             "label": "Returns",
-            "url": "/pages/about?view=delivery",
+            "url": "/pages/delivery-and-returns",
             "position": "left"
           }
         },
@@ -44,7 +44,7 @@
           "type": "link",
           "settings": {
             "label": "FAQs",
-            "url": "/pages/faq?view=faq",
+            "url": "/pages/faq",
             "position": "right"
           }
         },
@@ -95,14 +95,14 @@
                   "type": "dev-menu-drawer-nav-link",
                   "settings": {
                     "label": "Our Story",
-                    "link": "/pages/about?view=our-story"
+                    "link": "/pages/our-story"
                   }
                 },
                 "nav-link-3": {
                   "type": "dev-menu-drawer-nav-link",
                   "settings": {
                     "label": "Discover Tree-Fibre",
-                    "link": "/pages/about?view=tree-fibre"
+                    "link": "/pages/tree-fibre"
                   }
                 }
               },
@@ -120,14 +120,14 @@
                   "type": "dev-menu-drawer-footer-link",
                   "settings": {
                     "label": "FAQs",
-                    "link": "/pages/faq?view=faq"
+                    "link": "/pages/faq"
                   }
                 },
                 "footer-link-2": {
                   "type": "dev-menu-drawer-footer-link",
                   "settings": {
                     "label": "Delivery & Returns",
-                    "link": "/pages/about?view=delivery"
+                    "link": "/pages/delivery-and-returns"
                   }
                 },
                 "footer-link-3": {

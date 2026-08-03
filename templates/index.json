@@ -130,7 +130,7 @@
         "heading": "Wash. Dry. Repeat.",
         "body_text": "<p>Fuss-free comfort.<br/>Fresh again by bedtime.</p>",
         "button_label": "Discover Tree-Fibre",
-        "button_link": "/pages/about?view=tree-fibre",
+        "button_link": "/pages/tree-fibre",
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#333333",
         "accent_color": "#c4bca9",
@@ -145,7 +145,7 @@
           "type": "cta_button",
           "settings": {
             "label": "Our Story",
-            "link": "/pages/about?view=our-story"
+            "link": "/pages/our-story"
           }
         }
       },
@@ -333,7 +333,7 @@
         "heading": "<p>Tree-mendous<br/>since day one.</p>",
         "subheading": "See how it all began.",
         "button_label": "Our Story",
-        "button_link": "/pages/about?view=our-story",
+        "button_link": "/pages/our-story",
         "image": "shopify://shop_images/our-story-video-banner-bg.jpg",
         "image_mobile": "shopify://shop_images/our-story-video-banner-bg.jpg",
         "background_color": "#fffcf4",
