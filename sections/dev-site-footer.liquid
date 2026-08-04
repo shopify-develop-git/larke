@@ -401,11 +401,20 @@
           The cookie page is resolved BEFORE the capture so the two sources can be tested the same
           way. `pages[handle]` returns an EmptyDrop for a handle that does not exist, so the same
           `!= blank` guard the policy loop uses covers "setting never filled in", "page deleted" and
-          "page unpublished" in one test. The explicit setting wins; with it empty the handle
-          `cookie-policy` is tried, so creating the page in admin lights the link up on its own —
-          the same self-maintaining behaviour the store policies already have.
+          "page unpublished" in one test. The explicit setting wins; with it empty the handles below
+          are tried in order, so creating the page in admin lights the link up on its own — the same
+          self-maintaining behaviour the store policies already have.
+
+          BOTH handles are tried because the page was renamed "Cookie Policy" -> "Cookie Preferences"
+          (owner, 2026-08-04) and its URL followed. `cookie-policy` is kept as the second guess so a
+          store still on the old handle — or one where the rename is later reverted — does not
+          silently drop the link out of the legal row. Nothing reads the handle but this lookup, so
+          carrying the pair costs a comparison and removes a whole class of dead-link failure.
         {%- endcomment -%}
         {%- assign cookie_page = pages[section.settings.cookie_policy_page] -%}
+        {%- if cookie_page == blank -%}
+          {%- assign cookie_page = pages['cookie-preferences'] -%}
+        {%- endif -%}
         {%- if cookie_page == blank -%}
           {%- assign cookie_page = pages['cookie-policy'] -%}
         {%- endif -%}
@@ -583,7 +592,7 @@
 
     { "type": "header", "content": "Legal links" },
     { "type": "checkbox", "id": "show_policy_links", "label": "Show store policy links", "default": true, "info": "Lists the store policies you have written in Settings > Policies (privacy, shipping, refund, terms) in a row below the copyright. Titles and links come from Shopify, so editing a policy in admin updates this row. An empty policy is skipped." },
-    { "type": "page", "id": "cookie_policy_page", "label": "Cookie policy page", "info": "Adds your cookie policy to the end of the same row. Shopify has no cookie policy slot in Settings > Policies, so create it as a normal page (Content > Pages) and select it here. The link shows the page's own title, and disappears if the page is deleted or unpublished. Leave empty and a published page with the handle cookie-policy is picked up automatically." },
+    { "type": "page", "id": "cookie_policy_page", "label": "Cookie preferences page", "info": "Adds your cookie page to the end of the same row. Shopify has no cookie slot in Settings > Policies, so create it as a normal page (Content > Pages) and select it here. The link shows the page's own title, and disappears if the page is deleted or unpublished. Leave empty and a published page with the handle cookie-preferences — or the older cookie-policy — is picked up automatically." },
 
     { "type": "header", "content": "Payment icons" },
     { "type": "checkbox", "id": "show_payment_icons", "label": "Show payment icons", "default": true },

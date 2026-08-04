@@ -1,0 +1,85 @@
+{{ 'dev-policy-page.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Fixed tokens — NOT from Figma. There is no artboard for a legal page.
+
+  The reference is the live rendering of the four NATIVE policies (/policies/privacy-policy and
+  friends). Those pages have no theme template at all — Shopify renders them itself and injects
+  its own stylesheet, measured 2026-08-04 at
+  cdn/shopifycloud/storefront/assets/storefront/policy-0e156355.css:
+
+    .shopify-policy__container { max-width:560px; max-width:65ch; margin:0 auto;
+                                 padding-left:20px; padding-right:20px }
+    .shopify-policy__title     { text-align:center }
+
+  Horizon adds one rule of its own on top, assets/base.css:2684 —
+    .shopify-policy__container { padding-block: var(--padding-xl) }
+
+  So the numbers below are a MEASUREMENT of the page this one has to sit beside, not a guess.
+  The two declarations of --container-max reproduce Shopify's own pair verbatim: 65ch is the
+  real value, 560px is the fallback a browser without ch-unit support lands on. Keep both — a
+  single 65ch would silently collapse the column to the browser default on the fallback path.
+
+  Type is deliberately NOT tokenised here. The native policy pages inherit Horizon's h1 preset
+  and .rte body styles, and this section has to look like them, so it inherits the same. Fixing
+  the heading size and font across all five legal pages is a separate, explicit piece of work.
+{%- endcomment -%}
+<style>
+  .dev-policy-page {
+    --container-max: 560px;
+    --container-max: 65ch;
+    --section-px: 20px;
+  }
+</style>
+
+{%- comment -%}
+  <h1>, not the <h2> the code standards ask of a section heading. This section IS the page
+  title — it replaces the stock main-page "Title" text block that rendered
+  <h1>{{ closest.page.title }}</h1> — and a page needs exactly one h1. Shopify's own policy
+  template puts the title in an h1 for the same reason.
+
+  The body carries `rte` alongside its BEM class ON PURPOSE. Horizon styles legal copy through
+  .rte (assets/base.css:2624 — heading margins, list indents), and Shopify's policy pages wrap
+  their body in the same class. Dropping it here is what would make the two pages differ.
+{%- endcomment -%}
+<div
+  class="dev-policy-page"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="dev-policy-page__inner">
+    {%- if section.settings.show_title and page.title != blank -%}
+      <h1 class="dev-policy-page__title">{{ page.title | escape }}</h1>
+    {%- endif -%}
+
+    {%- if page.content != blank -%}
+      <div class="dev-policy-page__body rte">{{ page.content }}</div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Policy page",
+  "tag": "section",
+  "presets": [{ "name": "Policy page" }],
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "checkbox", "id": "show_title", "label": "Show page title", "default": true, "info": "Renders the page's own title from Content > Pages as the h1, centred, the way Shopify centres the title on the native policy pages." },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "rgba(0,0,0,0)", "info": "Leave transparent and the page shows the theme background set in Settings > Colors, which is what the native policy pages do." },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "accent_color", "label": "Link color", "default": "#333333" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 200, "step": 4, "unit": "px", "label": "Padding top", "default": 64 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 200, "step": 4, "unit": "px", "label": "Padding bottom", "default": 80 }
+  ]
+}
+{% endschema %}

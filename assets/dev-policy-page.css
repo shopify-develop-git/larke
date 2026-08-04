@@ -1,0 +1,95 @@
+/* dev-policy-page.css
+
+   A legal page (Cookie Preferences today) rendered to match the four NATIVE Shopify policies
+   it sits beside in the footer's legal row. Every number here is measured from Shopify's own
+   policy stylesheet — see the comment block in sections/dev-policy-page.liquid for the source.
+
+   Class names are dev-prefixed because Horizon compiles every stock section's {% stylesheet %}
+   into one sheet that loads on every page; an unprefixed BEM name inherits stock rules. The one
+   deliberate exception is `rte` on the body, which we WANT to inherit — that is the class the
+   native policy pages style their copy with. */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.dev-policy-page {
+  background-color: var(--bg);
+  color: var(--color);
+  padding-top: var(--pt);
+  padding-bottom: var(--pb);
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+  font-family: var(--font-body);
+}
+
+.dev-policy-page__inner {
+  max-width: var(--container-max);
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* --- layout --- */
+
+/* --- blocks / children --- */
+
+/* --- typography --- */
+
+/* Centred, like .shopify-policy__title. Font family, size and weight are NOT set: the native
+   policy pages inherit Horizon's h1 preset, and this page has to match them. Setting a size
+   here would make this page the odd one out — the exact complaint we are fixing. */
+.dev-policy-page__title {
+  text-align: center;
+}
+
+/* --- buttons / links --- */
+
+.dev-policy-page__body a {
+  color: var(--accent);
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.dev-policy-page__body a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.dev-policy-page__body a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-policy-page,
+  .dev-policy-page * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
