@@ -755,7 +755,28 @@
                   </summary>
 
                   {%- if row.settings.body != blank -%}
-                    <div class="dev-main-product__acc-body">{{ row.settings.body }}</div>
+                    {%- comment -%}
+                      The trademark is lifted here rather than in the copy, because Public Sans draws
+                      U+2122 as a BASELINE glyph, not a raised one. Measured on the rendered page at
+                      18px/700:
+
+                        Public Sans  ™   ascent 8.14px, descent 0   <- shorter than a lowercase x
+                        Public Sans  x   ascent 9.31px
+                        Public Sans  T   ascent 13.01px
+                        Helvetica    ™   spans 6.43 -> 12.96px      <- what a ™ should look like
+
+                      So it sits on the baseline reading as full-size "TM" rather than as a
+                      superscript. It is the font, not the markup — the character has been a bare
+                      U+2122 since 7ff0bec added it, with no <sup> at any point.
+
+                      The wrap happens in Liquid and not in the stored richtext ON PURPOSE. `richtext`
+                      settings are sanitised by Shopify on the merchant's next save in the theme
+                      editor, and <sup> is not in the allowed tag list — it would be stripped, exactly
+                      as 6c52365 warned an &trade; entity would be escaped. Wrapping at render leaves
+                      the merchant's copy as a plain ™ and cannot be undone by an editor save.
+                    {%- endcomment -%}
+                    {%- assign acc_body = row.settings.body | replace: '™', '<sup class="dev-main-product__tm">™</sup>' -%}
+                    <div class="dev-main-product__acc-body">{{ acc_body }}</div>
                   {%- endif -%}
 
                   {%- comment -%}

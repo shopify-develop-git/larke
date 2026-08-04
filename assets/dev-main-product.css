@@ -995,6 +995,28 @@
   background-color: currentcolor;
 }
 
+/* The trademark. Public Sans' U+2122 is a baseline glyph — it rises 8.14px at 18px/700, which is
+   BELOW the 9.31px x-height, so untouched it reads as full-size "TM" sitting on the line rather
+   than as a superscript. Every number below is measured off that font, not guessed:
+
+     glyph ascent 8.14px   x-height 9.31px   cap height 13.01px   (at 18px, weight 700)
+
+   At 0.7em the glyph rises 0.7 x 8.14 = 5.70px; lifting it 0.4em (7.2px) puts its top at 12.9px,
+   which lands on the cap height a capital T reaches. That is the alignment a trademark is expected
+   to have.
+
+   `position: relative` + `bottom` rather than `vertical-align: super`: super is measured from the
+   font's own superscript metric, which is what put the glyph in the wrong place to begin with, and
+   it grows the line box. `line-height: 0` keeps the raised glyph from adding leading to the bullet
+   it sits in — the list's rhythm is set by the artboard and must not move for one character. */
+.dev-main-product__tm {
+  position: relative;
+  bottom: 0.4em;
+  font-size: 0.7em;
+  line-height: 0;
+  vertical-align: baseline;
+}
+
 /* ---- Accordions, mobile — 44797:2410 ----
    The mobile artboard steps the whole accordion down a size: the heading is Mobile/Title 4 (20, not
    the desktop's 22) and the copy is Body/Md_Body_Medium (16, not 18).
