@@ -41,7 +41,7 @@
   background-color: var(--card-bg);
   border-radius: var(--card-radius);
   padding: var(--card-pad);
-  margin-block-end: var(--card-pad);
+  margin-block-end: var(--gap-block);
 }
 
 /* --- typography --- */
@@ -87,6 +87,30 @@
   line-height: var(--font-body-lh);
 }
 
+/* --- rhythm inside the copy ---
+
+   Horizon's .rte gives headings a clamp(1.5rem, 1em*3.3, 2.5rem) top margin and
+   leaves paragraphs on browser defaults, which is neither of the two numbers the
+   artboard uses. Reset to zero and re-space with the owned pair, so the vertical
+   rhythm is stated once instead of emerging from three stylesheets.
+
+   The lobotomised-owl selector (* + *) rather than margin-bottom on everything:
+   it cannot leave a trailing margin under the last block, which would otherwise
+   add to the section's own padding and make the bottom inset look wrong while
+   the token says 24. The heading rule comes after it and wins on order, giving
+   a heading and its own copy the tighter 8px. */
+.dev-policy-page__body > * {
+  margin-block: 0;
+}
+
+.dev-policy-page__body > * + * {
+  margin-block-start: var(--gap-block);
+}
+
+.dev-policy-page__body > :is(h1, h2, h3, h4, h5, h6) + * {
+  margin-block-start: var(--gap-heading);
+}
+
 /* --- buttons / links --- */
 
 .dev-policy-page__body a {
@@ -105,12 +129,34 @@
    ============================================= */
 
 @media (max-width: 768px) {
+  .dev-policy-page {
+    padding-top: var(--section-py-mobile);
+    padding-bottom: var(--section-py-mobile);
+    padding-left: var(--section-px-mobile);
+    padding-right: var(--section-px-mobile);
+  }
+
+  .dev-policy-page__card {
+    padding: var(--card-pad-mobile);
+    margin-block-end: var(--gap-block-mobile);
+  }
+
   .dev-policy-page__title {
     font-size: var(--font-title-size-mobile);
   }
 
   .dev-policy-page__body :is(h1, h2, h3, h4, h5, h6) {
     font-size: var(--font-heading-size-mobile);
+  }
+
+  /* 32 -> 24 between blocks; the heading-to-copy 8px is the one gap the
+     artboard keeps identical at both widths, so it is not restated here. */
+  .dev-policy-page__body > * + * {
+    margin-block-start: var(--gap-block-mobile);
+  }
+
+  .dev-policy-page__body > :is(h1, h2, h3, h4, h5, h6) + * {
+    margin-block-start: var(--gap-heading);
   }
 }
 

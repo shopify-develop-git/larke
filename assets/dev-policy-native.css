@@ -38,6 +38,26 @@
   --policy-pad: 32px;
   --policy-col: 640px;
 
+  --policy-pad-mobile: 24px;
+  --policy-px-mobile: 16px;
+
+  /* Spacing read off the artboards' coordinates — desktop 45246:4418, mobile
+     45246:1431 — not eyeballed and not scaled from one another.
+
+     Desktop: 24px above and below the whole thing; 32px card padding; 32px from
+     the card to the copy; 32px between blocks; 8px from a heading to its own
+     paragraph.
+     Mobile: 16px inset and 16px above/below; 24px card padding; 24px card-to-copy
+     and block-to-block.
+
+     Only the 8px heading gap survives the breakpoint unchanged — everything else
+     steps 32 -> 24, which is why no single scale factor reproduces this. */
+  --policy-py: 24px;
+  --policy-py-mobile: 16px;
+  --policy-gap-block: 32px;
+  --policy-gap-block-mobile: 24px;
+  --policy-gap-heading: 8px;
+
   --policy-title-size: 32px;
   --policy-title-size-mobile: 24px;
   --policy-heading-size: 22px;
@@ -69,6 +89,11 @@
    they are what stops the text touching the screen edge below ~680px. */
 .shopify-policy__container.shopify-policy__container {
   max-width: calc(var(--policy-col) + 40px);
+
+  /* Horizon sets padding-block: var(--padding-xl) on this class (base.css:2684),
+     which is not the artboard's 24px. Overridden here rather than left to source
+     order, for the same reason the max-width above is. */
+  padding-block: var(--policy-py);
 }
 
 /* --- the title card ---------------------------------------------------- */
@@ -79,7 +104,7 @@
   background-color: var(--policy-card-bg);
   border-radius: var(--policy-radius);
   padding: var(--policy-pad);
-  margin-block-end: var(--policy-pad);
+  margin-block-end: var(--policy-gap-block);
 }
 
 .shopify-policy__title h1 {
@@ -129,16 +154,64 @@
   color: var(--policy-ink);
 }
 
+/* --- rhythm inside the copy ---
+
+   The legal texts arrive as one long .rte blob, so the vertical rhythm has to be
+   imposed from outside rather than authored per block. Horizon's .rte gives
+   headings a clamp(1.5rem, 1em*3.3, 2.5rem) top margin — neither of the artboard's
+   two numbers — so everything is zeroed and re-spaced from the owned pair.
+
+   `* + *` rather than a margin-bottom on every child: it cannot leave a trailing
+   margin under the last block, which would add to the container's own 24px and
+   make the page look bottom-heavy while the token says otherwise. The heading rule
+   follows it and wins on order, tightening a heading and its own paragraph to 8px. */
+.shopify-policy__body .rte > *,
+.shopify-policy__body > * {
+  margin-block: 0;
+}
+
+.shopify-policy__body .rte > * + *,
+.shopify-policy__body > * + * {
+  margin-block-start: var(--policy-gap-block);
+}
+
+.shopify-policy__body .rte > :is(h1, h2, h3, h4, h5, h6) + *,
+.shopify-policy__body > :is(h1, h2, h3, h4, h5, h6) + * {
+  margin-block-start: var(--policy-gap-heading);
+}
+
 /* =============================================
    MOBILE  ≤ 768px
    ============================================= */
 
 @media (max-width: 768px) {
+  .shopify-policy__container.shopify-policy__container {
+    padding-block: var(--policy-py-mobile);
+    padding-inline: var(--policy-px-mobile);
+  }
+
+  .shopify-policy__title {
+    padding: var(--policy-pad-mobile);
+    margin-block-end: var(--policy-gap-block-mobile);
+  }
+
   .shopify-policy__title h1 {
     font-size: var(--policy-title-size-mobile);
   }
 
   .shopify-policy__body :is(h1, h2, h3, h4, h5, h6) {
     font-size: var(--policy-heading-size-mobile);
+  }
+
+  /* 32 -> 24 between blocks; the 8px heading gap is unchanged at both widths,
+     but has to be restated because the rule above it moved. */
+  .shopify-policy__body .rte > * + *,
+  .shopify-policy__body > * + * {
+    margin-block-start: var(--policy-gap-block-mobile);
+  }
+
+  .shopify-policy__body .rte > :is(h1, h2, h3, h4, h5, h6) + *,
+  .shopify-policy__body > :is(h1, h2, h3, h4, h5, h6) + * {
+    margin-block-start: var(--policy-gap-heading);
   }
 }

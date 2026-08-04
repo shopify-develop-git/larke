@@ -28,10 +28,38 @@
   .dev-policy-page {
     --container-max: 640px;
     --section-px: 20px;
+    --section-px-mobile: 16px;
+
+    /* Mobile drops to 16px top and bottom and OVERRIDES the merchant's padding
+       settings, which are desktop-only. Same trade dev-policy makes: the phone
+       artboard states its own inset, and letting a desktop number through would
+       put 24px+ of air above a 24px card on a 375 screen. */
+    --section-py-mobile: 16px;
 
     --card-bg: #fcf5e3;
     --card-radius: 32px;
     --card-pad: 32px;
+    --card-pad-mobile: 24px;
+
+    /* Spacing, read off the artboards' own coordinates rather than eyeballed —
+       desktop 45246:4418, mobile 45246:1431.
+
+       Desktop: card at y=24 in a 568-tall frame whose last block ends at 544,
+       so 24px top and bottom. Card 102 tall around a 38px line = 32px padding.
+       Card ends 126, body starts 158 => 32px. Blocks sit 32px apart (78->110,
+       254->286). Inside a block the heading ends at 26 and its copy starts at
+       34 => 8px.
+
+       Mobile: 16px section inset and 16px top/bottom; card 77 tall around a
+       29px line => 24px padding; card ends 93, body starts 117 => 24px; blocks
+       24px apart (215->239, 447->471); the heading-to-copy 8px is unchanged.
+
+       So only the heading gap is constant across breakpoints. Everything else
+       steps 32 -> 24, which is why a single scale factor would not have
+       reproduced this. */
+    --gap-block: 32px;
+    --gap-block-mobile: 24px;
+    --gap-heading: 8px;
 
     --font-title-size: 32px;
     --font-title-size-mobile: 24px;
@@ -92,8 +120,8 @@
     { "type": "color", "id": "accent_color", "label": "Link color", "default": "#333333" },
 
     { "type": "header", "content": "Spacing" },
-    { "type": "range", "id": "padding_top", "min": 0, "max": 200, "step": 4, "unit": "px", "label": "Padding top", "default": 64 },
-    { "type": "range", "id": "padding_bottom", "min": 0, "max": 200, "step": 4, "unit": "px", "label": "Padding bottom", "default": 80 }
+    { "type": "range", "id": "padding_top", "min": 0, "max": 200, "step": 4, "unit": "px", "label": "Padding top", "default": 24 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 200, "step": 4, "unit": "px", "label": "Padding bottom", "default": 24 }
   ]
 }
 {% endschema %}
