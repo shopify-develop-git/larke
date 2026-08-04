@@ -34,15 +34,15 @@
 {%- endcomment -%}
 <style>
   .promo-bar {
-    /* Brand params (Brief → Brand Params).
+    {%- comment -%} Brand params (Brief → Brand Params).
        --container-max is intentionally absent: the Brief confirms there is no capped inner
        frame anywhere in this tree — the row is `flex: 1 0 0` and fills the space between the
        section's own padding. Full-bleed, padding only. Same precedent as dev-site-header.
        --font-heading is intentionally absent too: this section has no heading-level element
-       (Brief, Note 2), so it must not override the site's global value. */
+       (Brief, Note 2), so it must not override the site's global value. {%- endcomment -%}
     --section-px: 64px;
 
-    /* Typography — every text node here is a Body style; sizes/weights read off Figma. */
+    {%- comment -%} Typography — every text node here is a Body style; sizes/weights read off Figma. {%- endcomment -%}
     --font-star-size: 13px;
     --font-star-weight: 700;
     --font-rating-size: 16px;
@@ -53,21 +53,21 @@
     --font-label-weight: 500;
     --font-body-lh: 1.4;
 
-    /* Spacing */
-    --spacing-sm: 4px; /* the inner row's Auto Layout gap (stars ↔ rating text) */
+    {%- comment -%} Spacing {%- endcomment -%}
+    --spacing-sm: 4px; {%- comment -%} the inner row's Auto Layout gap (stars ↔ rating text) {%- endcomment -%}
     --divider-width: 1px;
 
-    /* Figma fakes the gaps *inside* the rating text node with literal space characters
+    {%- comment -%} Figma fakes the gaps *inside* the rating text node with literal space characters
        (` 4.6/5`, `   |   `, `Rated Excellent `) instead of real spacing — see Brief, Notes.
        We reproduce them as real margins. Public Sans' space advance is 520/2000 upm =
        exactly 0.26em in every weight (measured from the shipped woff2), so expressing the
        margin in `em` reproduces Figma's gap to the pixel *and* rescales itself for free when
-       the font-size drops 16px → 14px at mobile. Do not hardcode these as px. */
+       the font-size drops 16px → 14px at mobile. Do not hardcode these as px. {%- endcomment -%}
     --space-advance: 0.26em;
-    --sep-spaces: 3; /* `   |   ` — three spaces either side of the pipe */
+    --sep-spaces: 3; {%- comment -%} `   |   ` — three spaces either side of the pipe {%- endcomment -%}
 
-    /* --pt/--pb are merchant values and arrive inline on the root, so a media query cannot
-       override them. Mobile scales them instead: 12px → 8px = 2/3 (Brief, Auto Layout). */
+    {%- comment -%} --pt/--pb are merchant values and arrive inline on the root, so a media query cannot
+       override them. Mobile scales them instead: 12px → 8px = 2/3 (Brief, Auto Layout). {%- endcomment -%}
     --pad-scale-m: 0.666667;
   }
 
@@ -76,7 +76,7 @@
       --section-px: 16px;
       --font-rating-size: 14px;
       --font-label-size: 14px;
-      /* Star (13px) and separator (14px) sizes do not change at mobile — Brief, Auto Layout. */
+      {%- comment -%} Star (13px) and separator (14px) sizes do not change at mobile — Brief, Auto Layout. {%- endcomment -%}
     }
   }
 </style>

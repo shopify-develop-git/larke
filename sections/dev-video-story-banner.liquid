@@ -14,22 +14,22 @@
 <style>
   .video-story-banner {
 
-    /* Full-bleed by design. The Brief found NO inner content frame narrower than the
+    {%- comment -%} Full-bleed by design. The Brief found NO inner content frame narrower than the
        section at either breakpoint (the row and the image tile are both w-full), so
        there is no --container-max, and --section-px reads 0 from this section's own
        layer tree. The header's 64px/16px gutter is a per-section finding for its nav —
-       deliberately NOT reused here (Brief note #3). */
+       deliberately NOT reused here (Brief note #3). {%- endcomment -%}
     --section-px: 0px;
 
-    /* Mobile artboard specifies its own literal padding, not a scale factor. */
+    {%- comment -%} Mobile artboard specifies its own literal padding, not a scale factor. {%- endcomment -%}
     --pt-mobile: 48px;
 
-    /* Content band. Figma's promo-tile master carries aspect-[375/465], but the parent
+    {%- comment -%} Content band. Figma's promo-tile master carries aspect-[375/465], but the parent
        row overrides it with h-[500px] + overflow-clip, so 500px is the real render
-       height at BOTH breakpoints — it is not a scaled value (Brief note #4). */
+       height at BOTH breakpoints — it is not a scaled value (Brief note #4). {%- endcomment -%}
     --band-h: 500px;
 
-    /* Typography */
+    {%- comment -%} Typography {%- endcomment -%}
     --font-heading-size: 48px;
     --font-heading-weight: 500;
     --font-heading-lh: 1.2;
@@ -45,13 +45,13 @@
     --font-body-size-mobile: 16px;
     --font-button-size-mobile: 16px;
 
-    /* Spacing */
+    {%- comment -%} Spacing {%- endcomment -%}
     --spacing-sm: 16px;
     --spacing-md: 24px;
     --spacing-lg: 32px;
     --spacing-lg-mobile: 24px;
 
-    /* Button */
+    {%- comment -%} Button {%- endcomment -%}
     --button-px: 24px;
     --button-py: 18px;
     --button-px-mobile: 18px;
@@ -59,9 +59,9 @@
     --radius-button: 60px;
     --button-color: #333333;
 
-    /* Gradient scrim. Figma reports 0.9336deg (desktop) / 3.5805deg (mobile) — the same
+    {%- comment -%} Gradient scrim. Figma reports 0.9336deg (desktop) / 3.5805deg (mobile) — the same
        visual intent, re-derived by Figma against each tile's aspect ratio. Implemented as
-       a straight top-fade at both breakpoints, per the Brief's explicit instruction. */
+       a straight top-fade at both breakpoints, per the Brief's explicit instruction. {%- endcomment -%}
     --overlay-start: rgba(0, 0, 0, 0.6);
     --overlay-end: rgba(0, 0, 0, 0);
     --overlay-start-stop: 7.8467%;

@@ -28,13 +28,13 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .sleep-grows-on-trees {
-    /* Brand params (Brief → Brand Params table). Faces are loaded by snippets/dev-brand-fonts.liquid. */
+    {%- comment -%} Brand params (Brief → Brand Params table). Faces are loaded by snippets/dev-brand-fonts.liquid. {%- endcomment -%}
     --container-max: 1312px;
     --section-px: 64px;
     --section-px-m: 16px;
 
-    /* Typography — desktop. Two heading sizes: the section heading (Desktop/Title 2) and the
-       card heading (Desktop/Title 3). They are different tokens in Figma, not a scale of one. */
+    {%- comment -%} Typography — desktop. Two heading sizes: the section heading (Desktop/Title 2) and the
+       card heading (Desktop/Title 3). They are different tokens in Figma, not a scale of one. {%- endcomment -%}
     --font-heading-size: 38px;
     --font-heading-weight: 500;
     --font-heading-lh: 1.2;
@@ -43,43 +43,43 @@
     --font-body-weight: 500;
     --font-body-lh: 1.4;
 
-    /* Typography — mobile: read off the Mobile artboard (Mobile/Title2, Mobile/Title 3,
-       Body/Md_Body_Medium), not derived with a scale factor. */
+    {%- comment -%} Typography — mobile: read off the Mobile artboard (Mobile/Title2, Mobile/Title 3,
+       Body/Md_Body_Medium), not derived with a scale factor. {%- endcomment -%}
     --font-heading-size-m: 28px;
     --font-card-heading-size-m: 24px;
     --font-body-size-m: 16px;
 
-    /* MOBILE-ONLY, AND NOT FROM FIGMA — the design's letter-spacing is 0 everywhere.
+    {%- comment -%} MOBILE-ONLY, AND NOT FROM FIGMA — the design's letter-spacing is 0 everywhere.
        "Over-heaters, cool sleepers." measures 295.4px in Tiempos Medium 24px, against the 295px
        a mobile card leaves for text. That 0.4px (0.14%) overflow pushes the line into a third row
        and makes the card 437px tall against the artboard's 408px. Figma fits the line because its
        text shaping is a hair tighter than Chrome's — this is an engine difference, not a layout
        bug. -0.005em brings the line to 292px and restores the designed two-line heading.
        Deliberate, measured, and approved — not a value invented to make QA pass.
-       Desktop needs none of this: the line is 394px inside a 496px column. */
+       Desktop needs none of this: the line is 394px inside a 496px column. {%- endcomment -%}
     --font-card-heading-ls-m: -0.005em;
 
-    /* Spacing — desktop */
-    --spacing-sm: 12px; /* card heading -> card text */
-    --spacing-md: 24px; /* card -> card */
-    --spacing-lg: 32px; /* section heading -> cards */
+    {%- comment -%} Spacing — desktop {%- endcomment -%}
+    --spacing-sm: 12px; {%- comment -%} card heading -> card text {%- endcomment -%}
+    --spacing-md: 24px; {%- comment -%} card -> card {%- endcomment -%}
+    --spacing-lg: 32px; {%- comment -%} section heading -> cards {%- endcomment -%}
     --card-pad-y: 24px;
     --card-pad-x: 80px;
 
-    /* Spacing — mobile: the card's padding collapses to a uniform 24px and the text gap to 8px.
-       The card-to-card gap (24px) and the heading-to-cards gap (32px) are unchanged. */
+    {%- comment -%} Spacing — mobile: the card's padding collapses to a uniform 24px and the text gap to 8px.
+       The card-to-card gap (24px) and the heading-to-cards gap (32px) are unchanged. {%- endcomment -%}
     --spacing-sm-m: 8px;
     --card-pad-m: 24px;
 
-    /* Mobile top spacer is 48px against a desktop 80px. Scaling the merchant's own padding_top
-       keeps that relationship intact if they change it. 80 * 0.6 = 48. */
+    {%- comment -%} Mobile top spacer is 48px against a desktop 80px. Scaling the merchant's own padding_top
+       keeps that relationship intact if they change it. 80 * 0.6 = 48. {%- endcomment -%}
     --pt-scale-m: 0.6;
 
-    /* Layout / decoration */
+    {%- comment -%} Layout / decoration {%- endcomment -%}
     --radius-card: 32px;
 
-    /* The photo's aspect is what sets each card's height: 655x460 inside a 1312 card on desktop,
-       343x250 on mobile. No container carries a fixed height. */
+    {%- comment -%} The photo's aspect is what sets each card's height: 655x460 inside a 1312 card on desktop,
+       343x250 on mobile. No container carries a fixed height. {%- endcomment -%}
     --media-ratio: 655 / 460;
     --media-ratio-m: 343 / 250;
   }

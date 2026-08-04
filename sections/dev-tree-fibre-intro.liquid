@@ -35,12 +35,12 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .tree-fibre-intro {
-    /* Brand params (Brief → Brand Params table). Faces are loaded by snippets/dev-brand-fonts.liquid. */
+    {%- comment -%} Brand params (Brief → Brand Params table). Faces are loaded by snippets/dev-brand-fonts.liquid. {%- endcomment -%}
     --container-max: 1312px;
     --section-px: 64px;
     --section-px-m: 16px;
 
-    /* Typography — desktop */
+    {%- comment -%} Typography — desktop {%- endcomment -%}
     --font-heading-size: 32px;
     --font-heading-weight: 400;
     --font-heading-lh: 1.2;
@@ -49,29 +49,29 @@
     --font-body-weight: 500;
     --font-body-lh: 1.4;
 
-    /* Typography — mobile: taken from the Mobile artboard, not a scale factor.
+    {%- comment -%} Typography — mobile: taken from the Mobile artboard, not a scale factor.
        The 0.5px heading letter-spacing is mobile-only and desktop's is unset — a deliberate
-       discrepancy read off the layer data (Brief, Note 3). Preserved, not normalised. */
+       discrepancy read off the layer data (Brief, Note 3). Preserved, not normalised. {%- endcomment -%}
     --font-heading-size-m: 26px;
     --font-heading-ls-m: 0.5px;
     --font-body-size-m: 18px;
 
-    /* Spacing — desktop */
-    --spacing-sm: 24px; /* row gap: text card ↔ image */
-    --spacing-md: 40px; /* card internal gap: intro → divider → heading */
-    --spacing-lg: 80px; /* card padding, all sides */
+    {%- comment -%} Spacing — desktop {%- endcomment -%}
+    --spacing-sm: 24px; {%- comment -%} row gap: text card ↔ image {%- endcomment -%}
+    --spacing-md: 40px; {%- comment -%} card internal gap: intro → divider → heading {%- endcomment -%}
+    --spacing-lg: 80px; {%- comment -%} card padding, all sides {%- endcomment -%}
 
-    /* Spacing — mobile */
-    --spacing-md-m: 24px; /* card internal gap */
-    --spacing-lg-m: 24px; /* card padding, all sides */
+    {%- comment -%} Spacing — mobile {%- endcomment -%}
+    --spacing-md-m: 24px; {%- comment -%} card internal gap {%- endcomment -%}
+    --spacing-lg-m: 24px; {%- comment -%} card padding, all sides {%- endcomment -%}
 
-    /* Mobile top spacer is 48px against a desktop 80px. Scaling the merchant's own padding_top
-       keeps that relationship intact if they change it. 80 * 0.6 = 48. */
+    {%- comment -%} Mobile top spacer is 48px against a desktop 80px. Scaling the merchant's own padding_top
+       keeps that relationship intact if they change it. 80 * 0.6 = 48. {%- endcomment -%}
     --pt-scale-m: 0.6;
 
-    /* Layout / decoration */
+    {%- comment -%} Layout / decoration {%- endcomment -%}
     --radius: 32px;
-    --media-ratio: 644 / 450; /* the image's fixed 450px height is what sets the desktop row height */
+    --media-ratio: 644 / 450; {%- comment -%} the image's fixed 450px height is what sets the desktop row height {%- endcomment -%}
     --divider-w: 99px;
     --divider-h: 1px;
   }

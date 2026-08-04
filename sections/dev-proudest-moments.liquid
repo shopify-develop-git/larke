@@ -16,12 +16,12 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .proudest-moments {
-    /* Brand params (Design Brief → Brand Params table) */
+    {%- comment -%} Brand params (Design Brief → Brand Params table) {%- endcomment -%}
     --container-max: 1312px;
     --section-px: 64px;
     --section-px-m: 16px;
 
-    /* Typography — desktop (Desktop/Title 2, Desktop/Title 4, Body/Lg_Body_Medium) */
+    {%- comment -%} Typography — desktop (Desktop/Title 2, Desktop/Title 4, Body/Lg_Body_Medium) {%- endcomment -%}
     --font-heading-size: 38px;
     --font-heading-weight: 500;
     --font-heading-lh: 1.2;
@@ -33,26 +33,26 @@
     --font-body-lh: 1.4;
     --letter-spacing: 0;
 
-    /* Typography — mobile (Mobile/Title2, Mobile/Title 4, Body/Md_Body_Medium — the Mobile
-       artboard's own tokens, not a scale factor) */
+    {%- comment -%} Typography — mobile (Mobile/Title2, Mobile/Title 4, Body/Md_Body_Medium — the Mobile
+       artboard's own tokens, not a scale factor) {%- endcomment -%}
     --font-heading-size-m: 28px;
     --font-block-heading-size-m: 20px;
     --font-body-size-m: 16px;
 
-    /* Spacing */
-    --spacing-sm: 8px; /* proof point: heading → body (desktop) */
-    --spacing-sm-m: 4px; /* proof point: heading → body (mobile) — a real token change, not a scale */
-    --spacing-md: 16px; /* heading column ↔ items group */
-    --spacing-lg: 24px; /* proof point → proof point */
-    --item-pt: 24px; /* padding above each proof point, under its divider */
+    {%- comment -%} Spacing {%- endcomment -%}
+    --spacing-sm: 8px; {%- comment -%} proof point: heading → body (desktop) {%- endcomment -%}
+    --spacing-sm-m: 4px; {%- comment -%} proof point: heading → body (mobile) — a real token change, not a scale {%- endcomment -%}
+    --spacing-md: 16px; {%- comment -%} heading column ↔ items group {%- endcomment -%}
+    --spacing-lg: 24px; {%- comment -%} proof point → proof point {%- endcomment -%}
+    --item-pt: 24px; {%- comment -%} padding above each proof point, under its divider {%- endcomment -%}
 
-    /* 80px desktop → 48px mobile, kept proportional to the merchant's padding_top */
+    {%- comment -%} 80px desktop → 48px mobile, kept proportional to the merchant's padding_top {%- endcomment -%}
     --pt-scale-m: 0.6;
 
-    /* Layout */
-    --heading-col-width: 233px; /* desktop only — the column stacks full width on mobile */
+    {%- comment -%} Layout {%- endcomment -%}
+    --heading-col-width: 233px; {%- comment -%} desktop only — the column stacks full width on mobile {%- endcomment -%}
 
-    /* Decoration */
+    {%- comment -%} Decoration {%- endcomment -%}
     --radius-card: 32px;
     --card-px: 24px;
     --card-py: 40px;

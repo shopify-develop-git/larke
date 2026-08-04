@@ -11,8 +11,8 @@
 <style>
   .dev-policy {
 
-    /* Desktop/Title 3 for the card, Desktop/Title 4 for a question. Mobile states its own
-       sizes on the artboard, so they win over a scale factor. */
+    {%- comment -%} Desktop/Title 3 for the card, Desktop/Title 4 for a question. Mobile states its own
+       sizes on the artboard, so they win over a scale factor. {%- endcomment -%}
     --font-title-size: 32px;
     --font-title-size-mobile: 24px;
     --font-qa-size: 22px;
@@ -20,7 +20,7 @@
     --font-heading-weight: 500;
     --font-heading-lh: 1.2;
 
-    /* The card's own copy is Body/Lg (18); a question's answer is Body/Md (16). */
+    {%- comment -%} The card's own copy is Body/Lg (18); a question's answer is Body/Md (16). {%- endcomment -%}
     --font-card-body-size: 18px;
     --font-qa-body-size: 16px;
     --font-body-weight: 500;
@@ -34,27 +34,27 @@
     --qa-item-gap: 8px;
     --note-pt: 24px;
 
-    /* Split (Delivery & Returns, 45246:3564).
+    {%- comment -%} Split (Delivery & Returns, 45246:3564).
 
        Fluid, not stepped. A single breakpoint at 1024 left 1025–1200 holding the full 533px card
        AND the full 136px gutter, which squeezed the answers to ~228px at 1025 — the worst point on
        the whole curve sat just ABOVE the breakpoint meant to fix it. The vw terms are the artboard
        ratios (64/1440, 136/1440, 533/1440), so at 1440 they resolve to exactly 64 / 136 / 533 and
        the pixel reference is untouched; below that everything scales together instead of the
-       answers absorbing the entire loss. */
+       answers absorbing the entire loss. {%- endcomment -%}
     --section-px: clamp(24px, 4.4444vw, 64px);
     --section-py: 40px;
     --col-gap: clamp(40px, 9.4444vw, 136px);
     --card-w: clamp(280px, 37.0139vw, 533px);
     --qa-gap: 24px;
 
-    /* The 1440 artboard less its two 64px insets. Above 1440 the three clamps above have all hit
+    {%- comment -%} The 1440 artboard less its two 64px insets. Above 1440 the three clamps above have all hit
        their max, so without this cap the card and gutter would freeze at 533/136 and the answers
-       column alone would absorb every extra pixel of viewport. */
+       column alone would absorb every extra pixel of viewport. {%- endcomment -%}
     --container-max: 1312px;
 
-    /* Centered (Shipping policy, 45246:4418). Figma states px-[400px] at 1440, which is a
-       640px column dead-centre — expressed as a max-width so it survives narrower viewports. */
+    {%- comment -%} Centered (Shipping policy, 45246:4418). Figma states px-[400px] at 1440, which is a
+       640px column dead-centre — expressed as a max-width so it survives narrower viewports. {%- endcomment -%}
     --centered-max: 640px;
     --centered-py: 24px;
     --centered-gap: 32px;
@@ -64,14 +64,14 @@
     --section-py-mobile: 16px;
     --qa-gap-mobile: 24px;
 
-    /* Accordion (the opt-in "Collapsible questions" mode). No Figma artboard covers this state —
+    {%- comment -%} Accordion (the opt-in "Collapsible questions" mode). No Figma artboard covers this state —
        the owner asked for the PDP's "Why you'll love it" behaviour on Delivery & Returns. The
        mechanism and the 24px chevron are the PDP's, but the motion values below are copied from
        dev-faq (300ms, cubic-bezier(0.32, 0.72, 0, 1)) — which itself deliberately differs from
        dev-main-product's 320ms / cubic-bezier(0.4, 0, 0.2, 1), so the theme's two accordions do
        NOT share one motion set and this section cannot match both. Which set Delivery & Returns
        should follow is an open owner call; until then it moves with dev-faq. The JS reads
-       --acc-dur back out (parseFloat on the computed value), so keep it in ms. */
+       --acc-dur back out (parseFloat on the computed value), so keep it in ms. {%- endcomment -%}
     --icon-size: 24px;
     --acc-dur: 300ms;
     --acc-ease: cubic-bezier(0.32, 0.72, 0, 1);

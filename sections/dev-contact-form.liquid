@@ -20,26 +20,26 @@
     --card-pad-mobile: 24px;
     --card-gap: 16px;
 
-    /* Fluid, not stepped. A single breakpoint at 1024 left 1025–1200 holding the full 533px card
+    {%- comment -%} Fluid, not stepped. A single breakpoint at 1024 left 1025–1200 holding the full 533px card
        AND the full 136px gutter, so the form was squeezed to ~228px at 1025 — the worst point on
        the curve sat just ABOVE the breakpoint meant to fix it. The vw terms are the artboard ratios
        (64/1440, 136/1440, 533/1440), so at 1440 they resolve to exactly 64 / 136 / 533 and the pixel
-       reference is untouched; below that everything scales together. */
+       reference is untouched; below that everything scales together. {%- endcomment -%}
     --section-px: clamp(24px, 4.4444vw, 64px);
     --section-py: 40px;
     --col-gap: clamp(40px, 9.4444vw, 136px);
     --card-w: clamp(280px, 37.0139vw, 533px);
 
-    /* The 1440 artboard less its two 64px insets. Above 1440 the vw terms above have all hit
+    {%- comment -%} The 1440 artboard less its two 64px insets. Above 1440 the vw terms above have all hit
        their max, so without this cap the card and gutter would freeze at 533/136 and the form
-       column alone would absorb every extra pixel of viewport. */
+       column alone would absorb every extra pixel of viewport. {%- endcomment -%}
     --container-max: 1312px;
 
     --section-px-mobile: 16px;
     --section-py-mobile: 16px;
     --stack-gap-mobile: 24px;
 
-    /* The Figma "Input Fields" component exposes no layout of its own, so these are measured off
+    {%- comment -%} The Figma "Input Fields" component exposes no layout of its own, so these are measured off
        the 1:1 render (45246:3826): 58px tall, 1px #666666 stroke, transparent fill, text 18px from
        the top edge and 20px from the left. Radius fitted to the corner arc — 4px, NOT the footer
        input's 8px.
@@ -53,7 +53,7 @@
        16px/1.4 line (22.4px) leaves (58 - 22.4) / 2 = 17.8px a side. Rounding that to 18 left the
        content box 0.4px shorter than its own line, and a textarea whose content overflows by any
        amount grows a scrollbar — visible even when the field is empty. 1 + 16.8 = 17.8 makes the
-       line fit exactly, and the scrollbar goes away at the root instead of being hidden. */
+       line fit exactly, and the scrollbar goes away at the root instead of being hidden. {%- endcomment -%}
     --field-h: 58px;
     --field-pad: 16.8px 19px;
     --field-radius: 4px;
@@ -62,15 +62,15 @@
     --field-gap: 8px;
     --form-gap: 16px;
 
-    /* Same inside-stroke correction: the button is 148x46 with a 1px white stroke and its label
-       12px/18px from the outer edge, so 1 + 11 = 12 and 1 + 17 = 18. */
+    {%- comment -%} Same inside-stroke correction: the button is 148x46 with a 1px white stroke and its label
+       12px/18px from the outer edge, so 1 + 11 = 12 and 1 + 17 = 18. {%- endcomment -%}
     --button-pad: 11px 17px;
     --button-radius: 60px;
     --button-border-w: 1px;
 
-    /* The Figma fill is a translucent dark neutral, not a solid: #343434 at 66%. Fixed, like every
+    {%- comment -%} The Figma fill is a translucent dark neutral, not a solid: #343434 at 66%. Fixed, like every
        other button on the site — no section lets a merchant recolour one, and this one used to be
-       the exception with three settings for it. */
+       the exception with three settings for it. {%- endcomment -%}
     --button-bg: rgba(52, 52, 52, 0.66);
     --button-color: #ffffff;
   }

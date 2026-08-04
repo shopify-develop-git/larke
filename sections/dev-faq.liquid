@@ -25,15 +25,15 @@
 <style>
   .dev-faq {
 
-    /* The width of the Accordions - Desktop artboard (45068:1975). A question is a line of prose:
-       run it to the 1312px page container and it becomes a hard read. */
+    {%- comment -%} The width of the Accordions - Desktop artboard (45068:1975). A question is a line of prose:
+       run it to the 1312px page container and it becomes a hard read. {%- endcomment -%}
     --container-max: 944px;
     --section-px: 64px;
     --section-px-mobile: 16px;
 
     --font-heading-size: 32px;
     --font-heading-size-mobile: 24px;
-    /* Desktop/Title 4 — the same step the PDP's accordion headings sit on. */
+    {%- comment -%} Desktop/Title 4 — the same step the PDP's accordion headings sit on. {%- endcomment -%}
     --font-question-size: 22px;
     --font-heading-weight: 500;
     --font-heading-lh: 1.2;
@@ -46,13 +46,13 @@
     --head-gap: 40px;
     --icon-size: 24px;
 
-    /* 24px on the artboard, in three places: under the divider, between question and answer, and
-       between one row's answer and the next divider. */
+    {%- comment -%} 24px on the artboard, in three places: under the divider, between question and answer, and
+       between one row's answer and the next divider. {%- endcomment -%}
     --acc-gap: 24px;
 
-    /* One curve for the accordion, both directions — opening on one curve and closing on another
+    {%- comment -%} One curve for the accordion, both directions — opening on one curve and closing on another
        looks restless when a row closes while its neighbour opens. The JS reads --acc-dur back out
-       of here (parseFloat on the computed value), so keep it in ms. */
+       of here (parseFloat on the computed value), so keep it in ms. {%- endcomment -%}
     --acc-dur: 300ms;
     --acc-ease: cubic-bezier(0.32, 0.72, 0, 1);
   }

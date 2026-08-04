@@ -12,12 +12,12 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .wash-dry-repeat {
-    /* Brand params (Design Brief → Brand Params table) */
+    {%- comment -%} Brand params (Design Brief → Brand Params table) {%- endcomment -%}
     --container-max: 1312px;
     --section-px: 64px;
     --section-px-m: 16px;
 
-    /* Typography — desktop */
+    {%- comment -%} Typography — desktop {%- endcomment -%}
     --font-heading-size: 32px;
     --font-heading-weight: 500;
     --font-heading-lh: 1.2;
@@ -28,34 +28,34 @@
     --font-button-weight: 700;
     --font-button-lh: 1.4;
 
-    /* Typography — mobile (from the Mobile artboard, not a scale factor) */
+    {%- comment -%} Typography — mobile (from the Mobile artboard, not a scale factor) {%- endcomment -%}
     --font-heading-size-m: 24px;
     --font-body-size-m: 16px;
     --font-button-size-m: 16px;
 
-    /* Spacing — desktop */
-    --spacing-sm: 16px; /* heading → body */
-    --spacing-md: 24px; /* text block → button */
-    --spacing-lg: 32px; /* tile → tile */
+    {%- comment -%} Spacing — desktop {%- endcomment -%}
+    --spacing-sm: 16px; {%- comment -%} heading → body {%- endcomment -%}
+    --spacing-md: 24px; {%- comment -%} text block → button {%- endcomment -%}
+    --spacing-lg: 32px; {%- comment -%} tile → tile {%- endcomment -%}
 
-    /* Spacing — mobile */
-    --spacing-sm-m: 8px; /* heading → body */
-    --spacing-md-m: 24px; /* text → images → button (same value reused twice) */
-    --spacing-lg-m: 16px; /* tile → tile */
+    {%- comment -%} Spacing — mobile {%- endcomment -%}
+    --spacing-sm-m: 8px; {%- comment -%} heading → body {%- endcomment -%}
+    --spacing-md-m: 24px; {%- comment -%} text → images → button (same value reused twice) {%- endcomment -%}
+    --spacing-lg-m: 16px; {%- comment -%} tile → tile {%- endcomment -%}
 
-    /* 80px desktop → 48px mobile, kept proportional to the merchant's padding_top */
+    {%- comment -%} 80px desktop → 48px mobile, kept proportional to the merchant's padding_top {%- endcomment -%}
     --pt-scale-m: 0.6;
 
-    /* Layout */
-    --images-w: 640px; /* fixed-width image block, flush left; text takes the rest */
-    --tile-ratio: 304 / 412; /* 2 tiles + 32px gap = 640px exactly */
-    --tile-h-m: 220px; /* mobile tiles are a fixed height, per the Mobile artboard */
+    {%- comment -%} Layout {%- endcomment -%}
+    --images-w: 640px; {%- comment -%} fixed-width image block, flush left; text takes the rest {%- endcomment -%}
+    --tile-ratio: 304 / 412; {%- comment -%} 2 tiles + 32px gap = 640px exactly {%- endcomment -%}
+    --tile-h-m: 220px; {%- comment -%} mobile tiles are a fixed height, per the Mobile artboard {%- endcomment -%}
     --text-max: 341px;
 
-    /* Decoration */
+    {%- comment -%} Decoration {%- endcomment -%}
     --radius-image: 16px;
     --radius-button: 60px;
-    --border-image: 1px; /* desktop only — dropped at mobile (Brief, Note 2) */
+    --border-image: 1px; {%- comment -%} desktop only — dropped at mobile (Brief, Note 2) {%- endcomment -%}
     --button-px: 24px;
     --button-py: 18px;
     --button-px-m: 18px;

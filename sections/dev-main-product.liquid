@@ -7,22 +7,22 @@
 
     --section-px: 64px;
     --section-px-mobile: 16px;
-    /* 1440 artboard minus 2x64 of gutter. Without it the gallery just kept growing on a wide
+    {%- comment -%} 1440 artboard minus 2x64 of gutter. Without it the gallery just kept growing on a wide
        monitor — the buy column is fixed at 460, so every extra pixel of viewport landed on the
-       image. The artboard is a 1312px frame, not a fluid one. */
+       image. The artboard is a 1312px frame, not a fluid one. {%- endcomment -%}
     --container-max: 1312px;
     --col-gap: 96px;
     --pt: 32px;
-    /* The guide popups tighten to the mobile artboard's 24px inset (head + body) as a bottom sheet. */
+    {%- comment -%} The guide popups tighten to the mobile artboard's 24px inset (head + body) as a bottom sheet. {%- endcomment -%}
     --pt-mobile: 24px;
 
-    /* Desktop/Title 3 vs Mobile/Title 3 — the mobile artboard states its own size. */
+    {%- comment -%} Desktop/Title 3 vs Mobile/Title 3 — the mobile artboard states its own size. {%- endcomment -%}
     --font-title-size: 32px;
     --font-title-size-mobile: 24px;
-    /* Desktop/Title 4 — the accordion headings. Mobile/Title 4 drops them to 20 (44797:2410). */
+    {%- comment -%} Desktop/Title 4 — the accordion headings. Mobile/Title 4 drops them to 20 (44797:2410). {%- endcomment -%}
     --font-title-4-size: 22px;
     --font-title-4-size-mobile: 20px;
-    /* Mobile/Title2 + Mobile/Title 4 — the price-comparison card uses the mobile scale on desktop. */
+    {%- comment -%} Mobile/Title2 + Mobile/Title 4 — the price-comparison card uses the mobile scale on desktop. {%- endcomment -%}
     --font-pc-title-size: 28px;
     --font-pc-label-size: 20px;
     --font-heading-weight: 500;
@@ -32,30 +32,30 @@
     --font-sub-size-mobile: 16px;
     --font-label-size: 16px;
     --font-variant-size: 16px;
-    /* Body/Lg_Body_Bold on the mobile artboard — the buy button drops 20 -> 18 (44869:1204). */
+    {%- comment -%} Body/Lg_Body_Bold on the mobile artboard — the buy button drops 20 -> 18 (44869:1204). {%- endcomment -%}
     --font-cta-size: 20px;
     --font-cta-size-mobile: 18px;
     --font-badge-size: 14px;
-    /* The stars are SVG, not text, so their 18px is passed to dev-stars as a size argument —
-       there is no --font-stars-size token here anymore. */
-    /* The rating label alone drops to 14 on mobile — NOT --font-label-size, which the option rows and
-       the zoom counter also read and which stays at 16. */
+    {%- comment -%} The stars are SVG, not text, so their 18px is passed to dev-stars as a size argument —
+       there is no --font-stars-size token here anymore. {%- endcomment -%}
+    {%- comment -%} The rating label alone drops to 14 on mobile — NOT --font-label-size, which the option rows and
+       the zoom counter also read and which stays at 16. {%- endcomment -%}
     --font-rating-size-mobile: 14px;
     --font-body-lh: 1.4;
     --w-medium: 500;
     --w-bold: 700;
 
-    /* Gallery */
+    {%- comment -%} Gallery {%- endcomment -%}
     --gallery-gap: 24px;
     --thumb-size: 62px;
     --thumb-gap: 12px;
-    /* The mobile strip tightens to 8 (44775:7085). Its own token because --thumb-gap is also read
-       by the zoom strip and the guide's bullet rows, which do not follow it. */
+    {%- comment -%} The mobile strip tightens to 8 (44775:7085). Its own token because --thumb-gap is also read
+       by the zoom strip and the guide's bullet rows, which do not follow it. {%- endcomment -%}
     --thumb-gap-mobile: 8px;
     --thumb-radius: 8px;
-    /* The mobile strip's scroll indicator (44948:821). The artboard draws it as a 2px line with
+    {%- comment -%} The mobile strip's scroll indicator (44948:821). The artboard draws it as a 2px line with
        round caps: the travelled part #333, the rest #D8D1C0 — the same hairline colour the
-       accordion and the size table already use. */
+       accordion and the size table already use. {%- endcomment -%}
     --thumb-scroll-h: 2px;
     --thumb-scroll-track: #d8d1c0;
     --image-w: 668px;
@@ -69,17 +69,17 @@
     --badge-pad: 4px 8px;
     --badge-radius: 8px;
 
-    /* Buy column */
+    {%- comment -%} Buy column {%- endcomment -%}
     --buy-w: 460px;
     --buy-gap: 32px;
     --title-gap: 8px;
     --group-gap: 16px;
     --variant-gap: 8px;
     --variant-radius: 8px;
-    /* 226x58 on the artboard. The border is 1px INSIDE the box in Figma, so CSS padding must be
+    {%- comment -%} 226x58 on the artboard. The border is 1px INSIDE the box in Figma, so CSS padding must be
        one pixel short of the drawn inset: 1 + 31 = 32, 1 + 17 = 18. And the SELECTED chip carries a
        transparent border of the same width — without it the filled chip would be 2px shorter than
-       the outlined ones sitting next to it. */
+       the outlined ones sitting next to it. {%- endcomment -%}
     --variant-pad: 17px 31px;
     --variant-border-w: 1px;
 
@@ -91,38 +91,38 @@
 
     --transition: 200ms;
 
-    /* Motion. Asymmetric on purpose: a drawer takes its time arriving and leaves briskly, which is
+    {%- comment -%} Motion. Asymmetric on purpose: a drawer takes its time arriving and leaves briskly, which is
        what makes it feel like an object rather than a div being toggled. The accordion duration is
-       read back out of here by the JS (parseFloat on the computed value), so keep it in ms. */
+       read back out of here by the JS (parseFloat on the computed value), so keep it in ms. {%- endcomment -%}
     --guide-in: 480ms;
     --guide-out: 300ms;
     --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
     --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
 
-    /* The zoom lightbox. Quicker than a drawer in both directions: a drawer is an object travelling
+    {%- comment -%} The zoom lightbox. Quicker than a drawer in both directions: a drawer is an object travelling
        in from off-screen, the lightbox is already where it belongs and only has to fade up. Read
        back out of here by the JS (parseFloat on the computed value) to know when the exit animation
-       has landed, so keep them in ms. */
+       has landed, so keep them in ms. {%- endcomment -%}
     --zoom-in: 320ms;
     --zoom-out: 200ms;
 
-    /* One curve for the accordion, both directions. Opening on one curve and closing on another
-       looked restless when a row closed while its neighbour opened — two motions disagreeing. */
+    {%- comment -%} One curve for the accordion, both directions. Opening on one curve and closing on another
+       looked restless when a row closed while its neighbour opened — two motions disagreeing. {%- endcomment -%}
     --acc-dur: 320ms;
-    /* Deliberately an even curve, not a snappy one. A steep ease-out puts ~70% of the travel into
+    {%- comment -%} Deliberately an even curve, not a snappy one. A steep ease-out puts ~70% of the travel into
        the first fifth of the time, and on a row 450px tall that lands as a jolt no matter how long
-       the tail is. This accelerates and decelerates by roughly the same amount. */
+       the tail is. This accelerates and decelerates by roughly the same amount. {%- endcomment -%}
     --acc-ease: cubic-bezier(0.4, 0, 0.2, 1);
-    /* 24px on the artboard, in three places: under the divider, between the heading and the copy,
-       and between one row's copy and the next divider. Measured off 45060:2564. */
+    {%- comment -%} 24px on the artboard, in three places: under the divider, between the heading and the copy,
+       and between one row's copy and the next divider. Measured off 45060:2564. {%- endcomment -%}
     --acc-gap: 24px;
 
-    /* The spacer the artboard drops in above the price-comparison card (45068:2384). */
+    {%- comment -%} The spacer the artboard drops in above the price-comparison card (45068:2384). {%- endcomment -%}
     --pc-lead: 48px;
 
-    /* The hand-drawn stroke under the italic run of the price-comparison heading. A MASK on the
+    {%- comment -%} The hand-drawn stroke under the italic run of the price-comparison heading. A MASK on the
        <em>, the same construction as dev-hero, dev-tree-fibre-hero and dev-values-we-cherish, so it
-       follows whatever the merchant italicises instead of being pinned to "emarkable." */
+       follows whatever the merchant italicises instead of being pinned to "emarkable." {%- endcomment -%}
     --underline: url('{{ 'dev-main-product-underline.svg' | asset_url }}');
     --underline-h: 5.9px;
     --underline-gap: -1px;

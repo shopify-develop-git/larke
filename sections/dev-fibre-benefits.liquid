@@ -8,7 +8,7 @@
     --section-px: 64px;
     --section-px-mobile: 16px;
 
-    /* A GUTTER, not a max-width, and that is the whole point: the cream band has to keep running
+    {%- comment -%} A GUTTER, not a max-width, and that is the whole point: the cream band has to keep running
        edge to edge, so it cannot be a capped centred box. Instead its own horizontal padding grows
        past 1440 and the CARDS hold the line while the background behind them still reaches both
        window edges. Same construction as dev-site-header / dev-site-footer / dev-values-we-cherish.
@@ -23,11 +23,11 @@
        1312 is 1440 - 2x64: the artboard's width less its own padding, i.e. the cards keep the
        content line they have at 1440 instead of growing with the window. Brief note #1 still
        holds — there is no centred max-width FRAME in the markup, this is padding on the band.
-       Mobile never sees it: that breakpoint overrides padding with a uniform 24px. */
+       Mobile never sees it: that breakpoint overrides padding with a uniform 24px. {%- endcomment -%}
     --container-max: 1312px;
     --gutter: max(var(--section-px), (100% - var(--container-max)) / 2);
 
-    /* Mobile artboard specifies its own top spacer (48px), not a scale factor off desktop. */
+    {%- comment -%} Mobile artboard specifies its own top spacer (48px), not a scale factor off desktop. {%- endcomment -%}
     --pt-mobile: 48px;
 
     --font-heading-size: 20px;
@@ -38,30 +38,30 @@
     --font-body-weight: 500;
     --font-body-lh: 1.4;
 
-    --spacing-sm: 4px;  /* heading -> body */
-    --spacing-md: 16px; /* card padding; icon -> text block (desktop); card -> card (mobile) */
-    --spacing-lg: 24px; /* card -> card (desktop); cream-container padding */
+    --spacing-sm: 4px;  {%- comment -%} heading -> body {%- endcomment -%}
+    --spacing-md: 16px; {%- comment -%} card padding; icon -> text block (desktop); card -> card (mobile) {%- endcomment -%}
+    --spacing-lg: 24px; {%- comment -%} card -> card (desktop); cream-container padding {%- endcomment -%}
 
-    /* Measured off the Figma artboards, not guessed:
+    {%- comment -%} Measured off the Figma artboards, not guessed:
        mobile cards 1 & 2 use a flat 4px gap between every child, card 3 uses 8px between the
        icon and its heading+body sub-group. Brief note #3 — a real authoring inconsistency in
        the source file, built as measured rather than silently normalised.
-       (Card-3 mobile height checks out to the pixel only with 8px: 16+48+8+24+4+40+16 = 156.) */
+       (Card-3 mobile height checks out to the pixel only with 8px: 16+48+8+24+4+40+16 = 156.) {%- endcomment -%}
     --card-icon-gap-mobile: 4px;
     --card-icon-gap-mobile-alt: 8px;
 
-    /* Layout slot for the icon. Fixed 48x48 on BOTH artboards. */
+    {%- comment -%} Layout slot for the icon. Fixed 48x48 on BOTH artboards. {%- endcomment -%}
     --icon-size: 48px;
 
-    /* Confirmed from the exported artwork itself: every path is #666666 (Neutral/500).
-       Drives currentColor on the two inline icons. */
+    {%- comment -%} Confirmed from the exported artwork itself: every path is #666666 (Neutral/500).
+       Drives currentColor on the two inline icons. {%- endcomment -%}
     --icon-color: #666666;
 
-    /* Render size == viewBox, so each icon draws at its true Figma size. Verified against the
+    {%- comment -%} Render size == viewBox, so each icon draws at its true Figma size. Verified against the
        375 artboard at 1:1 (no scaling): the ink bounding boxes measure 46x48 / 43x44 / 48x50.
        The Brief's "Images" table is the Figma ANCHOR box and understates biodegradable — its
        art is 50px tall and deliberately overflows the 48px slot by 1px top and bottom. Sizing
-       to the anchor box would letterbox and shrink the art. */
+       to the anchor box would letterbox and shrink the art. {%- endcomment -%}
     --icon-no-chemicals-w: 46px;
     --icon-no-chemicals-h: 48px;
     --icon-fsc-certified-w: 43px;

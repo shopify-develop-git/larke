@@ -42,12 +42,12 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .fibre-cta {
-    /* Brand params (Brief → Brand Params table). Faces are loaded by snippets/dev-brand-fonts.liquid. */
+    {%- comment -%} Brand params (Brief → Brand Params table). Faces are loaded by snippets/dev-brand-fonts.liquid. {%- endcomment -%}
     --container-max: 1312px;
     --section-px: 64px;
     --section-px-m: 16px;
 
-    /* Typography — desktop */
+    {%- comment -%} Typography — desktop {%- endcomment -%}
     --font-heading-size: 32px;
     --font-heading-weight: 500;
     --font-heading-lh: 1.2;
@@ -55,35 +55,35 @@
     --font-body-weight: 700;
     --font-body-lh: 1.4;
 
-    /* Typography — mobile: taken from the Mobile artboard (Mobile/Title 3), not a scale factor. */
+    {%- comment -%} Typography — mobile: taken from the Mobile artboard (Mobile/Title 3), not a scale factor. {%- endcomment -%}
     --font-heading-size-m: 24px;
 
-    /* Spacing — desktop. The text column's padding is asymmetric in Figma (32 vertical,
-       119 horizontal); it is NOT a uniform tier, so it does not collapse into --spacing-*. */
+    {%- comment -%} Spacing — desktop. The text column's padding is asymmetric in Figma (32 vertical,
+       119 horizontal); it is NOT a uniform tier, so it does not collapse into --spacing-*. {%- endcomment -%}
     --spacing-sm: 16px;
     --spacing-md: 24px;
     --card-pad-y: 32px;
     --card-pad-x: 119px;
 
-    /* Spacing — mobile: card padding collapses to a uniform 24px and the text gap drops to 16px. */
+    {%- comment -%} Spacing — mobile: card padding collapses to a uniform 24px and the text gap drops to 16px. {%- endcomment -%}
     --card-pad-m: 24px;
 
-    /* Mobile top spacer is 48px against a desktop 80px. Scaling the merchant's own padding_top
-       keeps that relationship intact if they change it. 80 * 0.6 = 48. */
+    {%- comment -%} Mobile top spacer is 48px against a desktop 80px. Scaling the merchant's own padding_top
+       keeps that relationship intact if they change it. 80 * 0.6 = 48. {%- endcomment -%}
     --pt-scale-m: 0.6;
 
-    /* Button text is Neutral/700 — the same token as the body text colour, not a separate
-       merchant setting. Fixed relationship in the design. */
+    {%- comment -%} Button text is Neutral/700 — the same token as the body text colour, not a separate
+       merchant setting. Fixed relationship in the design. {%- endcomment -%}
     --button-color: var(--color);
     --button-pad-y: 12px;
     --button-pad-x: 18px;
 
-    /* Layout / decoration */
+    {%- comment -%} Layout / decoration {%- endcomment -%}
     --radius-card: 32px;
     --radius-button: 60px;
 
-    /* The image's own aspect is what sets the card height at each breakpoint:
-       desktop 656x450 inside a 1312 card; mobile 343x250 inside a 343 card. */
+    {%- comment -%} The image's own aspect is what sets the card height at each breakpoint:
+       desktop 656x450 inside a 1312 card; mobile 343x250 inside a 343 card. {%- endcomment -%}
     --media-ratio: 656 / 450;
     --media-ratio-m: 343 / 250;
   }

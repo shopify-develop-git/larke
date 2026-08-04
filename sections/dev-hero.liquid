@@ -7,21 +7,21 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .hero {
-    /* Brand params (Brief → Brand Params). The faces themselves are loaded theme-wide by
+    {%- comment -%} Brand params (Brief → Brand Params). The faces themselves are loaded theme-wide by
        snippets/dev-brand-fonts.liquid — this only selects them.
        --container-max is still deliberately absent, and still for the reason in Brief Note 1:
        there is no inner max-width frame inside this section — the copy's own column is
        --text-col-w and the horizontal inset is entirely --section-px. What IS capped is the
-       whole section box; see --section-max. */
+       whole section box; see --section-max. {%- endcomment -%}
     --section-px: 64px;
     --section-px-m: 24px;
 
-    /* The mobile artboard states its own paddings (24px), so they are fixed tokens, not a
-       scale factor off --pt/--pb. Same precedent as dev-site-header. */
+    {%- comment -%} The mobile artboard states its own paddings (24px), so they are fixed tokens, not a
+       scale factor off --pt/--pb. Same precedent as dev-site-header. {%- endcomment -%}
     --pt-m: 24px;
     --pb-m: 24px;
 
-    /* Typography — desktop / mobile */
+    {%- comment -%} Typography — desktop / mobile {%- endcomment -%}
     --font-heading-size: 48px;
     --font-heading-size-m: 32px;
     --font-heading-weight: 500;
@@ -34,17 +34,17 @@
     --font-body-weight: 500;
     --font-body-lh: 1.4;
 
-    /* The italic run ("trees") is Medium Italic on desktop but Bold Italic on mobile.
-       Confirmed intentional in the source data — Brief, Note 3. Do not normalise. */
+    {%- comment -%} The italic run ("trees") is Medium Italic on desktop but Bold Italic on mobile.
+       Confirmed intentional in the source data — Brief, Note 3. Do not normalise. {%- endcomment -%}
     --em-weight: 500;
     --em-weight-m: 700;
 
-    /* Spacing */
+    {%- comment -%} Spacing {%- endcomment -%}
     --spacing-sm: 8px;
     --spacing-md: 24px;
     --spacing-lg: 64px;
 
-    /* Frame — 550px on BOTH artboards (Brief, Note 4), and now flat at every width, because
+    {%- comment -%} Frame — 550px on BOTH artboards (Brief, Note 4), and now flat at every width, because
        --section-max below stops the box at 1440.
 
        This used to be clamp(550px, calc(550px + (100vw - 1440px) * 5 / 12), 750px): 550 plus five
@@ -65,11 +65,11 @@
        worse again: the --bg-*-d offsets are percentages of this box, so 392.83% of 750 is 2946px,
        and cover fits a 2.618:1 photo into a 1440 x 2946 element by blowing it up to 7713 x 2946 —
        81.3% of the width gone. Flat 550 holds the >=1440 box on the artboard's own 2.618:1
-       instead, and leaves 1024 / 768 / 375 exactly where the clamp's floor already had them. */
+       instead, and leaves 1024 / 768 / 375 exactly where the clamp's floor already had them. {%- endcomment -%}
     --hero-min-h: 550px;
     --radius-bottom: 32px;
 
-    /* The SECTION BOX, not an inner content frame — the photo, the scrim over it and both rounded
+    {%- comment -%} The SECTION BOX, not an inner content frame — the photo, the scrim over it and both rounded
        bottom corners all stop at the desktop artboard's own width, and the whole box centres past
        that. Owner's call, and a deliberate break from the site chrome: dev-site-header and
        dev-site-footer stay full-bleed and cap only their content line with --gutter.
@@ -82,17 +82,17 @@
        background-color on the section box (dev-hero.css), which is now clipped to 1440 along with
        the photo and the corners. On the homepage --bg is transparent anyway and the stripes come
        from body's page background, the same colour the section below the hero paints — so the cap
-       shows as two rounded corners cut into one continuous canvas, not as a band. */
+       shows as two rounded corners cut into one continuous canvas, not as a band. {%- endcomment -%}
     --section-max: 1440px;
 
     --text-col-w: 533px;
 
-    /* CTA
+    {%- comment -%} CTA
        DEAD TOKENS — these six are consumed by NOTHING. dev-hero.css's .hero__button rule only
        forwards --dev-btn-color / --dev-btn-focus, so the CTA's resting geometry comes from
        assets/dev-button.css's own --dev-btn-* fallbacks, overridden for desktop in dev-hero.css's
        @media (min-width: 769px) block. Editing the numbers below changes nothing on screen; kept
-       (not deleted, not rewired) because they still record the Figma values. */
+       (not deleted, not rewired) because they still record the Figma values. {%- endcomment -%}
     --cta-size: 18px;
     --cta-weight: 700;
     --cta-lh: 1.4;
@@ -100,7 +100,7 @@
     --cta-px: 24px;
     --radius-cta: 60px;
 
-    /* ---- Background photo framing ----------------------------------------------
+    {%- comment -%} ---- Background photo framing ----------------------------------------------
        Figma's MOBILE fill is width:113.45% / height:116.06% of the 375x550 box.
        425.44 / 638.33 = 0.6665 — exactly the aspect of the real source (2730x4096),
        which proves hero-bg.jpg IS that fill. Used verbatim.
@@ -118,7 +118,7 @@
        hero-bg.jpg (2730x4096, aspect 0.6665) — the tall source both artboards were cropped from.
        The desktop file configured on the homepage today is a different export (4320x1650, 2.618:1)
        and these offsets do not describe it, which is why stretch_background is off there and why
-       the setting's own info string says a different picture will land somewhere else. */
+       the setting's own info string says a different picture will land somewhere else. {%- endcomment -%}
     --bg-w-d: 100%;
     --bg-h-d: 392.83%;
     --bg-top-d: -131.25%;
@@ -129,7 +129,7 @@
     --bg-top-m: -14.55%;
     --bg-left-m: -6.73%;
 
-    /* ---- Decorative squiggle ("Vector 3") ---------------------------------------
+    {%- comment -%} ---- Decorative squiggle ("Vector 3") ---------------------------------------
        The stroke rides on the <em>, as a MASK on its ::after — the same construction as
        dev-tree-fibre-hero and dev-values-we-cherish.
 
@@ -147,14 +147,14 @@
 
        Height 5.89px is the real drawn height off the artboard: Figma's node box is 49x3, but
        the art overflows it (inset -46.73% -1.12% -49.98% -1.07%), so the box is an ANCHOR,
-       not the size. w = 49 * 1.0219 = 50.07, h = 3 * 1.9671 = 5.90. */
+       not the size. w = 49 * 1.0219 = 50.07, h = 3 * 1.9671 = 5.90. {%- endcomment -%}
     --underline: url('{{ 'dev-hero-underline.svg' | asset_url }}');
     --underline-h: 5.89px;
     --underline-gap: -2px;
     --underline-h-m: 5px;
     --underline-gap-m: 2px;
 
-    /* ---- Effects -----------------------------------------------------------------
+    {%- comment -%} ---- Effects -----------------------------------------------------------------
        The Brief's binding token (Figma style "Text Shadow/lg") is:
          0 4px 40px rgba(50,44,45,0.6), 0 0 15px rgba(50,44,45,0.8)
        An earlier pass doubled these to 80px/30px, reasoning from the exported SVG's
@@ -170,18 +170,18 @@
 
        text-shadow does not reach SVG, so the squiggle re-states the same two shadows as
        drop-shadow filters. CSS drop-shadow() takes the same blur-radius convention as
-       text-shadow, so the numbers are identical and the two stay visually welded. */
+       text-shadow, so the numbers are identical and the two stay visually welded. {%- endcomment -%}
     --text-shadow: 0 4px 40px rgba(50, 44, 45, 0.6), 0 0 15px rgba(50, 44, 45, 0.8);
     --squiggle-shadow: drop-shadow(0 4px 40px rgba(50, 44, 45, 0.6))
       drop-shadow(0 0 15px rgba(50, 44, 45, 0.8));
 
-    /* Figma reports the scrim angle as 0.1487deg (desktop) / 0.5712deg (mobile). Brief
+    {%- comment -%} Figma reports the scrim angle as 0.1487deg (desktop) / 0.5712deg (mobile). Brief
        Note 4 is explicit that both are floating-point noise and are to be treated as
        0deg — a bottom-anchored scrim, not a deliberate tilt. At 0deg the two breakpoints
-       become the same gradient, so there is one token, not two. */
+       become the same gradient, so there is one token, not two. {%- endcomment -%}
     --overlay: linear-gradient(0deg, rgba(0, 0, 0, 0.4) 6.42%, rgba(0, 0, 0, 0) 60.23%);
 
-    /* Fixed, like every other button on the site. No section lets a merchant recolour one. */
+    {%- comment -%} Fixed, like every other button on the site. No section lets a merchant recolour one. {%- endcomment -%}
     --cta-text: #333333;
   }
 </style>

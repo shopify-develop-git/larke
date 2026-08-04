@@ -27,12 +27,12 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .naturally-best-sleep {
-    /* Brand params (Brief → Brand Params table). Faces are loaded by snippets/dev-brand-fonts.liquid. */
+    {%- comment -%} Brand params (Brief → Brand Params table). Faces are loaded by snippets/dev-brand-fonts.liquid. {%- endcomment -%}
     --container-max: 1248px;
     --section-px: 96px;
     --section-px-m: 32px;
 
-    /* Typography — desktop */
+    {%- comment -%} Typography — desktop {%- endcomment -%}
     --font-heading-size: 32px;
     --font-heading-weight: 500;
     --font-heading-lh: 1.2;
@@ -40,26 +40,26 @@
     --font-body-weight: 700;
     --font-body-lh: 1.4;
 
-    /* Typography — mobile: read off the Mobile artboard (Mobile/Title 3, Body/Md_Body_Bold). */
+    {%- comment -%} Typography — mobile: read off the Mobile artboard (Mobile/Title 3, Body/Md_Body_Bold). {%- endcomment -%}
     --font-heading-size-m: 24px;
     --font-body-size-m: 16px;
 
-    /* Spacing */
-    --spacing-md: 16px; /* heading -> button */
+    {%- comment -%} Spacing {%- endcomment -%}
+    --spacing-md: 16px; {%- comment -%} heading -> button {%- endcomment -%}
 
-    /* Mobile top spacer is 48px against a desktop 80px. Scaling the merchant's own padding_top
-       keeps that relationship intact if they change it. 80 * 0.6 = 48. */
+    {%- comment -%} Mobile top spacer is 48px against a desktop 80px. Scaling the merchant's own padding_top
+       keeps that relationship intact if they change it. 80 * 0.6 = 48. {%- endcomment -%}
     --pt-scale-m: 0.6;
 
-    /* The button's padding is genuinely different per artboard — 24/18 desktop against 18/12
-       mobile — not one value at a scale factor. */
+    {%- comment -%} The button's padding is genuinely different per artboard — 24/18 desktop against 18/12
+       mobile — not one value at a scale factor. {%- endcomment -%}
     --button-pad-y: 18px;
     --button-pad-x: 24px;
     --button-pad-y-m: 12px;
     --button-pad-x-m: 18px;
     --button-border: 1px;
 
-    /* Layout / decoration */
+    {%- comment -%} Layout / decoration {%- endcomment -%}
     --radius-button: 60px;
   }
 </style>

@@ -31,7 +31,7 @@
         "qa-intl": {
           "type": "qa",
           "settings": {
-            "heading": "Do you delivery internationally?",
+            "heading": "Do you deliver internationally?",
             "body": "<p>Not as of now.</p>",
             "open_by_default": false
           }

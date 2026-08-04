@@ -78,11 +78,11 @@
 <style>
   .dev-compare {
 
-    /* Desktop modal is a centred card 568px wide (600px Figma frame − 16px inset each side).
-       Mobile is a full-bleed bottom sheet, so --modal-max is not applied there. */
+    {%- comment -%} Desktop modal is a centred card 568px wide (600px Figma frame − 16px inset each side).
+       Mobile is a full-bleed bottom sheet, so --modal-max is not applied there. {%- endcomment -%}
     --modal-max: 568px;
     --modal-radius: 32px;
-    --sheet-radius: 16px; /* mobile: only the top corners are rounded */
+    --sheet-radius: 16px; {%- comment -%} mobile: only the top corners are rounded {%- endcomment -%}
     --card-radius: 16px;
     --badge-radius: 8px;
     --toggle-radius: 32px;
@@ -90,17 +90,17 @@
     --pad: 32px;
     --pad-mobile: 24px;
 
-    --heading-size: 32px;        /* Desktop/Title 3 */
-    --heading-size-mobile: 24px; /* Mobile/Title 3 */
+    --heading-size: 32px;        {%- comment -%} Desktop/Title 3 {%- endcomment -%}
+    --heading-size-mobile: 24px; {%- comment -%} Mobile/Title 3 {%- endcomment -%}
     --heading-weight: 500;
     --heading-lh: 1.2;
 
     --toggle-size: 16px;
     --label-size: 16px;
     --label-size-mobile: 14px;
-    --value-size: 18px;          /* Lg body */
-    --value-size-mobile: 16px;   /* Md body */
-    --badge-size: 14px;          /* S body */
+    --value-size: 18px;          {%- comment -%} Lg body {%- endcomment -%}
+    --value-size-mobile: 16px;   {%- comment -%} Md body {%- endcomment -%}
+    --badge-size: 14px;          {%- comment -%} S body {%- endcomment -%}
     --footnote-size: 16px;
     --footnote-size-mobile: 13px;
     --weight-bold: 700;
@@ -116,31 +116,31 @@
     --gap-sm: 8px;
     --gap-md: 12px;
     --gap-lg: 24px;
-    --grid-offset: 40px; /* toggle → grid: 16px flex gap + 24px grid top-padding in Figma */
+    --grid-offset: 40px; {%- comment -%} toggle → grid: 16px flex gap + 24px grid top-padding in Figma {%- endcomment -%}
 
-    /* Fixed palette from the Figma tokens (not merchant-controlled — fidelity). */
+    {%- comment -%} Fixed palette from the Figma tokens (not merchant-controlled — fidelity). {%- endcomment -%}
     --divider: #D8D1C0;
-    --check: #4EA448;          /* Green/900 */
+    --check: #4EA448;          {%- comment -%} Green/900 {%- endcomment -%}
     --cross: #AF0000;
-    --card-larke-bg: #FCF5E3;  /* Cream/100 */
+    --card-larke-bg: #FCF5E3;  {%- comment -%} Cream/100 {%- endcomment -%}
     --card-comp-bg: #EFEFEF;
     --toggle-track-bg: #FCF5E3;
     --toggle-active-bg: #FFFFFF;
     --badge-border: #333333;
 
-    /* Open/close motion mirrors the product's size & season guides: a right-side drawer
+    {%- comment -%} Open/close motion mirrors the product's size & season guides: a right-side drawer
        that arrives on a decelerating curve and leaves briskly (asymmetric on purpose).
-       Same token names and values as dev-main-product so the two popups move identically. */
-    --drawer-inset: 16px; /* the panel floats this far off each viewport edge (desktop) */
+       Same token names and values as dev-main-product so the two popups move identically. {%- endcomment -%}
+    --drawer-inset: 16px; {%- comment -%} the panel floats this far off each viewport edge (desktop) {%- endcomment -%}
     --guide-in: 480ms;
     --guide-out: 300ms;
     --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
     --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
 
-    /* Toggle-indicator slide only. */
+    {%- comment -%} Toggle-indicator slide only. {%- endcomment -%}
     --transition: 300ms;
 
-    /* --- Competitor wordmark treatment (merchant-controlled) ---------------------
+    {%- comment -%} --- Competitor wordmark treatment (merchant-controlled) ---------------------
        Competitor logos are supplied as the brands' own full-colour marks. In the Figma
        comp they read as flat, washed-out grey, so they sit visually *behind* the Larke
        mark instead of competing with it — and so three unrelated brand palettes don't
@@ -153,7 +153,7 @@
 
        Both fall out of the single `comp_logo_dim` slider, so there is one knob to turn and
        the two effects can never be set against each other (a flattened mark at full opacity
-       just looks blurry; a faded mark at full contrast still reads as crisp). */
+       just looks blurry; a faded mark at full contrast still reads as crisp). {%- endcomment -%}
     --logo-comp-grayscale: {{ logo_comp_grayscale }};
     --logo-comp-opacity: {{ logo_comp_opacity }};
     --logo-comp-contrast: {{ logo_comp_contrast }};

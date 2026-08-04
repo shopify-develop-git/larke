@@ -30,16 +30,16 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .pdp-guarantees {
-    /* Brand params (Brief → Brand Params table). Faces are loaded by snippets/dev-brand-fonts.liquid. */
+    {%- comment -%} Brand params (Brief → Brand Params table). Faces are loaded by snippets/dev-brand-fonts.liquid. {%- endcomment -%}
 
-    /* The outer panel sits inside the parent frame's 64px gutter AND its own 16px inset, so the
+    {%- comment -%} The outer panel sits inside the parent frame's 64px gutter AND its own 16px inset, so the
        panel is 1440 - 64*2 - 16*2 = 1280 wide. That total (80px) is --section-px; --container-max
-       is the 1280 it produces. Mobile collapses both to a single 16px inset (343 wide panel). */
+       is the 1280 it produces. Mobile collapses both to a single 16px inset (343 wide panel). {%- endcomment -%}
     --container-max: 1280px;
     --section-px: 80px;
     --section-px-m: 16px;
 
-    /* Typography — desktop (Desktop/Title 4, Body/Md_Body_Medium) */
+    {%- comment -%} Typography — desktop (Desktop/Title 4, Body/Md_Body_Medium) {%- endcomment -%}
     --font-heading-size: 22px;
     --font-heading-weight: 500;
     --font-heading-lh: 1.2;
@@ -47,23 +47,23 @@
     --font-body-weight: 500;
     --font-body-lh: 1.4;
 
-    /* Typography — mobile: read off the Mobile artboard (Mobile/Title 4, Body/S_Body_Medium),
-       not derived with a scale factor. */
+    {%- comment -%} Typography — mobile: read off the Mobile artboard (Mobile/Title 4, Body/S_Body_Medium),
+       not derived with a scale factor. {%- endcomment -%}
     --font-heading-size-m: 20px;
     --font-body-size-m: 14px;
 
-    /* Spacing */
-    --spacing-xs: 4px;  /* badge heading -> badge text */
-    --spacing-md: 24px; /* badge -> badge, desktop */
-    --spacing-md-m: 16px; /* badge -> badge, mobile (the stack tightens) */
+    {%- comment -%} Spacing {%- endcomment -%}
+    --spacing-xs: 4px;  {%- comment -%} badge heading -> badge text {%- endcomment -%}
+    --spacing-md: 24px; {%- comment -%} badge -> badge, desktop {%- endcomment -%}
+    --spacing-md-m: 16px; {%- comment -%} badge -> badge, mobile (the stack tightens) {%- endcomment -%}
     --panel-pad: 24px;
     --badge-pad: 16px;
 
-    /* Mobile top spacer is 48px against a desktop 80px. Scaling the merchant's own padding_top
-       keeps that relationship intact if they change it. 80 * 0.6 = 48. */
+    {%- comment -%} Mobile top spacer is 48px against a desktop 80px. Scaling the merchant's own padding_top
+       keeps that relationship intact if they change it. 80 * 0.6 = 48. {%- endcomment -%}
     --pt-scale-m: 0.6;
 
-    /* Layout / decoration */
+    {%- comment -%} Layout / decoration {%- endcomment -%}
     --radius-panel: 32px;
     --radius-badge: 16px;
   }

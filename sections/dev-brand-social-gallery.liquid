@@ -18,14 +18,14 @@
 <style>
   .brand-social-gallery {
 
-    /* No --container-max: Brief note #1 — no centred max-width frame exists in this
+    {%- comment -%} No --container-max: Brief note #1 — no centred max-width frame exists in this
        node, exactly as for dev-site-header. The desktop inset comes entirely from
        --section-px, and on mobile the grid is genuinely edge-to-edge (Brief note #2),
-       so the horizontal padding lives on __inner and drops to 0 at ≤768px. */
+       so the horizontal padding lives on __inner and drops to 0 at ≤768px. {%- endcomment -%}
     --section-px: 64px;
     --section-px-mobile: 0px;
 
-    /* Mobile artboard specifies its own top spacer (48px), not a scale factor. */
+    {%- comment -%} Mobile artboard specifies its own top spacer (48px), not a scale factor. {%- endcomment -%}
     --pt-mobile: 48px;
 
     --font-heading-size: 32px;
@@ -37,31 +37,31 @@
     --font-body-weight: 500;
     --font-body-lh: 1.4;
 
-    --spacing-sm: 2px;   /* gap between grid tiles (both breakpoints) */
-    --spacing-md: 16px;  /* gap inside the text column */
-    --spacing-lg: 32px;  /* gap between the text column and the grid */
+    --spacing-sm: 2px;   {%- comment -%} gap between grid tiles (both breakpoints) {%- endcomment -%}
+    --spacing-md: 16px;  {%- comment -%} gap inside the text column {%- endcomment -%}
+    --spacing-lg: 32px;  {%- comment -%} gap between the text column and the grid {%- endcomment -%}
     --spacing-md-mobile: 8px;
     --spacing-lg-mobile: 16px;
 
-    /* Rounded on desktop, square on mobile — the mobile Grid node carries no
-       corner-radius class because it is full-bleed (Brief note #2). */
+    {%- comment -%} Rounded on desktop, square on mobile — the mobile Grid node carries no
+       corner-radius class because it is full-bleed (Brief note #2). {%- endcomment -%}
     --radius-gallery: 32px;
     --radius-gallery-mobile: 0px;
 
     --social-text-w: 327px;
     --social-handle-w-mobile: 122px;
 
-    /* The grid's own width on the 1440 artboard: 1312 (inner) - 327 (text col) - 32 (gap) = 953.
+    {%- comment -%} The grid's own width on the 1440 artboard: 1312 (inner) - 327 (text col) - 32 (gap) = 953.
        Read off the artboard, not invented. Once the row stacks (see the ≤1200 block in the CSS)
        the grid would otherwise span the full inner width and the tiles would balloon PAST their
-       designed size; capping it here keeps them at the artboard's ~236px across the stack. */
+       designed size; capping it here keeps them at the artboard's ~236px across the stack. {%- endcomment -%}
     --social-grid-w: 953px;
 
-    /* Profile badge: a single full 58px circle — ring and content are one image,
-       no longer split into a ring layer + inset mark. */
+    {%- comment -%} Profile badge: a single full 58px circle — ring and content are one image,
+       no longer split into a ring layer + inset mark. {%- endcomment -%}
     --badge-size: 58px;
 
-    /* --- Instafeed app-block tokens -----------------------------------------------
+    {%- comment -%} --- Instafeed app-block tokens -----------------------------------------------
        Consumed by dev-brand-social-gallery.css. THE NAMES ARE A CONTRACT — the CSS
        owns the rules, this file owns the numbers; renaming one silently drops a rule.
 
@@ -71,21 +71,21 @@
        inside a flex row with nothing to give it height, so the 32px slab collapses
        to 0 and then pops open — a full-width layout shift on every cold load.
        Reserving exactly the height the four static tiles occupied makes the swap
-       cost nothing. */
+       cost nothing. {%- endcomment -%}
 
-    /* Identical derivation to .brand-social-gallery__tile: 4 across the 953px grid
+    {%- comment -%} Identical derivation to .brand-social-gallery__tile: 4 across the 953px grid
        with three 2px gaps → (953 - 3×2) / 4 = 236.75. Floored to 236 so the
        reservation can never exceed what finally renders — over-reserving leaves a
-       dead strip inside the slab, under-reserving costs at most 0.75px. */
+       dead strip inside the slab, under-reserving costs at most 0.75px. {%- endcomment -%}
     --app-tile-min-h: 236px;
 
-    /* Mobile 2-up on the 375 artboard, one 2px gap → (375 - 2) / 2 = 186.5, floored
+    {%- comment -%} Mobile 2-up on the 375 artboard, one 2px gap → (375 - 2) / 2 = 186.5, floored
        for the same reason. Same number as the ≤768px tile (Brief note #4's 186.5px
-       belongs HERE, on mobile — never on desktop). */
+       belongs HERE, on mobile — never on desktop). {%- endcomment -%}
     --app-tile-min-h-mobile: 186px;
 
-    /* Column counts, so the CSS can size the app's own items without re-deriving the
-       artboard: 4 across at 1440, 2 across at 375 — matching the static tiles. */
+    {%- comment -%} Column counts, so the CSS can size the app's own items without re-deriving the
+       artboard: 4 across at 1440, 2 across at 375 — matching the static tiles. {%- endcomment -%}
     --app-cols: 4;
     --app-cols-mobile: 2;
   }

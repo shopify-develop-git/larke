@@ -4,12 +4,12 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .story-slider {
-    /* Brand params. The faces are loaded theme-wide by snippets/dev-brand-fonts.liquid; this
-       only selects them. */
+    {%- comment -%} Brand params. The faces are loaded theme-wide by snippets/dev-brand-fonts.liquid; this
+       only selects them. {%- endcomment -%}
     --section-px: 64px;
     --section-px-m: 16px;
 
-    /* A GUTTER, not a max-width, and here that distinction is doing real work. The track has to
+    {%- comment -%} A GUTTER, not a max-width, and here that distinction is doing real work. The track has to
        stay full-bleed — tiles scrolling out past the right edge IS the section — so a centred
        1312 box is exactly what it must not become: that would clip the row 304px short of the
        window at 1920 and leave dead cream where the next tile should be sliding in.
@@ -24,12 +24,12 @@
          1100   max(64, -106) ->  64   unchanged
 
        Mobile never sees it — that breakpoint re-declares both paddings as --section-px-m and
-       hides the controls entirely. */
+       hides the controls entirely. {%- endcomment -%}
     --container-max: 1312px;
     --gutter: max(var(--section-px), (100% - var(--container-max)) / 2);
 
-    /* Typography. Desktop/Title 3 -> Mobile/Title 3 (32 -> 24); the mobile artboard states its
-       own size, so it wins over a scale factor. Captions are Body/Lg (18) -> Body/Md (16). */
+    {%- comment -%} Typography. Desktop/Title 3 -> Mobile/Title 3 (32 -> 24); the mobile artboard states its
+       own size, so it wins over a scale factor. Captions are Body/Lg (18) -> Body/Md (16). {%- endcomment -%}
     --font-heading-size: 32px;
     --font-heading-size-m: 24px;
     --font-heading-weight: 500;
@@ -41,27 +41,27 @@
     --font-body-weight-bold: 700;
     --font-body-lh: 1.4;
 
-    /* Rhythm. Desktop stacks heading / track / controls at 32; the mobile artboard uses 26 and
-       has no controls row at all. */
+    {%- comment -%} Rhythm. Desktop stacks heading / track / controls at 32; the mobile artboard uses 26 and
+       has no controls row at all. {%- endcomment -%}
     --gap-section: 32px;
     --gap-section-m: 26px;
     --gap-tiles: 24px;
     --gap-tiles-m: 16px;
     --gap-tile-inner: 16px;
 
-    /* Tile. 407px on the 1440 artboard, 260px on the 375 one — both fixed, neither derived. */
+    {%- comment -%} Tile. 407px on the 1440 artboard, 260px on the 375 one — both fixed, neither derived. {%- endcomment -%}
     --tile-w: 407px;
     --tile-w-m: 260px;
     --radius-tile: 32px;
 
-    /* The two image crops alternate down the track. Carried as aspect-ratios rather than the
+    {%- comment -%} The two image crops alternate down the track. Carried as aspect-ratios rather than the
        artboard's raw pixel heights (312px / 373px) so the tile keeps its crop at ANY tile width
-       — mobile reuses the same two ratios at 260px wide and lands on exactly 312 and 373. */
+       — mobile reuses the same two ratios at 260px wide and lands on exactly 312 and 373. {%- endcomment -%}
     --ratio-short: 260 / 312;
     --ratio-tall: 260 / 373;
 
-    /* Controls (6704:28706). The buttons carry no fill or border on the artboard — 19px of
-       padding around a 24px icon is the whole button, which also buys a 62px touch target. */
+    {%- comment -%} Controls (6704:28706). The buttons carry no fill or border on the artboard — 19px of
+       padding around a 24px icon is the whole button, which also buys a 62px touch target. {%- endcomment -%}
     --gap-controls: 32px;
     --gap-buttons: 8px;
     --button-p: 19px;
@@ -76,15 +76,15 @@
     --button-hover-bg: #fcf5e3;
     --button-hover-r: 16px;
 
-    /* The progress rail is a 2px round-capped line. Figma draws it as a single stroke with a
+    {%- comment -%} The progress rail is a 2px round-capped line. Figma draws it as a single stroke with a
        hard gradient stop — #262626 up to 21.6%, #DADADA after — i.e. it is a scrollbar THUMB,
        not decoration. So the fill below is computed from real scroll position by the JS, and
-       21.6% is just the mock's own scroll offset. */
+       21.6% is just the mock's own scroll offset. {%- endcomment -%}
     --progress-h: 2px;
 
-    /* Mobile lead-in: 40px on the artboard, against 80px on desktop. Expressed as a RATIO of the
+    {%- comment -%} Mobile lead-in: 40px on the artboard, against 80px on desktop. Expressed as a RATIO of the
        merchant's own padding rather than a flat 40px, so their slider still does something on a
-       phone — the same idiom as the eleven other sections here. At the default 80 it lands on 40. */
+       phone — the same idiom as the eleven other sections here. At the default 80 it lands on 40. {%- endcomment -%}
     --pt-scale-m: 0.5;
   }
 </style>

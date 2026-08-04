@@ -5,12 +5,12 @@
 <style>
   .trust-badges {
 
-    /* Full-bleed by design. No --container-max: Brief note #3 — no centred max-width
+    {%- comment -%} Full-bleed by design. No --container-max: Brief note #3 — no centred max-width
        frame exists in this section (same precedent as dev-site-header). The inset is
-       --section-px only, identical on both artboards (16px at 1440 and at 375). */
+       --section-px only, identical on both artboards (16px at 1440 and at 375). {%- endcomment -%}
     --section-px: 16px;
 
-    /* Mobile artboard specifies its own top padding (48px), not a scale factor. */
+    {%- comment -%} Mobile artboard specifies its own top padding (48px), not a scale factor. {%- endcomment -%}
     --pt-mobile: 48px;
 
     --font-heading-size: 22px;
@@ -22,23 +22,23 @@
     --font-body-weight: 500;
     --font-body-lh: 1.4;
 
-    --spacing-sm: 8px;  /* icon -> text block */
-    --spacing-md: 4px;  /* heading -> description */
-    --spacing-lg: 32px; /* badge -> badge */
+    --spacing-sm: 8px;  {%- comment -%} icon -> text block {%- endcomment -%}
+    --spacing-md: 4px;  {%- comment -%} heading -> description {%- endcomment -%}
+    --spacing-lg: 32px; {%- comment -%} badge -> badge {%- endcomment -%}
 
     --badge-width: 343px;
 
-    /* Figma literal: the mobile heading carries an explicit text-black override that
-       the desktop heading does not (Brief note #2 — implemented as read, not "fixed"). */
+    {%- comment -%} Figma literal: the mobile heading carries an explicit text-black override that
+       the desktop heading does not (Brief note #2 — implemented as read, not "fixed"). {%- endcomment -%}
     --heading-color-mobile: #000000;
 
-    /* Confirmed from the exported artwork itself: every path is #666666 (Neutral/500).
-       Drives currentColor on the two inline icons. */
+    {%- comment -%} Confirmed from the exported artwork itself: every path is #666666 (Neutral/500).
+       Drives currentColor on the two inline icons. {%- endcomment -%}
     --icon-color: #666666;
 
-    /* Render size == viewBox, so the art lands at its true Figma size. The Brief's
+    {%- comment -%} Render size == viewBox, so the art lands at its true Figma size. The Brief's
        "Images" numbers are Figma anchor boxes and the art overflows them; sizing to
-       the anchor box would letterbox and shrink the art. */
+       the anchor box would letterbox and shrink the art. {%- endcomment -%}
     --icon-warranty-w: 42px;
     --icon-warranty-h: 41px;
     --icon-trial-w: 45px;

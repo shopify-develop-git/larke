@@ -22,12 +22,12 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .wash-dry-repeat-promo {
-    /* Brand params (Design Brief → Brand Params table) */
+    {%- comment -%} Brand params (Design Brief → Brand Params table) {%- endcomment -%}
     --container-max: 1312px;
     --section-px: 64px;
     --section-px-m: 16px;
 
-    /* Typography — desktop (Desktop/Title 3, Body/Lg_Body_Medium) */
+    {%- comment -%} Typography — desktop (Desktop/Title 3, Body/Lg_Body_Medium) {%- endcomment -%}
     --font-heading-size: 32px;
     --font-heading-weight: 500;
     --font-heading-lh: 1.2;
@@ -35,47 +35,47 @@
     --font-body-weight: 500;
     --font-body-lh: 1.4;
 
-    /* Typography — mobile: the Mobile artboard's own tokens, not a scale factor */
+    {%- comment -%} Typography — mobile: the Mobile artboard's own tokens, not a scale factor {%- endcomment -%}
     --font-heading-size-m: 24px;
     --font-body-size-m: 16px;
 
-    /* CTA — Public Sans Bold (700), the only bold weight in the section */
+    {%- comment -%} CTA — Public Sans Bold (700), the only bold weight in the section {%- endcomment -%}
     --font-cta-size: 18px;
     --font-cta-size-m: 16px;
     --font-cta-weight: 700;
     --font-cta-lh: 1.4;
 
-    /* Spacing */
-    --spacing-sm: 16px; /* heading → subheading (desktop) */
-    --spacing-sm-m: 8px; /* heading → subheading (mobile) — a real token change, not a scale */
-    --spacing-md: 24px; /* text column → CTA (desktop) / card content gap (mobile) */
-    --spacing-lg: 64px; /* text column → image row (desktop only; no mobile equivalent) */
+    {%- comment -%} Spacing {%- endcomment -%}
+    --spacing-sm: 16px; {%- comment -%} heading → subheading (desktop) {%- endcomment -%}
+    --spacing-sm-m: 8px; {%- comment -%} heading → subheading (mobile) — a real token change, not a scale {%- endcomment -%}
+    --spacing-md: 24px; {%- comment -%} text column → CTA (desktop) / card content gap (mobile) {%- endcomment -%}
+    --spacing-lg: 64px; {%- comment -%} text column → image row (desktop only; no mobile equivalent) {%- endcomment -%}
     --tile-gap: 32px;
     --tile-gap-m: 16px;
 
-    /* 80px desktop → 48px mobile, kept proportional to the merchant's padding_top */
+    {%- comment -%} 80px desktop → 48px mobile, kept proportional to the merchant's padding_top {%- endcomment -%}
     --pt-scale-m: 0.6;
 
-    /* Layout */
+    {%- comment -%} Layout {%- endcomment -%}
     --card-padding: 32px;
     --card-padding-m: 24px;
-    /* The card's two columns on the 1440 artboard: 1312 (container) − 64 (card padding)
+    {%- comment -%} The card's two columns on the 1440 artboard: 1312 (container) − 64 (card padding)
        − 64 (gap) = 1184, split 544 / 640. Both are flex BASES, not fixed widths — see the CSS.
        They sum exactly to the card's content box at 1440, so the artboard matches to the pixel,
-       and below it the two columns shrink in proportion instead of the text absorbing all of it. */
-    /* 531, not the 542 this token used to carry. It is a flex BASIS now, and at 1440 the card's
+       and below it the two columns shrink in proportion instead of the text absorbing all of it. {%- endcomment -%}
+    {%- comment -%} 531, not the 542 this token used to carry. It is a flex BASIS now, and at 1440 the card's
        content box is 1237px = 531 + 64 gap + 642 tiles. 542 would total 1248, 11px over, and the
        overflow would come off the tiles — 305px each becomes 302 and the desktop artboard shifts.
        Open question for the designer: whether Figma's text column really is 542 and the gap is
-       53 rather than 64. Until that is confirmed, the measured value keeps 1440 exact. */
+       53 rather than 64. Until that is confirmed, the measured value keeps 1440 exact. {%- endcomment -%}
     --text-col-width: 531px;
-    --tiles-width: 642px; /* tiles = (642 − 32 gap) / 2 = 305px each at design width (client spec) */
-    --tile-aspect: 305.26 / 412; /* ~0.7409 — identical at both breakpoints (scaled, not re-cropped) */
+    --tiles-width: 642px; {%- comment -%} tiles = (642 − 32 gap) / 2 = 305px each at design width (client spec) {%- endcomment -%}
+    --tile-aspect: 305.26 / 412; {%- comment -%} ~0.7409 — identical at both breakpoints (scaled, not re-cropped) {%- endcomment -%}
 
-    /* Decoration */
+    {%- comment -%} Decoration {%- endcomment -%}
     --radius-card: 32px;
     --radius-tile: 16px;
-    --radius-cta: 60px; /* pill */
+    --radius-cta: 60px; {%- comment -%} pill {%- endcomment -%}
     --tile-border-width: 1px;
     --cta-py: 18px;
     --cta-px: 24px;

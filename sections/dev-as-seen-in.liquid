@@ -18,12 +18,12 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .as-seen-in {
-    /* Brand params (Brief → Brand Params table) */
+    {%- comment -%} Brand params (Brief → Brand Params table) {%- endcomment -%}
     --container-max: 1312px;
     --section-px: 64px;
     --section-px-m: 16px;
 
-    /* Typography — desktop */
+    {%- comment -%} Typography — desktop {%- endcomment -%}
     --font-heading-size: 32px;
     --font-heading-weight: 500;
     --font-heading-lh: 1.2;
@@ -34,35 +34,35 @@
     --font-button-weight: 700;
     --font-button-lh: 1.4;
 
-    /* Typography — mobile: taken from the Mobile artboard, not a scale factor */
+    {%- comment -%} Typography — mobile: taken from the Mobile artboard, not a scale factor {%- endcomment -%}
     --font-heading-size-m: 24px;
     --font-body-size-m: 16px;
     --font-button-size-m: 16px;
 
-    /* Spacing — desktop */
-    --spacing-sm: 16px; /* heading → body */
-    --spacing-md: 24px; /* text block → CTA */
-    --spacing-lg: 32px; /* tile → tile */
+    {%- comment -%} Spacing — desktop {%- endcomment -%}
+    --spacing-sm: 16px; {%- comment -%} heading → body {%- endcomment -%}
+    --spacing-md: 24px; {%- comment -%} text block → CTA {%- endcomment -%}
+    --spacing-lg: 32px; {%- comment -%} tile → tile {%- endcomment -%}
 
-    /* Spacing — mobile */
-    --spacing-sm-m: 8px; /* heading → body */
-    --spacing-md-m: 24px; /* stack gap: text → images → CTA */
-    --spacing-lg-m: 16px; /* tile → tile */
+    {%- comment -%} Spacing — mobile {%- endcomment -%}
+    --spacing-sm-m: 8px; {%- comment -%} heading → body {%- endcomment -%}
+    --spacing-md-m: 24px; {%- comment -%} stack gap: text → images → CTA {%- endcomment -%}
+    --spacing-lg-m: 16px; {%- comment -%} tile → tile {%- endcomment -%}
 
-    /* Mobile top padding is 48px against a desktop 80px. Scaling the merchant's own
-       padding_top keeps that relationship if they change it. 80 * 0.6 = 48. */
+    {%- comment -%} Mobile top padding is 48px against a desktop 80px. Scaling the merchant's own
+       padding_top keeps that relationship if they change it. 80 * 0.6 = 48. {%- endcomment -%}
     --pt-scale-m: 0.6;
 
-    /* Layout */
-    --images-w: 642px; /* tiles = (642 − 32 gap) / 2 = 305px each at design width (client spec) */
-    --tile-ratio: 304 / 412; /* keeps the tile's crop aspect while the group widens */
-    --tile-h-m: 220px; /* mobile tiles are a fixed height on the Mobile artboard */
-    --text-max: 341px; /* fixed text width, centred inside the flex-1 column */
+    {%- comment -%} Layout {%- endcomment -%}
+    --images-w: 642px; {%- comment -%} tiles = (642 − 32 gap) / 2 = 305px each at design width (client spec) {%- endcomment -%}
+    --tile-ratio: 304 / 412; {%- comment -%} keeps the tile's crop aspect while the group widens {%- endcomment -%}
+    --tile-h-m: 220px; {%- comment -%} mobile tiles are a fixed height on the Mobile artboard {%- endcomment -%}
+    --text-max: 341px; {%- comment -%} fixed text width, centred inside the flex-1 column {%- endcomment -%}
 
-    /* Decoration */
+    {%- comment -%} Decoration {%- endcomment -%}
     --radius-image: 16px;
     --radius-button: 60px;
-    --border-image: 1px; /* desktop only — mobile tiles have no border (Brief, Note 4) */
+    --border-image: 1px; {%- comment -%} desktop only — mobile tiles have no border (Brief, Note 4) {%- endcomment -%}
     --button-px: 24px;
     --button-py: 18px;
     --button-px-m: 18px;

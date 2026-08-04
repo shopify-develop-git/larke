@@ -29,7 +29,7 @@
     --section-px: 64px;
     --section-px-m: 16px;
 
-    /* The section stays full-bleed and there is still no centred frame element: the padding lives
+    {%- comment -%} The section stays full-bleed and there is still no centred frame element: the padding lives
        on the heading and on the track, never on a wrapper, because the track deliberately runs out
        past the gutter and a frame would clip it.
 
@@ -38,19 +38,19 @@
        edge as before — a max-width on a wrapper could not have both.
 
        max() leaves every existing breakpoint untouched: below 1440 --section-px wins, including
-       the 16px the mobile block hands it. */
+       the 16px the mobile block hands it. {%- endcomment -%}
     --container-max: 1312px;
     --gutter: max(var(--section-px), (100% - var(--container-max)) / 2);
 
-    /* The artboards state their own top spacers (Section padding: 80 desktop, 48 mobile) — fixed
+    {%- comment -%} The artboards state their own top spacers (Section padding: 80 desktop, 48 mobile) — fixed
        tokens, not a scale factor. Desktop --pt is the merchant's, like every other section; the
        mobile spacer stays pinned to the artboard's 48 rather than deriving from it, because 48 is
        not a ratio of 80 (dev-journal-cards halves its --pt; here that would give 40 and move a
        signed-off breakpoint). --pb is 0: no bottom spacer node exists, the next section supplies
-       the gap. */
+       the gap. {%- endcomment -%}
     --pt-m: 48px;
 
-    /* Typography. Desktop/Title 3 -> Mobile/Title 3 (32 -> 24); captions Body/Lg -> Body/Md. */
+    {%- comment -%} Typography. Desktop/Title 3 -> Mobile/Title 3 (32 -> 24); captions Body/Lg -> Body/Md. {%- endcomment -%}
     --font-heading-size: 32px;
     --font-heading-size-m: 24px;
     --font-heading-weight: 500;
@@ -61,25 +61,25 @@
     --font-body-weight: 500;
     --font-body-lh: 1.4;
 
-    /* Rhythm. Heading -> tiles is 32 on desktop and 24 on mobile; tile -> caption is 16 on both. */
+    {%- comment -%} Rhythm. Heading -> tiles is 32 on desktop and 24 on mobile; tile -> caption is 16 on both. {%- endcomment -%}
     --gap-section: 32px;
     --gap-section-m: 24px;
     --gap-tiles: 24px;
     --gap-tiles-m: 16px;
     --gap-tile-inner: 16px;
 
-    /* Tile. Desktop tiles are flex-1 of the 1312px row (3 x 421.33 + 2 x 24). Mobile tiles are a
-       FIXED 303px and overflow the 375 viewport on purpose — the artboard scrolls them. */
+    {%- comment -%} Tile. Desktop tiles are flex-1 of the 1312px row (3 x 421.33 + 2 x 24). Mobile tiles are a
+       FIXED 303px and overflow the 375 viewport on purpose — the artboard scrolls them. {%- endcomment -%}
     --tile-w-m: 303px;
     --radius-tile: 32px;
 
-    /* The desktop image is a fixed 421.33px tall on a ~421.33px-wide tile — i.e. square. Carried
+    {%- comment -%} The desktop image is a fixed 421.33px tall on a ~421.33px-wide tile — i.e. square. Carried
        as an aspect-ratio so it survives the tile flexing; the mobile artboard states 260/250,
-       which is its own crop, not a reflow of this one. */
+       which is its own crop, not a reflow of this one. {%- endcomment -%}
     --ratio-image: 1 / 1;
     --ratio-image-m: 260 / 250;
 
-    /* ---- Underline ----------------------------------------------------------------
+    {%- comment -%} ---- Underline ----------------------------------------------------------------
        Figma's Vector 3 anchor is 124x3, but the artwork overflows it (inset -46.82% top,
        -49.98% bottom, -0.44/-0.45% sides), so the real ink is:
          w = 124 * (1 + .0045 + .0044) = 125.1px
@@ -87,7 +87,7 @@
        The stroke stretches to its word (Figma exports it preserveAspectRatio="none"), so only the
        HEIGHT is a token. The gap is measured off the artboard: the heading box bottom sits at
        y=38 and the ink starts at y=37.27 − 1.40 (the top overflow) = 35.87 — i.e. the stroke
-       begins just ABOVE the box bottom, hence a small negative gap. */
+       begins just ABOVE the box bottom, hence a small negative gap. {%- endcomment -%}
     --underline: url('{{ 'dev-tree-fibre-hero-underline-1.svg' | asset_url }}');
     --underline-h: 5.9px;
     --underline-gap: -2px;

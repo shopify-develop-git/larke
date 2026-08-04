@@ -24,23 +24,23 @@
 
     --section-px: 64px;
     --section-px-mobile: 16px;
-    /* The reviews block is 644 wide on a 1440 artboard and centred — it is NOT the 1312 page
-       container. A measured 644, not a guessed "narrow". */
+    {%- comment -%} The reviews block is 644 wide on a 1440 artboard and centred — it is NOT the 1312 page
+       container. A measured 644, not a guessed "narrow". {%- endcomment -%}
     --reviews-max: 644px;
 
-    /* Full-width rule that opens the section — Figma "Line 7" (Cream/300). Unlike the 644 reviews
+    {%- comment -%} Full-width rule that opens the section — Figma "Line 7" (Cream/300). Unlike the 644 reviews
        block, it spans the whole page container (1440 artboard − 2×64px gutters). 64px of air sits
        below it (24px to the block + the block's own 40px top padding); the 24px above it comes from
-       the section's padding-top. */
+       the section's padding-top. {%- endcomment -%}
     --divider-max: 1312px;
     --divider-gap: 64px;
     --divider-gap-mobile: 40px;
 
-    /* Vertical padding on mobile is the artboard's, not the merchant's: 44797:4034 puts its first
+    {%- comment -%} Vertical padding on mobile is the artboard's, not the merchant's: 44797:4034 puts its first
        text at y=48, so the block's own top padding is 48. Its BOTTOM padding is 0 — the button ends
        exactly on the frame's edge — but 0 would jam it into the footer, so the bottom mirrors the
        top. That is the one number here the artboard does not give us, and it is called out rather
-       than smuggled in. The 80px the desktop settings carry is far too much at 375. */
+       than smuggled in. The 80px the desktop settings carry is far too much at 375. {%- endcomment -%}
     --pt-mobile: 48px;
     --pb-mobile: 48px;
   }

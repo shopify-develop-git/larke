@@ -5,22 +5,22 @@
 <style>
   .site-header {
 
-    /* Horizontal gutters. */
+    {%- comment -%} Horizontal gutters. {%- endcomment -%}
     --section-px: 64px;
     --section-px-mobile: 16px;
 
-    /* The header BAR stays full-bleed — Brief note #1 is right that Figma draws no centred frame,
+    {%- comment -%} The header BAR stays full-bleed — Brief note #1 is right that Figma draws no centred frame,
        and a header that stops short of the window edges is not a header. What is capped is the row
        inside it: past 1440 the logo, the menu and the cart stop drifting further apart and hold the
        1312 the artboard draws (1440 - 2x64).
 
        A gutter rather than a max-width, so the bar's background and its bottom rule still run the
        full width. max() keeps every signed-off breakpoint exactly as it is: below 1440 the second
-       term loses to --section-px, and only above it does the gutter start taking the surplus. */
+       term loses to --section-px, and only above it does the gutter start taking the surplus. {%- endcomment -%}
     --container-max: 1312px;
     --gutter: max(var(--section-px), (100% - var(--container-max)) / 2);
 
-    /* Mobile artboard specifies its own fixed padding, not a scale factor. */
+    {%- comment -%} Mobile artboard specifies its own fixed padding, not a scale factor. {%- endcomment -%}
     --pt-mobile: 16px;
     --pb-mobile: 16px;
 
@@ -36,10 +36,10 @@
     --icon-btn-hover-bg: #fcf5e3;
     --radius-icon-btn-hover: 16px;
 
-    /* Two DISTINCT logo assets (Brief note #4), not one scaled by CSS.
+    {%- comment -%} Two DISTINCT logo assets (Brief note #4), not one scaled by CSS.
        Desktop mark is 140x42 (viewBox 140 42).
        Mobile mark is 110x33.016 (viewBox 110 33.0161) centred in a 124x34 box.
-       Rendered size must equal the viewBox aspect or QA fails it. */
+       Rendered size must equal the viewBox aspect or QA fails it. {%- endcomment -%}
     --logo-aspect: 140 / 42;
     --logo-mobile-w: 110px;
     --logo-mobile-h: 33.016px;

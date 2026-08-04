@@ -37,10 +37,10 @@
     --section-px: 20px;
     --section-px-mobile: 16px;
 
-    /* Mobile drops to 16px top and bottom and OVERRIDES the merchant's padding
+    {%- comment -%} Mobile drops to 16px top and bottom and OVERRIDES the merchant's padding
        settings, which are desktop-only. Same trade dev-policy makes: the phone
        artboard states its own inset, and letting a desktop number through would
-       put 24px+ of air above a 24px card on a 375 screen. */
+       put 24px+ of air above a 24px card on a 375 screen. {%- endcomment -%}
     --section-py-mobile: 16px;
 
     --card-bg: #fcf5e3;
@@ -48,7 +48,7 @@
     --card-pad: 32px;
     --card-pad-mobile: 24px;
 
-    /* Spacing, read off the artboards' own coordinates rather than eyeballed —
+    {%- comment -%} Spacing, read off the artboards' own coordinates rather than eyeballed —
        desktop 45246:4418, mobile 45246:1431.
 
        Desktop: card at y=24 in a 568-tall frame whose last block ends at 544,
@@ -63,7 +63,7 @@
 
        So only the heading gap is constant across breakpoints. Everything else
        steps 32 -> 24, which is why a single scale factor would not have
-       reproduced this. */
+       reproduced this. {%- endcomment -%}
     --gap-block: 32px;
     --gap-block-mobile: 24px;
     --gap-heading: 8px;

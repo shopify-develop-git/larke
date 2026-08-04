@@ -5,24 +5,24 @@
 <style>
   .dev-three-step {
 
-    /* No --container-max: the card row is hug-width and centred, there is no
+    {%- comment -%} No --container-max: the card row is hug-width and centred, there is no
        centred max-width frame in the artboard. The inset is all --section-px.
-       Mobile is deliberately full-bleed (0), so the photos run edge to edge. */
+       Mobile is deliberately full-bleed (0), so the photos run edge to edge. {%- endcomment -%}
     --section-px: 64px;
     --section-px-mobile: 0px;
     --pt-mobile: 0px;
 
-    /* Mobile has no cards: each step carries its own 48px top padding, which is
-       what produces the 403px step pitch on the mobile artboard. */
+    {%- comment -%} Mobile has no cards: each step carries its own 48px top padding, which is
+       what produces the 403px step pitch on the mobile artboard. {%- endcomment -%}
     --step-pt-mobile: 48px;
 
-    /* Mobile/Title 3 — same 24px on both artboards. */
+    {%- comment -%} Mobile/Title 3 — same 24px on both artboards. {%- endcomment -%}
     --font-heading-size: 24px;
     --font-heading-weight: 500;
     --font-heading-lh: 1.2;
 
-    /* Body drops Lg (18) → Md (16) on mobile; the artboard states its own size,
-       so it wins over a scale factor. */
+    {%- comment -%} Body drops Lg (18) → Md (16) on mobile; the artboard states its own size,
+       so it wins over a scale factor. {%- endcomment -%}
     --font-body-size: 18px;
     --font-body-size-mobile: 16px;
     --font-body-weight: 500;
@@ -30,10 +30,10 @@
 
     --card-radius: 32px;
     --card-pad: 32px;
-    /* 332 media + 2x32 padding + 2x1 border. The card is hug-width in Figma; in CSS it must be
-       stated, or the text block's `width: 100%` has nothing to resolve against. */
+    {%- comment -%} 332 media + 2x32 padding + 2x1 border. The card is hug-width in Figma; in CSS it must be
+       stated, or the text block's `width: 100%` has nothing to resolve against. {%- endcomment -%}
     --card-w: 398px;
-    /* The active card is the same width but taller: 64px block padding vs 32px. */
+    {%- comment -%} The active card is the same width but taller: 64px block padding vs 32px. {%- endcomment -%}
     --card-pad-active-block: 64px;
     --text-w-active: 300px;
 

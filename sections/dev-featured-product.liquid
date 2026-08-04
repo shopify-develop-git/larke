@@ -16,15 +16,15 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .featured-product {
-    /* Brand params (Design Brief → Brand Params table) */
+    {%- comment -%} Brand params (Design Brief → Brand Params table) {%- endcomment -%}
     --container-max: 1312px;
     --section-px: 64px;
     --section-px-m: 16px;
 
-    /* Typography — desktop */
+    {%- comment -%} Typography — desktop {%- endcomment -%}
     --font-heading-size: 36px;
     --font-heading-weight: 500;
-    --font-heading-weight-aside: 400; /* the "(and last)" run — Regular, not Medium */
+    --font-heading-weight-aside: 400; {%- comment -%} the "(and last)" run — Regular, not Medium {%- endcomment -%}
     --font-heading-lh: 1.2;
     --font-body-size: 20px;
     --font-body-weight: 500;
@@ -36,45 +36,45 @@
     --font-button-weight: 700;
     --font-button-lh: 1.4;
 
-    /* Typography — mobile. Both confirmed off the mobile artboard (node 44821:5733):
+    {%- comment -%} Typography — mobile. Both confirmed off the mobile artboard (node 44821:5733):
        subheading is Body/Lg_Body_Medium 18px (line-advance 25px = 18 × 1.4); the heading
        measures ~27px (line-advance 32px = 27 × 1.2), which the 0.75 scale factor lands on
        exactly. The button drops to the small master size on mobile — 12/18 padding and a
-       16px label, against 18/24 and 18px on desktop. Icon labels stay at their desktop 14px. */
+       16px label, against 18/24 and 18px on desktop. Icon labels stay at their desktop 14px. {%- endcomment -%}
     --font-heading-size-m: calc(var(--font-heading-size) * 0.75);
-    /* The "(and last)" run drops BELOW the heading it sits in on mobile — 24 against the line's 28.
-       Its own token because it does not follow the 0.75 scale the rest of the heading does. */
+    {%- comment -%} The "(and last)" run drops BELOW the heading it sits in on mobile — 24 against the line's 28.
+       Its own token because it does not follow the 0.75 scale the rest of the heading does. {%- endcomment -%}
     --font-heading-size-aside-m: 24px;
     --font-body-size-m: 18px;
     --font-button-size-m: 16px;
     --button-pad-y-m: 12px;
     --button-pad-x-m: 18px;
 
-    /* Spacing */
+    {%- comment -%} Spacing {%- endcomment -%}
     --spacing-sm: 8px;
     --spacing-md: 16px;
     --spacing-lg: 24px;
 
-    /* 80px desktop → 48px mobile top spacer, kept proportional to the merchant's padding_top */
+    {%- comment -%} 80px desktop → 48px mobile top spacer, kept proportional to the merchant's padding_top {%- endcomment -%}
     --pt-scale-m: 0.6;
 
-    /* Layout */
+    {%- comment -%} Layout {%- endcomment -%}
     --media-w: 655px;
-    --content-w: 646px; /* 655 + 646 = 1301, the section content box at 1440 — no gap in Figma */
+    --content-w: 646px; {%- comment -%} 655 + 646 = 1301, the section content box at 1440 — no gap in Figma {%- endcomment -%}
     --media-h: 511px;
     --media-ratio: 655 / 511;
-    --media-ratio-m: 343 / 319; /* mobile: image is a full-width band (343 @375px) × 319 tall */
+    --media-ratio-m: 343 / 319; {%- comment -%} mobile: image is a full-width band (343 @375px) × 319 tall {%- endcomment -%}
     --content-py: 64px;
     --text-max: 311px;
 
-    /* The hero is a bleed/crop, not an object-fit: the source is rendered oversized and
-       clipped by the tile. Percentages are read straight off Figma node 45031:3801. */
+    {%- comment -%} The hero is a bleed/crop, not an object-fit: the source is rendered oversized and
+       clipped by the tile. Percentages are read straight off Figma node 45031:3801. {%- endcomment -%}
     --media-img-w: 102.04%;
     --media-img-h: 164.06%;
     --media-img-top: -58.28%;
-    --media-img-left: -1.02%; /* (100% - 102.04%) / 2 — horizontally centred bleed */
+    --media-img-left: -1.02%; {%- comment -%} (100% - 102.04%) / 2 — horizontally centred bleed {%- endcomment -%}
 
-    /* Decoration */
+    {%- comment -%} Decoration {%- endcomment -%}
     --radius-card: 32px;
     --radius-badge: 16px;
     --radius-button: 60px;
@@ -84,16 +84,16 @@
     --button-py: 18px;
     --icons-px: 16px;
     --icons-h: 56px;
-    --icons-gap-x: 16px; /* column gap between icon pairs (Figma: Breathable↔Easy care = 16px) */
-    --icons-gap-y: 8px;  /* row gap between the two icon rows (Figma: 8px → block is 56px tall, not 64) */
+    --icons-gap-x: 16px; {%- comment -%} column gap between icon pairs (Figma: Breathable↔Easy care = 16px) {%- endcomment -%}
+    --icons-gap-y: 8px;  {%- comment -%} row gap between the two icon rows (Figma: 8px → block is 56px tall, not 64) {%- endcomment -%}
 
-    /* Fixed (non-merchant) colours from the Figma style library */
+    {%- comment -%} Fixed (non-merchant) colours from the Figma style library {%- endcomment -%}
     --color-badge-bg: #ffffff;
     --color-badge-border: #c4bca9;
     --color-button-bg: #333333;
     --color-button-text: #ffffff;
 
-    /* Owner's ask (remaining-work item 11): the three trust labels ("Breathable" / "Easy care" /
+    {%- comment -%} Owner's ask (remaining-work item 11): the three trust labels ("Breathable" / "Easy care" /
        "Hypoallergenic") darker for stronger contrast, their icons lighter and less prominent, on
        both breakpoints. NOT Figma-verified — there is no Figma access here and the referenced
        .figma-assets/ export directory does not exist in this checkout, so these two values are a
@@ -101,9 +101,9 @@
          label #1A1A1A ≈ 16.0:1 (was the section text #333333 ≈ 11.6:1) — WCAG AAA
          icon  #858585 ≈ 3.4:1  (was #666666 ≈ 5.3:1) — still above the 3:1 non-text floor
        Two tokens, not one: the label previously inherited the merchant --color, so darkening it
-       there would have darkened the heading and subheading with it. */
-    --color-icon: #858585; /* icon strokes — deliberately lighter than the label beside them */
-    --color-icon-label: #1a1a1a; /* the trust label text only */
+       there would have darkened the heading and subheading with it. {%- endcomment -%}
+    --color-icon: #858585; {%- comment -%} icon strokes — deliberately lighter than the label beside them {%- endcomment -%}
+    --color-icon-label: #1a1a1a; {%- comment -%} the trust label text only {%- endcomment -%}
   }
 </style>
 

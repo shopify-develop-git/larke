@@ -25,9 +25,9 @@
 <style>
   .cool-sleepers-promo {
 
-    /* No --container-max and no single --section-px: this section has no centred
+    {%- comment -%} No --container-max and no single --section-px: this section has no centred
        max-width frame, and its horizontal inset differs per element (Brief,
-       Brand Params + Structure). Same precedent as dev-site-header. */
+       Brand Params + Structure). Same precedent as dev-site-header. {%- endcomment -%}
 
     --font-heading-size: 32px;
     --font-heading-weight: 500;
@@ -36,44 +36,44 @@
     --font-body-weight: 500;
     --font-body-lh: 1.4;
 
-    /* The Mobile artboard specifies its own type sizes and paddings — those win
-       over any scale factor (code standards, "Responsive type"). */
+    {%- comment -%} The Mobile artboard specifies its own type sizes and paddings — those win
+       over any scale factor (code standards, "Responsive type"). {%- endcomment -%}
     --font-heading-size-mobile: 24px;
     --font-body-size-mobile: 16px;
     --pt-mobile: 32px;
 
-    /* The banner (everything above the lifestyle image) is trimmed ~20% against the artboard —
+    {%- comment -%} The banner (everything above the lifestyle image) is trimmed ~20% against the artboard —
        client call, 2026-07-24: "too imposing". Only the AIR shrinks: the type sizes and the
        55px logo strip stay exactly as designed. Desktop 286 → 230 (pt 80→48 in the template +
-       these gaps 40→28); mobile follows the same rhythm (pt 48→32, gaps 24→16). */
-    --spacing-sm: 8px; /* heading → subheading */
-    --spacing-md: 28px; /* heading block → logos → image (artboard 40, see trim note) */
+       these gaps 40→28); mobile follows the same rhythm (pt 48→32, gaps 24→16). {%- endcomment -%}
+    --spacing-sm: 8px; {%- comment -%} heading → subheading {%- endcomment -%}
+    --spacing-md: 28px; {%- comment -%} heading block → logos → image (artboard 40, see trim note) {%- endcomment -%}
     --spacing-md-mobile: 16px;
-    --spacing-lg: 54px; /* lifestyle image horizontal inset (desktop only) */
+    --spacing-lg: 54px; {%- comment -%} lifestyle image horizontal inset (desktop only) {%- endcomment -%}
 
-    /* Text frame is a fixed 421.33px centred column on desktop, fluid on mobile. */
+    {%- comment -%} Text frame is a fixed 421.33px centred column on desktop, fluid on mobile. {%- endcomment -%}
     --text-width: 421.33px;
     --text-px: 16px;
 
-    /* Radius sits on the "Image and text" frame at both breakpoints even though it
-       has no fill today — preserved so it honours a merchant background (Brief #7). */
+    {%- comment -%} Radius sits on the "Image and text" frame at both breakpoints even though it
+       has no fill today — preserved so it honours a merchant background (Brief #7). {%- endcomment -%}
     --radius: 32px;
-    /* The mobile image genuinely loses the radius AND the inset — it is edge-to-edge
-       with square corners. A real breakpoint delta, not a scaled-down desktop (Brief #6). */
+    {%- comment -%} The mobile image genuinely loses the radius AND the inset — it is edge-to-edge
+       with square corners. A real breakpoint delta, not a scaled-down desktop (Brief #6). {%- endcomment -%}
     --radius-image: 32px;
 
-    /* Two intentionally distinct Figma crops per image role, not one source at two
-       sizes (Brief, Images). Aspect ratios are the artboard node dimensions. */
+    {%- comment -%} Two intentionally distinct Figma crops per image role, not one source at two
+       sizes (Brief, Images). Aspect ratios are the artboard node dimensions. {%- endcomment -%}
     --image-aspect: 1332 / 400;
     --image-aspect-mobile: 375 / 250;
 
-    /* Marquee. The strip is 55px tall on BOTH artboards and the logos are the same size
-       on each — the mobile crop simply shows fewer of them, so the height carries across. */
+    {%- comment -%} Marquee. The strip is 55px tall on BOTH artboards and the logos are the same size
+       on each — the mobile crop simply shows fewer of them, so the height carries across. {%- endcomment -%}
     --logos-height: 55px;
     --logo-gap: 83px;
   }
 
-  /* Mobile tightens the logo spacing to 40 (owner's call, 2026-07-22 — the desktop 83 leaves
+  {%- comment -%} Mobile tightens the logo spacing to 40 (owner's call, 2026-07-22 — the desktop 83 leaves
      barely two logos on a 375 screen).
 
      It has to be declared HERE and not in dev-cool-sleepers-promo.css: that file is linked above
@@ -87,7 +87,7 @@
      Retuning the TOKEN, not __set's gap. The same value spaces logos inside a set, sets inside a
      half, and the two halves against each other; changing one of the three leaves the strip
      evenly spaced everywhere except at the seams. The keyframe reads it too, so its -50% wrap
-     correction follows automatically. */
+     correction follows automatically. {%- endcomment -%}
   @media (max-width: 768px) {
     .cool-sleepers-promo {
       --logo-gap: 40px;

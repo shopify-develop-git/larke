@@ -8,13 +8,13 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .video-promo-banner {
-    /* Brand params (Design Brief → Brand Params table).
+    {%- comment -%} Brand params (Design Brief → Brand Params table).
        --container-max is intentionally absent and --section-px is 0: this section is
        full-bleed at both breakpoints (Brief, Note 1 — the media row starts at x=0 and
-       spans the whole frame). The only width constraint is a max-width on the text block. */
+       spans the whole frame). The only width constraint is a max-width on the text block. {%- endcomment -%}
     --section-px: 0px;
 
-    /* Typography — desktop */
+    {%- comment -%} Typography — desktop {%- endcomment -%}
     --font-heading-size: 38px;
     --font-heading-weight: 500;
     --font-heading-lh: 1.2;
@@ -25,37 +25,37 @@
     --font-button-weight: 700;
     --font-button-lh: 1.4;
 
-    /* Typography — mobile (from the Mobile artboard, not a scale factor) */
+    {%- comment -%} Typography — mobile (from the Mobile artboard, not a scale factor) {%- endcomment -%}
     --font-heading-size-m: 28px;
     --font-body-size-m: 16px;
     --font-button-size-m: 16px;
 
-    /* Spacing */
+    {%- comment -%} Spacing {%- endcomment -%}
     --spacing-sm: 8px;
     --spacing-md: 16px;
     --spacing-lg: 32px;
     --spacing-lg-m: 24px;
-    --pt-scale-m: 0.6; /* 80px desktop → 48px mobile */
+    --pt-scale-m: 0.6; {%- comment -%} 80px desktop → 48px mobile {%- endcomment -%}
 
-    /* Media tile */
-    --tile-min-h: 500px; /* identical at both breakpoints (Brief, Note 4) */
+    {%- comment -%} Media tile {%- endcomment -%}
+    --tile-min-h: 500px; {%- comment -%} identical at both breakpoints (Brief, Note 4) {%- endcomment -%}
     --tile-pt: 32px;
     --tile-pb: 32px;
     --tile-px: 24px;
     --tile-p-m: 24px;
     --bg-position: center;
 
-    /* Text block */
+    {%- comment -%} Text block {%- endcomment -%}
     --text-max: 410px;
     --text-max-m: 327px;
 
-    /* CTA button */
+    {%- comment -%} CTA button {%- endcomment -%}
     --button-px: 24px;
     --button-py: 18px;
     --button-px-m: 18px;
     --button-py-m: 12px;
     --button-radius: 60px;
-    /* Fixed, like every other button on the site. No section lets a merchant recolour one. */
+    {%- comment -%} Fixed, like every other button on the site. No section lets a merchant recolour one. {%- endcomment -%}
     --cta-text-color: #333333;
 
     {%- comment -%}
@@ -68,20 +68,20 @@
     {%- endcomment -%}
     --btn-hover-bg: #fcf5e3;
 
-    /* Play button */
+    {%- comment -%} Play button {%- endcomment -%}
     --play-btn-size: 62px;
     --play-btn-padding: 19px;
     --play-btn-radius: 60px;
     --play-icon-size: 24px;
 
-    /* Modal */
+    {%- comment -%} Modal {%- endcomment -%}
     --modal-overlay: rgba(0, 0, 0, 0.85);
     --modal-max-w: 960px;
     --modal-px: 24px;
 
-    /* Motion. The same asymmetry the PDP's guide drawers use: the lightbox takes its time arriving
+    {%- comment -%} Motion. The same asymmetry the PDP's guide drawers use: the lightbox takes its time arriving
        and leaves briskly, which is what makes it read as an object rather than a div being shown.
-       The JS reads these back out (parseFloat on the computed value), so keep them in ms. */
+       The JS reads these back out (parseFloat on the computed value), so keep them in ms. {%- endcomment -%}
     --modal-in: 480ms;
     --modal-out: 300ms;
     --ease-out: cubic-bezier(0.22, 1, 0.36, 1);

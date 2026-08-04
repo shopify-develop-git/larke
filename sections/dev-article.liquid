@@ -33,10 +33,10 @@
     --section-px: 64px;
     --section-px-m: 16px;
 
-    /* Two widths. --measure is the reading column: 720px at 18px type is ~72 characters per line,
+    {%- comment -%} Two widths. --measure is the reading column: 720px at 18px type is ~72 characters per line,
        the middle of the 45–75 range that is comfortable to read. --media-w is the wider container
        the hero image fills, so the photo has presence without the prose inheriting a 960px line.
-       Both are judgement calls — no artboard covers this page. See the header comment. */
+       Both are judgement calls — no artboard covers this page. See the header comment. {%- endcomment -%}
     --measure: 720px;
     --media-w: 960px;
 
@@ -45,12 +45,12 @@
     --font-title-weight: 500;
     --font-title-lh: 1.2;
 
-    /* Body copy and the headings INSIDE the article body. The body h2/h3 step down from the
-       title rather than repeating it, so the page has one obvious top. */
+    {%- comment -%} Body copy and the headings INSIDE the article body. The body h2/h3 step down from the
+       title rather than repeating it, so the page has one obvious top. {%- endcomment -%}
     --font-body-size: 18px;
     --font-body-size-m: 16px;
     --font-body-weight: 500;
-    --font-body-lh: 1.6; /* looser than the 1.4 the cards use: those are 2-line captions, this is prose */
+    --font-body-lh: 1.6; {%- comment -%} looser than the 1.4 the cards use: those are 2-line captions, this is prose {%- endcomment -%}
     --font-h2-size: 32px;
     --font-h3-size: 22px;
 
@@ -64,13 +64,13 @@
     --spacing-xl: 48px;
     --spacing-2xl: 64px;
 
-    /* Hero crop. 3:2 is the shape a camera hands you, so it is the least violent thing to impose
+    {%- comment -%} Hero crop. 3:2 is the shape a camera hands you, so it is the least violent thing to impose
        on photography a merchant did not shoot for this slot — and unlike `height: auto` it is the
        SAME shape for every article, portrait uploads included. At the 960px container that is
        960x640, comfortably inside one screen, with the first paragraph visible under it.
 
        One value for both breakpoints, which is this theme's habit (story-slider and
-       values-we-cherish do the same): the ratio is the design, not a per-device measurement. */
+       values-we-cherish do the same): the ratio is the design, not a per-device measurement. {%- endcomment -%}
     --ratio-media: 3 / 2;
 
     --radius-media: 32px;

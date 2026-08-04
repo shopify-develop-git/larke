@@ -16,29 +16,29 @@
 {%- endcomment -%}
 <style>
   .site-footer {
-    /* brand params */
+    {%- comment -%} brand params {%- endcomment -%}
     --section-px: 64px;
 
-    /* The cream card stays 100% of the section frame — its rounded top corners are meant to meet
+    {%- comment -%} The cream card stays 100% of the section frame — its rounded top corners are meant to meet
        the window edges, and a card floating in the middle of a 1920 screen is a different design.
        What is capped is what the card HOLDS: past 1440 the newsletter row, the menus and the
        bottom bar stop stretching and hold the 1312 the artboard draws (1440 - 2x64).
 
        Hence a gutter, not a max-width. max() means nothing below 1440 moves: --section-px wins
-       there, including the 16px this block hands it at <=768. */
+       there, including the 16px this block hands it at <=768. {%- endcomment -%}
     --container-max: 1312px;
     --gutter: max(var(--section-px), (100% - var(--container-max)) / 2);
 
-    /* structure */
+    {%- comment -%} structure {%- endcomment -%}
     --footer-top-spacer: 80px;
     --radius-card: 32px;
     --radius-button: 60px;
     --radius-input: 8px;
     --border-width: 1px;
-    --border: #c4bca9;   /* bottom-bar rule + mobile payment-block rules (sampled from both artboards) */
-    --divider: #c4bca9;  /* full-width divider line — mobile overrides this to #d8d1c0 */
+    --border: #c4bca9;   {%- comment -%} bottom-bar rule + mobile payment-block rules (sampled from both artboards) {%- endcomment -%}
+    --divider: #c4bca9;  {%- comment -%} full-width divider line — mobile overrides this to #d8d1c0 {%- endcomment -%}
 
-    /* type */
+    {%- comment -%} type {%- endcomment -%}
     --font-heading-size: 32px;
     --font-heading-weight: 500;
     --font-heading-lh: 1.2;
@@ -66,16 +66,16 @@
     --link-underline-inset: 8px;
     --link-underline-color: #666666;
 
-    /* newsletter form */
+    {%- comment -%} newsletter form {%- endcomment -%}
     --input-bg: #ffffff;
-    --input-border-color: #666666; /* paints only in the hover / focus states */
+    --input-border-color: #666666; {%- comment -%} paints only in the hover / focus states {%- endcomment -%}
     --input-padding: 18px 24px;
     --button-bg: rgba(52, 52, 52, 0.66);
     --button-color: #ffffff;
     --button-border-color: #ffffff;
     --button-padding: 18px 24px;
 
-    /* spacing */
+    {%- comment -%} spacing {%- endcomment -%}
     --spacing-sm: 8px;
     --spacing-md: 16px;
     --spacing-lg: 24px;
@@ -97,15 +97,15 @@
     --copyright-pt: 40px;
     --bottom-bar-pt: 32px;
 
-    /* fixed widths read off the Desktop artboard */
+    {%- comment -%} fixed widths read off the Desktop artboard {%- endcomment -%}
     --newsletter-text-w: 642px;
     --newsletter-form-w: 640px;
-    /* The columns row on the 1440 artboard: 1312 (container) = 418 (brand) + 32 (gap)
+    {%- comment -%} The columns row on the 1440 artboard: 1312 (container) = 418 (brand) + 32 (gap)
        + [304 + 24 + 310 + 24 + 200] (the three right-hand columns). All four are flex BASES,
        not fixed widths — they sum to the container at 1440 so the artboard matches exactly, and
-       below it every column gives up width in proportion instead of the brand column alone. */
+       below it every column gives up width in proportion instead of the brand column alone. {%- endcomment -%}
     --col-brand-w: 418px;
-    --col-group-w: 862px; /* 304 + 24 + 310 + 24 + 200 — the three right-hand columns together */
+    --col-group-w: 862px; {%- comment -%} 304 + 24 + 310 + 24 + 200 — the three right-hand columns together {%- endcomment -%}
     --col-menu-w: 304px;
     --col-menu-2-w: 310px;
     --col-social-w: 200px;
@@ -120,11 +120,11 @@
     .site-footer {
       --section-px: 16px;
       --footer-top-spacer: 48px;
-      --divider: #d8d1c0; /* the two mobile divider lines really are a lighter tan than the rules */
+      --divider: #d8d1c0; {%- comment -%} the two mobile divider lines really are a lighter tan than the rules {%- endcomment -%}
 
       --font-heading-size: 24px;
       --font-heading-sm-size: 20px;
-      --font-heading-sm-weight: 600; /* deliberate mobile-only Semibold — do not "fix" to 500 */
+      --font-heading-sm-weight: 600; {%- comment -%} deliberate mobile-only Semibold — do not "fix" to 500 {%- endcomment -%}
       --font-body-size: 16px;
       --font-address-size: 14px;
       --font-button-size: 16px;

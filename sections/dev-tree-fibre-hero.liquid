@@ -7,38 +7,38 @@
 {%- comment -%} Fixed design tokens from Figma — not merchant-controlled {%- endcomment -%}
 <style>
   .tree-fibre-hero {
-    /* Brand params. The faces themselves are loaded theme-wide by snippets/dev-brand-fonts.liquid —
+    {%- comment -%} Brand params. The faces themselves are loaded theme-wide by snippets/dev-brand-fonts.liquid —
        this only selects them. --container-max is deliberately absent: there is no inner max-width
        frame inside the hero — the heading's own column is --text-col-w, and the horizontal inset is
-       --section-px. What IS capped is the whole section box; see --section-max. */
+       --section-px. What IS capped is the whole section box; see --section-max. {%- endcomment -%}
     --section-px: 64px;
     --section-px-m: 16px;
 
-    /* The mobile artboard states its own top padding, so it is a fixed token, not a scale
+    {%- comment -%} The mobile artboard states its own top padding, so it is a fixed token, not a scale
        factor off --pt. Derived from the artboard: the heading's ink starts at y=46, and the
        ink-top-to-box-top delta for this face at lh 1.2 is 0.2105em (calibrated on the desktop
        artboard, where padding is a known 64px and ink starts at y=72 for 38px type).
-       46 - (0.2105 x 28) = 40.1  ->  40px. */
+       46 - (0.2105 x 28) = 40.1  ->  40px. {%- endcomment -%}
     --pt-m: 40px;
 
-    /* Typography. Desktop 38px / mobile 28px, both Tiempos Headline Regular at lh 1.2.
+    {%- comment -%} Typography. Desktop 38px / mobile 28px, both Tiempos Headline Regular at lh 1.2.
        Mobile size is measured off the artboard: baseline pitch is exactly 34px and
        34 / 1.2 = 28.3, and the ascender-to-descender ink height (27px) over the desktop's
-       measured 0.974 em ratio gives 27.7 — both round to 28. */
+       measured 0.974 em ratio gives 27.7 — both round to 28. {%- endcomment -%}
     --font-heading-size: 38px;
     --font-heading-size-m: 28px;
     --font-heading-weight: 400;
     --font-heading-lh: 1.2;
 
-    /* --em-weight is NOT here any more: the two pages this section serves want different weights
+    {%- comment -%} --em-weight is NOT here any more: the two pages this section serves want different weights
        (Our Story 700, Tree Fibre 600), so it is a per-instance `emphasis_weight` setting and rides
-       inline on the root wrapper below, with the merchant-controlled values. See the note there. */
+       inline on the root wrapper below, with the merchant-controlled values. See the note there. {%- endcomment -%}
 
-    /* Frame — 550px tall on BOTH artboards (1440x550 desktop, 375x550 mobile). */
+    {%- comment -%} Frame — 550px tall on BOTH artboards (1440x550 desktop, 375x550 mobile). {%- endcomment -%}
     --hero-min-h: 550px;
     --radius-bottom: 32px;
 
-    /* The SECTION BOX, not an inner content frame — the whole hero (photo, scrim and both bottom
+    {%- comment -%} The SECTION BOX, not an inner content frame — the whole hero (photo, scrim and both bottom
        corners) stops at the desktop artboard's own width and centres past it. Owner's call, and it
        is a deliberate break from the site's chrome: dev-site-header / dev-site-footer stay
        full-bleed and cap only their content line with --gutter. Below 1440 nothing changes — the
@@ -47,14 +47,14 @@
 
        Past 1440 the page background shows either side of the hero, so it is `background` on the
        page/body that fills those stripes, NOT --bg: that one paints the section box and is now
-       clipped to 1440 with it. */
+       clipped to 1440 with it. {%- endcomment -%}
     --section-max: 1440px;
 
-    /* Desktop text column: w-[480px] on the artboard. */
+    {%- comment -%} Desktop text column: w-[480px] on the artboard. {%- endcomment -%}
     --text-col-w: 480px;
     --spacing-md: 24px;
 
-    /* ---- Squiggle underline (optional; see `show_underline` in the schema) --------
+    {%- comment -%} ---- Squiggle underline (optional; see `show_underline` in the schema) --------
        The Our Story hero (45078:8864) is this same _Master Hero Media component, but it
        underlines its emphasised runs — TWO of them ("starting", "duvets.") — with a hand-drawn
        stroke. Rather than pin an SVG under one hard-coded word (the mistake baked into dev-hero,
@@ -71,7 +71,7 @@
 
        Geometry, off the desktop artboard: the anchor box is 5px tall at y=207.06, but Figma
        overflows the art out of it (inset -24.64% top), so the real ink is 6.78px starting at
-       y=205.83. Heading line 3's box bottom sits at 64 + 3x(38x1.2) = 200.8 — hence a 5px gap. */
+       y=205.83. Heading line 3's box bottom sits at 64 + 3x(38x1.2) = 200.8 — hence a 5px gap. {%- endcomment -%}
     --squiggle-1: url('{{ 'dev-tree-fibre-hero-underline-1.svg' | asset_url }}');
     --squiggle-2: url('{{ 'dev-tree-fibre-hero-underline-2.svg' | asset_url }}');
     --squiggle-h: 6.78px;
@@ -79,17 +79,17 @@
     --squiggle-h-m: 5px;
     --squiggle-gap-m: 4px;
 
-    /* Mobile heading wrap guard. The artboard wraps as
+    {%- comment -%} Mobile heading wrap guard. The artboard wraps as
          "Turns out, taking care of" / "our planet never felt more" / "comfortable."
        The widest line measures 312px of ink, and the string "Turns out, taking care of our"
        needs ~344.5px — so ANY box width in [314px, 344px) reproduces this wrap, and because
        the text is centred every width in that band renders pixel-identically. The mobile
        gutter (16px) puts the box at 343px, which is only 1.4px inside the threshold — close
        enough that a sub-pixel metrics difference would pull "our" up a line and break the
-       design. 336px sits in the middle of the safe band: same render, no cliff edge. */
+       design. 336px sits in the middle of the safe band: same render, no cliff edge. {%- endcomment -%}
     --heading-max-w-m: 336px;
 
-    /* ---- Background photo framing ----------------------------------------------
+    {%- comment -%} ---- Background photo framing ----------------------------------------------
        Percentages of the section box, so the crop holds at every viewport width.
 
        DESKTOP — Figma's own numbers, used verbatim (w-full, h-[392.68%], top-[-149.98%]).
@@ -106,7 +106,7 @@
             top    -72   / 550 = -13.09%
             left   -22   / 375 =  -5.87%   ((419 - 375) / 2 = 22, i.e. dead centre)
        Both dimensions stay larger than the box at every width, so it always covers.
-       object-fit: cover is belt-and-braces against sub-pixel aspect drift. */
+       object-fit: cover is belt-and-braces against sub-pixel aspect drift. {%- endcomment -%}
     --bg-w-d: 100%;
     --bg-h-d: 392.68%;
     --bg-top-d: -149.98%;
@@ -117,7 +117,7 @@
     --bg-top-m: -13.09%;
     --bg-left-m: -5.87%;
 
-    /* ---- Scrim -------------------------------------------------------------------
+    {%- comment -%} ---- Scrim -------------------------------------------------------------------
        DESKTOP: Figma's gradient, verbatim. At 164.82deg the gradient line runs down-and-right,
        so the 0.6 black lands top-LEFT, under the heading, and is gone by 48% of the way down.
 
@@ -126,7 +126,7 @@
        one. Measured on the artboard against the aligned source: at y=0 the source reads 14.9
        and the artboard reads 15.0 — a ratio of 1.00, i.e. zero darkening. A 0.6-alpha scrim
        would have driven that to ~6. Do not "restore" the desktop gradient here; it would
-       visibly crush a region the design leaves alone. */
+       visibly crush a region the design leaves alone. {%- endcomment -%}
     --overlay-d: linear-gradient(
       164.8221deg,
       rgba(0, 0, 0, 0.6) 3.8161%,
