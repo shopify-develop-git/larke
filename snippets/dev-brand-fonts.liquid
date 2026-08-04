@@ -6,13 +6,29 @@
   Theme setting `use_test_fonts` (Theme settings → Typography, default ON) chooses:
 
     ON  — Public Sans + Tiempos Headline, self-hosted, exactly as the Figma design.
-          Tiempos Headline is a LICENSED Klim font; the files bundled here are the free
-          TRIAL cut (limited glyphs) supplied for preview only. Before production, turn
-          this OFF (or swap in the licensed release).
 
     OFF — the Body and Heading fonts the merchant picks in Theme settings → Typography
           (type_body_font / type_heading_font). These are served from Shopify's font
           library — licensed and hosted — so the font can change with no code.
+
+  TIEMPOS IS PART LICENSED, PART TRIAL. Tiempos Headline is a commercial Klim face and the
+  client has supplied their licensed release for TWO cuts only:
+
+    LICENSED (Klim retail v1.015, 458 glyphs) — Medium 500, Semibold 600.
+    TRIAL    (v1.012, 67 glyphs)              — Regular 400, Regular Italic, Medium Italic, Bold 700.
+
+  The trial cut carries no £, ’, “, – , é or & — a heading containing any of them silently
+  falls back to the serif fallback mid-word. That is now fixed for 500/600 (the weights 26 of
+  28 heading tokens use) and STILL BROKEN for the four faces above.
+
+  Still to request from the client, in priority order:
+    1. Medium Italic   — dev-hero, dev-values-we-cherish, dev-tree-fibre-hero set real italic runs
+    2. Regular 400     — dev-tree-fibre-intro, dev-tree-fibre-hero
+    3. Semibold Italic — retires the synthesised-oblique note in dev-tree-fibre-hero
+  Bold 700 is registered but no dev-* section pairs it with --font-heading; drop it rather than
+  license it. Drop each trial file as its licensed replacement lands — the retail cuts are
+  metric-compatible (upm 1000, asc 962, desc -250, cap 702; advance widths within ±1/1000 em),
+  so swapping a file does not move layout.
 
   font-display: swap everywhere — text paints in the fallback immediately, then swaps.
   Never `block`: an invisible heading is worse than a briefly wrong one.
@@ -37,42 +53,48 @@
 
   <style>
     @font-face {
-      font-family: 'Test Tiempos Headline';
+      font-family: 'Tiempos Headline';
+      /* TRIAL CUT — 67 glyphs, no £ ’ “ – é &. Awaiting the licensed Regular. */
       src: url('{{ tiempos_regular }}') format('woff2');
       font-weight: 400;
       font-style: normal;
       font-display: swap;
     }
     @font-face {
-      font-family: 'Test Tiempos Headline';
+      font-family: 'Tiempos Headline';
+      /* TRIAL CUT — 67 glyphs. Awaiting the licensed Regular Italic. */
       src: url('{{ tiempos_regular_italic }}') format('woff2');
       font-weight: 400;
       font-style: italic;
       font-display: swap;
     }
     @font-face {
-      font-family: 'Test Tiempos Headline';
+      font-family: 'Tiempos Headline';
+      /* LICENSED — Klim retail v1.015, 458 glyphs. */
       src: url('{{ tiempos_medium }}') format('woff2');
       font-weight: 500;
       font-style: normal;
       font-display: swap;
     }
     @font-face {
-      font-family: 'Test Tiempos Headline';
+      font-family: 'Tiempos Headline';
+      /* TRIAL CUT — 67 glyphs. Highest-priority licensed face still missing: three sections italicise a run. */
       src: url('{{ tiempos_medium_italic }}') format('woff2');
       font-weight: 500;
       font-style: italic;
       font-display: swap;
     }
     @font-face {
-      font-family: 'Test Tiempos Headline';
+      font-family: 'Tiempos Headline';
+      /* LICENSED — Klim retail v1.015, 458 glyphs. */
       src: url('{{ tiempos_semibold }}') format('woff2');
       font-weight: 600;
       font-style: normal;
       font-display: swap;
     }
     @font-face {
-      font-family: 'Test Tiempos Headline';
+      font-family: 'Tiempos Headline';
+      /* TRIAL CUT — and unused: no dev-* section pairs 700 with --font-heading. Drop rather than license. */
       src: url('{{ tiempos_bold }}') format('woff2');
       font-weight: 700;
       font-style: normal;
@@ -110,7 +132,7 @@
 
     :root {
       --font-body: 'Public Sans', sans-serif;
-      --font-heading: 'Test Tiempos Headline', serif;
+      --font-heading: 'Tiempos Headline', serif;
     }
   </style>
 {%- else -%}

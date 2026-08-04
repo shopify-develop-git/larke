@@ -122,9 +122,9 @@
       {
         "type": "checkbox",
         "id": "use_test_fonts",
-        "label": "Use brand fonts (test cut)",
+        "label": "Use brand fonts (Public Sans + Tiempos Headline)",
         "default": true,
-        "info": "On: Public Sans + Tiempos Headline as designed. Tiempos here is a preview/trial cut — before going live, turn this off and pick a licensed Body and Heading font above. Off: uses the Body and Heading fonts selected above (Shopify-hosted, licensed)."
+        "info": "On: Public Sans + Tiempos Headline as designed. Tiempos Medium and Semibold are the client's licensed Klim release. Regular, Bold and the italics are still the trial cut — they carry no £, apostrophe or en dash, so a heading using those weights loses those characters to the fallback. Off: uses the Body and Heading fonts selected above (Shopify-hosted, licensed)."
       },
       {
         "type": "header",
