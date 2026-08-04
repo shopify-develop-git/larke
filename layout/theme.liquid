@@ -55,6 +55,17 @@
     {{ 'dev-stars.css' | asset_url | stylesheet_tag }}
 
     {%- comment -%}
+      Shopify's own policy pages, restyled to the Shipping policy reference. They have no
+      theme template — Shopify renders them itself — so a stylesheet is the only lever, and
+      it has to be loaded from the layout rather than from a section.
+
+      Gated on page_type so the other ~40 templates pay nothing for it.
+    {%- endcomment -%}
+    {%- if request.page_type == 'policy' -%}
+      {{ 'dev-policy-native.css' | asset_url | stylesheet_tag }}
+    {%- endif -%}
+
+    {%- comment -%}
       Accessibility patches for markup the theme does not author: video_tag's alt-less
       fallback <img>, and the untitled utility iframes Shopify injects (web-pixels,
       dynamic checkout buttons). See the file's header comment.

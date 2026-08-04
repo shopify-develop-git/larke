@@ -1,0 +1,144 @@
+/* dev-policy-native.css
+
+   Shopify's own policy pages (/policies/privacy-policy, /refund-policy,
+   /shipping-policy, /terms-of-service), restyled to match the Shipping policy
+   page the owner pointed at as the reference (2026-08-04).
+
+   WHY A STYLESHEET AND NOT A SECTION. Policy pages have no theme template.
+   Shopify renders them itself, injects its own stylesheet
+   (cdn/shopifycloud/storefront/assets/storefront/policy-*.css) and hands the
+   theme this fixed markup, which we cannot change:
+
+     .shopify-policy__container
+       .shopify-policy__title  > h1
+       .shopify-policy__body   > .rte
+
+   So there is no liquid to write and no schema to expose. Restyling that
+   markup is the entire lever available.
+
+   WHERE THE NUMBERS COME FROM. Measured off the rendered reference page
+   (dev-policy in its centred layout) rather than re-derived: card #fcf5e3 /
+   32px radius / 32px padding / 640px column; title Tiempos Headline 32px/500,
+   line-height 1.2, centred; sub-heading Tiempos Headline 22px/500, 1.2; body
+   Public Sans 16px/500, 1.4; ink #333333.
+
+   Source of truth is assets/dev-policy.css. If the centred layout there
+   changes, change this file with it — nothing links the two automatically,
+   because the two render completely different markup.
+
+   The values are literals rather than the section's custom properties on
+   purpose: those are declared on .dev-policy in that section's inline <style>
+   block and are only inherited by DOM the section owns. This markup is
+   Shopify's, sits outside any section, and would resolve them to nothing. */
+
+.shopify-policy__container {
+  --policy-card-bg: #fcf5e3;
+  --policy-ink: #333333;
+  --policy-radius: 32px;
+  --policy-pad: 32px;
+  --policy-col: 640px;
+
+  --policy-title-size: 32px;
+  --policy-title-size-mobile: 24px;
+  --policy-heading-size: 22px;
+  --policy-heading-size-mobile: 20px;
+  --policy-body-size: 16px;
+  --policy-weight: 500;
+  --policy-heading-lh: 1.2;
+  --policy-body-lh: 1.4;
+
+  width: 100%;
+  margin-inline: auto;
+  color: var(--policy-ink);
+  font-family: var(--font-body);
+}
+
+/* The column, and the one rule here that needs to fight for it.
+
+   Shopify ships `max-width: 560px; max-width: 65ch` on this class and loads its
+   policy-*.css AFTER the theme's head, so a plain .shopify-policy__container
+   rule loses on source order and the column comes out 557px, not 640. The class
+   is repeated to double the specificity, which wins regardless of load order
+   without escalating to !important — worth the odd-looking selector, because an
+   !important here would also have to be fought by anything layered on later.
+
+   680 = the reference's 640px column plus Shopify's own 20px inline padding on
+   each side, which is kept: box-sizing is border-box, so the padding comes out
+   of the max-width, and without the +40 the copy would sit in a 600px column
+   while the reference sits in 640. The insets themselves are worth keeping —
+   they are what stops the text touching the screen edge below ~680px. */
+.shopify-policy__container.shopify-policy__container {
+  max-width: calc(var(--policy-col) + 40px);
+}
+
+/* --- the title card ---------------------------------------------------- */
+
+/* Shopify wraps the h1 in this div, which is what lets it become the cream
+   banner without any markup of our own. */
+.shopify-policy__title {
+  background-color: var(--policy-card-bg);
+  border-radius: var(--policy-radius);
+  padding: var(--policy-pad);
+  margin-block-end: var(--policy-pad);
+}
+
+.shopify-policy__title h1 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--policy-title-size);
+  font-weight: var(--policy-weight);
+  line-height: var(--policy-heading-lh);
+  color: var(--policy-ink);
+  text-align: center;
+}
+
+/* --- the body ---------------------------------------------------------- */
+
+.shopify-policy__body {
+  font-family: var(--font-body);
+  font-size: var(--policy-body-size);
+  font-weight: var(--policy-weight);
+  line-height: var(--policy-body-lh);
+  color: var(--policy-ink);
+}
+
+/* ONE size for every heading level in the copy, which is the owner's actual
+   ask: the legal texts were pasted from production and carry h2/h3/h4
+   inconsistently, so rendering them at the theme's default scale is what makes
+   the pages look uneven page-to-page and within one page. Flattening every
+   level to the reference's 22px is deliberate — it costs nothing semantically
+   (the heading levels still nest correctly for screen readers and SEO) and is
+   the only way one instruction can cover four documents nobody is going to
+   re-tag by hand. */
+.shopify-policy__body :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-heading);
+  font-size: var(--policy-heading-size);
+  font-weight: var(--policy-weight);
+  line-height: var(--policy-heading-lh);
+  color: var(--policy-ink);
+}
+
+.shopify-policy__body :is(p, li, td, th, dd, dt) {
+  font-family: var(--font-body);
+  font-size: var(--policy-body-size);
+  font-weight: var(--policy-weight);
+  line-height: var(--policy-body-lh);
+}
+
+.shopify-policy__body a {
+  color: var(--policy-ink);
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .shopify-policy__title h1 {
+    font-size: var(--policy-title-size-mobile);
+  }
+
+  .shopify-policy__body :is(h1, h2, h3, h4, h5, h6) {
+    font-size: var(--policy-heading-size-mobile);
+  }
+}
