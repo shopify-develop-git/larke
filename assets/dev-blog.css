@@ -57,6 +57,35 @@
   width: min-content;
 }
 
+/* --- centred header (client reference for item 15) ---
+
+   The header is a flex column, so centring is align-items, not text-align — text-align alone
+   would leave the stacked title's min-content box glued to the left edge and only move the glyphs
+   inside it. text-align is still set for the intro, which wraps to two lines on a narrow screen.
+
+   The tag filter sits OUTSIDE the header, so it is centred separately. Leaving it left while the
+   heading above it is centred is the one arrangement the reference clearly does not show. */
+.dev-blog--centred .dev-blog__head {
+  align-items: center;
+  text-align: center;
+}
+
+.dev-blog--centred .dev-blog__filter {
+  justify-content: center;
+}
+
+/* The leaf sits directly above the heading, closer than the header's own 16px rhythm — in the
+   reference it almost touches the cap line. Negative margin rather than a smaller --gap-head,
+   because that gap also spaces the intro and must not move with it. */
+.dev-blog__leaf {
+  display: block;
+  width: var(--leaf-size);
+  height: auto;
+  margin-block-end: calc(var(--leaf-gap) - var(--gap-head));
+  color: var(--leaf);
+  flex-shrink: 0;
+}
+
 .dev-blog__intro {
   margin: 0;
   font-size: var(--font-intro-size);
@@ -232,6 +261,10 @@
 
   .dev-blog__intro {
     font-size: var(--font-intro-size-m);
+  }
+
+  .dev-blog__leaf {
+    width: var(--leaf-size-m);
   }
 
   .dev-blog__grid {

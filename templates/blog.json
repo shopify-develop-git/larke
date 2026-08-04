@@ -11,6 +11,8 @@
       "settings": {
         "heading": "Larke Snooze",
         "stack_heading": false,
+        "centre_head": true,
+        "show_leaf": true,
         "intro": "Inspiring writers. Curious topics. Honest reviews.",
         "empty_text": "Nothing here yet — check back soon.",
         "articles_per_page": 9,
@@ -30,6 +32,7 @@
         "filter_active_color": "#333333",
         "filter_active_text_color": "#FFFFFF",
         "rule_color": "#C4BCA9",
+        "leaf_color": "#C5A17A",
         "padding_top": 48,
         "padding_bottom": 80
       }

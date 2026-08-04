@@ -38,6 +38,28 @@
 
     --gap-head: 16px;
     --gap-section: 48px;
+
+    {%- comment -%} Leaf ornament. Sized off the client's reference image — there is no artboard for
+       this page. Measured from that JPEG by reading the ink bounds rather than by eye:
+
+         sprig      28 x 25 px
+         title      cap height 51px  (=> its heading is ~73px, nearly twice ours)
+         gap        9px between the sprig's foot and the cap line
+
+       That gives two honest readings, and they differ by 2x because the reference's heading is
+       so much bigger than ours:
+
+         proportional to the TITLE   28/73 x 38  = 15px  <- reads as a speck, the sprig stops
+                                                            being legible as leaves
+         proportional to the PAGE    28px in a 1200 design, ~30px in our 1312 column
+
+       Taking the page reading. An ornament's job is to decorate at page scale, and at 15px this
+       one is a smudge. 28px keeps the reference's absolute presence. The 9px gap is 0.18 of the
+       reference cap height; against our ~27px cap that is 5px, rounded to 4.
+       Mobile steps with the heading, 38 -> 28. {%- endcomment -%}
+    --leaf-size: 28px;
+    --leaf-size-m: 21px;
+    --leaf-gap: 4px;
     --gap-filter: 8px;
     --gap-grid: 32px;
     --gap-grid-m: 24px;
@@ -60,8 +82,9 @@
 -%}
 
 <div
-  class="dev-blog"
+  class="dev-blog{% if section.settings.centre_head %} dev-blog--centred{% endif %}"
   style="
+    --leaf: {{ section.settings.leaf_color }};
     --bg: {{ section.settings.background_color }};
     --color: {{ section.settings.text_color }};
     --muted: {{ section.settings.meta_color }};
@@ -75,6 +98,37 @@
 >
   <div class="dev-blog__inner">
     <header class="dev-blog__head">
+      {%- if section.settings.show_leaf -%}
+        {%- comment -%}
+          The leaf sprig from the client's reference for item 15. Hand-drawn, NOT a Figma export:
+          the blog has no artboard in the file (it is not in .claude/figma-shopify.json), and the
+          theme carries no leaf asset — grep for leaf/sprig/branch returns only a stray word in a
+          footer comment. So this is a stand-in built to the reference image: same laurel sprig,
+          same up-right lean, colour sampled from the JPEG (#b08b67 at the core, opened out to
+          #c5a17a for a flat fill). If the designer supplies the real vector, replace this path
+          set wholesale — nothing else in the section depends on its geometry.
+
+          Decorative only: aria-hidden, no title, no role. It repeats nothing and names nothing,
+          so a screen reader must not stop on it.
+        {%- endcomment -%}
+        {%- comment -%}
+          viewBox is cropped to the drawing's own ink box, measured by rasterising the paths and
+          reading the alpha bounds: x 3.00, y 4.33, 18.12 x 14.68. A square 0 0 24 24 would pad the
+          sprig with ~30% empty field on every side, so `width: 24px` would render a ~17px sprig and
+          the ornament would read as an afterthought next to a 38px heading. Cropped, the box IS the
+          artwork and --leaf-size means what it says. Aspect is 1.235:1, so height is `auto`.
+        {%- endcomment -%}
+        <svg class="dev-blog__leaf" viewBox="3 4.33 18.12 14.68" fill="currentColor" aria-hidden="true" focusable="false">
+          <path d="M3.4 18.6 Q10.80 11.70 16.42 9.66" fill="none" stroke="currentColor" stroke-width="0.8" stroke-linecap="round"/>
+          <path d="M0 0 C1.79 -1.60 4.61 -1.60 6.40 0 C4.61 1.60 1.79 1.60 0 0 Z" transform="translate(6.84 16.32) rotate(-79.5)"/>
+          <path d="M0 0 C1.76 -1.58 4.54 -1.58 6.30 0 C4.54 1.58 1.76 1.58 0 0 Z" transform="translate(11.66 13.13) rotate(-79.5)"/>
+          <path d="M0 0 C1.60 -1.43 4.10 -1.43 5.70 0 C4.10 1.43 1.60 1.43 0 0 Z" transform="translate(16.47 9.94) rotate(-79.5)"/>
+          <path d="M0 0 C1.74 -1.55 4.46 -1.55 6.20 0 C4.46 1.55 1.74 1.55 0 0 Z" transform="translate(9.25 14.72) rotate(12.5)"/>
+          <path d="M0 0 C1.65 -1.48 4.25 -1.48 5.90 0 C4.25 1.48 1.65 1.48 0 0 Z" transform="translate(14.06 11.53) rotate(12.5)"/>
+          <path d="M0 0 C1.46 -1.30 3.74 -1.30 5.20 0 C3.74 1.30 1.46 1.30 0 0 Z" transform="translate(16.42 9.66) rotate(-33.5)"/>
+        </svg>
+      {%- endif -%}
+
       {%- comment -%}
         The blog's own title, not a theme setting — rename the blog in Shopify and the page follows.
         A setting here would be a second place to keep in sync, and the first one to go stale.
@@ -297,6 +351,8 @@
     { "type": "header", "content": "Content" },
     { "type": "inline_richtext", "id": "heading", "label": "Heading", "info": "Leave empty to use the blog's own title." },
     { "type": "checkbox", "id": "stack_heading", "label": "Stack the heading", "default": false, "info": "Puts each word of the heading on its own line — \"Larke Snooze\" becomes \"Larke\" over \"Snooze\". Off, the heading renders on one line as before." },
+    { "type": "checkbox", "id": "centre_head", "label": "Centre the header", "default": false, "info": "Centres the heading, the intro line and the tag filter. This is the layout in the client's reference image for the blog header." },
+    { "type": "checkbox", "id": "show_leaf", "label": "Show the leaf ornament", "default": false, "info": "Adds the laurel sprig above the heading, as in the client's reference. Drawn to match that image — the blog has no Figma artboard and the theme carries no leaf asset, so replace it if the designer supplies the real vector." },
     { "type": "text", "id": "intro", "label": "Intro line", "default": "Sleep, trees and everything in between." },
     { "type": "text", "id": "empty_text", "label": "Empty state message", "default": "Nothing here yet — check back soon." },
 
@@ -340,6 +396,7 @@
     { "type": "color", "id": "filter_active_color", "label": "Filter chip background (selected)", "default": "#333333" },
     { "type": "color", "id": "filter_active_text_color", "label": "Filter chip text (selected)", "default": "#FFFFFF" },
     { "type": "color", "id": "rule_color", "label": "Rules and borders", "default": "#C4BCA9" },
+    { "type": "color", "id": "leaf_color", "label": "Leaf ornament", "default": "#C5A17A", "info": "Sampled from the client's reference image. The theme's own sand tone is #C4BCA9 if you would rather it matched the rules and borders." },
 
     { "type": "header", "content": "Spacing" },
     { "type": "range", "id": "padding_top", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding top", "default": 48 },
