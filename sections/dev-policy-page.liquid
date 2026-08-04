@@ -3,32 +3,44 @@
 {%- comment -%}
   Fixed tokens — NOT from Figma. There is no artboard for a legal page.
 
-  The reference is the live rendering of the four NATIVE policies (/policies/privacy-policy and
-  friends). Those pages have no theme template at all — Shopify renders them itself and injects
-  its own stylesheet, measured 2026-08-04 at
-  cdn/shopifycloud/storefront/assets/storefront/policy-0e156355.css:
+  The reference is the Shipping policy page (dev-policy in its centred layout), which the owner
+  named as the look every legal page should have (2026-08-04). Measured off its rendered output
+  rather than re-derived:
 
-    .shopify-policy__container { max-width:560px; max-width:65ch; margin:0 auto;
-                                 padding-left:20px; padding-right:20px }
-    .shopify-policy__title     { text-align:center }
+    column        640px
+    title card    #fcf5e3, radius 32px, padding 32px
+    title         Tiempos Headline 32px / 500 / line-height 1.2, centred
+    sub-heading   Tiempos Headline 22px / 500 / 1.2
+    body          Public Sans 16px / 500 / 1.4
+    ink           #333333
 
-  Horizon adds one rule of its own on top, assets/base.css:2684 —
-    .shopify-policy__container { padding-block: var(--padding-xl) }
+  An earlier version of this file matched Shopify's own bare policy container instead (65ch,
+  no card, inherited type). That reference is gone: assets/dev-policy-native.css now restyles
+  those pages to this same spec, so all five legal pages answer to one description.
 
-  So the numbers below are a MEASUREMENT of the page this one has to sit beside, not a guess.
-  The two declarations of --container-max reproduce Shopify's own pair verbatim: 65ch is the
-  real value, 560px is the fallback a browser without ch-unit support lands on. Keep both — a
-  single 65ch would silently collapse the column to the browser default on the fallback path.
+  SOURCE OF TRUTH is assets/dev-policy.css. Three files now carry these numbers — that section,
+  dev-policy-native.css and this one — because all three render different markup and nothing
+  links them automatically. Change one, change all three.
 
-  Type is deliberately NOT tokenised here. The native policy pages inherit Horizon's h1 preset
-  and .rte body styles, and this section has to look like them, so it inherits the same. Fixing
-  the heading size and font across all five legal pages is a separate, explicit piece of work.
+  Mobile sizes come from the same reference's own mobile state, not from a scale factor.
 {%- endcomment -%}
 <style>
   .dev-policy-page {
-    --container-max: 560px;
-    --container-max: 65ch;
+    --container-max: 640px;
     --section-px: 20px;
+
+    --card-bg: #fcf5e3;
+    --card-radius: 32px;
+    --card-pad: 32px;
+
+    --font-title-size: 32px;
+    --font-title-size-mobile: 24px;
+    --font-heading-size: 22px;
+    --font-heading-size-mobile: 20px;
+    --font-body-size: 16px;
+    --font-weight: 500;
+    --font-heading-lh: 1.2;
+    --font-body-lh: 1.4;
   }
 </style>
 
@@ -54,7 +66,9 @@
 >
   <div class="dev-policy-page__inner">
     {%- if section.settings.show_title and page.title != blank -%}
-      <h1 class="dev-policy-page__title">{{ page.title | escape }}</h1>
+      <div class="dev-policy-page__card">
+        <h1 class="dev-policy-page__title">{{ page.title | escape }}</h1>
+      </div>
     {%- endif -%}
 
     {%- if page.content != blank -%}

@@ -33,13 +33,58 @@
 
 /* --- blocks / children --- */
 
+/* --- blocks / children --- */
+
+/* The cream banner the title sits in. Same object as .dev-policy__card on the Shipping policy
+   page — it is what makes a legal page read as one of ours rather than as a stock text page. */
+.dev-policy-page__card {
+  background-color: var(--card-bg);
+  border-radius: var(--card-radius);
+  padding: var(--card-pad);
+  margin-block-end: var(--card-pad);
+}
+
 /* --- typography --- */
 
-/* Centred, like .shopify-policy__title. Font family, size and weight are NOT set: the native
-   policy pages inherit Horizon's h1 preset, and this page has to match them. Setting a size
-   here would make this page the odd one out — the exact complaint we are fixing. */
 .dev-policy-page__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-title-size);
+  font-weight: var(--font-weight);
+  line-height: var(--font-heading-lh);
   text-align: center;
+}
+
+.dev-policy-page__body {
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-weight);
+  line-height: var(--font-body-lh);
+}
+
+/* ONE size for every heading level in the page's copy.
+
+   This is the owner's "pick one normal and regular headline size and apply to each one", and it
+   has to be done by flattening rather than by re-tagging: the legal copy is pasted from
+   production and carries h2/h3/h4 inconsistently, so at the theme's default scale a single
+   document renders at three different sizes. Nesting is untouched, so the real heading levels
+   still reach screen readers and search engines — only the rendered size is unified.
+
+   Kept identical to the rule in dev-policy-native.css, which does the same job for the four
+   pages Shopify renders itself. */
+.dev-policy-page__body :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-weight);
+  line-height: var(--font-heading-lh);
+  color: var(--color);
+}
+
+.dev-policy-page__body :is(p, li, td, th, dd, dt) {
+  font-family: var(--font-body);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-weight);
+  line-height: var(--font-body-lh);
 }
 
 /* --- buttons / links --- */
@@ -60,6 +105,13 @@
    ============================================= */
 
 @media (max-width: 768px) {
+  .dev-policy-page__title {
+    font-size: var(--font-title-size-mobile);
+  }
+
+  .dev-policy-page__body :is(h1, h2, h3, h4, h5, h6) {
+    font-size: var(--font-heading-size-mobile);
+  }
 }
 
 /* =============================================
