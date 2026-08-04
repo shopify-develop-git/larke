@@ -403,6 +403,31 @@
   display: none !important;
 }
 
+/* §5 — the lightbox's cart icon, mobile only.
+
+   Clicking a post opens the app's own lightbox, and its header carries a cart
+   icon (one per post). Owner's call: hide it below 768px, keep it on desktop.
+
+   This is the ONE rule in the file that is not scoped to
+   .brand-social-gallery, and it cannot be: the app portals its lightboxes to
+   `body > .instafeed-modals-wrapper`, outside our section entirely, so a
+   section-scoped selector would match nothing. It is scoped to the app's own
+   portal root instead, which nothing else on the page can be inside.
+
+   Do not be misled while inspecting: these elements exist on every page load
+   and measure 0x0 until a post is opened, so "it's already hidden" is the
+   wrong reading — open a post at a narrow width to see the real state.
+
+   !important because the icon ships an inline style attribute. That attribute
+   sets position and top, not display, so a plain declaration would in fact
+   win — the !important is here for the day the app adds display to it, which
+   is exactly the trap that cost us the tile sizing in §2. */
+@media (max-width: 768px) {
+  .instafeed-modals-wrapper .instafeed-header .instafeed-cart-icon {
+    display: none !important;
+  }
+}
+
 /* Focus rings need nothing extra here: the ACCESSIBILITY block's
    `.brand-social-gallery a:focus-visible` is a descendant selector, so it
    already covers every post link the app injects.
