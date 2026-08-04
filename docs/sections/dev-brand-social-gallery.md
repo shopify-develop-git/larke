@@ -213,18 +213,16 @@ change this too.
     }
   }
 
-  /* ---- kill the hover overlay -----------------------------------
-     Nothing in the artboard sits on top of a tile. The app ships a
-     hover layer with a centred icon; prefer turning it off in the app's
-     settings (§3) and keep this as the fallback for locked plans.
+  /* ---- chrome: nothing to hide ----------------------------------
      No header / profile / follow rules are needed: #insta-feed has
      exactly ONE child, the layout container. If a future app version
      adds that chrome back, add the rules then — do not carry dead
-     selectors. */
-  #insta-feed .instafeed-hover-layer,
-  #insta-feed .instafeed-hover-icon {
-    display: none !important;
-  }
+     selectors.
+
+     The app's hover overlay (.instafeed-hover-layer > .instafeed-hover-icon)
+     is deliberately LEFT ALONE. The artboard has no hover state, so there
+     is nothing for it to contradict, and the owner asked for the app's
+     hover to be kept (2026-08-04). */
 </style>
 ```
 

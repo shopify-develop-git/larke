@@ -279,46 +279,34 @@
     "dev-brand-social-gallery": {
       "type": "dev-brand-social-gallery",
       "blocks": {
-        "tile_1": {
-          "type": "gallery_image",
+        "instafeed_app_block_YTYedz": {
+          "type": "shopify://apps/instafeed/blocks/app-block/c447db20-095d-4a10-9725-b5977662c9d5",
           "settings": {
-            "image": "shopify://shop_images/brand-social-gallery-tile-1.jpg",
-            "alt": "Close-up profile against green foliage"
-          }
-        },
-        "tile_2": {
-          "type": "gallery_image",
-          "settings": {
-            "image": "shopify://shop_images/brand-social-gallery-tile-2.jpg",
-            "alt": "Hand resting on a white Larke duvet"
-          }
-        },
-        "tile_3": {
-          "type": "gallery_image",
-          "settings": {
-            "image": "shopify://shop_images/brand-social-gallery-tile-3.jpg",
-            "alt": "Woman wrapped in a white duvet in a forest"
-          }
-        },
-        "tile_4": {
-          "type": "gallery_image",
-          "settings": {
-            "image": "shopify://shop_images/brand-social-gallery-tile-4.jpg",
-            "alt": "Woman sleeping in bed under a Larke duvet"
+            "title": "",
+            "title_color": "",
+            "title_size_v2": 0,
+            "alignment": "center",
+            "instafeed_margin_top": 0,
+            "instafeed_margin_bottom": 0,
+            "instafeed_margin_sides": 0,
+            "show_instagram_link": false,
+            "link_alignment": "left",
+            "link_color": "#000000",
+            "background_color": "",
+            "feed_id": "",
+            "html_area": ""
           }
         }
       },
       "block_order": [
-        "tile_1",
-        "tile_2",
-        "tile_3",
-        "tile_4"
+        "instafeed_app_block_YTYedz"
       ],
       "settings": {
         "heading": "Larke, lived in.",
         "social_handle": "@wearelarke.com",
         "social_handle_link": "https://www.instagram.com/wearelarke/",
         "profile_badge_logo": "shopify://shop_images/group_6568.webp",
+        "hide_static_when_app": true,
         "background_color": "#fffcf4",
         "text_color": "#333333",
         "accent_color": "#4ea448",
