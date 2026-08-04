@@ -9,7 +9,6 @@
  */
 {
   "current": {
-    "store_rating": 4.7,
     "logo_height": 36,
     "logo_height_mobile": 28,
     "favicon": "shopify://shop_images/Logo-09.jpg",
@@ -104,6 +103,7 @@
     "variant_button_border_width": 1,
     "variant_button_radius": 14,
     "variant_button_width": "equal-width-buttons",
+    "store_rating": 4.7,
     "content_for_index": [],
     "blocks": {
       "14060646107696862457": {
@@ -111,20 +111,26 @@
         "disabled": false,
         "settings": {}
       },
+      "1232542678405107163": {
+        "type": "shopify://apps/instafeed/blocks/head-block/c447db20-095d-4a10-9725-b5977662c9d5",
+        "disabled": true,
+        "settings": {}
+      },
       "15683396631634586217": {
         "type": "shopify://apps/inbox/blocks/chat/841fc607-4181-4ad1-842d-e24d7f8bad6b",
         "disabled": false,
         "settings": {
-          "greeting_message": "",
+          "greeting_message": "Hey, our live chat is open between 9am-5pm.",
           "show_featured_products": true,
           "featured_products": [],
-          "background_color": "#FFFFFF",
+          "background_color": "#ffffff",
           "font_color": "#000000",
+          "agent_invert_activator_colors": false,
           "button_color": "#000000",
-          "secondary_color": "#FFFFFF",
-          "ternary_color": "#6A6A6A",
-          "button_icon": "chat_bubble",
-          "button_text": "chat_with_us",
+          "secondary_color": "#ffffff",
+          "ternary_color": "#6a6a6a",
+          "button_icon": "question_mark",
+          "button_text": "live_chat",
           "button_horizontal_position": "bottom_right",
           "button_vertical_position": "lowest",
           "agent_inherit_fonts": true,
