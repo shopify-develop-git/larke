@@ -4,6 +4,8 @@
       "type": "dev-policy-page",
       "settings": {
         "show_title": true,
+        "show_consent_button": true,
+        "consent_button_label": "Manage cookie preferences",
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#333333",
         "accent_color": "#333333",

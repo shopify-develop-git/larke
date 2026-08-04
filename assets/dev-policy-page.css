@@ -117,6 +117,21 @@
   color: var(--accent);
 }
 
+/* The cookie consent control. Spaced with --gap-block so it reads as one more block of the copy
+   rather than as a detached footer to the page.
+
+   The [hidden] rule is not redundant. `hidden` is only a `display: none` from the UA sheet, and
+   Horizon's base.css loads on every page and sets display on plenty of generic selectors — any
+   one of them reaching this wrapper would win on specificity and flash the button before
+   dev-policy-page.js has decided whether the banner exists. Stating it here settles it. */
+.dev-policy-page__consent {
+  margin-block-start: var(--gap-block);
+}
+
+.dev-policy-page__consent[hidden] {
+  display: none;
+}
+
 /* =============================================
    TABLET  ≤ 1024px
    ============================================= */
@@ -157,6 +172,10 @@
 
   .dev-policy-page__body > :is(h1, h2, h3, h4, h5, h6) + * {
     margin-block-start: var(--gap-heading);
+  }
+
+  .dev-policy-page__consent {
+    margin-block-start: var(--gap-block-mobile);
   }
 }
 

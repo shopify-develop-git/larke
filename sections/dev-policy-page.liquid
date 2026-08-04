@@ -1,4 +1,11 @@
 {{ 'dev-policy-page.css' | asset_url | stylesheet_tag }}
+{%- if section.settings.show_consent_button -%}
+  {%- comment -%}
+    Loaded only for the page that carries the consent control — the other four legal pages are
+    pure text and must keep shipping zero bytes of JS.
+  {%- endcomment -%}
+  <script src="{{ 'dev-policy-page.js' | asset_url }}" defer></script>
+{%- endif -%}
 
 {%- comment -%}
   Fixed tokens — NOT from Figma. There is no artboard for a legal page.
@@ -102,6 +109,29 @@
     {%- if page.content != blank -%}
       <div class="dev-policy-page__body rte">{{ page.content }}</div>
     {%- endif -%}
+
+    {%- if section.settings.show_consent_button -%}
+      {%- comment -%}
+        The cookie CONSENT control, as distinct from the cookie POLICY text above it. The page
+        explains what is collected; this button is where a visitor actually changes their answer.
+
+        Shopify owns the panel: the banner is a store-level feature (Settings > Customer privacy),
+        it injects itself, and it exposes window.privacyBanner.showPreferences(). Nothing about it
+        lives in the theme, so this button does not render a UI — it reopens Shopify's own.
+
+        `hidden` is the default state and is load-bearing. dev-policy-page.js removes it only after
+        it has seen showPreferences() on the page, so the two ways this can be unavailable — no JS,
+        or the banner switched off in admin — both leave the visitor with no button rather than a
+        dead one that swallows the click.
+      {%- endcomment -%}
+      <div class="dev-policy-page__consent" data-consent-preferences hidden>
+        {%- render 'dev-button',
+          variant: 'outline',
+          label: section.settings.consent_button_label,
+          class: 'dev-policy-page__consent-btn'
+        -%}
+      </div>
+    {%- endif -%}
   </div>
 </div>
 
@@ -113,6 +143,8 @@
   "settings": [
     { "type": "header", "content": "Content" },
     { "type": "checkbox", "id": "show_title", "label": "Show page title", "default": true, "info": "Renders the page's own title from Content > Pages as the h1, centred, the way Shopify centres the title on the native policy pages." },
+    { "type": "checkbox", "id": "show_consent_button", "label": "Show cookie preferences button", "default": false, "info": "Adds a button below the copy that reopens Shopify's cookie preferences panel, so a visitor can change the choice they made in the banner. Turn this on for the Cookie Preferences page only. The button hides itself unless the banner is switched on in Settings > Customer privacy — so it can never render as a control that does nothing." },
+    { "type": "text", "id": "consent_button_label", "label": "Cookie preferences button label", "default": "Manage cookie preferences" },
 
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "background_color", "label": "Background", "default": "rgba(0,0,0,0)", "info": "Leave transparent and the page shows the theme background set in Settings > Colors, which is what the native policy pages do." },
