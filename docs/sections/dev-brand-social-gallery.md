@@ -111,11 +111,31 @@ change this too.
      Values hardcoded on purpose: this runs in the app's scope and
      cannot read the theme's custom properties. Source of truth:
      assets/dev-brand-social-gallery.css
+
+     Selectors VERIFIED against the live DOM on 2026-08-04, read off
+     wearelarke.com — the production storefront runs the same app.
+     Structure the app actually renders:
+
+       #insta-feed
+       └ .instafeed-new-layout-container
+         └ .instafeed-new-layout-wrapper        <- the row, display:grid
+           └ .instafeed-new-layout-item  x N    <- the tile
+             ├ img.instafeed-lazy-image
+             └ .instafeed-new-layout-item-container
+               └ .instafeed-hover-layer > .instafeed-hover-icon
+
+     Two things that invalidate the old guesswork, kept here so nobody
+     re-derives them the hard way:
+       - There are ZERO anchors inside #insta-feed. The tile is a DIV and
+         the image is not wrapped in a link. Every selector keyed on
+         a[href*="instagram.com"] matched NOTHING.
+       - The row is display:grid, not flex.
      ============================================================ */
 
   /* #insta-feed is the app's documented container id. Everything below
      is scoped to it so nothing leaks into the rest of the theme. */
-  #insta-feed {
+  #insta-feed,
+  #insta-feed .instafeed-new-layout-container {
     display: block;
     width: 100%;
     margin: 0;
@@ -137,19 +157,14 @@ change this too.
   }
 
   /* ---- the row -------------------------------------------------
-     UNVERIFIED (structural, but still a guess about tree shape).
-     We do not know the app's class names, so we identify the row by
-     what it must structurally be: the element holding two or more
-     post links. Every Instafeed post links to instagram.com.
-       A) flat markup    .row > a > img
-       B) wrapped markup .row > .item > a > img
-     The :nth-child(2) test means "has at least two posts", which is
-     what keeps this from also matching a single item wrapper.
-     CHECK AGAINST LIVE DOM: inspect inside #insta-feed and confirm
-     which shape it is, then replace with the real class name.
+     Forced from the app's grid to flex on purpose. With
+     grid-template-columns: repeat(4, 1fr) a short feed leaves a hole in
+     the rounded corner — if Instagram returns 3 posts, the 4th column
+     stays empty. flex: 1 0 0 on the items instead gives three wider
+     squares and the slab stays solid. This is exactly what
+     .brand-social-gallery__tile does theme-side.
      -------------------------------------------------------------- */
-  #insta-feed :where(div, ul, ol, section):has(> a[href*="instagram.com"]:nth-child(2)),
-  #insta-feed :where(div, ul, ol, section):has(> :nth-child(2) > a[href*="instagram.com"]) {
+  #insta-feed .instafeed-new-layout-wrapper {
     display: flex !important;
     flex-wrap: wrap !important;
     align-items: center !important;
@@ -159,22 +174,11 @@ change this too.
     max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
-    list-style: none !important;
     border-radius: 0 !important;
   }
 
-  /* ---- the tiles -----------------------------------------------
-     flex: 1 0 0 (not grid-template-columns: repeat(4, 1fr)) so that a
-     short feed still fills the slab: if Instagram returns 3 posts, four
-     fixed columns leave a hole in the rounded corner, while 1 0 0 gives
-     three wider squares and the slab stays solid. This is exactly what
-     .brand-social-gallery__tile does.
-     UNVERIFIED: the wrapper selector assumes shape (B) above and is
-     written to exclude the row itself (a row has >= 2 post links; an
-     item wrapper has one). CHECK AGAINST LIVE DOM.
-     -------------------------------------------------------------- */
-  #insta-feed :where(div, li, article):has(> a[href*="instagram.com"]):not(:has(> a[href*="instagram.com"]:nth-child(2))),
-  #insta-feed a[href*="instagram.com"] {
+  /* ---- the tiles ----------------------------------------------- */
+  #insta-feed .instafeed-new-layout-item {
     flex: 1 0 0 !important;
     min-width: 0 !important;
     width: 100% !important;
@@ -185,9 +189,11 @@ change this too.
     margin: 0 !important;
     padding: 0 !important;
     display: block !important;
+    position: relative !important;
   }
 
   /* Media fills its square. Mirrors .brand-social-gallery__image. */
+  #insta-feed .instafeed-lazy-image,
   #insta-feed img,
   #insta-feed video {
     display: block !important;
@@ -202,28 +208,21 @@ change this too.
      ≤768px rule in dev-brand-social-gallery.css. The full bleed and
      the square corners are applied theme-side; nothing to do here. */
   @media (max-width: 768px) {
-    #insta-feed :where(div, ul, ol, section):has(> a[href*="instagram.com"]:nth-child(2)) > *,
-    #insta-feed :where(div, ul, ol, section):has(> :nth-child(2) > a[href*="instagram.com"]) > * {
+    #insta-feed .instafeed-new-layout-item {
       flex: 0 0 calc((100% - 2px) / 2) !important;
     }
   }
 
-  /* ---- kill the duplicated chrome -------------------------------
-     UNVERIFIED, and the bluntest thing in this file. The section already
-     draws the heading, the ring badge and the @wearelarke handle, so the
-     app's header/profile row and follow button must not render. Prefer
-     turning them off in the app's settings (§3); this is the fallback for
-     plans where that toggle is locked.
-     Attribute matching is deliberately loose because the class names are
-     unknown. CHECK AGAINST LIVE DOM: confirm none of these accidentally
-     match the row wrapper — if the row's own class contains "header" or
-     "profile", the whole feed disappears and you must narrow this rule. */
-  #insta-feed > header,
-  #insta-feed [class*="header" i]:not(:has(a[href*="instagram.com"])),
-  #insta-feed [class*="profile" i]:not(:has(a[href*="instagram.com"])),
-  #insta-feed [class*="follow" i]:not(:has(a[href*="instagram.com"])),
-  #insta-feed [class*="caption" i],
-  #insta-feed [class*="powered" i] {
+  /* ---- kill the hover overlay -----------------------------------
+     Nothing in the artboard sits on top of a tile. The app ships a
+     hover layer with a centred icon; prefer turning it off in the app's
+     settings (§3) and keep this as the fallback for locked plans.
+     No header / profile / follow rules are needed: #insta-feed has
+     exactly ONE child, the layout container. If a future app version
+     adds that chrome back, add the rules then — do not carry dead
+     selectors. */
+  #insta-feed .instafeed-hover-layer,
+  #insta-feed .instafeed-hover-icon {
     display: none !important;
   }
 </style>
@@ -263,26 +262,29 @@ Preview at 1440, then drag the window down through the breakpoints.
 
 ---
 
-## 6. Unverified — read this before trusting anything above
+## 6. Verification status
 
-The posts are fetched and injected **client-side**, so the item markup does not exist in the
-server HTML and could not be inspected before this was written. Concretely:
+**Closed out on 2026-08-04.** The markup was read off the live production storefront
+(`wearelarke.com`), which runs the same app, so the item-level selectors in §4 are no longer
+guesses. What the inspection changed:
 
-1. **Every item-level selector in §4 and any item-level rule added to
-   `assets/dev-brand-social-gallery.css` is a guess.** The class names of the row, the item
-   wrapper and the tile link are unknown. The selectors are written structurally
-   (`a[href*="instagram.com"]`, `:has()`, `:nth-child(2)`) to survive class-name churn, but the
-   *tree shape* they assume — one or two levels between the row and the anchor — is still a
-   guess.
-2. **The header/profile/follow kill rules are the loosest thing here.** They match on
-   `[class*="header" i]` and friends. If the app names its row wrapper something containing one
-   of those words, the feed vanishes.
-3. **The `#insta-feed` id is documented; nothing inside it is.** Only the container id and the
-   `instafeedAppLoaded` event come from the app's docs.
-4. **Setting names in §3 are from the documented feature set, not from screenshots of the UI.**
+1. **The old selectors could never have worked.** They were all keyed on
+   `a[href*="instagram.com"]`, and there are **no anchors at all** inside `#insta-feed` — the
+   tile is a `div.instafeed-new-layout-item` and the `img` sits directly in it, unwrapped. The
+   whole §4 block was silently inert. This is the failure mode to remember: CSS that matches
+   nothing looks identical to CSS that is being overridden.
+2. **The row is `display: grid`**, not flex, and the app sets its own
+   `grid-template-columns` from the block's column setting. §4 forces it back to flex so a short
+   feed still fills the slab.
+3. **No header / profile / follow chrome exists** in this app version — `#insta-feed` has
+   exactly one child. Those kill rules were dropped rather than kept "just in case"; dead
+   selectors are the thing that made §4 untrustworthy in the first place.
+4. **A hover overlay does exist** (`.instafeed-hover-layer` > `.instafeed-hover-icon`) and is
+   hidden in §4.
 
-**How to close this out.** Publish to the dev theme, load the homepage in a browser, open
-DevTools and inspect **inside `#insta-feed`**. Copy the real structure — the row element and its
-classes, one full item down to the `<img>` — and report it back. Then the guessed selectors get
-replaced with the real ones and the `!important` flags mostly come off. Until that happens,
-treat every rule marked `UNVERIFIED` as provisional.
+Still unverified: **the setting names in §3** come from the app's documented feature set, not
+from its UI. Match by intent.
+
+Re-check after any Instafeed update — these are the app's internal class names, and it is free
+to rename them. The tell is the same one as above: the slab reverts to the app's own geometry
+(wrong gap, wrong column count) rather than breaking loudly.
