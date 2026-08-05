@@ -156,7 +156,7 @@
         "heading": "Trees into duvets – who would've thought?",
         "subheading": "See the difference in under 60 seconds.",
         "background_poster_image": "shopify://shop_images/video-promo-banner-bg.png",
-        "video": "shopify://files/videos/trimmed_furniture_720.mov",
+        "video": "shopify://files/videos/Larke V4 Video LogoOnly (1).mp4",
         "video_external_url": "",
         "show_play_button": true,
         "background_color": "rgba(0,0,0,0)",
@@ -302,9 +302,10 @@
         "instafeed_app_block_YTYedz"
       ],
       "settings": {
-        "heading": "Larke, lived in.",
-        "social_handle": "@wearelarke.com",
-        "social_handle_link": "https://www.instagram.com/wearelarke/",
+        "heading": "As seen on the ’gram.",
+        "social_handle": "",
+        "social_handle_link": "",
+        "show_badge": false,
         "profile_badge_logo": "shopify://shop_images/group_6568.webp",
         "hide_static_when_app": true,
         "background_color": "#fffcf4",
