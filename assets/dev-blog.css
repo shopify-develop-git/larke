@@ -52,7 +52,12 @@
 
 /* The opt-in "Stack the heading" mode: min-content makes the box only as wide as its longest
    word, so every space becomes a line break and "Larke Snooze" stacks as "Larke" / "Snooze".
-   CSS rather than injected <br>s — see the note in dev-blog.liquid. */
+   CSS rather than injected <br>s — see the note in dev-blog.liquid.
+
+   Two modifiers, one rule each, because the setting has three states. --stacked is every width;
+   --stacked-m is the mobile-only variant and its declaration lives in the ≤768px block at the
+   bottom of this file, NOT here — putting it here with an `@media (min-width)` undo would mean the
+   desktop rule had to know the mobile one existed. */
 .dev-blog__title--stacked {
   width: min-content;
 }
@@ -86,12 +91,22 @@
   flex-shrink: 0;
 }
 
+/* --color, NOT --muted. The intro is the section's explainer line, and on Our Story it sits under
+   three sections whose own explainers ("From the UK's oldest Vegan Society.", "Fuss-free, everyday
+   ease in our lives.", the Values copy) are all plain --color #333333. At #666666 it read as the
+   one washed-out explainer on the page; the owner asked for it darkened to match them (2026-08-05).
+
+   Deliberately NOT done by setting meta_color to #333333 in the templates. --muted still dresses
+   the pagination ellipsis, whose entire job is to look unlike the page-number links beside it
+   ("The '…' between page ranges is not a control. It must not look like one."), and the empty
+   state. Repointing this one rule keeps those two intact and keeps the blog index and the Our Story
+   strip identical, which is what darkening only one template would have broken. */
 .dev-blog__intro {
   margin: 0;
   font-size: var(--font-intro-size);
   font-weight: var(--font-body-weight);
   line-height: var(--font-body-lh);
-  color: var(--muted);
+  color: var(--color);
 }
 
 /* --- tag filter --- */
@@ -253,10 +268,26 @@
   .dev-blog {
     padding-left: var(--section-px-m);
     padding-right: var(--section-px-m);
+
+    /* Cap, not scale — see the --pt-m note in dev-blog.liquid. The blog index sets --pt: 48 and is
+       unchanged by this (min(48, 48)); Our Story sets 80 and comes down to the 48 its neighbouring
+       sections already use, instead of being the one section on the page that keeps its desktop
+       spacer. --pb is deliberately NOT capped: the two placements disagree about it (0 on Our Story,
+       where the footer supplies the gap, and 80 on the blog index, where this is the last thing on
+       the page) and both of those are correct as they stand. Only the TOP spacer was the odd one out. */
+    padding-top: min(var(--pt), var(--pt-m));
   }
 
   .dev-blog__title {
     font-size: var(--font-title-size-m);
+  }
+
+  /* "Stacked on mobile only" — the owner's ask on 2026-08-05, so "Larke Snooze" reads over two
+     lines here and on one line on desktop. Same mechanism as --stacked above, scoped to the
+     breakpoint. Note the centred header centres this by align-items, not text-align: the box is
+     min-content wide, so text-align alone would leave it pinned left with only its glyphs moving. */
+  .dev-blog__title--stacked-m {
+    width: min-content;
   }
 
   .dev-blog__intro {

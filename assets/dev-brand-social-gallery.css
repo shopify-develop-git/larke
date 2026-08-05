@@ -16,9 +16,19 @@
 /* No __inner max-width: this section is full-bleed by design (Brief note #1 —
    no --container-max). The horizontal inset is --section-px only, and it sits on
    __inner rather than the root so the grid can go edge-to-edge on mobile. */
+/* COLUMN AT EVERY WIDTH — title above the mosaic, owner's call 2026-08-05.
+   This used to be `row` on desktop only: a fixed 327px text column on the left with the grid
+   taking whatever was left of the line, which is what the ≤1400 block below then had to undo.
+   Stacking everywhere collapses two layouts into one and hands the 327 + 32 the text column was
+   occupying straight to the mosaic — the "make it wider" half of the same request.
+
+   `flex-direction: column` is therefore load-bearing for the grid's `flex` value too: in a column
+   container `flex` sizes the MAIN axis, which is now vertical. That is exactly why __grid below
+   reads `flex: 0 0 auto` and not the old `1 1 0` — the old value would have set a zero flex-basis
+   on the grid's HEIGHT and collapsed the slab. */
 .brand-social-gallery__inner {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-lg);
@@ -29,25 +39,35 @@
 
 /* --- layout --- */
 
-/* Fixed 327px text column; the grid takes the rest of the row (flex: 1 1 0). */
+/* Full width, centred text. The old fixed 327px was the width of the desktop text COLUMN; with the
+   heading now sitting above a slab up to 1312px wide, that box is no longer a column and capping it
+   at 327 would wrap a heading the section has room to set on one line — "Join us on Instagram" is
+   already within ~20px of wrapping at 327. 327px survives at ≤768px, where it IS the mobile
+   artboard's inset and the section has no side padding of its own. */
 .brand-social-gallery__intro {
   display: flex;
   flex: 0 0 auto;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-md);
-  width: var(--social-text-w);
+  width: 100%;
   max-width: 100%;
   text-align: center;
 }
 
+/* --social-grid-w is the cap, not the width: the grid fills the inner box and stops growing at the
+   theme's 1312px content frame, so it lines up with every other section above it instead of
+   sprawling to 1792px on a 1920 screen. Below ~1081 the inner box is the narrower of the two and
+   the cap stops binding, which is why nothing changes for tablet or mobile. */
 .brand-social-gallery__grid {
   display: flex;
-  flex: 1 1 0;
+  flex: 0 0 auto;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
+  width: 100%;
+  max-width: var(--social-grid-w);
   min-width: 0;
   overflow: hidden;
   border-radius: var(--radius-gallery);
@@ -442,34 +462,29 @@
    TABLET  ≤ 1024px
    ============================================= */
 
-/* NOTE: 1400px, not the project's usual 1024. The text column is a FIXED 327px, so every pixel
-   the viewport loses comes out of the grid ALONE — the four tiles are the only elastic thing in
-   the row. Measured: 234px at 1440, 174px at 1201, 149px at 1100, 87px at 850.
+/* THE 1400px BREAKPOINT IS GONE, and its absence is the finding — do not put it back.
 
-   So the row is only viable within ~30px of the artboard: to hold the tiles at their designed
-   ~234px it needs 4x234 + 6 + 327 + 32 + 128 = ~1413px of viewport. Switching at 1024 (or even
-   at 1200) left a wide band of starved tiles AND put a visible jump at the boundary — at 1201
-   the row gave 174px while 1200 gave 237px.
+   It existed for one reason: the desktop layout was a ROW with a fixed 327px text column, and the
+   four tiles were the only elastic thing in it, so every pixel the viewport lost came out of the
+   mosaic alone (234px per tile at 1440, 174px at 1201, 87px at 850). 1400 was where the row stopped
+   being able to do its job, and the block below it re-stacked the section and capped the grid at
+   953px — the width the row happened to give it on the 1440 artboard — specifically so the tiles
+   did not jump size at the boundary.
 
-   The switch therefore belongs at 1400, where the row stops being able to do its job.
-   --social-grid-w then caps the stacked grid at the width it has on the 1440 artboard (953px),
-   so the tiles land on ~237px — the SAME size as desktop — instead of ballooning to fill the
-   row. The result is continuous, with no jump: 234px at 1440, 237px from 1400 all the way down
-   to 1104, then 222px at 1024 and 176px at 850, before the designed 2x2 mobile grid below 768.
+   With the section stacked at every width (owner's call 2026-08-05, title above the mosaic) the row
+   no longer exists, so neither does the width it was starving. The grid is now one continuous
+   function of the viewport all the way down, capped at 1312:
 
-   Only the AXIS changes here. Tile count, typography and spacing tokens all stay on their
-   desktop values — no invented tablet design. */
-@media (max-width: 1400px) {
-  .brand-social-gallery__inner {
-    flex-direction: column;
-  }
+     viewport   grid    tile        was
+     1920       1312    326.5px     236.75px   <- capped, lines up with the rest of the page
+     1440       1312    326.5px     236.75px
+     1200       1072    266.5px     236.75px
+     1081        953    236.75px    236.75px   <- cap stops binding; identical from here down
+     1024        896    222.5px     222.5px
+      800        672    166.5px     166.5px
 
-  .brand-social-gallery__grid {
-    flex: 0 0 auto;
-    width: 100%;
-    max-width: var(--social-grid-w);
-  }
-}
+   Everything at or below 1081 is byte-identical to before, which is what makes this a desktop-only
+   change: the old 953px cap only ever bound above that width. */
 
 /* =============================================
    MOBILE  ≤ 768px
@@ -490,8 +505,12 @@
     padding-right: var(--section-px-mobile);
   }
 
+  /* 327px is the mobile artboard's own text inset, and it has to be restated here because the base
+     rule now says 100%: the section drops its side padding to 0 at this breakpoint so the mosaic can
+     go edge-to-edge, and without this the heading would run to the screen edges with it. */
   .brand-social-gallery__intro {
     gap: var(--spacing-md-mobile);
+    width: var(--social-text-w);
   }
 
   .brand-social-gallery__heading {
