@@ -48,14 +48,26 @@
     --radius-gallery: 32px;
     --radius-gallery-mobile: 0px;
 
+    {%- comment -%} MOBILE ONLY now. This was the width of the desktop text COLUMN when the section
+       was a row; the title sits above the mosaic at every width since 2026-08-05, so the CSS base
+       rule is 100% and 327px survives only at ≤768px, where it is the mobile artboard's own text
+       inset and the section carries no side padding to supply one. {%- endcomment -%}
     --social-text-w: 327px;
     --social-handle-w-mobile: 122px;
 
-    {%- comment -%} The grid's own width on the 1440 artboard: 1312 (inner) - 327 (text col) - 32 (gap) = 953.
-       Read off the artboard, not invented. Once the row stacks (see the ≤1200 block in the CSS)
-       the grid would otherwise span the full inner width and the tiles would balloon PAST their
-       designed size; capping it here keeps them at the artboard's ~236px across the stack. {%- endcomment -%}
-    --social-grid-w: 953px;
+    {%- comment -%} The grid's CAP, and it changed with the layout.
+
+       It used to be 953px: 1312 (the 1440 artboard's inner box) - 327 (text column) - 32 (gap),
+       i.e. the width the desktop ROW left over for the mosaic. With the title moved above, there is
+       no text column to subtract and the leftover IS the inner box — so the cap is the full 1312,
+       which is also the content frame every other section on the page uses (--container-max in
+       snippets/dev-journal-card-tokens.liquid). The mosaic now lines up with them instead of
+       sitting in a narrower well.
+
+       A cap rather than "just fill the inner box": with --section-px at 64 a 1920 screen would
+       otherwise give a 1792px slab and 447px tiles, which is a lot of pixels for an Instagram
+       thumbnail and would make this the one section that ignores the page's column. {%- endcomment -%}
+    --social-grid-w: 1312px;
 
     {%- comment -%} Profile badge: a single full 58px circle — ring and content are one image,
        no longer split into a ring layer + inset mark. {%- endcomment -%}
@@ -73,11 +85,32 @@
        Reserving exactly the height the four static tiles occupied makes the swap
        cost nothing. {%- endcomment -%}
 
-    {%- comment -%} Identical derivation to .brand-social-gallery__tile: 4 across the 953px grid
-       with three 2px gaps → (953 - 3×2) / 4 = 236.75. Floored to 236 so the
-       reservation can never exceed what finally renders — over-reserving leaves a
-       dead strip inside the slab, under-reserving costs at most 0.75px. {%- endcomment -%}
-    --app-tile-min-h: 236px;
+    {%- comment -%} Identical derivation to .brand-social-gallery__tile: 4 across the grid with
+       three 2px gaps. It used to read a flat 236px, because the grid used to be a flat 953px at
+       every width above 1081 — one number was both the floor and the ceiling of that band.
+
+       The grid is fluid now (it fills the inner box up to the 1312 cap), so no single number is
+       both, and leaving 236 would have under-reserved by 90px at 1440+ — a 90px jump on every cold
+       load, which is the exact layout shift this token exists to prevent.
+
+       So it is expressed the way the tile actually computes. The first term is the grid at the
+       current viewport, the second is the grid at its cap, and min() picks whichever is really in
+       force — the same test max-width performs on the element itself:
+
+         1920   min(446.5, 326.5) = 326.5   cap binding
+         1440   min(326.5, 326.5) = 326.5   exactly at the cap
+         1200   min(266.5, 326.5) = 266.5   inner box binding
+          800   min(166.5, 326.5) = 166.5
+
+       100vw counts the scrollbar and the grid does not, so the first term runs generous by exactly
+       one quarter of the scrollbar. Measured on the live page at a 1407px viewport: the formula
+       reserved 321px against a 318px row, ~4px of dead strip. That is the safe direction — 4px of
+       invisible slack against --bg costs nothing, where under-reserving costs a visible jump — but
+       it is 4px, not the sub-pixel the previous flat token happened to have. {%- endcomment -%}
+    --app-tile-min-h: min(
+      calc((100vw - 2 * var(--section-px) - 3 * var(--spacing-sm)) / var(--app-cols)),
+      calc((var(--social-grid-w) - 3 * var(--spacing-sm)) / var(--app-cols))
+    );
 
     {%- comment -%} Mobile 2-up on the 375 artboard, one 2px gap → (375 - 2) / 2 = 186.5, floored
        for the same reason. Same number as the ≤768px tile (Brief note #4's 186.5px

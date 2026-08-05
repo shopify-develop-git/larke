@@ -198,10 +198,20 @@
         # "Larke" / "Snooze". Done in CSS (width: min-content), not by rewriting the string with
         # <br>: the heading is inline_richtext and may carry markup whose attributes a naive
         # space-to-<br> replace would corrupt.
+        #
+        # THREE STATES, not two. The owner asked for "Larke Snooze" over two lines on mobile and on
+        # ONE line on desktop (2026-08-05: "this layout can stay the same on desktop. Stacked is for
+        # mobile."). A boolean could not say that — it stacked at every width or at none — so the
+        # setting is a select. `mobile` emits the modifier the ≤768px block picks up, which is the
+        # same width dev-proudest-moments swaps its own two-line heading at; the owner pointed at
+        # that heading as the thing to match, so the breakpoints must agree.
         assign title_class = 'dev-blog__title'
-        if section.settings.stack_heading
-          assign title_class = title_class | append: ' dev-blog__title--stacked'
-        endif
+        case section.settings.stack_heading
+          when 'always'
+            assign title_class = title_class | append: ' dev-blog__title--stacked'
+          when 'mobile'
+            assign title_class = title_class | append: ' dev-blog__title--stacked-m'
+        endcase
       -%}
       {%- comment -%}
         Neither branch may run when BOTH sources are empty. On the blog index that cannot happen —
@@ -376,7 +386,18 @@
   "settings": [
     { "type": "header", "content": "Content" },
     { "type": "inline_richtext", "id": "heading", "label": "Heading", "info": "Leave empty to use the blog's own title." },
-    { "type": "checkbox", "id": "stack_heading", "label": "Stack the heading", "default": false, "info": "Puts each word of the heading on its own line — \"Larke Snooze\" becomes \"Larke\" over \"Snooze\". Off, the heading renders on one line as before." },
+    {
+      "type": "select",
+      "id": "stack_heading",
+      "label": "Stack the heading",
+      "options": [
+        { "value": "none", "label": "One line" },
+        { "value": "mobile", "label": "Stacked on mobile only" },
+        { "value": "always", "label": "Stacked at every width" }
+      ],
+      "default": "none",
+      "info": "Stacking puts each word of the heading on its own line — \"Larke Snooze\" becomes \"Larke\" over \"Snooze\". \"Mobile\" means 768px and below, the same width the Proudest Moments heading changes shape at."
+    },
     { "type": "checkbox", "id": "centre_head", "label": "Centre the header", "default": false, "info": "Centres the heading, the intro line and the tag filter. This is the layout in the client's reference image for the blog header." },
     { "type": "checkbox", "id": "show_leaf", "label": "Show the leaf ornament", "default": false, "info": "Adds the laurel sprig above the heading, as in the client's reference. Drawn to match that image — the blog has no Figma artboard and the theme carries no leaf asset, so replace it if the designer supplies the real vector." },
     { "type": "text", "id": "intro", "label": "Intro line", "default": "Sleep, trees and everything in between." },
@@ -433,7 +454,7 @@
       "default": "rgba(0,0,0,0)"
     },
     { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
-    { "type": "color", "id": "meta_color", "label": "Intro and meta text", "default": "#666666" },
+    { "type": "color", "id": "meta_color", "label": "Muted text", "info": "The pagination \"…\" and the empty-state message. The intro line follows the text colour, so it matches the explainer copy in the sections around it.", "default": "#666666" },
     { "type": "color", "id": "filter_color", "label": "Filter chip background", "default": "#FCF5E3" },
     { "type": "color", "id": "filter_active_color", "label": "Filter chip background (selected)", "default": "#333333" },
     { "type": "color", "id": "filter_active_text_color", "label": "Filter chip text (selected)", "default": "#FFFFFF" },
