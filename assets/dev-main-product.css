@@ -698,12 +698,33 @@
     height: auto;
   }
 
-  /* Centre the buy CONTAINER on mobile (not its content): align-self stops it stretching to the
-     full column width, so the box sits centred; the copy inside keeps its own alignment. */
+  /* FULL WIDTH, and `width` must stay DEFINITE. Do not put `width: auto; align-self: center` back.
+     That pair is what this rule used to say, and it is why the accordion changed width every time a
+     row was opened or closed.
+
+     `align-self: center` takes the box off `stretch`, and with `width: auto` a flex item's cross
+     size then resolves to fit-content — i.e. to whatever its CONTENT is currently widest at. The
+     accordion is exclusive, so opening one row closes another, and the widest unwrapped line in the
+     column changes with it. The FAQ bodies break on <br>, so their longest line is short; the "Why
+     you'll love it" bullets are long. The box therefore re-measured on every toggle, and because it
+     was centred it pulled in from BOTH edges — dividers, headings and copy together.
+
+     Measured off the client's 7s screen recording of the 503px theme-editor preview, reading the
+     divider rules (they span the container, so they measure the box and not the text):
+
+       471px   x 276..747     box at the full 503 - 2x16 padding
+       405px   x 309..714     box shrunk to 437, centred, 33px of dead space each side
+
+     and it flipped 471 -> 405 -> 471 -> 405 -> 471 -> 405 at t = 1.95 / 2.50 / 3.75 / 4.80 / 6.10.
+     503 - 2 x --section-px-mobile = 471 exactly, and (503 - 437) / 2 = 33 exactly, which is what
+     pins it to this rule rather than to anything in the accordion itself.
+
+     `width: 100%` is definite, so the box can no longer re-measure; with box-sizing: border-box the
+     16px padding is inside it and the copy lands on the same 471px it had in the good state. */
   .dev-main-product__buy {
     position: static;
-    width: auto;
-    align-self: center;
+    width: 100%;
+    align-self: stretch;
     padding: 8px var(--section-px-mobile) 0;
   }
 
