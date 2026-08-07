@@ -12,11 +12,11 @@
     "dev-our-story-hero": {
       "type": "dev-tree-fibre-hero",
       "settings": {
-        "heading": "We believe every sleep should feel extraordinary, <em>starting</em> with <em>duvets.</em>",
+        "heading": "We believe every sleep should feel extraordinary, <em>starting<\/em> with <em>duvets.<\/em>",
         "emphasis_weight": "700",
         "show_underline": true,
-        "background_image": "shopify://shop_images/master_hero_media.webp",
-        "background_image_mobile": "shopify://shop_images/hero_media_m.webp",
+        "background_image": "shopify:\/\/shop_images\/master_hero_media.webp",
+        "background_image_mobile": "shopify:\/\/shop_images\/hero_media_m.webp",
         "stretch_background": false,
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#ffffff",
@@ -31,36 +31,36 @@
         "slide-founder": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/story-slider-tile-1.png",
+            "image": "shopify:\/\/shop_images\/story-slider-tile-1.png",
             "image_alt": "Larke founder Reuven Sherman sitting on a bed in cream loungewear",
-            "text": "<p><strong>Our story began in 2024,</strong><br>with our founder Reuven Sherman setting out to find the very best in natural sleep.</p>",
+            "text": "<p><strong>Our story began in 2024,<\/strong><br>with our founder Reuven Sherman setting out to find the very best in natural sleep.<\/p>",
             "crop": "short"
           }
         },
         "slide-eucalyptus": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/rectangle_746_1.webp",
+            "image": "shopify:\/\/shop_images\/rectangle_746_1.webp",
             "image_alt": "Looking up a stand of tall eucalyptus trees towards the sun",
-            "text": "<p><strong>Chancing upon fibers from </strong>eucalyptus trees, we were intrigued, inspired and captivated by its magical benefits and durability.</p>",
+            "text": "<p><strong>Chancing upon fibers from <\/strong>eucalyptus trees, we were intrigued, inspired and captivated by its magical benefits and durability.<\/p>",
             "crop": "tall"
           }
         },
         "slide-transform": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/story-slider-tile-3.jpg",
+            "image": "shopify:\/\/shop_images\/story-slider-tile-3.jpg",
             "image_alt": "A woman wrapped in a white Larke duvet among evergreen trees",
-            "text": "<p><strong>Transforming our duvet naturally </strong>into a biodegradable and compostable wonder.</p>",
+            "text": "<p><strong>Transforming our duvet naturally <\/strong>into a biodegradable and compostable wonder.<\/p>",
             "crop": "short"
           }
         },
         "slide-never-back": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/story-slider-tile-4.png",
+            "image": "shopify:\/\/shop_images\/story-slider-tile-4.png",
             "image_alt": "Sunlight breaking through a dark woodland",
-            "text": "<p><strong>We’ve never looked back,</strong> seeking to harness nature’s power every day.</p>",
+            "text": "<p><strong>We’ve never looked back,<\/strong> seeking to harness nature’s power every day.<\/p>",
             "crop": "tall"
           }
         }
@@ -90,28 +90,28 @@
           "type": "proof_point",
           "settings": {
             "heading": "Vegan Certified",
-            "body": "<p>From the UK’s oldest Vegan Society.</p>"
+            "body": "<p>From the UK’s oldest Vegan Society.<\/p>"
           }
         },
         "packaging": {
           "type": "proof_point",
           "settings": {
             "heading": "Zero plastic packaging",
-            "body": "<p>Now our standard.</p>"
+            "body": "<p>Now our standard.<\/p>"
           }
         },
         "natural": {
           "type": "proof_point",
           "settings": {
             "heading": "Natural made simple",
-            "body": "<p>Fuss-free, everyday ease in our lives.</p>"
+            "body": "<p>Fuss-free, everyday ease in our lives.<\/p>"
           }
         },
         "london": {
           "type": "proof_point",
           "settings": {
             "heading": "Designed in London",
-            "body": "<p>Crafted in the EU.</p>"
+            "body": "<p>Crafted in the EU.<\/p>"
           }
         }
       },
@@ -122,8 +122,8 @@
         "london"
       ],
       "settings": {
-        "heading": "<p>Our<br/>Proudest Moments</p>",
-        "heading_mobile": "<p>Our Proudest<br/>Moments</p>",
+        "heading": "<p>Our<br\/>Proudest Moments<\/p>",
+        "heading_mobile": "<p>Our Proudest<br\/>Moments<\/p>",
         "background_color": "#fcf5e3",
         "text_color": "#333333",
         "accent_color": "#c4bca9",
@@ -137,7 +137,7 @@
         "value-sleep": {
           "type": "value",
           "settings": {
-            "image": "shopify://shop_images/values-we-cherish-tile-1.png",
+            "image": "shopify:\/\/shop_images\/values-we-cherish-tile-1.png",
             "image_alt": "A woman in bed hugging a white Larke duvet",
             "text": "Sleep isn’t just downtime: it’s the most important moment in life."
           }
@@ -145,7 +145,7 @@
         "value-simple": {
           "type": "value",
           "settings": {
-            "image": "shopify://shop_images/rectangle_747.webp",
+            "image": "shopify:\/\/shop_images\/rectangle_747.webp",
             "image_alt": "A stack of cut logs seen end-on, showing their tree rings",
             "text": "All things sleep that feel simple to enjoy — no PhD in sleep required."
           }
@@ -153,7 +153,7 @@
         "value-materials": {
           "type": "value",
           "settings": {
-            "image": "shopify://shop_images/values-we-cherish-tile-3-desktop.jpg",
+            "image": "shopify:\/\/shop_images\/values-we-cherish-tile-3-desktop.jpg",
             "image_alt": "Sunlight breaking through a green forest",
             "text": "And when it comes to materials, choosing responsibly matters to our planet and future."
           }
@@ -165,7 +165,7 @@
         "value-materials"
       ],
       "settings": {
-        "heading": "Values we <em>Cherish</em>.",
+        "heading": "Values we <em>Cherish<\/em>.",
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#333333",
         "accent_color": "#a8cf78",

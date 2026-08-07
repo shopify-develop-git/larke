@@ -29,12 +29,10 @@
             return;
           }
 
-          // One row at a time. Whatever is open closes on the way — collapsed with the same
-          // animation as a click on its own summary, not slammed shut.
-          items.forEach((other) => {
-            if (other !== details && isOpen(other)) collapse(other);
-          });
-
+          // EACH ROW IS INDEPENDENT — owner's call, 2026-08-07, matching the product page's tabs.
+          // The exclusivity pass that used to sit here (collapse every other open row) is gone: on
+          // an FAQ list it is actively unhelpful, because comparing two answers meant losing the
+          // first one the moment you opened the second.
           expand(details);
         });
       });

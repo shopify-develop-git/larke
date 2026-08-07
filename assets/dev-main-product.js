@@ -1105,30 +1105,29 @@
           // The browser's own toggle is instant and unstoppable. Take it over: we open and close.
           event.preventDefault();
 
-          // Pin this row where it is on screen BEFORE anything changes height.
+          // EACH ROW IS INDEPENDENT. Opening one no longer closes the others — owner's call,
+          // 2026-08-07 ("please can we remove that specific feature").
           //
-          // Exclusivity (below) closes whatever else was open, and on a phone that row is usually
-          // FAQs — the tallest panel here, ~600px — already scrolled off the top by the time the
-          // reader has thumbed down to "Care". Closing it shortens the document ABOVE the viewport,
-          // so the browser slides the whole page up by that height and carries the row the reader
-          // just tapped off the top of the screen with it. They land on the section BELOW the
-          // accordion, looking at content they did not ask for, and have to scroll back to find the
-          // panel they opened. Filmed twice on the client's mobile recording, at 12.0s and 18.6s.
+          // What used to sit here was an exclusivity pass: `items.forEach(other => collapse(other))`.
+          // It is gone, and the scroll-anchoring compensation went with it, because that existed
+          // only to serve it: closing a row ABOVE the reader's position shortened the document above
+          // the viewport and slid the page up by that height — filmed on the client's mobile
+          // recording at 12.0s and 18.6s. Only exclusivity could close a row above the one being
+          // tapped. A row now only ever grows or shrinks BELOW its own summary, so the tapped row
+          // cannot move and there is nothing left to compensate for. Keeping it would have meant a
+          // rAF loop on every click measuring a drift that is always zero, while suppressing the
+          // header's scroll-up reveal for 420ms for no reason.
           //
-          // Nothing in the platform covers for this: `overflow-anchor` is set nowhere in the theme,
-          // and WebKit ships no scroll anchoring at all, so mobile Safari gets zero compensation.
-          hold(summary, duration(details));
-
+          // This does NOT fix the mobile width jitter on its own — closing the one long row still
+          // changes the widest line in the column. The definite width in dev-main-product.css is
+          // what holds that; the two are independent.
+          //
+          // `items` is still read above for the length guard and to bind the handlers; it just no
+          // longer decides anything at click time.
           if (isOpen(details)) {
             collapse(details);
             return;
           }
-
-          // One row at a time. Whatever is open closes on the way — collapsed with the same
-          // animation as a click on its own summary, not slammed shut.
-          items.forEach((other) => {
-            if (other !== details && isOpen(other)) collapse(other);
-          });
 
           expand(details);
         });
@@ -1200,63 +1199,6 @@
     running.delete(details);
   }
 
-  // Keep `el` where it is ON SCREEN while the rows around it change height, by giving the scroll
-  // offset back whatever the reflow above it takes away — every frame, for as long as the animation
-  // runs. Read inside a rAF callback because the spec runs those AFTER animations have been ticked
-  // for the frame and before it paints, so the correction lands in the same frame as the movement it
-  // cancels; there is never a painted frame where the row has visibly moved.
-  //
-  // A no-op whenever nothing above the row moves — closing a row from its own summary, or opening
-  // the first row — because the drift it measures is then zero. It only does work in the one case
-  // that was broken.
-  let holdFrame = 0;
-
-  function hold(el, ms) {
-    const target = scroller();
-    const top = el.getBoundingClientRect().top;
-    // Outlast the height animation and its finish callback, which clears the inline height and can
-    // move things one last time.
-    const until = performance.now() + ms + 100;
-    const doc = document.documentElement;
-
-    // A second tap while a hold is still running would start a rival loop, each chasing its own
-    // captured position and fighting the other. In the recordings the reader toggles rows about
-    // twice a second, so overlapping holds are the normal case here, not the edge case.
-    if (holdFrame) cancelAnimationFrame(holdFrame);
-
-    // Tells the header this scrolling is ours, not the reader's — see assets/dev-site-header.js.
-    doc.setAttribute('data-acc-anchor', '');
-
-    const frame = (now) => {
-      const drift = el.getBoundingClientRect().top - top;
-
-      // Sub-pixel drift is rounding, not movement. Correcting it would fight the animation for the
-      // last fraction of a pixel and never settle.
-      if (Math.abs(drift) >= 1) target.scrollBy({ top: drift, left: 0, behavior: 'instant' });
-
-      if (now < until) {
-        holdFrame = requestAnimationFrame(frame);
-      } else {
-        holdFrame = 0;
-        doc.removeAttribute('data-acc-anchor');
-      }
-    };
-
-    holdFrame = requestAnimationFrame(frame);
-  }
-
-  // At >=990px the page scrolls inside .page-wrapper — assets/base.css puts `overflow: hidden` on
-  // html and body at that width and `overflow-y: auto` on the wrapper — and below it the window
-  // scrolls. Same split assets/dev-site-header.js already reads to find the scroll position; the two
-  // must agree or the header and this would be measuring different pages.
-  //
-  // `behavior: 'instant'` is not optional. `scroll-behavior: smooth` is declared on html AND on
-  // .page-wrapper, so a smoothed one-frame correction would ease, lag, and ratchet against the
-  // 320ms height animation it is trying to cancel — turning one clean jump into a slow fight.
-  function scroller() {
-    const wrapper = document.querySelector('.page-wrapper');
-    return window.matchMedia('(min-width: 990px)').matches && wrapper ? wrapper : window;
-  }
 
   function current(details) {
     return details.getBoundingClientRect().height;
