@@ -177,9 +177,9 @@
       "type": "dev-blog",
       "settings": {
         "heading": "Larke Snooze",
-        "stack_heading": "mobile",
+        "stack_heading": "none",
         "centre_head": true,
-        "show_leaf": true,
+        "show_leaf": false,
         "intro": "Inspiring writers. Curious topics. Honest reviews.",
         "empty_text": "Nothing here yet — check back soon.",
         "blog": "news",

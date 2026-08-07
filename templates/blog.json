@@ -1,8 +1,11 @@
 /*
- * Horizon's stock `main-blog` is replaced by our own dev-blog section. The stock one renders a
- * system-font title on a white page with square-cornered cards that match nothing else in the
- * theme. Project rule: custom dev-* sections only — stock sections are never used or edited.
- * Original stock config: git history of this file.
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
  */
 {
   "sections": {
@@ -10,9 +13,9 @@
       "type": "dev-blog",
       "settings": {
         "heading": "Larke Snooze",
-        "stack_heading": false,
+        "stack_heading": "none",
         "centre_head": true,
-        "show_leaf": true,
+        "show_leaf": false,
         "intro": "Inspiring writers. Curious topics. Honest reviews.",
         "empty_text": "Nothing here yet — check back soon.",
         "articles_per_page": 9,

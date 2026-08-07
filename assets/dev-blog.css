@@ -104,7 +104,7 @@
 .dev-blog__intro {
   margin: 0;
   font-size: var(--font-intro-size);
-  font-weight: var(--font-body-weight);
+  font-weight: var(--font-intro-weight);
   line-height: var(--font-body-lh);
   color: var(--color);
 }

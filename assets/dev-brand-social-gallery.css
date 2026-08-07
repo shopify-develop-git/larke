@@ -112,6 +112,36 @@
   object-fit: cover;
 }
 
+/* The Instagram mark under the heading (2026-08-06). inline-flex, not block: the wrapper has to hug
+   the glyph exactly. A plain inline <a> would sit on a text baseline and collect the line box's
+   leading, which shows up as a few px of unexplained space between the heading and the mosaic — the
+   kind of gap someone later "fixes" by editing --spacing-lg and moving everything else with it.
+
+   Colour is currentColor on the paths and --color here, so the mark tracks the section's text colour
+   rather than shipping a hardcoded black that breaks against a dark background. */
+.brand-social-gallery__ig {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  color: var(--color);
+}
+
+.brand-social-gallery__ig--link {
+  text-decoration: none;
+  transition: opacity 0.15s ease-out;
+}
+
+.brand-social-gallery__ig--link:hover {
+  opacity: 0.7;
+}
+
+.brand-social-gallery__ig-glyph {
+  display: block;
+  width: var(--ig-logo-size);
+  height: var(--ig-logo-size);
+}
+
 /* --- typography --- */
 
 .brand-social-gallery__heading {

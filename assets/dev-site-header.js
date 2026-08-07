@@ -129,6 +129,23 @@
         return;
       }
 
+      // A scroll the page performed on its own is not a request from the reader.
+      //
+      // The product accordion corrects the scroll offset frame by frame while a row collapses, so
+      // the row you tapped stays put instead of being thrown off the top of the screen (hold() in
+      // assets/dev-main-product.js). Those corrections are UPWARD, and upward is exactly what this
+      // function reads as "show the header" — so without this the header would slide down every
+      // time a tall FAQ row closes, trading one visible artefact for another.
+      //
+      // lastY still tracks. Skipping it would leave a stale position behind, and the reader's next
+      // real scroll would measure against where they were before the collapse and move the header
+      // the wrong way. Placed AFTER the top-of-page branch so the header is still guaranteed shown
+      // at the very top, anchoring or not.
+      if (document.documentElement.hasAttribute('data-acc-anchor')) {
+        lastY = y;
+        return;
+      }
+
       const delta = y - lastY;
       if (delta > SCROLL_TOLERANCE) {
         hide();

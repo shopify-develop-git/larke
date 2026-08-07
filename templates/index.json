@@ -140,18 +140,6 @@
     },
     "dev-video-promo-banner": {
       "type": "dev-video-promo-banner",
-      "blocks": {
-        "cta": {
-          "type": "cta_button",
-          "settings": {
-            "label": "Our Story",
-            "link": "/pages/our-story"
-          }
-        }
-      },
-      "block_order": [
-        "cta"
-      ],
       "settings": {
         "heading": "Trees into duvets – who would've thought?",
         "subheading": "See the difference in under 60 seconds.",
@@ -305,6 +293,8 @@
         "heading": "As seen on the ’gram.",
         "social_handle": "",
         "social_handle_link": "",
+        "show_instagram_logo": true,
+        "instagram_link_label": "Larke on Instagram",
         "show_badge": false,
         "profile_badge_logo": "shopify://shop_images/group_6568.webp",
         "hide_static_when_app": true,
