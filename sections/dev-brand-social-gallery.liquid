@@ -121,6 +121,11 @@
        artboard: 4 across at 1440, 2 across at 375 — matching the static tiles. {%- endcomment -%}
     --app-cols: 4;
     --app-cols-mobile: 2;
+
+    {%- comment -%} Instagram glyph. 32px, matching the desktop heading's own size so the two read as
+       one stacked pair rather than a heading with a bauble under it — the profile badge that used to
+       sit here was 58 because it was an avatar with a name in it, and this is a mark. {%- endcomment -%}
+    --ig-logo-size: 32px;
   }
 </style>
 
@@ -141,9 +146,50 @@
 >
   <div class="brand-social-gallery__inner">
     <div class="brand-social-gallery__intro">
-      {%- comment -%} Figma order in the text column: heading → badge → handle. {%- endcomment -%}
+      {%- comment -%} Figma order in the text column: heading → logo/badge → handle. {%- endcomment -%}
       {%- if section.settings.heading != blank -%}
         <h2 class="brand-social-gallery__heading">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+
+      {%- comment -%}
+        THE INSTAGRAM MARK — added 2026-08-06 at the owner's ask: "just the IG logo ... put in the
+        middle, below headline". Directly under the heading, and centred for free: __intro is a flex
+        column with align-items: center, so nothing here needs to position itself.
+
+        DRAWN, not an asset. The theme carries no Instagram file (the old badge here was the Larke
+        avatar, a different mark entirely), and a 300-byte inline outline beats a request — it also
+        takes `currentColor`, so it tracks the section's text colour instead of being a fixed-colour
+        PNG that breaks the day someone changes the background. Geometry is the standard glyph:
+        rounded-square body, lens circle, and the small dot at the upper right.
+
+        LINKED ONLY IF THE MERCHANT SETS A LINK, and that is deliberate rather than lazy. This
+        section was explicitly stripped of every off-site link so that clicking anything in it keeps
+        the visitor on the store; silently reinstating one under a logo would undo that decision
+        without anyone asking. Fill in "Social handle link" and it becomes a real, labelled link.
+        Leave it empty and it is decoration, hence aria-hidden and no accessible name to announce.
+      {%- endcomment -%}
+      {%- if section.settings.show_instagram_logo -%}
+        {%- capture ig_glyph -%}
+          <svg class="brand-social-gallery__ig-glyph" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" stroke="currentColor" stroke-width="1.6"/>
+            <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.6"/>
+            <circle cx="17.4" cy="6.6" r="1.15" fill="currentColor"/>
+          </svg>
+        {%- endcapture -%}
+
+        {%- if section.settings.social_handle_link != blank -%}
+          <a
+            class="brand-social-gallery__ig brand-social-gallery__ig--link"
+            href="{{ section.settings.social_handle_link }}"
+            target="_blank"
+            rel="noopener"
+          >
+            <span class="visually-hidden">{{ section.settings.instagram_link_label | escape }}</span>
+            {{- ig_glyph -}}
+          </a>
+        {%- else -%}
+          <span class="brand-social-gallery__ig" aria-hidden="true">{{ ig_glyph }}</span>
+        {%- endif -%}
       {%- endif -%}
 
       {%- comment -%}
@@ -330,6 +376,20 @@
       "id": "social_handle_link",
       "label": "Social handle link",
       "info": "Wraps the handle in a link when set. It opens in a new tab and is the only thing in this section that leaves the site — the photos themselves open the feed app's own on-page lightbox."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_instagram_logo",
+      "label": "Show the Instagram logo",
+      "default": true,
+      "info": "A small Instagram mark centred under the heading. It becomes a link when \"Social handle link\" above is filled in; while that field is empty it is decoration, and nothing in this section navigates off-site."
+    },
+    {
+      "type": "text",
+      "id": "instagram_link_label",
+      "label": "Instagram logo label (screen readers only)",
+      "default": "Larke on Instagram",
+      "info": "Only used when \"Social handle link\" is filled in — a link with no text needs a name."
     },
     {
       "type": "checkbox",

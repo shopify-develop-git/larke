@@ -47,8 +47,25 @@
     --font-title-size: 38px;
     --font-title-size-m: 28px;
     --font-title-lh: 1.2;
-    --font-intro-size: 18px;
-    --font-intro-size-m: 16px;
+
+    {%- comment -%} INTRO — the explainer line. Owner asked on 2026-08-06 to darken it and take it up
+       10%. The sizes below are exactly that: 18 x 1.1 = 19.8 and 16 x 1.1 = 17.6, written out rather
+       than rounded to 20/18 so the number still says where it came from and a later 10% is arithmetic
+       rather than guesswork. Fractional px is fine — the browser rounds to device pixels itself.
+
+       The WEIGHT is the darkening, and it is the honest version of it. The colour was already moved
+       off #666666 to #333333 the day before, which is the same value the explainers it sits under use
+       (dev-proudest-moments, dev-values-we-cherish). What still made it read lighter than them was
+       weight: they set --font-body-weight: 500, this section inherits 400 from the shared card
+       tokens. Matching that is what closes the gap; pushing the colour past #333333 would instead
+       break the match the owner asked for the day before.
+
+       A token of its own, NOT a change to --font-body-weight, because that one is declared in
+       snippets/dev-journal-card-tokens.liquid and is shared with the CARD — editing it there would
+       also embolden every "5 MIN READ ㆍBY MICHELLE G" line on both placements. {%- endcomment -%}
+    --font-intro-size: 19.8px;
+    --font-intro-size-m: 17.6px;
+    --font-intro-weight: 500;
 
     --gap-head: 16px;
     --gap-section: 48px;
