@@ -1,0 +1,50 @@
+{%- doc -%}
+  The `<source>` ladder for a Shopify-hosted video. Renders the sources only — the caller owns the
+  `<video>` element and every attribute on it.
+
+  Why this exists: `video_tag` emits a single `<source>`, the heaviest mp4 Shopify holds, and drops
+  the adaptive HLS playlist that sits beside it. On the product gallery that meant 8.4 MB of 1080p
+  for a nine-second silent loop, and the buyer had to sustain 7.4 Mbps for the whole nine seconds or
+  watch a poster instead. That is the "video is buffering" the client reported.
+
+  Order matters — a browser plays the FIRST source it can decode:
+
+  1. The HLS playlist. Measured in Chrome 151 on this store's duvet clip: it opens on the 480 rung
+     and climbs 480 → 720 → 1080 within eight seconds. That is the whole fix. A weak connection
+     degrades the picture instead of stopping the clip, and a fast one still arrives at full
+     quality. Native HLS is no longer Safari-only, so this needs no player library.
+  2. The mp4, unconditional. Reached only by a browser with no HLS at all — Firefox, today — and
+     byte-for-byte what every browser used to receive, so nobody is worse off than before.
+
+  There is deliberately no mp4 quality ladder here, and it is not an omission: Liquid's `sources`
+  exposes exactly two entries, the playlist and the top mp4. The 480p and 720p mp4 renditions are
+  real — `/products/{handle}.js` lists them — but they have no server-side URL to render. The loop
+  below still takes the tallest mp4 rather than the first, so the day Shopify widens `sources` this
+  keeps choosing deliberately instead of by luck.
+
+  Degrades safely. A video with no playlist renders the mp4 alone, exactly as before.
+
+  @param {object} video - a product media object of type `video`, or a `video` section setting
+{%- enddoc -%}
+
+{%- liquid
+  assign hls_url = ''
+  assign mp4_url = ''
+  assign mp4_h = 0
+
+  for source in video.sources
+    if source.format == 'm3u8'
+      assign hls_url = source.url
+    elsif source.format == 'mp4' and source.height > mp4_h
+      assign mp4_url = source.url
+      assign mp4_h = source.height
+    endif
+  endfor
+-%}
+
+{%- if hls_url != blank -%}
+  <source src="{{ hls_url }}" type="application/x-mpegURL">
+{%- endif -%}
+{%- if mp4_url != blank -%}
+  <source src="{{ mp4_url }}" type="video/mp4">
+{%- endif -%}

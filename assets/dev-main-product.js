@@ -15,6 +15,43 @@
     initThumbScroll(root);
   }
 
+  /* ---- Video source choice ---------------------------------------------- */
+
+  /* Which of the two sources in the markup this buyer should actually get.
+
+     The section offers the adaptive HLS playlist first, and that is the right default: it opens on
+     a light rung and degrades the picture instead of stalling. It is also what fixed the reported
+     buffering — the single 1080p mp4 is 8.4 MB for a nine-second clip and needs 7.4 Mbps held for
+     the whole nine seconds.
+
+     But the playlist opens light every time playback *starts*, and a gallery loop starts every nine
+     seconds. Measured in Chrome 151: the climb 480 → 720 → 1080 takes eight of those nine, so a
+     looping clip spends most of its life below full resolution. A buyer whose connection can carry
+     the mp4 outright should never pay that — they get the one file at constant full resolution,
+     which is exactly what this page did before any of this.
+
+     The floor is 8 Mbps against a file that needs 7.4: clearing the requirement with a little room,
+     and no more. Being wrong towards the playlist costs some sharpness; being wrong towards the mp4
+     brings the client's bug back, so the asymmetry decides the margin. `downlink` is capped at 10
+     by the browser, so this is "clearly fast", not a real ceiling.
+
+     Only Chromium exposes navigator.connection. Everywhere else this does nothing and the markup
+     decides: Safari takes the playlist, Firefox cannot and falls through to the mp4. Both are
+     already correct without our help. */
+  function preferProgressive(video) {
+    if (video.dataset.sourcePicked) return;
+
+    const c = navigator.connection;
+    if (!c || c.saveData || c.effectiveType !== '4g' || !(c.downlink >= 8)) return;
+
+    const mp4 = video.querySelector('source[type="video/mp4"]');
+    if (!mp4) return;
+
+    // Before the element has selected a resource, so this costs nothing and refetches nothing.
+    video.dataset.sourcePicked = 'mp4';
+    video.src = mp4.src;
+  }
+
   /* ---- Gallery ---------------------------------------------------------- */
 
   function initGallery(root) {
@@ -76,7 +113,39 @@
        play() returns a promise that rejects when the browser refuses (a data-saver profile, or a
        muted-autoplay block). Swallowed: the poster staying up is the correct fallback, and an
        unhandled rejection in the console is not. */
+    /* How much of a clip nobody has asked to see yet we are allowed to pull. A metered profile and
+       anything the browser will not call 4g get nothing at all: there, spending a buyer's data on a
+       slide they may never open is worse than the wait we are trying to remove. */
+    function warmLevel() {
+      const c = navigator.connection;
+      if (!c) return 'metadata';
+      if (c.saveData) return 'none';
+      if (c.effectiveType && c.effectiveType !== '4g') return 'none';
+      return 'metadata';
+    }
+
+    /* Open the connection and read the header for a slide the buyer has not reached yet, so that
+       part of the wait is already spent by the time they arrive. `metadata` only — the adaptive
+       playlist opens on a light rung by itself, so there is nothing to gain from pulling frames.
+
+       Once per element: load() restarts resource selection from the top, and the callers below run
+       on every navigation and every pointer that crosses the thumbnail strip. */
+    function warmSlide(n) {
+      const level = warmLevel();
+      if (level === 'none' || !slides[n]) return;
+      slides[n].querySelectorAll('video').forEach((video) => {
+        if (video.dataset.warmed) return;
+        video.dataset.warmed = 'true';
+        // Decide which source before load(), or the warm-up primes the one we are about to drop.
+        preferProgressive(video);
+        video.preload = level;
+        video.load();
+      });
+    }
+
     function syncVideo() {
+      const next = (index + 1) % slides.length;
+
       slides.forEach((slide, n) => {
         slide.querySelectorAll('video').forEach((video) => {
           if (n !== index) {
@@ -86,10 +155,16 @@
             if (video.readyState > 0) video.currentTime = 0;
             return;
           }
+          // The one on screen is being watched: it may buffer as far ahead as it likes.
+          preferProgressive(video);
+          video.preload = 'auto';
           const started = video.play();
           if (started && typeof started.catch === 'function') started.catch(() => {});
         });
       });
+
+      // After the loop, not inside it: warming touches a slide the loop has just paused.
+      warmSlide(next);
     }
 
     function show(i) {
@@ -136,7 +211,13 @@
        now, because syncVideo() has to run for the single-media case too and nothing may sit
        between it and the end of this function. */
     if (slides.length > 1) {
-      thumbs.forEach((thumb, n) => thumb.addEventListener('click', () => show(n)));
+      thumbs.forEach((thumb, n) => {
+        thumb.addEventListener('click', () => show(n));
+        // Intent, the same signal the video promo banner warms on: a pointer resting on a
+        // thumbnail, or a keyboard reaching it, arrives before the click does.
+        thumb.addEventListener('mouseenter', () => warmSlide(n));
+        thumb.addEventListener('focus', () => warmSlide(n));
+      });
       if (prev) prev.addEventListener('click', () => show(index - 1));
       if (next) next.addEventListener('click', () => show(index + 1));
     }
@@ -575,6 +656,9 @@
             if (video.readyState > 0) video.currentTime = 0;
             return;
           }
+          // This copy loops too, so it wants the same choice the gallery made — and asking for the
+          // same URL is what lets it open from cache rather than fetching the clip twice.
+          preferProgressive(video);
           const started = video.play();
           if (started && typeof started.catch === 'function') started.catch(() => {});
         });

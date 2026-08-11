@@ -345,24 +345,37 @@
         </button>
 
         {%- comment -%}
-          `image_size` sets the poster. Without it video_tag reaches for Shopify's own preview
-          thumbnail at its `_small` cut — a ~100px image stretched across a 960px player, which is
-          why the first frame arrived visibly blurry. 1280x is the widest the player is ever drawn.
+          Written out by hand rather than through `video_tag`, which emits one `<source>` and makes
+          it the heaviest rendition Shopify holds — here a 7.2 Mbps 1080p file, whatever the visitor
+          is browsing on. `dev-video-sources` offers the adaptive playlist first instead, so a slow
+          connection opens on a light rung and climbs rather than stalling on the top one.
 
-          preload stays `none`: this sits below the fold on the homepage and the source is a 4.5Mbps
-          HD file, so every visitor should not pay for it. The JS warms it on intent instead — the
-          moment the pointer or focus reaches the play button — so the click still plays at once.
+          The poster is set explicitly for the reason it always was: left alone, `video_tag` reached
+          for Shopify's `_small` preview cut — a ~100px image stretched across a 960px player, which
+          is why the first frame arrived visibly blurry. 1280 is the widest the player is ever drawn.
+
+          preload stays `none`: this sits below the fold on the homepage, so every visitor should not
+          pay for it. The JS warms it on intent instead — the moment the pointer or focus reaches the
+          play button — so the click still plays at once.
         {%- endcomment -%}
         {%- if hosted_video != blank -%}
-          {{
-            hosted_video
-            | video_tag:
-              controls: true,
-              playsinline: true,
-              preload: 'none',
-              image_size: '1280x',
-              class: 'video-promo-banner__video'
-          }}
+          {%- assign promo_poster = hosted_video.preview_image | image_url: width: 1280 -%}
+          <video
+            class="video-promo-banner__video"
+            poster="{{ promo_poster }}"
+            playsinline
+            controls
+            preload="none"
+          >
+            {%- render 'dev-video-sources', video: hosted_video -%}
+            <img
+              src="{{ promo_poster }}"
+              alt=""
+              loading="lazy"
+              width="{{ hosted_video.preview_image.width }}"
+              height="{{ hosted_video.preview_image.height }}"
+            >
+          </video>
         {%- elsif embed_url != blank -%}
           <iframe
             class="video-promo-banner__iframe"

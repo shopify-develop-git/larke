@@ -345,35 +345,51 @@
               data-index="{{ forloop.index0 }}"
             >
               {%- comment -%}
-                Two things video_tag gets wrong if you let it default.
+                Written out by hand rather than through `video_tag`, for one reason: that filter
+                emits a single `<source>` — the heaviest rendition Shopify holds — and there is no
+                argument that widens it. Here that was 8.4 MB of 1080p for a nine-second silent
+                loop, which is the buffering the client reported. `dev-video-sources` hands over
+                the adaptive playlist and the mp4 ladder instead. Everything else below is what
+                `video_tag` was already producing, kept attribute for attribute.
 
-                image_size: the poster it picks on its own is Shopify's `_small`, which is 100px
-                wide — blown up to the 668px stage that is the blur the gallery was showing before
-                the video started. 1400 matches the ladder the photo slides use next door.
-                Horizon's own snippets/video.liquid overrides this for the same reason.
+                No controls: the native bar is a black strip across the bottom of the stage that
+                collides with the slider arrows and belongs to no design. The clip is muted and
+                looping, so it reads as gallery motion, the same treatment Horizon gives its own
+                slides (blocks/_slide.liquid). No autoplay attribute on purpose: every slide is in
+                the DOM at once, and `autoplay` would have all of them opening a stream behind a
+                hidden slide. The JS starts the one the buyer is on.
 
-                controls: false — the native control bar is a black strip across the bottom of the
-                stage that collides with the slider arrows and belongs to no design. The clip is
-                muted and looping, so it reads as gallery motion, the same treatment Horizon gives
-                its own slides (blocks/_slide.liquid). No autoplay attribute on purpose: every
-                slide is in the DOM at once, and `autoplay` would have all of them pulling a
-                7.2 Mbps stream behind a hidden slide. The JS starts the one the buyer is on.
+                preload="none" for the same reason — the default ("metadata") had every hidden
+                video opening its stream on page load, in the same breath as the LCP image. The JS
+                raises it to `auto` on the slide the buyer reaches and warms its neighbour.
+
+                The poster is the frame the stage holds until then. 1400 matches the ladder the
+                photo slides use next door; left to itself `video_tag` reached for Shopify's
+                `_small` cut, 100px blown across a 668px stage, which is the blur the gallery used
+                to show. The trailing `<img>` is the no-video fallback, as before.
 
                 external_video keeps its provider chrome — a YouTube/Vimeo iframe is not ours to
                 strip, and it cannot be play()ed from here anyway.
               {%- endcomment -%}
               {%- if media.media_type == 'video' -%}
-                {%- comment -%}
-                  preload: 'none' — every slide is in the DOM at once, and the default
-                  ("metadata") had the hidden video opening its stream on page load, in the
-                  same breath as the LCP image. The poster still paints the frame; the JS
-                  play() on activation is what triggers the real load, exactly when the
-                  buyer arrives on the slide.
-                {%- endcomment -%}
-                {{
-                  media
-                  | video_tag: image_size: '1400x', loop: true, muted: true, controls: false, preload: 'none', class: 'dev-main-product__media'
-                }}
+                {%- assign slide_poster = media.preview_image | image_url: width: 1400 -%}
+                <video
+                  class="dev-main-product__media"
+                  poster="{{ slide_poster }}"
+                  aria-label="{{ slide_alt }}"
+                  playsinline
+                  loop
+                  muted
+                  preload="none"
+                >
+                  {%- render 'dev-video-sources', video: media -%}
+                  <img
+                    src="{{ slide_poster }}"
+                    alt="{{ slide_alt }}"
+                    width="{{ media.preview_image.width }}"
+                    height="{{ media.preview_image.height }}"
+                  >
+                </video>
               {%- elsif media.media_type == 'external_video' -%}
                 {{ media | external_video_tag: class: 'dev-main-product__media' }}
               {%- else -%}
@@ -1318,14 +1334,34 @@
                     the muting is a starting state, not a restriction.
                   {%- endcomment -%}
                   {%- comment -%}
-                    preload: 'none' — this copy sits in a closed <dialog> and was still pulling
+                    preload="none" — this copy sits in a closed <dialog> and was still pulling
                     its metadata on page load. The lightbox JS play()s it on open, which is
                     what makes the real load happen.
+
+                    The same source ladder as the gallery, deliberately: both elements then ask
+                    for the same URLs, so opening the lightbox on a clip the buyer has already
+                    watched plays from cache instead of fetching the file a second time. Handing
+                    this copy a "better" rendition than the gallery's would cost exactly that.
                   {%- endcomment -%}
-                  {{
-                    media
-                    | video_tag: image_size: '2048x', loop: true, muted: true, controls: true, preload: 'none', class: 'dev-main-product__zoom-video'
-                  }}
+                  {%- assign zoom_poster = media.preview_image | image_url: width: 2048 -%}
+                  <video
+                    class="dev-main-product__zoom-video"
+                    poster="{{ zoom_poster }}"
+                    aria-label="{{ zoom_alt }}"
+                    playsinline
+                    loop
+                    muted
+                    controls
+                    preload="none"
+                  >
+                    {%- render 'dev-video-sources', video: media -%}
+                    <img
+                      src="{{ zoom_poster }}"
+                      alt="{{ zoom_alt }}"
+                      width="{{ media.preview_image.width }}"
+                      height="{{ media.preview_image.height }}"
+                    >
+                  </video>
                 {%- else -%}
                   {{
                     media
