@@ -39,8 +39,8 @@
         "qa-returns": {
           "type": "qa",
           "settings": {
-            "heading": "How do I return my duvet?",
-            "body": "<p>Start by requesting a return — email us at hello@wearelarke.com or use our returns portal, and we’ll send you a free pre-paid return label. Please keep the original packaging, as it’s required for your return, and don’t send anything back without requesting a return first — it may not be accepted. We aim to follow up on every return request within 1 working day.</p><p>For the full terms, see our <a href=\"/policies/refund-policy\">Returns policy</a>.</p>",
+            "heading": "Do we ship internationally?",
+            "body": "<p>Not at the moment. <br/>We currently deliver within the UK only. For international trade orders, send us an email on hello@wearelarke.com</p>",
             "open_by_default": false
           }
         },
