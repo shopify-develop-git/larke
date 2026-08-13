@@ -132,7 +132,7 @@
       ],
       "name": "Main product",
       "settings": {
-        "cta_label": "Add to Order",
+        "cta_label": "Add to Basket",
         "sold_out_label": "Sold out",
         "show_rating": true,
         "show_rating_stars": true,
