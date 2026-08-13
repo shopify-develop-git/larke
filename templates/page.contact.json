@@ -14,7 +14,7 @@
       "name": "Contact Form",
       "settings": {
         "title": "Contact Form",
-        "body": "<p>Need a hand?  Send us a message and someone from our team will help.</p>",
+        "body": "<p>Need a hand?  Send us a message and someone from our team will help.<br/>Alternatively, email us direct on hello@wearelarke.com</p>",
         "name_placeholder": "Your name",
         "email_placeholder": "Your email",
         "message_placeholder": "Your message",
