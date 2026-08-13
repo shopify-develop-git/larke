@@ -15,8 +15,8 @@
         "qa-cost": {
           "type": "qa",
           "settings": {
-            "heading": "How much does delivery cost?",
-            "body": "<p>We offer free standard delivery to all UK addresses, which typically arrives within 2–4 working days.</p><p>If your delivery address is within London and you place your order before 4 pm, you’ll also qualify for free same-day delivery.</p>",
+            "heading": "How do I return my duvet?",
+            "body": "<p>Email us with your order number and we'll send you a prepaid return label. <br/>Once you've dropped it off and it reaches us, we'll process your refund. </p>",
             "open_by_default": true
           }
         },
