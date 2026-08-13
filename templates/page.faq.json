@@ -39,8 +39,8 @@
         "q_tracking": {
           "type": "question",
           "settings": {
-            "heading": "How can I track my order?",
-            "body": "<p>Once your order has been processed you’ll receive an order confirmation email, followed by tracking details directly from your local delivery provider so you can follow your package’s journey.</p>",
+            "heading": "Are the duvets crunchy?",
+            "body": "<p>Not at all. No crunch or bark bits, just soft and smooth tree-fibre. (you'd never tell the difference) </p>",
             "open_by_default": false
           }
         },
