@@ -23,8 +23,8 @@
         "q_delivery_cost": {
           "type": "question",
           "settings": {
-            "heading": "How much does delivery cost?",
-            "body": "<p>Delivery within UK Mainland is always free. We do also offer an express local delivery option for any postcode within a 5 mile radius of Larke HQ</p>",
+            "heading": "Does tree-fibre smell?",
+            "body": "<p>There's no woody or earthy smell - you'd never know it started life as a tree. </p>",
             "open_by_default": false
           }
         },
