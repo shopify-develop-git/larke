@@ -23,8 +23,8 @@
         "qa-updates": {
           "type": "qa",
           "settings": {
-            "heading": "Will I receive delivery updates?",
-            "body": "<p>You will receive order confirmations and tracking options through your local delivery provider.</p>",
+            "heading": "Does it cost to return?",
+            "body": "<p>No. We'll cover the return label, so there's nothing for you to pay. </p>",
             "open_by_default": false
           }
         },
