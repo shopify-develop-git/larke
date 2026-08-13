@@ -31,8 +31,8 @@
         "q_london_next_day": {
           "type": "question",
           "settings": {
-            "heading": "Do you offer next-day delivery in London?",
-            "body": "<p>Yes — we offer free next-day delivery within certain qualifying postcodes in London. To be eligible, place your order by 5:00 PM (GMT); orders placed after 5:00 PM are processed for delivery the following business day.</p>",
+            "heading": "Will it fit inside my washing machine?",
+            "body": "<p>Yes. All our duvets are designed to fit standard 8-9kg UK washing machines and tumble dryers. </p>",
             "open_by_default": false
           }
         },
