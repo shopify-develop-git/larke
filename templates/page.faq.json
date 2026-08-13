@@ -47,8 +47,8 @@
         "q_returns": {
           "type": "question",
           "settings": {
-            "heading": "How do I return my duvet?",
-            "body": "<p>Start by requesting a return — email us at hello@wearelarke.com or use our returns portal, and we’ll send you a free pre-paid return label. Please keep the original packaging, as it’s required for your return, and don’t send anything back without requesting a return first — it may not be accepted. We aim to follow up on every return request within 1 working day.</p><p>For the full terms, see our <a href=\"/policies/refund-policy\">Returns policy</a>.</p>",
+            "heading": "Will it lose its shape after washing?",
+            "body": "<p>Our quilted sewn-through construction keeps the filling evenly in place, both through washing and drying. </p>",
             "open_by_default": false
           }
         },
