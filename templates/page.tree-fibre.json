@@ -27,7 +27,7 @@
     "dev-tree-fibre-intro": {
       "type": "dev-tree-fibre-intro",
       "settings": {
-        "intro_text": "<p>For decades, tree-fibre has been the go-to material for breathability -from performance sportswear to luxury fashion.</p>",
+        "intro_text": "<p>For decades, tree-fibre has been the go-to material for breathability - from performance sportswear to luxury fashion.</p>",
         "heading": "<p>So, we asked -<br/>why not duvets?</p>",
         "show_divider": true,
         "image": "shopify://shop_images/tree-fibre-intro-side-image.png",
