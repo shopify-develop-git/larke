@@ -47,8 +47,8 @@
         "qa-damaged": {
           "type": "qa",
           "settings": {
-            "heading": "What if my order arrives damaged or incorrect?",
-            "body": "<p>Please inspect your order when it arrives and contact us immediately at hello@wearelarke.com if your item is defective, damaged, or if you’ve received the wrong item — we’ll evaluate the issue and make it right.</p>",
+            "heading": "Do you offer same-day delivery?",
+            "body": "<p>If you're within the M25 and order before 4pm, we can deliver your duvet that same day. Standard UK delivery takes 1-3 working days. </p>",
             "open_by_default": false
           }
         },
