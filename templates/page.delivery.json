@@ -31,8 +31,8 @@
         "qa-intl": {
           "type": "qa",
           "settings": {
-            "heading": "Do you deliver internationally?",
-            "body": "<p>Not as of now.</p>",
+            "heading": "How long does my refund take?",
+            "body": "<p>Once your refund has been processed, it should appear within 1-4 working days, depending on your bank or payment method. </p>",
             "open_by_default": false
           }
         },
