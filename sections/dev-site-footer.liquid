@@ -274,6 +274,36 @@
         {%- endif -%}
       </div>
 
+      {%- comment -%}
+        DEDUPE REGISTER — added after the owner reported "Cookie preferences shows up twice" for
+        the third time (2026-08-17).
+
+        The footer has TWO link sources the owner edits in two different places: the menu COLUMNS
+        below (a picked navigation menu, or the block's own typed label/url pairs) and the legal
+        ROW at the bottom (store policies + the resolved cookie page). Nothing stopped the same
+        destination appearing in both. Add the Cookie Preferences page to a nav menu in
+        Content > Menus, or type it into a spare "Link 4" slot in the customizer, and it renders
+        once in a column and again in the legal row.
+
+        That duplicate is DATA, not markup — which is why every previous pass over this file found
+        nothing wrong and the duplicate came back on the next customizer save. So the columns now
+        RECORD what they emit and the legal row REFUSES to repeat it. Belt and braces: the row can
+        no longer duplicate itself either.
+
+        The key is the last path segment of the href, lower-cased — "cookie-preferences" — so every
+        shape the owner can produce collapses to one token: a menu link (/pages/cookie-preferences),
+        a typed relative URL with or without a trailing slash, an absolute
+        https://wearelarke.com/pages/cookie-preferences, and anything carrying ?utm= or #anchor.
+        Pipe delimiters make the containment test exact, so "policy" can never match
+        "cookie-policy". Handles are unique per resource type on Shopify, and this footer only ever
+        links pages and policies, so a last-segment key is safe here.
+
+        NOTE ON SCOPE: an `assign` made inside a for-loop writes to template scope in Liquid, so the
+        register survives the block loop and is still readable further down the section. The columns
+        are rendered ABOVE the legal row in source order, which is what makes accumulate-then-check
+        work without a second pass.
+      {%- endcomment -%}
+      {%- assign footer_url_keys = '|' -%}
       <div class="site-footer__column-group">
         {%- for block in section.blocks -%}
           {%- if block.type == 'footer_menu' -%}
@@ -289,6 +319,11 @@
               <ul class="site-footer__menu-list" role="list">
                 {%- if block.settings.menu != blank -%}
                   {%- for link in block.settings.menu.links -%}
+                    {%- comment -%} Register before emitting — see the dedupe note above. {%- endcomment -%}
+                    {%- if link.url != blank -%}
+                      {%- assign link_key = link.url | split: '?' | first | split: '#' | first | downcase | split: '/' | last -%}
+                      {%- assign footer_url_keys = footer_url_keys | append: link_key | append: '|' -%}
+                    {%- endif -%}
                     <li class="site-footer__menu-item">
                       <a class="site-footer__link" href="{{ link.url }}">{{ link.title | escape }}</a>
                     </li>
@@ -305,6 +340,11 @@
                     {%- assign label = block.settings[label_key] -%}
                     {%- assign url = block.settings[url_key] -%}
                     {%- if label != blank -%}
+                      {%- comment -%} Same register, hand-typed pairs. Blank URL renders "#", which is not a destination worth recording. {%- endcomment -%}
+                      {%- if url != blank -%}
+                        {%- assign link_key = url | split: '?' | first | split: '#' | first | downcase | split: '/' | last -%}
+                        {%- assign footer_url_keys = footer_url_keys | append: link_key | append: '|' -%}
+                      {%- endif -%}
                       <li class="site-footer__menu-item">
                         <a class="site-footer__link" href="{{ url | default: '#' }}">{{ label | escape }}</a>
                       </li>
@@ -423,12 +463,33 @@
           {%- if section.settings.show_policy_links -%}
             {%- for policy in shop.policies -%}
               {%- if policy != blank -%}
-                <li><a class="site-footer__link site-footer__legal-link" href="{{ policy.url }}">{{ policy.title | escape }}</a></li>
+                {%- assign policy_key = policy.url | split: '?' | first | split: '#' | first | downcase | split: '/' | last -%}
+                {%- assign policy_probe = '|' | append: policy_key | append: '|' -%}
+                {%- unless footer_url_keys contains policy_probe -%}
+                  {%- assign footer_url_keys = footer_url_keys | append: policy_key | append: '|' -%}
+                  <li><a class="site-footer__link site-footer__legal-link" href="{{ policy.url }}">{{ policy.title | escape }}</a></li>
+                {%- endunless -%}
               {%- endif -%}
             {%- endfor -%}
           {%- endif -%}
+          {%- comment -%}
+            The cookie link is the one this guard was actually written for: it is the only entry in
+            this row that also exists as an ordinary page, so it is the only one the owner can add
+            to a menu or type into a link slot by hand. If a column above already linked it, the
+            legal row stays silent — the column keeps it, because that is the placement the owner
+            deliberately chose in admin, and silently outranking their choice is how this turns into
+            a fourth bug report.
+
+            It also covers the other way in: pointing the "Cookie policy page" setting at a page
+            whose handle a store policy already occupies. Same probe, same outcome, one link.
+          {%- endcomment -%}
           {%- if cookie_page != blank -%}
-            <li><a class="site-footer__link site-footer__legal-link" href="{{ cookie_page.url }}">{{ cookie_page.title | escape }}</a></li>
+            {%- assign cookie_key = cookie_page.url | split: '?' | first | split: '#' | first | downcase | split: '/' | last -%}
+            {%- assign cookie_probe = '|' | append: cookie_key | append: '|' -%}
+            {%- unless footer_url_keys contains cookie_probe -%}
+              {%- assign footer_url_keys = footer_url_keys | append: cookie_key | append: '|' -%}
+              <li><a class="site-footer__link site-footer__legal-link" href="{{ cookie_page.url }}">{{ cookie_page.title | escape }}</a></li>
+            {%- endunless -%}
           {%- endif -%}
         {%- endcapture -%}
         {%- if legal_links != blank -%}

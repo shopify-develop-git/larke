@@ -125,7 +125,22 @@
         <h1 class="dev-policy__title">{{ section.settings.title }}</h1>
       {%- endif -%}
 
-      {%- if section.settings.body != blank -%}
+      {%- comment -%}
+        The blank test runs on the STRIPPED text, not on the raw setting (owner, 2026-08-17: asked
+        for the Delivery & Returns intro paragraph to be deleted and could not do it in the theme
+        editor). The reason he could not: this is a `richtext` setting, and the customizer's
+        rich-text control has no empty state it will commit — emptying the field and saving hands
+        the previous copy straight back, and the best case it ever writes is an empty paragraph.
+        An empty paragraph is NOT `blank` in Liquid, so the raw guard would happily open the div
+        and the card's 16px --card-gap would sit under the heading holding nothing. Stripping the
+        tags (and the &nbsp; the editor leaves behind when you clear a line) makes "", "<p></p>"
+        and "<p>&nbsp;</p>" all read as empty, so the card is heading-only in every case. The copy
+        itself is removed as CONTENT, in templates/page.delivery.json — this guard only makes sure
+        the editor can never put an empty row back. Note the raw value, not body_text, is what gets
+        printed: the strip is for the test only, so real copy keeps its links and <br>s.
+      {%- endcomment -%}
+      {%- assign body_text = section.settings.body | strip_html | replace: '&nbsp;', ' ' | strip -%}
+      {%- if body_text != blank -%}
         <div class="dev-policy__card-body">{{ section.settings.body }}</div>
       {%- endif -%}
     </div>
@@ -133,7 +148,27 @@
     {%- if qa_blocks.size > 0 or note_blocks.size > 0 -%}
       <div class="dev-policy__list" {% if section.settings.accordion %}data-policy-group{% endif %}>
         {%- for block in qa_blocks -%}
-          {%- if section.settings.accordion -%}
+          {%- comment -%}
+            Aug 2026 review fix. Two guards the accordion branch was missing that the flat branch
+            below has always had:
+
+            1. A Question block with nothing typed into it yet — the state you get the moment the
+               owner clicks "Add Question" and saves, or clears a heading — is skipped outright.
+               Flat, that block rendered an empty <div>; in the list's flex column that is still a
+               --list-gap of dead space, so neither branch should emit it.
+            2. A block WITH copy but no heading is rendered flat even when "Collapsible questions"
+               is on. <details> without a heading gives you a <summary> whose only child is the
+               aria-hidden chevron: a keyboard- and screen-reader-focusable disclosure control with
+               no accessible name at all (WCAG 4.1.2 Name, Role, Value) — a screen reader announces
+               a nameless "collapsed" button. page.delivery.json has accordion: true, so that is
+               the live path on /pages/delivery-and-returns. Falling back to the flat row keeps the
+               answer visible and readable instead of hiding it behind an unnameable toggle.
+          {%- endcomment -%}
+          {%- if block.settings.heading == blank and block.settings.body == blank -%}
+            {%- continue -%}
+          {%- endif -%}
+
+          {%- if section.settings.accordion and block.settings.heading != blank -%}
             {%- comment -%}
               The PDP's "Why you'll love it" mechanism, reused rather than reinvented:
               <details>/<summary> (keyboard operable, expanded/collapsed state announced for free,

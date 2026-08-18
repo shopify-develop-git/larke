@@ -52,9 +52,35 @@
 
     {%- comment -%} One curve for the accordion, both directions — opening on one curve and closing on another
        looks restless when a row closes while its neighbour opens. The JS reads --acc-dur back out
-       of here (parseFloat on the computed value), so keep it in ms. {%- endcomment -%}
+       of here (parseFloat on the computed value), so keep it in ms.
+
+       DO NOT RETUNE THESE TO "MATCH DELIVERY & RETURNS". Checked against dev-policy.liquid on
+       2026-08-17: it declares the same 300ms and the same cubic-bezier(0.32, 0.72, 0, 1), and says
+       in its own token comment that it took them FROM here. Both sections animate height with the
+       same Web Animations call (dev-policy.js is dev-faq.js with the data-* hooks renamed), rotate
+       the chevron on the same CSS transition, and fade the answer in over the same 0.75 x
+       --acc-dur. The timing is already identical to the millisecond, so editing either value here
+       would CREATE the difference it was meant to remove. What reads as a different speed is
+       behaviour, not duration — see the long note in dev-faq.js. {%- endcomment -%}
     --acc-dur: 300ms;
     --acc-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+    {%- comment -%} Closing note ("Still got questions?"). Owner, 2026-08-17: they wanted the closing block from
+       Delivery & Returns on the FAQ page. It is dev-policy's `note` block (45246:3617), carried
+       over whole.
+
+       These are RESTATED here rather than borrowed from the question tokens above, because
+       dev-policy sizes the note off its own scale and it does not line up with this section's:
+       the note's body is Body/Md 16px, while --font-answer-size here is Body/Lg 18px. Reusing the
+       FAQ answer size would make it a slightly different component, which is the one thing this
+       change is not allowed to do. The 22px heading equals --font-question-size by coincidence,
+       not by reference — kept separate so a later change to the questions cannot drag the note
+       with it. {%- endcomment -%}
+    --note-pt: 24px;
+    --note-gap: 8px;
+    --font-note-size: 22px;
+    --font-note-size-mobile: 20px;
+    --font-note-body-size: 16px;
   }
 </style>
 
@@ -89,10 +115,27 @@
       </div>
     {%- endif -%}
 
-    {%- assign questions = section.blocks | where: 'type', 'question' -%}
-    {%- if questions.size > 0 -%}
+    {%- liquid
+      assign questions = section.blocks | where: 'type', 'question'
+      assign notes = section.blocks | where: 'type', 'note'
+    -%}
+    {%- if questions.size > 0 or notes.size > 0 -%}
       <div class="dev-faq__list" data-faq-group>
         {%- for block in questions -%}
+          {%- comment -%}
+            Aug 2026 review fix. A Question row is only drawn once it HAS a question. Without this
+            guard, the moment the owner clicks "Add Question" and saves before typing (or clears a
+            heading), the <summary> renders with nothing in it but the aria-hidden chevron — a
+            keyboard- and screen-reader-focusable disclosure control with no accessible name at all
+            (WCAG 4.1.2 Name, Role, Value), announced as a nameless "collapsed" button. The block
+            settings now carry defaults too, so the editor starts from real copy rather than blank,
+            but defaults only cover the ADD; they do not stop a heading being emptied afterwards.
+            Same guard dev-policy's question loop carries.
+          {%- endcomment -%}
+          {%- if block.settings.heading == blank -%}
+            {%- continue -%}
+          {%- endif -%}
+
           <details
             class="dev-faq__item"
             data-faq-item
@@ -114,6 +157,30 @@
             {%- endif -%}
           </details>
         {%- endfor -%}
+
+        {%- comment -%}
+          The "Still got questions?" group, lifted from dev-policy (45246:3617) at the owner's ask,
+          2026-08-17 — the closing block from Delivery & Returns, on the FAQ page.
+
+          Same construction as there, deliberately: it sits INSIDE the list so it picks up the
+          list's 24px flex gap and then adds its own 24px pad on top, landing 48px clear of the
+          last question — the same 24 + 24 dev-policy gets from --qa-gap plus --note-pt.
+
+          It is NOT a .dev-faq__item. That class carries the row rules and the accordion padding,
+          and the note is neither a row nor collapsible. It also carries no [data-faq-item], so
+          dev-faq.js walks straight past it, and it is not in `questions`, so it can never leak
+          into the FAQPage ld+json below as a fake Q&A pair.
+        {%- endcomment -%}
+        {%- for block in notes -%}
+          <div class="dev-faq__note" {{ block.shopify_attributes }}>
+            {%- if block.settings.heading != blank -%}
+              <h2 class="dev-faq__note-heading">{{ block.settings.heading }}</h2>
+            {%- endif -%}
+            {%- if block.settings.body != blank -%}
+              <div class="dev-faq__note-body">{{ block.settings.body }}</div>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
       </div>
     {%- endif -%}
   </div>
@@ -123,22 +190,52 @@
   schema.org/FAQPage, built from the same blocks the section renders — so the structured data cannot
   drift from what is on the page. `strip_html` on the answer because the spec wants text, not markup;
   `json` on both because a merchant's apostrophe would otherwise break the document.
+
+  Aug 2026 review fix — only blocks with BOTH a question and an answer enter the graph. Google
+  rejects an FAQPage whose entries carry an empty `name` or an empty answer `text`, and one bad
+  entry can invalidate the whole block for /pages/faq, which is the only page carrying this
+  section. A half-filled row is exactly what the theme editor produces between "Add Question" and
+  the owner typing, so the loop cannot assume every block is complete. The tags are stripped and
+  &nbsp; folded to a space BEFORE the test for the reason the policy card body does it: the
+  richtext editor leaves "<p>&nbsp;</p>" behind when you clear a line, which is not blank to Liquid
+  but is blank to a reader — and to Google.
+
+  The count is taken in a first pass because the comma between entries can no longer come from
+  `forloop.last`: the last BLOCK may well be one of the skipped ones. `printed` counts what has
+  actually been emitted and the comma is written before each entry after the first.
 {%- endcomment -%}
-{%- if questions.size > 0 -%}
+{%- liquid
+  assign faq_entries = 0
+  for block in questions
+    assign q_name = block.settings.heading | strip_html | replace: '&nbsp;', ' ' | strip
+    assign q_text = block.settings.body | strip_html | replace: '&nbsp;', ' ' | strip
+    if q_name != blank and q_text != blank
+      assign faq_entries = faq_entries | plus: 1
+    endif
+  endfor
+-%}
+{%- if faq_entries > 0 -%}
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
       "mainEntity": [
+        {%- assign printed = 0 -%}
         {%- for block in questions -%}
-          {
-            "@type": "Question",
-            "name": {{ block.settings.heading | strip_html | json }},
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": {{ block.settings.body | strip_html | strip_newlines | json }}
+          {%- assign q_name = block.settings.heading | strip_html | replace: '&nbsp;', ' ' | strip -%}
+          {%- assign q_text = block.settings.body | strip_html | replace: '&nbsp;', ' ' | strip -%}
+          {%- if q_name != blank and q_text != blank -%}
+            {%- if printed > 0 %},{% endif -%}
+            {
+              "@type": "Question",
+              "name": {{ q_name | json }},
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": {{ q_text | strip_newlines | json }}
+              }
             }
-          }{% unless forloop.last %},{% endunless %}
+            {%- assign printed = printed | plus: 1 -%}
+          {%- endif -%}
         {%- endfor -%}
       ]
     }
@@ -175,9 +272,18 @@
       "type": "question",
       "name": "Question",
       "settings": [
-        { "type": "inline_richtext", "id": "heading", "label": "Question" },
-        { "type": "richtext", "id": "body", "label": "Answer" },
+        { "type": "inline_richtext", "id": "heading", "label": "Question", "default": "How are trees turned into duvets?" },
+        { "type": "richtext", "id": "body", "label": "Answer", "default": "<p>The wood is broken down into pulp, spun into soft fibres and then used to fill our duvets.</p>" },
         { "type": "checkbox", "id": "open_by_default", "label": "Open by default", "default": false }
+      ]
+    },
+    {
+      "type": "note",
+      "name": "Closing note",
+      "limit": 1,
+      "settings": [
+        { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Still got questions?" },
+        { "type": "richtext", "id": "body", "label": "Text", "default": "<p><a href=\"/pages/contact\">Click here</a> to chat with us</p>" }
       ]
     }
   ],
@@ -185,8 +291,21 @@
     {
       "name": "FAQ",
       "blocks": [
-        { "type": "question", "settings": { "heading": "How soon will my order arrive?" } },
-        { "type": "question", "settings": { "heading": "How much does delivery cost?" } }
+        {
+          "type": "question",
+          "settings": {
+            "heading": "How soon will my order arrive?",
+            "body": "<p>UK orders are dispatched within one working day and usually arrive in two to three.</p>"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "heading": "How much does delivery cost?",
+            "body": "<p>Standard delivery is free to all UK addresses.</p>"
+          }
+        },
+        { "type": "note" }
       ]
     }
   ]
