@@ -31,14 +31,14 @@
           return;
         }
 
-        // Exclusivity is now a SETTING ("Close other rows when one opens"), not a hard-coded rule.
-        // Owner, 2026-08-18: sent a screen recording of Delivery & Returns closing the previous row
-        // next to FAQ leaving every row open, and asked for "the same logic as for FAQs" — i.e. the
-        // independent rows they picked for the FAQ list on 2026-08-07. Defaulted OFF here to match
-        // that, and left as a checkbox because the two pages had genuinely diverged and either
-        // answer is defensible: comparing two delivery answers is easier with both open, while a
-        // long list stays tidier with one. Flipping it is a tick in the theme editor, not a code
-        // change, so this cannot need another round trip.
+        // Exclusivity is a SETTING ("Close other rows when one opens"), not a hard-coded rule, but
+        // it is ON everywhere — auto-closing is the house behaviour for both accordions.
+        //
+        // Owner, 2026-08-18: sent a screen recording of Delivery & Returns auto-closing next to FAQ
+        // leaving every row open, and asked for "the same logic as for FAQs". That first read as
+        // "make D&R independent like FAQ" and was briefly shipped that way; the owner clarified the
+        // same day that they meant the opposite — auto-closing, applied TO the FAQ list. So this
+        // page keeps the behaviour it always had, and dev-faq.js gained it.
         //
         // The attribute is read per click rather than cached at init so toggling the setting in the
         // theme editor takes effect on the next click without a section re-render.

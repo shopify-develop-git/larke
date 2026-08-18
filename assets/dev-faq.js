@@ -29,20 +29,22 @@
             return;
           }
 
-          // Exclusivity is a SETTING ("Close other rows when one opens"), matching dev-policy.js.
+          // Exclusivity is a SETTING ("Close other rows when one opens"), matching dev-policy.js,
+          // and it is ON for this list.
           //
-          // History, so nobody re-litigates it from scratch: rows were made independent here on
-          // 2026-08-07 (owner's call, matching the product page's tabs) because on an FAQ list
-          // losing the first answer the moment you open the second is actively unhelpful. On
-          // 2026-08-17, asked to "make the FAQ open at the same speed as Delivery & Returns", the
-          // answer was that the timing was never the difference — both sections declare 300ms /
+          // History, so nobody re-litigates it from scratch. Rows were made INDEPENDENT here on
+          // 2026-08-07 (owner's call, matching the product page's tabs), on the reasoning that
+          // losing the first answer the moment you open the second is unhelpful when comparing.
+          // On 2026-08-17, asked to "make the FAQ open at the same speed as Delivery & Returns",
+          // the finding was that timing was never the difference — both sections declare 300ms /
           // cubic-bezier(0.32, 0.72, 0, 1) and run this same WAAPI height animation. The difference
-          // was the gesture: dev-policy played a 300ms open AND a 300ms close at once and settled
+          // was the GESTURE: dev-policy played a 300ms open and a 300ms close at once and settled
           // near its old height, while this list only ever grew. Same milliseconds, different feel.
           //
-          // 2026-08-18 the owner asked for "the same logic as for FAQs" across both pages, so the
-          // behaviour became a checkbox on each section instead of a constant in each file. Default
-          // stays OFF here — independent rows, unchanged from 2026-08-07.
+          // 2026-08-18 the owner resolved it explicitly: "we need to do autoclosing". That reverses
+          // the 2026-08-07 decision, so the 300ms open/close pair now runs here too and the FAQ
+          // reads the same as Delivery & Returns. Kept as a checkbox rather than a constant so the
+          // 2026-08-07 behaviour is one tick away if a long list ever argues for it again.
           if (group.hasAttribute('data-faq-single-open')) {
             items.forEach((other) => {
               if (other !== details && isOpen(other)) collapse(other);

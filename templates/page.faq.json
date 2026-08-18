@@ -86,7 +86,7 @@
         "border_color": "#c4bca9",
         "padding_top": 80,
         "padding_bottom": 80,
-        "single_open": false
+        "single_open": true
       }
     }
   },
