@@ -280,7 +280,32 @@
           {%- endif -%}
 
           {%- if section.settings.subheading != blank -%}
-            <p class="video-promo-banner__subheading">{{ section.settings.subheading }}</p>
+            {%- comment -%}
+              The white rule underlines a PHRASE, not the whole sentence (owner, 2026-08-18: the
+              first pass ruled off the full line and they asked for it to sit under "under 60
+              seconds" only). So the phrase is wrapped in a span here and the rule is drawn on that
+              span in CSS, rather than hung off the paragraph.
+
+              Which words get the rule is a setting rather than a hardcoded string because the
+              subheading itself is one: if a merchant rewrites the sentence, a hardcoded phrase
+              would silently stop matching and the rule would vanish with nothing to explain why.
+              `replace_first` so a phrase that happens to occur twice is only marked once, and the
+              `contains` guard means a phrase that is no longer in the copy simply renders no rule
+              instead of injecting a stray span. Blank setting = no rule, which is the off switch.
+
+              subheading is inline_richtext, so this is already-safe HTML from Shopify and is
+              printed unescaped — same as the heading above. The phrase is matched against that
+              HTML, so it has to be plain words the merchant has not italicised mid-phrase.
+            {%- endcomment -%}
+            {%- liquid
+              assign subheading_html = section.settings.subheading
+              assign rule_phrase = section.settings.subheading_underline
+              if rule_phrase != blank and subheading_html contains rule_phrase
+                assign ruled_phrase = '<span class="video-promo-banner__subheading-rule">' | append: rule_phrase | append: '</span>'
+                assign subheading_html = subheading_html | replace_first: rule_phrase, ruled_phrase
+              endif
+            -%}
+            <p class="video-promo-banner__subheading">{{ subheading_html }}</p>
           {%- endif -%}
         </div>
       {%- endif -%}
@@ -431,6 +456,13 @@
       "id": "subheading",
       "label": "Subheading",
       "default": "See the difference in under 60 seconds."
+    },
+    {
+      "type": "text",
+      "id": "subheading_underline",
+      "label": "Underlined words",
+      "default": "under 60 seconds",
+      "info": "Draws the thin white rule under just these words of the subheading. Must match the subheading text exactly. Leave empty for no rule."
     },
     {
       "type": "image_picker",
