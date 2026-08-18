@@ -120,7 +120,7 @@
       assign notes = section.blocks | where: 'type', 'note'
     -%}
     {%- if questions.size > 0 or notes.size > 0 -%}
-      <div class="dev-faq__list" data-faq-group>
+      <div class="dev-faq__list" data-faq-group{% if section.settings.single_open %} data-faq-single-open{% endif %}>
         {%- for block in questions -%}
           {%- comment -%}
             Aug 2026 review fix. A Question row is only drawn once it HAS a question. Without this
@@ -247,11 +247,32 @@
   "name": "FAQ",
   "tag": "section",
   "settings": [
-    { "type": "header", "content": "Content" },
-    { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Frequently Asked Questions" },
-    { "type": "inline_richtext", "id": "subheading", "label": "Subheading" },
-
-    { "type": "header", "content": "Colors" },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Frequently Asked Questions"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "checkbox",
+      "id": "single_open",
+      "label": "Close other rows when one opens",
+      "default": false,
+      "info": "Off, every row stays open until you close it, so two answers can be compared side by side. On, opening a row closes whichever was open. Off matches the FAQ page."
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
     {
       "type": "color",
       "id": "background_color",
@@ -259,22 +280,72 @@
       "info": "Transparent by default — the section inherits the page canvas.",
       "default": "rgba(0,0,0,0)"
     },
-    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
-    { "type": "color", "id": "accent_color", "label": "Accent", "default": "#4EA448" },
-    { "type": "color", "id": "border_color", "label": "Divider", "default": "#C4BCA9" },
-
-    { "type": "header", "content": "Spacing" },
-    { "type": "range", "id": "padding_top", "min": 0, "max": 160, "step": 4, "unit": "px", "label": "Padding top", "default": 80 },
-    { "type": "range", "id": "padding_bottom", "min": 0, "max": 160, "step": 4, "unit": "px", "label": "Padding bottom", "default": 80 }
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "default": "#4EA448"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Divider",
+      "default": "#C4BCA9"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 80
+    }
   ],
   "blocks": [
     {
       "type": "question",
       "name": "Question",
       "settings": [
-        { "type": "inline_richtext", "id": "heading", "label": "Question", "default": "How are trees turned into duvets?" },
-        { "type": "richtext", "id": "body", "label": "Answer", "default": "<p>The wood is broken down into pulp, spun into soft fibres and then used to fill our duvets.</p>" },
-        { "type": "checkbox", "id": "open_by_default", "label": "Open by default", "default": false }
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "label": "Question",
+          "default": "How are trees turned into duvets?"
+        },
+        {
+          "type": "richtext",
+          "id": "body",
+          "label": "Answer",
+          "default": "<p>The wood is broken down into pulp, spun into soft fibres and then used to fill our duvets.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_by_default",
+          "label": "Open by default",
+          "default": false
+        }
       ]
     },
     {
@@ -282,8 +353,18 @@
       "name": "Closing note",
       "limit": 1,
       "settings": [
-        { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Still got questions?" },
-        { "type": "richtext", "id": "body", "label": "Text", "default": "<p><a href=\"/pages/contact\">Click here</a> to chat with us</p>" }
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Still got questions?"
+        },
+        {
+          "type": "richtext",
+          "id": "body",
+          "label": "Text",
+          "default": "<p><a href=\"/pages/contact\">Click here</a> to chat with us</p>"
+        }
       ]
     }
   ],
@@ -305,7 +386,9 @@
             "body": "<p>Standard delivery is free to all UK addresses.</p>"
           }
         },
-        { "type": "note" }
+        {
+          "type": "note"
+        }
       ]
     }
   ]
