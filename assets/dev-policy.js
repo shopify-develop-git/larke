@@ -31,11 +31,24 @@
           return;
         }
 
-        // One row at a time. Whatever is open closes on the way — collapsed with the same
-        // animation as a click on its own summary, not slammed shut.
-        items.forEach((other) => {
-          if (other !== details && isOpen(other)) collapse(other);
-        });
+        // Exclusivity is now a SETTING ("Close other rows when one opens"), not a hard-coded rule.
+        // Owner, 2026-08-18: sent a screen recording of Delivery & Returns closing the previous row
+        // next to FAQ leaving every row open, and asked for "the same logic as for FAQs" — i.e. the
+        // independent rows they picked for the FAQ list on 2026-08-07. Defaulted OFF here to match
+        // that, and left as a checkbox because the two pages had genuinely diverged and either
+        // answer is defensible: comparing two delivery answers is easier with both open, while a
+        // long list stays tidier with one. Flipping it is a tick in the theme editor, not a code
+        // change, so this cannot need another round trip.
+        //
+        // The attribute is read per click rather than cached at init so toggling the setting in the
+        // theme editor takes effect on the next click without a section re-render.
+        if (group.hasAttribute('data-policy-single-open')) {
+          // Whatever is open closes on the way — collapsed with the same animation as a click on
+          // its own summary, not slammed shut.
+          items.forEach((other) => {
+            if (other !== details && isOpen(other)) collapse(other);
+          });
+        }
 
         expand(details);
       });
