@@ -132,6 +132,48 @@
   color: var(--color);
 }
 
+/* Thin rule under the subheading. Owner request, Aug 2026: "a thin white line similar to others we
+   used, JUST under 60 seconds" — i.e. under "See the difference in under 60 seconds."
+
+   Built as ::after on the <p> rather than as a sibling <hr>, which is the idiom the footer
+   (site-footer__divider), the reviews section (dev-reviews__divider) and the promo bar all use.
+   The reason is __text: it is align-items: center, so every child is fit-content wide and an <hr>
+   would collapse to nothing without an explicit width. Giving it width: 100% then sizes the rule to
+   the COLUMN — 410px on desktop, and the full tile width below 480px where --text-max goes to 100%.
+   At 375-480px the 28px heading wraps to roughly 270px inside a ~430px box, so a column-width rule
+   would be wider than every line of copy above it. Hanging it off the paragraph instead makes the
+   rule exactly as wide as the sentence it underlines at every breakpoint, which is what "JUST under
+   60 seconds" asks for, and it keeps a purely decorative line out of the accessibility tree — an
+   <hr> here would be announced as a separator in the middle of the copy.
+
+   currentColor, not #FFFFFF: the same hard rule the play icon follows. The subheading's colour is
+   the merchant's "Text color" setting (#FFFFFF on the homepage today) and the rule has to follow it
+   if that ever changes. 1px and fully opaque, matching every other rule in the theme — the
+   tree-fibre-intro divider's note is explicit that its rule carries no opacity and that none should
+   be invented, and this one sits on a photograph, so it needs all the contrast it has.
+
+   Spacing comes off the existing scale and stays the same at both breakpoints: 8px (--spacing-sm)
+   above, and the 16px (--spacing-md) __content gap to the CTA already sits below it. 1:2 is what
+   makes the rule read as belonging to the subheading rather than floating between copy and button.
+   Nothing to override at mobile — the poster scrim (see the MOBILE block) sits behind it there, so
+   the white line only gets easier to see.
+
+   NOT gated on the CTA button. An earlier pass scoped this rule to a --has-cta modifier so it only
+   drew when a cta_button block was present, on the theory that a rule with nothing beneath it would
+   look like it was floating. That reasoning is wrong for this rule: the 8px margin-top hangs it off
+   the SENTENCE, not off whatever follows, so it reads as an underline of "See the difference in
+   under 60 seconds." whether or not a button sits below. Gating it also inverted the owner's ask —
+   it made the line the merchant asked for conditional on a button they never asked for. The rule
+   now draws whenever the subheading does, which is what "JUST under 60 seconds" means. */
+.video-promo-banner__subheading::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: var(--divider-h);
+  margin-top: var(--spacing-sm);
+  background-color: currentColor;
+}
+
 /* --- buttons / links --- */
 
 /* Migrated to the shared .dev-btn component (variant: filled). The only desktop deviation from

@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "type": "header",
   "name": "Header",
@@ -16,7 +25,7 @@
           "type": "link",
           "settings": {
             "label": "Delivery",
-            "url": "/pages/delivery-and-returns",
+            "url": "\/pages\/delivery-and-returns",
             "position": "left"
           }
         },
@@ -24,7 +33,7 @@
           "type": "link",
           "settings": {
             "label": "Returns",
-            "url": "/pages/delivery-and-returns",
+            "url": "\/pages\/delivery-and-returns",
             "position": "left"
           }
         },
@@ -44,7 +53,7 @@
           "type": "link",
           "settings": {
             "label": "FAQs",
-            "url": "/pages/faq",
+            "url": "\/pages\/faq",
             "position": "right"
           }
         },
@@ -52,7 +61,7 @@
           "type": "link",
           "settings": {
             "label": "Contact",
-            "url": "/pages/contact",
+            "url": "\/pages\/contact",
             "position": "right"
           }
         }
@@ -88,21 +97,21 @@
                   "type": "dev-menu-drawer-nav-link",
                   "settings": {
                     "label": "Shop Our Duvet",
-                    "link": "/products/natures-blend-duvet-copy"
+                    "link": "\/products\/natural-duvet"
                   }
                 },
                 "nav-link-2": {
                   "type": "dev-menu-drawer-nav-link",
                   "settings": {
                     "label": "Our Story",
-                    "link": "/pages/our-story"
+                    "link": "\/pages\/our-story"
                   }
                 },
                 "nav-link-3": {
                   "type": "dev-menu-drawer-nav-link",
                   "settings": {
                     "label": "Discover Tree-Fibre",
-                    "link": "/pages/tree-fibre"
+                    "link": "\/pages\/tree-fibre"
                   }
                 }
               },
@@ -120,21 +129,21 @@
                   "type": "dev-menu-drawer-footer-link",
                   "settings": {
                     "label": "FAQs",
-                    "link": "/pages/faq"
+                    "link": "\/pages\/faq"
                   }
                 },
                 "footer-link-2": {
                   "type": "dev-menu-drawer-footer-link",
                   "settings": {
                     "label": "Delivery & Returns",
-                    "link": "/pages/delivery-and-returns"
+                    "link": "\/pages\/delivery-and-returns"
                   }
                 },
                 "footer-link-3": {
                   "type": "dev-menu-drawer-footer-link",
                   "settings": {
                     "label": "Contact Us",
-                    "link": "/pages/contact"
+                    "link": "\/pages\/contact"
                   }
                 }
               },
@@ -155,7 +164,7 @@
         "cart-drawer": {
           "type": "dev-cart-drawer",
           "settings": {
-            "continue_url": "shopify://products/natures-blend-duvet-copy"
+            "continue_url": "shopify:\/\/products\/natural-duvet"
           }
         }
       },

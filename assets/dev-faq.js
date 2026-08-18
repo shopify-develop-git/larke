@@ -33,6 +33,24 @@
           // The exclusivity pass that used to sit here (collapse every other open row) is gone: on
           // an FAQ list it is actively unhelpful, because comparing two answers meant losing the
           // first one the moment you opened the second.
+          //
+          // 2026-08-17, asked to "make the FAQ open at the same speed as Delivery & Returns": THIS
+          // is the difference, not the duration. Nothing about the timing differs — both sections
+          // declare 300ms / cubic-bezier(0.32, 0.72, 0, 1) and run this same WAAPI height
+          // animation (see the token block in dev-faq.liquid). But dev-policy.js still has the
+          // exclusivity pass, so opening a row there plays a 300ms open AND a 300ms close at once
+          // and the page settles back near its old height, while here the list only ever grows.
+          // Same milliseconds, different gesture. Restoring it is a five-line insert right here —
+          // `items`, `isOpen` and `collapse` are all already in scope:
+          //
+          //   items.forEach((other) => {
+          //     if (other !== details && isOpen(other)) collapse(other);
+          //   });
+          //
+          // NOT DONE, deliberately: it reverses the 2026-08-07 decision above and it changes
+          // behaviour on every row, so it wants the owner to ask for it in as many words rather
+          // than being inferred from the word "speed". Written down so the next person does not
+          // go hunting through the durations again.
           expand(details);
         });
       });

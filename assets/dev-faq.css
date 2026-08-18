@@ -46,8 +46,14 @@
   border-top: 1px solid var(--border-color);
 }
 
-/* The last row closes the list off — the artboard's rows sit between rules, not above them. */
-.dev-faq__item:last-child {
+/* The last row closes the list off — the artboard's rows sit between rules, not above them.
+
+   :last-of-type, NOT :last-child. The closing note (owner, 2026-08-17) is a sibling <div> at the
+   end of this same list, so under :last-child the final question quietly stops matching and the
+   list loses its bottom rule AND its 24px bottom padding — it would look almost right and be
+   wrong. Every .dev-faq__item is a <details> and the note is a <div>, so "last of type" is exactly
+   "last question", with or without a note present. */
+.dev-faq__item:last-of-type {
   padding-bottom: var(--acc-gap);
   border-bottom: 1px solid var(--border-color);
 }
@@ -131,6 +137,57 @@
   text-decoration: underline;
 }
 
+/* ---- Closing note ("Still got questions?") -------------------------------
+   Owner, 2026-08-17: the Delivery & Returns closing block, on the FAQ page. Every value below is
+   dev-policy's, restated against this section's own tokens so the two render identically:
+   .dev-policy__item is flex/column/gap 8px, .dev-policy__item--note adds padding-top 24px, the
+   heading is 22px/500/1.2 in --font-heading, and the body is 16px/500/1.4 with an
+   inherited-colour, BOLD, from-font underlined link.
+
+   No background, no border, no radius — on purpose. The Delivery note is NOT the cream card; that
+   section's `card_color` setting never touches it (padding-top is its only box rule). So there is
+   nothing on the FAQ palette to map a card colour onto, and nothing to add: the note inherits
+   --color and sits straight on --bg, exactly as it does there.
+
+   The link is `color: inherit`, not var(--accent). On Delivery it renders bold #333 underlined;
+   the green accent in this section is only ever the focus ring, and turning the note's link green
+   would be a difference, not a match. It also needs its own rule rather than reusing
+   `.dev-faq__answer a`, which is neither bold nor from-font. */
+.dev-faq__note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--note-gap);
+  padding-top: var(--note-pt);
+}
+
+.dev-faq__note-heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-note-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+/* richtext emits its own <p>; the reset stops it picking up UA margins. */
+.dev-faq__note-body,
+.dev-faq__note-body p {
+  margin: 0;
+  font-size: var(--font-note-body-size);
+  font-weight: var(--w-medium);
+  line-height: var(--font-body-lh);
+}
+
+.dev-faq__note-body p + p {
+  margin-top: var(--note-gap);
+}
+
+.dev-faq__note-body a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
 /* The answer fades up out of nothing as the row opens — opacity ONLY. The row is already growing
    underneath it; a slide as well would be two movements fighting over the same text. Closing has no
    rule at all: the shrinking row clips the copy away from the bottom, which is already the gesture. */
@@ -167,6 +224,12 @@
   .dev-faq__answer,
   .dev-faq__subheading {
     font-size: var(--font-answer-size-mobile);
+  }
+
+  /* dev-policy drops its questions — and the note heading with them — to 20px on mobile. Matched
+     here. The note body is 16px at every width in both sections, so it needs no override. */
+  .dev-faq__note-heading {
+    font-size: var(--font-note-size-mobile);
   }
 }
 
