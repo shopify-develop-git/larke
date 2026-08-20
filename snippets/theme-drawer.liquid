@@ -30,11 +30,26 @@
     // Only restore on wide viewports (squeeze mode). On narrow viewports the
     // drawer is a modal overlay — let it start closed after navigation rather
     // than re-opening a fullscreen dialog the user may have left behind.
-    if (!window.matchMedia('(min-width: 990px)').matches) return;
+    //
+    // Drop the key on the way out rather than just bailing (2026-08-20, while
+    // chasing the phantom Seasons Guide the owner reported on 2026-08-15). A value
+    // written on a wide viewport otherwise stays alive for the whole session on a
+    // phone, waiting for a rotation or a future breakpoint change to resurrect a
+    // drawer nobody asked for. Nothing reads it on narrow viewports, so clearing
+    // it costs nothing.
+    if (!window.matchMedia('(min-width: 990px)').matches) {
+      sessionStorage.removeItem('theme-drawer-open');
+      return;
+    }
 
     var dialogs = [];
     for (var i = 0; i < drawerIds.length; i++) {
-      var drawer = document.getElementById(drawerIds[i]);
+      // Match on the TAG too, not just the id. `id="cart-drawer"` is claimed twice
+      // per page (blocks/dev-cart-drawer.liquid:151 and snippets/cart-drawer.liquid:44)
+      // — dev-main-product.js:1505 already documents that collision and works
+      // around it; getElementById here would silently resolve it by document order and
+      // could hand back an element that is not a drawer at all.
+      var drawer = document.querySelector('theme-drawer[id="' + drawerIds[i] + '"]');
       if (!drawer) continue;
 
       drawer.setAttribute('open', '');
