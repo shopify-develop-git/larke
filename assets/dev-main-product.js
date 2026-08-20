@@ -438,12 +438,87 @@
 (function () {
   const FOCUSABLE = 'a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])';
 
+  /* ---- The gesture gate (store owner, reported 2026-08-15; ~2 weeks of it) ------
+     On his iPhone, tapping "Shop Our Duvet" in the mobile menu landed on the PDP
+     with the Seasons Guide already sliding up over the still-closing menu. There
+     is exactly ONE door into that state — open() below, reached only from the
+     [data-guide-open] click binding — and the markup ships closed
+     (sections/dev-main-product.liquid:1175 hardcodes data-open="false" ... inert),
+     so a real `click` was genuinely delivered at that button in the freshly loaded
+     PDP document. Nothing in this theme dispatches it; the likeliest source is the
+     tap that started on the PREVIOUS page being replayed into the new document as
+     the cross-document View Transition commits (base.css:191-195 turns
+     `@view-transition { navigation: auto }` on for every visitor not using Reduce
+     Motion — settings_data.json's page_transition_enabled:false does not reach it).
+     Unproven — which is why this is a guard, not a removal.
+
+     So the rule is: a modal may only be opened by a press the buyer made ON THAT
+     BUTTON, in THIS document, in the last second.
+       finger / mouse -> pointerdown / touchstart / mousedown on the button, then click
+       keyboard / AT  -> a click with detail 0 (Enter, Space and assistive activation
+                         all report 0; every pointer click reports 1 or more)
+
+     Deliberately NOT evidence, though an earlier draft of this guard treated them as
+     such: `focusin` and `keydown` anywhere in the document. Both are far too weak.
+     A script calling element.focus() produces a focusin the UA marks isTrusted, and
+     this theme does exactly that unprompted (dev-menu-drawer.js:77 on every drawer
+     open and :92 on every drawer close, and open() below) — so a focusin proves
+     nothing about a finger. A keypress anywhere is likewise not a press on this
+     button; the detail-0 check below is the narrower, honest form of that path.
+
+     Be honest about the ceiling: this catches a replay that arrives as a click with
+     no matching press on the trigger. If the replay ever turns out to carry its own
+     trusted pointerdown aimed at the same button, it is indistinguishable from a real
+     tap and this gate will pass it — that is the half of the theory the recording
+     cannot settle. The console.warn below is what would tell us which half we have.
+     The 1500ms fallback means the button can never end up permanently dead if some
+     future browser stops firing all of those; after that window the gate is open by
+     design, which is fine because the phantom only ever appeared at navigation. */
+  let pressedTarget = null;
+  let pressedAt = 0;
+  let documentOpenedAt = performance.now();
+  const PRESS_MAX_AGE = 1000;
+
+  ['pointerdown', 'mousedown', 'touchstart'].forEach((type) => {
+    document.addEventListener(
+      type,
+      (event) => {
+        if (!event.isTrusted) return;
+        pressedTarget = event.target;
+        pressedAt = performance.now();
+      },
+      { capture: true, passive: true }
+    );
+  });
+
+  function resetGesture() {
+    pressedTarget = null;
+    pressedAt = 0;
+    documentOpenedAt = performance.now();
+  }
+
+  function fromRealGesture(event, button) {
+    if (!event || !event.isTrusted) return false;
+    if (event.detail === 0) return true; // keyboard / assistive activation
+    if (
+      button &&
+      pressedTarget &&
+      performance.now() - pressedAt <= PRESS_MAX_AGE &&
+      (pressedTarget === button || button.contains(pressedTarget))
+    ) {
+      return true;
+    }
+    return performance.now() - documentOpenedAt > 1500;
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-main-product]').forEach((root) => {
       initGuides(root);
       initUnits(root);
       initZoom(root);
     });
+
+    forceOverlaysClosed();
   });
 
   // The theme editor re-renders a section without a fresh DOMContentLoaded. Only the zoom is re-run:
@@ -459,6 +534,28 @@
     let lastTrigger = null;
 
     function open(guide, trigger) {
+      /* One overlay at a time (store owner, 2026-08-15: the guide came up ON TOP of the
+         open menu, not behind it). That stacking is not fixable from here and is not
+         an accident: #header-group is position:sticky with z-index:8
+         (dev-site-header.css:30-33), which makes it a stacking context, so the menu
+         drawer's own z-index:100 (dev-menu-drawer.css:26) is trapped at effective 8 —
+         while a guide sits in <main> at a true root-context z-index:100
+         (dev-main-product.css:1351-1357) and therefore ALWAYS paints over it.
+         "Behind the menu" is not a place a guide can be, so close the menu instead.
+         Close it through the header's documented contract (dev-menu-drawer.js:19-26,
+         105-112 and dev-site-header.js:43-55) rather than poking the drawer's DOM, or
+         the hamburger is left believing it is still open and goes dead on the next tap. */
+      const openMenu = document.querySelector('.dev-menu-drawer[data-open="true"]');
+      if (openMenu) {
+        const menuTrigger = document.querySelector('[aria-controls="menu-drawer"]');
+        if (menuTrigger) {
+          menuTrigger.setAttribute('aria-expanded', 'false');
+          const header = menuTrigger.closest('.site-header');
+          if (header) header.setAttribute('data-menu-open', 'false');
+        }
+        document.dispatchEvent(new CustomEvent('site-header:menu-toggle', { detail: { open: false } }));
+      }
+
       guide.removeAttribute('inert');
       guide.removeAttribute('aria-hidden');
 
@@ -499,7 +596,22 @@
     }
 
     root.querySelectorAll('[data-guide-open]').forEach((trigger) => {
-      trigger.addEventListener('click', () => {
+      trigger.addEventListener('click', (event) => {
+        // The chokepoint. This is the only way a guide can ever open, so it is the
+        // only place the reported phantom Seasons Guide can enter. See the gesture gate
+        // at the top of this file.
+        if (!fromRealGesture(event, trigger)) {
+          // Deliberately loud: if this ever fires in the wild it turns an unproven
+          // theory into a confirmed one, and tells us isTrusted, the click's detail
+          // and the elapsed ms.
+          console.warn('[larke] guide open ignored — no press on this trigger in this document', {
+            guide: trigger.dataset.guideOpen,
+            isTrusted: event.isTrusted,
+            detail: event.detail,
+            msSincePageStart: Math.round(performance.now() - documentOpenedAt),
+          });
+          return;
+        }
         const guide = root.querySelector('[data-guide="' + trigger.dataset.guideOpen + '"]');
         if (guide) open(guide, trigger);
       });
@@ -552,6 +664,73 @@
       });
     });
   }
+
+  /* Truth is [data-open] — so reassert the CLOSED state on every entry into this
+     document, not just on a fresh parse. iOS Safari's bfcache replays the DOM
+     verbatim and does NOT re-run this script, so a guide left open before a
+     back/forward traversal would come back open with no code running to shut it.
+     Asserting on `pagehide` too means an open guide can never be frozen INTO the
+     bfcache in the first place. The closing pass never needs to inspect
+     `event.persisted` — on a fresh load it is a no-op, because the markup already
+     ships closed (sections/dev-main-product.liquid:995 and :1175). Only the gesture
+     re-arm below distinguishes a restore from a first load, and for a reason given
+     there. */
+  function forceGuidesClosed() {
+    document.querySelectorAll('[data-guide]').forEach((guide) => {
+      if (guide.dataset.open !== 'true' && guide.hasAttribute('inert')) return;
+      guide.dataset.open = 'false';
+      guide.setAttribute('aria-hidden', 'true');
+      guide.setAttribute('inert', '');
+    });
+    document.querySelectorAll('[data-guide-open]').forEach((trigger) => {
+      trigger.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  /* The lightbox rides the same traversal, and a bfcache restore brings a native
+     <dialog> back with its `open` attribute intact. It has to be shut HERE and not
+     left to the guides' pass, because both of them and this share one scroll-lock
+     flag (see lockScroll's note): a guides-only routine that released the flag would
+     hand back a freely scrolling page underneath a full-screen lightbox that is still
+     showModal()-open — the precise failure the paragraph above exists to prevent,
+     just with the other overlay.
+
+     dialog.close() is enough: initZoom binds cleanup() to the dialog's `close` event,
+     so the transform, the video and the scroll lock are all put back by that one call.
+     No animation on this path on purpose — nobody is watching a page that is being
+     entered or left. */
+  function forceZoomClosed() {
+    document.querySelectorAll('[data-zoom-dialog]').forEach((dialog) => {
+      if (!dialog.open) return;
+      dialog.close();
+      delete dialog.dataset.modalState;
+    });
+  }
+
+  /* unlockScroll() last, and only once everything that can hold the lock is shut.
+     Without it a restore that arrives with an overlay open would drop the panel but
+     leave body{overflow:hidden} and the data-main-product-lock sentinel behind — a
+     page that scrolls nowhere with nothing visibly open. */
+  function forceOverlaysClosed() {
+    forceGuidesClosed();
+    forceZoomClosed();
+    unlockScroll();
+  }
+
+  window.addEventListener('pageshow', (event) => {
+    forceOverlaysClosed();
+
+    /* Re-arm the gesture gate, but only for a bfcache restore. That path replays the
+       JS heap without re-running this script, so `pressedTarget` still holds the press
+       that navigated AWAY from this page and `documentOpenedAt` is stale by however
+       long the page sat in the cache — between them the gate would pass everything for
+       the whole of the restored page view, which is exactly the traversal this pair of
+       listeners was added for. A fresh load reaches this line with values the script
+       itself set moments ago, and clearing them here would throw away a press the buyer
+       made while the page was still loading. */
+    if (event.persisted) resetGesture();
+  });
+  window.addEventListener('pagehide', forceOverlaysClosed);
 
   function initUnits(root) {
     const buttons = Array.from(root.querySelectorAll('[data-unit]'));
@@ -1066,7 +1245,15 @@
     }
 
     triggers.forEach((trigger) => {
-      trigger.addEventListener('click', (event) => open(event, trigger));
+      trigger.addEventListener('click', (event) => {
+        /* Same gate as the guides, same reason (store owner, 2026-08-15). At scroll 0 the
+           hero gallery occupies exactly the band where the menu's "Shop Our Duvet"
+           link sat, so if a tap really is being replayed into the new document the
+           lightbox is the next thing that opens by itself. The event object is still
+           forwarded, so open()'s `event.detail === 0` keyboard detection is intact. */
+        if (!fromRealGesture(event, trigger)) return;
+        open(event, trigger);
+      });
     });
 
     if (closeButton) closeButton.addEventListener('click', close);

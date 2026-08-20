@@ -16,7 +16,7 @@
           "type": "question",
           "settings": {
             "heading": "How are trees turned into duvets?",
-            "body": "<p>The wood is broken down into pulp, spun into soft fibres and then used to fill our duvets. </p>",
+            "body": "<p>The wood is broken down into pulp, spun into soft fibres and then used to fill our duvets. <\/p>",
             "open_by_default": true
           }
         },
@@ -24,7 +24,7 @@
           "type": "question",
           "settings": {
             "heading": "Does tree-fibre smell?",
-            "body": "<p>There's no woody or earthy smell - you'd never know it started life as a tree. </p>",
+            "body": "<p>There's no woody or earthy smell - you'd never know it started life as a tree. <\/p>",
             "open_by_default": false
           }
         },
@@ -32,7 +32,7 @@
           "type": "question",
           "settings": {
             "heading": "Will it fit inside my washing machine?",
-            "body": "<p>Yes. All our duvets are designed to fit standard 8-9kg UK washing machines and tumble dryers. </p>",
+            "body": "<p>Yes. All our duvets are designed to fit standard 8-9kg UK washing machines and tumble dryers. <\/p>",
             "open_by_default": false
           }
         },
@@ -40,7 +40,7 @@
           "type": "question",
           "settings": {
             "heading": "Are the duvets crunchy?",
-            "body": "<p>Not at all. No crunch or bark bits, just soft and smooth tree-fibre. (you'd never tell the difference) </p>",
+            "body": "<p>Not at all. No crunch or bark bits, just soft and smooth tree-fibre. (you'd never tell the difference) <\/p>",
             "open_by_default": false
           }
         },
@@ -48,7 +48,7 @@
           "type": "question",
           "settings": {
             "heading": "Will it lose its shape after washing?",
-            "body": "<p>Our quilted sewn-through construction keeps the filling evenly in place, both through washing and drying. </p>",
+            "body": "<p>Our quilted sewn-through construction keeps the filling evenly in place, both through washing and drying. <\/p>",
             "open_by_default": false
           }
         },
@@ -56,7 +56,7 @@
           "type": "question",
           "settings": {
             "heading": "Will it move around inside my duvet cover?",
-            "body": "<p>We recommend using a matching duvet-cover size, so it sits neatly and stays comfortably in place. </p>",
+            "body": "<p>We recommend using a matching duvet-cover size, so it sits neatly and stays comfortably in place. <\/p>",
             "open_by_default": false
           }
         },
@@ -64,7 +64,7 @@
           "type": "note",
           "settings": {
             "heading": "Still got questions?",
-            "body": "<p><a href=\"/pages/contact\">Click here</a> to chat with us</p>"
+            "body": "<p><a href=\"\/pages\/contact\">Click here<\/a> to chat with us<\/p>"
           }
         }
       },

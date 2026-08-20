@@ -190,9 +190,32 @@ p:empty {
 
 /* view transitions */
 @media (prefers-reduced-motion: no-preference) {
-  @view-transition {
-    navigation: auto;
-  }
+  /* CROSS-DOCUMENT view transitions are OFF (owner, 2026-08-20).
+     This block used to carry:
+
+       @view-transition { navigation: auto; }
+
+     which opts every full-page navigation into a cross-document view transition. The owner spent
+     two weeks reporting a "pop up" on the product page: tapping "Shop Our Duvet" in the mobile menu
+     landed on the PDP with the Seasons Guide drawer already open, painted on top of the outgoing
+     menu. A five-way investigation ruled out every in-theme cause — the drawer's open state is
+     written in exactly one place (assets/dev-main-product.js, `guide.dataset.open = 'true'` inside
+     open()), reachable only from a real click on a [data-guide-open] trigger; the sessionStorage
+     drawer restore cannot address a plain <div> and is gated to >=990px anyway; and no CSS reveals
+     the panel without [data-open='true'].
+
+     What was left is this: during a cross-document transition the browser composites the OUTGOING
+     document's snapshot with the INCOMING one, which is exactly the three-layer frame in his
+     recording (menu + guide + product page at once). It is also why it reproduced for him and never
+     for two developers on their own phones — the whole block is behind
+     prefers-reduced-motion: no-preference, so anyone with Reduce Motion on never sees it.
+
+     Turning the navigation opt-in off removes the cross-fade between pages. Nothing else here is
+     lost: every rule below is scoped to :active-view-transition-type(...) and only applies while a
+     transition is actually running, and the SAME-document transitions the theme triggers itself
+     through startViewTransition() — cart line items (assets/component-cart-items.js), collection
+     facets (assets/facets.js) and the grid layout toggle (assets/results-list.js) — do not depend
+     on this at-rule and keep working. Restore the two lines above to re-enable page cross-fades. */
 
   /* Keep page interactive while view transitions are running */
   :root {
