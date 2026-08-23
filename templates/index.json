@@ -12,12 +12,12 @@
     "dev-hero": {
       "type": "dev-hero",
       "settings": {
-        "heading": "<p>Not just any<br\/>ordinary duvet<\/p>",
-        "subtext": "<p>This one begins with <em>trees<\/em>.<\/p>",
+        "heading": "<p>Not just any<br/>ordinary duvet</p>",
+        "subtext": "<p>This one begins with <em>trees</em>.</p>",
         "cta_label": "Discover Our Duvet",
-        "cta_link": "\/products\/natural-duvet",
-        "background_image": "shopify:\/\/shop_images\/master_hero_media_619dff07-6390-4b1e-ba79-c1622cdf6972.webp",
-        "background_image_mobile": "shopify:\/\/shop_images\/hero-bg.jpg",
+        "cta_link": "/products/natural-duvet",
+        "background_image": "shopify://shop_images/master_hero_media_619dff07-6390-4b1e-ba79-c1622cdf6972.webp",
+        "background_image_mobile": "shopify://shop_images/hero-bg.jpg",
         "stretch_background": false,
         "show_underline_accent": true,
         "background_color": "rgba(0,0,0,0)",
@@ -74,7 +74,7 @@
         "tile-raw-materials": {
           "type": "image_tile",
           "settings": {
-            "image": "shopify:\/\/shop_images\/naturally-better-promo-tile-1.png",
+            "image": "shopify://shop_images/naturally-better-promo-tile-1.png",
             "alt_text": "Hands holding wood chips and rice hulls, the raw materials for our fibre",
             "border_color": "#c4bca9"
           }
@@ -82,7 +82,7 @@
         "tile-line-drying": {
           "type": "image_tile",
           "settings": {
-            "image": "shopify:\/\/shop_images\/master_promo_tiles.webp",
+            "image": "shopify://shop_images/master_promo_tiles.webp",
             "alt_text": "A Larke duvet drying outdoors on a washing line",
             "border_color": "#c4bca9"
           }
@@ -94,9 +94,9 @@
       ],
       "settings": {
         "heading": "Naturally Remarkable",
-        "subheading": "<p>From trees, to the most breathable duvet.<\/p>",
-        "cta_label": "Start your 60-night trial",
-        "cta_link": "\/products\/natural-duvet",
+        "subheading": "<p>From trees, to the most breathable duvet.</p>",
+        "cta_label": "Start your 60 nights",
+        "cta_link": "/products/natural-duvet",
         "background_color": "#fcf5e3",
         "text_color": "#333333",
         "accent_color": "#c4bca9",
@@ -110,14 +110,14 @@
         "tile-laundry": {
           "type": "image_tile",
           "settings": {
-            "image": "shopify:\/\/shop_images\/wash-dry-repeat-laundry.jpg",
+            "image": "shopify://shop_images/wash-dry-repeat-laundry.jpg",
             "alt_text": "Folded towels beside a washing machine"
           }
         },
         "tile-bedroom": {
           "type": "image_tile",
           "settings": {
-            "image": "shopify:\/\/shop_images\/wash-dry-repeat-bedroom.jpg",
+            "image": "shopify://shop_images/wash-dry-repeat-bedroom.jpg",
             "alt_text": "Woman stretching in bed under a Larke duvet"
           }
         }
@@ -128,9 +128,9 @@
       ],
       "settings": {
         "heading": "Wash. Dry. Repeat.",
-        "body_text": "<p>Fuss-free comfort.<br\/>Fresh again by bedtime.<\/p>",
+        "body_text": "<p>Fuss-free comfort.<br/>Fresh again by bedtime.</p>",
         "button_label": "Discover Tree-Fibre",
-        "button_link": "\/pages\/tree-fibre",
+        "button_link": "/pages/tree-fibre",
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#333333",
         "accent_color": "#c4bca9",
@@ -143,8 +143,9 @@
       "settings": {
         "heading": "Trees into duvets – who would've thought?",
         "subheading": "See the difference in under 60 seconds.",
-        "background_poster_image": "shopify:\/\/shop_images\/video-promo-banner-bg.png",
-        "video": "shopify:\/\/files\/videos\/Larke V4 Video LogoOnly (1).mp4",
+        "subheading_underline": "under 60 seconds",
+        "background_poster_image": "shopify://shop_images/video-promo-banner-bg.png",
+        "video": "shopify://files/videos/Larke V4 Video LogoOnly (1).mp4",
         "video_external_url": "",
         "show_play_button": true,
         "background_color": "rgba(0,0,0,0)",
@@ -185,14 +186,14 @@
         "icon-hypoallergenic"
       ],
       "settings": {
-        "heading": "<p>Meet your new<br\/><em>(and last)<\/em> duvet<\/p>",
-        "subheading": "<p>Discover a lighter, cosier, all-⁠natural duvet<\/p>",
+        "heading": "<p>Meet your new<br/><em>(and last)</em> duvet</p>",
+        "subheading": "<p>Discover a lighter, cosier, all-⁠natural duvet</p>",
         "show_rating_stars": true,
-        "rating_text": "Rated {rating}\/5* by real sleepers",
+        "rating_text": "Rated {rating}/5* by real sleepers",
         "button_label": "Shop Your Duvet",
-        "button_link": "\/products\/natural-duvet",
-        "product_image": "shopify:\/\/shop_images\/master_promo_tiles_3dc13547-6e92-4782-86f0-e7536b3a7500.webp",
-        "product_image_mobile": "shopify:\/\/shop_images\/0061.jpg",
+        "button_link": "/products/natural-duvet",
+        "product_image": "shopify://shop_images/master_promo_tiles_3dc13547-6e92-4782-86f0-e7536b3a7500.webp",
+        "product_image_mobile": "shopify://shop_images/0061.jpg",
         "background_color": "#fcf5e3",
         "text_color": "#333333",
         "accent_color": "#f1b500",
@@ -206,7 +207,7 @@
         "logo_ENMBfi": {
           "type": "logo",
           "settings": {
-            "image": "shopify:\/\/shop_images\/house_and_garden_logo_transparent.png",
+            "image": "shopify://shop_images/house_and_garden_logo_transparent.png",
             "alt_text": "",
             "logo_height": 30
           }
@@ -214,7 +215,7 @@
         "logo_iRJ4Yj": {
           "type": "logo",
           "settings": {
-            "image": "shopify:\/\/shop_images\/good_housekeeping_logo_exact_transparent_6000px.png",
+            "image": "shopify://shop_images/good_housekeeping_logo_exact_transparent_6000px.png",
             "alt_text": "",
             "logo_height": 28
           }
@@ -222,7 +223,7 @@
         "logo_V7BmpD": {
           "type": "logo",
           "settings": {
-            "image": "shopify:\/\/shop_images\/Womens-Health-Logo.png",
+            "image": "shopify://shop_images/Womens-Health-Logo.png",
             "alt_text": "",
             "logo_height": 24
           }
@@ -230,7 +231,7 @@
         "logo_THxTyD": {
           "type": "logo",
           "settings": {
-            "image": "shopify:\/\/shop_images\/Glamour_logo_svg.webp",
+            "image": "shopify://shop_images/Glamour_logo_svg.webp",
             "alt_text": "",
             "logo_height": 23
           }
@@ -238,7 +239,7 @@
         "logo_ii4Rpb": {
           "type": "logo",
           "settings": {
-            "image": "shopify:\/\/shop_images\/English-Home-Logo-AI-Black-RGB.svg",
+            "image": "shopify://shop_images/English-Home-Logo-AI-Black-RGB.svg",
             "alt_text": "",
             "logo_height": 32
           }
@@ -254,8 +255,8 @@
       "settings": {
         "heading": "As seen in",
         "subheading": "Comfort put to the test",
-        "lifestyle_image": "shopify:\/\/shop_images\/cool-sleepers-promo-lifestyle-desktop.png",
-        "lifestyle_image_mobile": "shopify:\/\/shop_images\/cool-sleepers-promo-lifestyle-mobile.png",
+        "lifestyle_image": "shopify://shop_images/cool-sleepers-promo-lifestyle-desktop.png",
+        "lifestyle_image_mobile": "shopify://shop_images/cool-sleepers-promo-lifestyle-mobile.png",
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#333333",
         "accent_color": "#333333",
@@ -268,7 +269,7 @@
       "type": "dev-brand-social-gallery",
       "blocks": {
         "instafeed_app_block_YTYedz": {
-          "type": "shopify:\/\/apps\/instafeed\/blocks\/app-block\/c447db20-095d-4a10-9725-b5977662c9d5",
+          "type": "shopify://apps/instafeed/blocks/app-block/c447db20-095d-4a10-9725-b5977662c9d5",
           "settings": {
             "title": "",
             "title_color": "",
@@ -296,7 +297,7 @@
         "show_instagram_logo": true,
         "instagram_link_label": "Larke on Instagram",
         "show_badge": false,
-        "profile_badge_logo": "shopify:\/\/shop_images\/group_6568.webp",
+        "profile_badge_logo": "shopify://shop_images/group_6568.webp",
         "hide_static_when_app": true,
         "background_color": "#fffcf4",
         "text_color": "#333333",
@@ -308,12 +309,12 @@
     "dev-video-story-banner": {
       "type": "dev-video-story-banner",
       "settings": {
-        "heading": "<p>Tree-mendous<br\/>since day one.<\/p>",
+        "heading": "<p>Tree-mendous<br/>since day one.</p>",
         "subheading": "See how it all began.",
         "button_label": "Our Story",
-        "button_link": "\/pages\/our-story",
-        "image": "shopify:\/\/shop_images\/our-story-video-banner-bg.jpg",
-        "image_mobile": "shopify:\/\/shop_images\/our-story-video-banner-bg.jpg",
+        "button_link": "/pages/our-story",
+        "image": "shopify://shop_images/our-story-video-banner-bg.jpg",
+        "image_mobile": "shopify://shop_images/our-story-video-banner-bg.jpg",
         "background_color": "#fffcf4",
         "text_color": "#ffffff",
         "accent_color": "#a8cf78",
