@@ -196,7 +196,7 @@
         "card_3"
       ],
       "settings": {
-        "heading": "<p>Turns out great <br/>sleep grows on trees</p>",
+        "heading": "<p>Turns out, great <br/>sleep grows on trees</p>",
         "background_color": "#fcf5e3",
         "text_color": "#333333",
         "accent_color": "#333333",
