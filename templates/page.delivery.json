@@ -16,7 +16,7 @@
           "type": "qa",
           "settings": {
             "heading": "How do I return my duvet?",
-            "body": "<p>Email us with your order number and we'll send you a prepaid return label. <br\/>Once you've dropped it off and it reaches us, we'll process your refund. <\/p>",
+            "body": "<p>Email us with your order number and we'll send you a prepaid return label. <br/>Once you've dropped it off and it reaches us, we'll process your refund. </p>",
             "open_by_default": true
           }
         },
@@ -24,7 +24,7 @@
           "type": "qa",
           "settings": {
             "heading": "Does it cost to return?",
-            "body": "<p>No. We'll cover the return label, so there's nothing for you to pay. <\/p>",
+            "body": "<p>No. We'll cover the return label, so there's nothing for you to pay. </p>",
             "open_by_default": false
           }
         },
@@ -32,7 +32,7 @@
           "type": "qa",
           "settings": {
             "heading": "How long does my refund take?",
-            "body": "<p>Once your refund has been processed, it should appear within 1-4 working days, depending on your bank or payment method. <\/p>",
+            "body": "<p>Once your refund has been processed, it should appear within 1-4 working days, depending on your bank or payment method. </p>",
             "open_by_default": false
           }
         },
@@ -40,7 +40,7 @@
           "type": "qa",
           "settings": {
             "heading": "Do we ship internationally?",
-            "body": "<p>Not at the moment. <br\/>We currently deliver within the UK only. For international trade orders, send us an email on hello@wearelarke.com<\/p>",
+            "body": "<p>Not at the moment. <br/>We currently deliver within the UK only. For international trade orders, send us an email on hello@wearelarke.com</p>",
             "open_by_default": false
           }
         },
@@ -48,7 +48,7 @@
           "type": "qa",
           "settings": {
             "heading": "Do you offer same-day delivery?",
-            "body": "<p>If you're within the M25 and order before 4pm, we can deliver your duvet that same day. Standard UK delivery takes 1-3 working days. <\/p>",
+            "body": "<p>If you're within Greater London and order before 4pm, we can deliver your duvet that same day. Standard UK delivery takes 1-3 working days. </p>",
             "open_by_default": false
           }
         },
@@ -56,7 +56,7 @@
           "type": "note",
           "settings": {
             "heading": "Still got questions?",
-            "body": "<p><a href=\"\/pages\/contact\">Click here<\/a> to chat with us<\/p>"
+            "body": "<p><a href=\"/pages/contact\">Click here</a> to chat with us</p>"
           }
         }
       },
@@ -74,12 +74,12 @@
         "body": "",
         "layout": "split",
         "accordion": true,
+        "single_open": true,
         "background_color": "#fffcf4",
         "text_color": "#333333",
         "card_color": "#fcf5e3",
         "padding_top": 0,
-        "padding_bottom": 0,
-        "single_open": true
+        "padding_bottom": 0
       }
     }
   },
