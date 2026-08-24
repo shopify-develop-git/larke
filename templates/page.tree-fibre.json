@@ -102,8 +102,8 @@
           "settings": {
             "icon": "fsc_certified",
             "heading": "Grown sustainably",
-            "heading_line_2": "- FSC Certified",
-            "body": "Every tree is traced back to responsibly managed forests."
+            "heading_line_2": "",
+            "body": "Every tree is traced back to responsibly managed FSC-certified forests."
           }
         },
         "card-biodegradable": {
