@@ -74,7 +74,7 @@
         "tile-raw-materials": {
           "type": "image_tile",
           "settings": {
-            "image": "shopify://shop_images/ChatGPT_Image_Aug_24_2026_06_48_41_PM.png",
+            "image": "shopify://shop_images/Shopify-ready-hands-1500x2000.jpg",
             "alt_text": "Hands holding wood chips and rice hulls, the raw materials for our fibre",
             "border_color": "#c4bca9"
           }
