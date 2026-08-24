@@ -110,9 +110,9 @@
           "type": "benefit_card",
           "settings": {
             "icon": "biodegradable",
-            "heading": "Too natural for landfills",
+            "heading": "Back to nature",
             "heading_line_2": "",
-            "body": "Biodegradable, compostable and gone in 130 days."
+            "body": "Biodegradable in under 130 days."
           }
         }
       },
