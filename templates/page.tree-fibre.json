@@ -12,10 +12,10 @@
     "dev-tree-fibre-hero": {
       "type": "dev-tree-fibre-hero",
       "settings": {
-        "heading": "Turns out, taking care of our planet never felt more <em>comfortable.<\/em>",
+        "heading": "Turns out, taking care of our planet never felt more <em>comfortable.</em>",
         "emphasis_weight": "600",
         "show_underline": false,
-        "background_image": "shopify:\/\/shop_images\/tree-fibre-hero-bg.jpg",
+        "background_image": "shopify://shop_images/tree-fibre-hero-bg.jpg",
         "stretch_background": true,
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#ffffff",
@@ -27,10 +27,10 @@
     "dev-tree-fibre-intro": {
       "type": "dev-tree-fibre-intro",
       "settings": {
-        "intro_text": "<p>For decades, tree-fibre has been the go-to material for breathability - from performance sportswear to luxury fashion.<\/p>",
-        "heading": "<p>So, we asked -<br\/>why not duvets?<\/p>",
+        "intro_text": "<p>For decades, tree-fibre has been the go-to material for breathability - from performance sportswear to luxury fashion.</p>",
+        "heading": "<p>So, we asked -<br/>why not duvets?</p>",
         "show_divider": true,
-        "image": "shopify:\/\/shop_images\/tree-fibre-intro-side-image.png",
+        "image": "shopify://shop_images/tree-fibre-intro-side-image.png",
         "alt_text": "",
         "background_color": "#fcf5e3",
         "text_color": "#333333",
@@ -46,8 +46,8 @@
           "type": "step",
           "settings": {
             "title": "Step 1",
-            "body": "<p>Our duvets started life as a tree. Think eucalyptus.<\/p>",
-            "image": "shopify:\/\/shop_images\/dev-three-step-1.webp",
+            "body": "<p>Our duvets started life as a tree. Think eucalyptus.</p>",
+            "image": "shopify://shop_images/dev-three-step-1.webp",
             "image_alt": "Stacked eucalyptus logs"
           }
         },
@@ -55,8 +55,8 @@
           "type": "step",
           "settings": {
             "title": "Step 2",
-            "body": "<p>Using water, it’s transformed into ultra-fine fibres, smoother than merino wool.<\/p>",
-            "image": "shopify:\/\/shop_images\/dev-three-step-2.webp",
+            "body": "<p>Using water, it’s transformed into ultra-fine fibres, smoother than merino wool.</p>",
+            "image": "shopify://shop_images/dev-three-step-2.webp",
             "image_alt": "Close-up of ultra-fine tree fibre"
           }
         },
@@ -64,8 +64,8 @@
           "type": "step",
           "settings": {
             "title": "Step 3",
-            "body": "<p>Collected, filled then sewn together, it adapts to heat in sleep for all seasons. Year round.<\/p>",
-            "image": "shopify:\/\/shop_images\/dev-three-step-3.webp",
+            "body": "<p>Collected, filled then sewn together, it adapts to heat in sleep for all seasons, year round.</p>",
+            "image": "shopify://shop_images/dev-three-step-3.webp",
             "image_alt": "A duvet being sewn on a machine"
           }
         }
@@ -136,12 +136,12 @@
     "dev-fibre-cta": {
       "type": "dev-fibre-cta",
       "settings": {
-        "heading": "<p>A single, natural fibre – elevating our duvets.<\/p>",
-        "image": "shopify:\/\/shop_images\/fibre-cta-card-image-desktop.jpg",
-        "image_mobile": "shopify:\/\/shop_images\/rectangle_8.webp",
+        "heading": "<p>A single, natural fibre – elevating our duvets.</p>",
+        "image": "shopify://shop_images/fibre-cta-card-image-desktop.jpg",
+        "image_mobile": "shopify://shop_images/rectangle_8.webp",
         "alt_text": "",
         "button_label": "Shop Our Duvet",
-        "button_link": "\/products\/natural-duvet",
+        "button_link": "/products/natural-duvet",
         "background_color": "#fcf5e3",
         "text_color": "#333333",
         "accent_color": "#a8cf78",
