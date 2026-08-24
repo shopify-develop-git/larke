@@ -56,7 +56,7 @@
           "type": "question",
           "settings": {
             "heading": "Will it move around inside my duvet cover?",
-            "body": "<p>We recommend using a matching duvet-cover size, so it sits neatly and stays comfortably in place. </p>",
+            "body": "<p>We recommend using a matching duvet-cover size, so it sits neatly and stays comfortably in place throughout the night. </p>",
             "open_by_default": false
           }
         },
