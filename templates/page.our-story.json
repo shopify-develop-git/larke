@@ -42,7 +42,7 @@
           "settings": {
             "image": "shopify://shop_images/rectangle_746_1.webp",
             "image_alt": "Looking up a stand of tall eucalyptus trees towards the sun",
-            "text": "<p><strong>Chancing upon fibres from </strong>eucalyptus trees, we were intrigued, inspired and captivated by its magical benefits and durability.</p>",
+            "text": "<p><strong>Chancing upon fibres from </strong>eucalyptus trees, we were intrigued and captivated by its magical benefits and durability.</p>",
             "crop": "tall"
           }
         },
