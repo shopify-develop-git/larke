@@ -63,7 +63,8 @@
     --content-w: 646px; {%- comment -%} 655 + 646 = 1301, the section content box at 1440 — no gap in Figma {%- endcomment -%}
     --media-h: 511px;
     --media-ratio: 655 / 511;
-    --media-ratio-m: 343 / 319; {%- comment -%} mobile: image is a full-width band (343 @375px) × 319 tall {%- endcomment -%}
+    --media-ratio-m: 343 / 319; {%- comment -%} mobile: image is a full-width band (343 @375px) × 319 tall.
+       The design default only — "Mobile image shape" rewrites this on the wrapper below. {%- endcomment -%}
     --content-py: 64px;
     --text-max: 311px;
 
@@ -116,7 +117,7 @@
   endif
 
   assign hero = section.settings.product_image
-  assign hero_alt = hero.alt | default: '' | escape
+  assign hero_alt = hero.alt | default: section.settings.product_image_mobile.alt | default: '' | escape
 
   comment
     Art direction, not a second size of the same file: the desktop tile is 655x511 (1.28) and the
@@ -133,6 +134,41 @@
   assign hero_mobile_3x = hero_mobile | image_url: width: 1029
 
   assign hero_mobile_srcset = hero_mobile_1x | append: ' 343w, ' | append: hero_mobile_2x | append: ' 686w, ' | append: hero_mobile_3x | append: ' 1029w'
+
+  comment
+    Mobile crop control (owner's ask). The phone band is a fixed 343x319 tile filled with
+    object-fit: cover, so a portrait photo dropped into it loses its top and bottom — there is no
+    crop nudge that fixes that, because the frame is the wrong shape for the picture.
+
+    "Whole image" therefore does not change the fit, it changes the FRAME: the tile takes the
+    picture's own width/height, so cover and contain agree and nothing is cut. `contain` is the
+    one written out — with the ratios equal it renders identically, and it is the safe side of a
+    sub-pixel rounding difference (a hairline of card cream rather than a shaved edge).
+
+    The other three are fixed shapes that still crop; the focal point picks which end survives.
+    Bottom stays the default because the mobile band is a shallow crop of a tall product shot and
+    centring it cut the product off at both ends.
+
+    Ratio comes from the mobile pick when there is one, otherwise from the desktop image — which
+    is the file that actually renders on phones when no mobile crop is supplied.
+  endcomment
+  assign mobile_ratio = '343 / 319'
+  assign mobile_fit = 'cover'
+  assign mobile_pos = section.settings.mobile_image_focus | default: 'bottom'
+
+  case section.settings.mobile_image_shape
+    when 'square'
+      assign mobile_ratio = '1 / 1'
+    when 'portrait'
+      assign mobile_ratio = '4 / 5'
+    when 'natural'
+      assign natural_image = hero_mobile | default: hero
+      if natural_image.width > 0 and natural_image.height > 0
+        assign mobile_ratio = natural_image.width | append: ' / ' | append: natural_image.height
+      endif
+      assign mobile_fit = 'contain'
+      assign mobile_pos = 'center'
+  endcase
 -%}
 
 <div
@@ -143,18 +179,27 @@
     --accent: {{ section.settings.accent_color }};
     --pt: {{ section.settings.padding_top }}px;
     --pb: {{ section.settings.padding_bottom }}px;
+    {%- comment -%} Overrides the Figma default declared in the token block above — read only inside the <=768px block. {%- endcomment -%}
+    --media-ratio-m: {{ mobile_ratio }};
+    --media-fit-m: {{ mobile_fit }};
+    --media-pos-m: {{ mobile_pos }};
   "
 >
   <div class="featured-product__inner">
     <div class="featured-product__card">
-      {%- if hero != blank -%}
+      {%- comment -%} Either picker on its own is enough: a merchant who only wants the shot on phones
+         fills in the mobile picker and leaves the other empty, and the <img> below — the fallback
+         every non-phone width lands on — falls back to that same file rather than the tile
+         disappearing entirely. {%- endcomment -%}
+      {%- assign hero_fallback = hero | default: hero_mobile -%}
+      {%- if hero_fallback != blank -%}
         <div class="featured-product__media">
           <picture>
             {%- if hero_mobile != blank -%}
               <source media="(max-width: 768px)" srcset="{{ hero_mobile_srcset }}" sizes="100vw">
             {%- endif -%}
             {{
-              hero
+              hero_fallback
               | image_url: width: 1400
               | image_tag:
                 loading: 'lazy',
@@ -295,7 +340,32 @@
     { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop Your Duvet" },
     { "type": "url", "id": "button_link", "label": "Button link" },
     { "type": "image_picker", "id": "product_image", "label": "Product image" },
-    { "type": "image_picker", "id": "product_image_mobile", "label": "Product image (mobile)", "info": "Optional. On phones the image is a shorter, near-square band — pick a crop made for it here. Leave it empty and the image above is used at every width." },
+    { "type": "image_picker", "id": "product_image_mobile", "label": "Product image (mobile)", "info": "Optional. On phones the image is a shorter, near-square band — pick a crop made for it here. Leave it empty and the image above is used at every width. Fill in only this one and the picture shows on phones only." },
+    {
+      "type": "select",
+      "id": "mobile_image_shape",
+      "label": "Mobile image shape",
+      "default": "band",
+      "info": "Choose \"Whole image\" to stop the picture being cropped on phones — the frame takes the picture's own proportions, so all of it shows. The other shapes crop to fit.",
+      "options": [
+        { "value": "band", "label": "Band — short and wide (design default)" },
+        { "value": "square", "label": "Square" },
+        { "value": "portrait", "label": "Portrait (4:5)" },
+        { "value": "natural", "label": "Whole image — no cropping" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "mobile_image_focus",
+      "label": "Mobile crop position",
+      "default": "bottom",
+      "info": "Which part of the picture to keep when the shape above crops. Ignored by \"Whole image\".",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "center", "label": "Center" },
+        { "value": "bottom", "label": "Bottom" }
+      ]
+    },
 
     { "type": "header", "content": "Colors" },
     {
