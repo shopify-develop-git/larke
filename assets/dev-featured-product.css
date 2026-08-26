@@ -289,9 +289,13 @@
     left: 0;
     width: 100%;
     height: 100%;
-    /* Anchored to the bottom, not centred: the mobile band is a much shallower crop of the same
-       source, and centring it cut the product off at both ends. */
-    object-position: bottom;
+    /* Both driven by "Mobile image shape" / "Mobile crop position" in the section settings; the
+       fallbacks are the Figma behaviour. Anchored to the bottom by default, not centred: the
+       mobile band is a much shallower crop of the same source, and centring it cut the product
+       off at both ends. On "Whole image" the section ships contain against a tile carrying the
+       picture's own ratio, so there is neither a crop nor a letterbox bar. */
+    object-fit: var(--media-fit-m, cover);
+    object-position: var(--media-pos-m, bottom);
   }
 
   .featured-product__subheading {
