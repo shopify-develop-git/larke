@@ -13,19 +13,12 @@
   "sections": {
     "dev-announcement-bar": {
       "type": "dev-announcement-bar",
-      "settings": {
-        "background_color": "#FCF5E3",
-        "text_color": "#333333",
-        "accent_color": "#333333",
-        "padding_top": 12,
-        "padding_bottom": 12
-      },
       "blocks": {
         "link-delivery": {
           "type": "link",
           "settings": {
             "label": "Delivery",
-            "url": "\/pages\/delivery-and-returns",
+            "url": "/pages/delivery-and-returns",
             "position": "left"
           }
         },
@@ -33,7 +26,7 @@
           "type": "link",
           "settings": {
             "label": "Returns",
-            "url": "\/pages\/delivery-and-returns",
+            "url": "/pages/delivery-and-returns",
             "position": "left"
           }
         },
@@ -53,7 +46,7 @@
           "type": "link",
           "settings": {
             "label": "FAQs",
-            "url": "\/pages\/faq",
+            "url": "/pages/faq",
             "position": "right"
           }
         },
@@ -61,7 +54,7 @@
           "type": "link",
           "settings": {
             "label": "Contact",
-            "url": "\/pages\/contact",
+            "url": "/pages/contact",
             "position": "right"
           }
         }
@@ -73,116 +66,172 @@
         "message-delivery",
         "link-faqs",
         "link-contact"
-      ]
+      ],
+      "settings": {
+        "background_color": "#fcf5e3",
+        "text_color": "#333333",
+        "accent_color": "#333333",
+        "padding_top": 12,
+        "padding_bottom": 12
+      }
     },
     "dev-site-header": {
       "type": "dev-site-header",
-      "settings": {
-        "logo_width": 140,
-        "show_cart_count": true,
-        "background_color": "#FFFCF4",
-        "text_color": "#333333",
-        "accent_color": "#4EA448",
-        "padding_top": 24,
-        "padding_bottom": 24
-      },
       "blocks": {
         "menu-drawer": {
           "type": "dev-menu-drawer",
+          "settings": {
+            "drawer_heading": "Menu",
+            "show_rating_bar": true,
+            "show_rating_stars": true,
+            "rating_label": "Rated Excellent",
+            "background_color": "#fffcf4",
+            "text_color": "#333333",
+            "accent_color": "#f1b500",
+            "divider_color": "#c4bca9",
+            "backdrop_color": "#333333",
+            "backdrop_opacity": 40,
+            "padding_top": 32,
+            "padding_bottom": 32,
+            "open_on_load": false
+          },
           "blocks": {
             "nav": {
               "type": "dev-menu-drawer-nav",
+              "settings": {},
               "blocks": {
                 "nav-link-1": {
                   "type": "dev-menu-drawer-nav-link",
                   "settings": {
                     "label": "Shop Our Duvet",
-                    "link": "\/products\/natural-duvet"
-                  }
+                    "link": "/products/natural-duvet"
+                  },
+                  "blocks": {}
                 },
                 "nav-link-2": {
                   "type": "dev-menu-drawer-nav-link",
                   "settings": {
                     "label": "Our Story",
-                    "link": "\/pages\/our-story"
-                  }
+                    "link": "/pages/our-story"
+                  },
+                  "blocks": {}
                 },
                 "nav-link-3": {
                   "type": "dev-menu-drawer-nav-link",
                   "settings": {
                     "label": "Discover Tree-Fibre",
-                    "link": "\/pages\/tree-fibre"
-                  }
+                    "link": "/pages/tree-fibre"
+                  },
+                  "blocks": {}
                 }
               },
               "block_order": [
                 "nav-link-1",
                 "nav-link-2",
                 "nav-link-3"
-              ],
-              "settings": {}
+              ]
             },
             "footer": {
               "type": "dev-menu-drawer-footer",
+              "settings": {},
               "blocks": {
                 "footer-link-1": {
                   "type": "dev-menu-drawer-footer-link",
                   "settings": {
                     "label": "FAQs",
-                    "link": "\/pages\/faq"
-                  }
+                    "link": "/pages/faq"
+                  },
+                  "blocks": {}
                 },
                 "footer-link-2": {
                   "type": "dev-menu-drawer-footer-link",
                   "settings": {
                     "label": "Delivery & Returns",
-                    "link": "\/pages\/delivery-and-returns"
-                  }
+                    "link": "/pages/delivery-and-returns"
+                  },
+                  "blocks": {}
                 },
                 "footer-link-3": {
                   "type": "dev-menu-drawer-footer-link",
                   "settings": {
                     "label": "Contact Us",
-                    "link": "\/pages\/contact"
-                  }
+                    "link": "/pages/contact"
+                  },
+                  "blocks": {}
                 }
               },
               "block_order": [
                 "footer-link-1",
                 "footer-link-2",
                 "footer-link-3"
-              ],
-              "settings": {}
+              ]
             }
           },
           "block_order": [
             "nav",
             "footer"
-          ],
-          "settings": {}
+          ]
         },
         "cart-drawer": {
           "type": "dev-cart-drawer",
           "settings": {
-            "continue_url": "shopify:\/\/products\/natural-duvet"
-          }
+            "heading": "Your Order",
+            "close_label": "Close basket",
+            "remove_label": "Remove",
+            "quantity_label": "Qty",
+            "empty_text": "Your basket is empty.",
+            "continue_label": "Continue shopping",
+            "continue_url": "shopify://products/natural-duvet",
+            "checkout_label": "Checkout Securely",
+            "checkout_url": "",
+            "payment_label": "Accepted payment methods",
+            "payment_icons_source": "dynamic",
+            "background_color": "#fffcf4",
+            "text_color": "#333333",
+            "card_color": "#fcf5e3",
+            "badge_color": "#fffcf4",
+            "header_divider_color": "#d8d1c0",
+            "header_divider_color_mobile": "#c4bca9",
+            "footer_divider_color": "#d8d1c0",
+            "cta_color": "#343434",
+            "cta_opacity": 66,
+            "cta_text_color": "#ffffff",
+            "backdrop_color": "#333333",
+            "backdrop_opacity": 40,
+            "padding_top": 32,
+            "padding_bottom": 32,
+            "open_on_load": false
+          },
+          "blocks": {}
         }
       },
       "block_order": [
         "menu-drawer",
         "cart-drawer"
-      ]
+      ],
+      "settings": {
+        "logo_width": 140,
+        "menu": "",
+        "show_cart_count": true,
+        "background_color": "#fffcf4",
+        "text_color": "#333333",
+        "accent_color": "#4ea448",
+        "padding_top": 24,
+        "padding_bottom": 24
+      }
     },
     "dev-promo-bar": {
       "type": "dev-promo-bar",
       "settings": {
+        "show_rating_stars": true,
         "rating_label": "Rated Excellent",
-        "background_color": "#FFFCF4",
+        "background_color": "#fffcf4",
         "text_color": "#333333",
-        "star_color": "#F1B500",
-        "divider_color": "#C4BCA9",
+        "star_color": "#f1b500",
+        "divider_color": "#c4bca9",
         "padding_top": 12,
-        "padding_bottom": 12
+        "padding_bottom": 12,
+        "hide_on_product": true
       }
     }
   },
