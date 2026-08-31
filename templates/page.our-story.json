@@ -16,7 +16,7 @@
         "emphasis_weight": "700",
         "show_underline": true,
         "background_image": "shopify://shop_images/LARKE-SELECTS-094.jpg",
-        "background_image_mobile": "shopify://shop_images/LARKE-SELECTS-096.jpg",
+        "background_image_mobile": "shopify://shop_images/LARKE-ADDITIONAL-070.jpg",
         "stretch_background": false,
         "background_color": "#000000",
         "text_color": "#ffffff",
@@ -33,7 +33,7 @@
           "settings": {
             "image": "shopify://shop_images/story-slider-tile-1.png",
             "image_alt": "Larke founder Reuven Sherman sitting on a bed in cream loungewear",
-            "text": "<p><strong>Our story began in 2024,</strong><br>with our founder Reuven Sherman setting out to find the very best in natural sleep.</p>",
+            "text": "<p><strong>Our story began in 2024,</strong><br/>with our founder Reuven Sherman setting out to find the very best in natural sleep.</p>",
             "crop": "short"
           }
         },
