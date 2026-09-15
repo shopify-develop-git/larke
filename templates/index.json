@@ -12,8 +12,8 @@
     "dev-hero": {
       "type": "dev-hero",
       "settings": {
-        "heading": "<p>No ordinary duvet.</p>",
-        "subtext": "<p>This one begins with <em>trees</em>.</p>",
+        "heading": "<p>No ordinary duvet</p>",
+        "subtext": "<p>This one starts with <em>trees</em></p>",
         "cta_label": "Discover Our Duvet",
         "cta_link": "/products/natural-duvet",
         "background_image": "shopify://shop_images/master_hero_media_619dff07-6390-4b1e-ba79-c1622cdf6972.webp",
