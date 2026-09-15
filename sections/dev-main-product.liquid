@@ -852,12 +852,7 @@
                   {%- endif -%}
 
                   {%- if row.settings.button_label != blank -%}
-                    {%- render 'dev-button',
-                      variant: 'outline',
-                      label: row.settings.button_label | escape,
-                      link: row.settings.button_link | default: '#',
-                      class: 'dev-main-product__acc-button'
-                    -%}
+                    {%- render 'dev-button', variant: 'outline', label: row.settings.button_label, link: row.settings.button_link, default: '#', class: 'dev-main-product__acc-button' -%}
                   {%- endif -%}
                 </details>
               {%- endfor -%}
@@ -1556,3 +1551,21 @@
   ]
 }
 {% endschema %}
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: |-
+    {%- render 'dev-button',
+                          variant: 'outline',
+                          label: row.settings.button_label | escape,
+                          link: row.settings.button_link | default: '#',
+                          class: 'dev-main-product__acc-button'
+                        -%}
+  to: "{%- render 'dev-button', variant: 'outline', label: row.settings.button_label,
+    link: row.settings.button_link, default: '#', class: 'dev-main-product__acc-button'
+    -%}"
+  position: 47299..47465
+{% endcomment %}

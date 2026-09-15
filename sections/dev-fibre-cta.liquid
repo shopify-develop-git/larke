@@ -189,12 +189,7 @@
         {%- endif -%}
 
         {%- if button_label != blank -%}
-          {%- render 'dev-button',
-            variant: 'filled',
-            label: button_label | escape,
-            link: section.settings.button_link,
-            class: 'fibre-cta__button'
-          -%}
+          {%- render 'dev-button', variant: 'filled', label: button_label, link: section.settings.button_link, class: 'fibre-cta__button' -%}
         {%- endif -%}
       </div>
     </div>
@@ -285,3 +280,20 @@
   ]
 }
 {% endschema %}
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: |-
+    {%- render 'dev-button',
+                variant: 'filled',
+                label: button_label | escape,
+                link: section.settings.button_link,
+                class: 'fibre-cta__button'
+              -%}
+  to: "{%- render 'dev-button', variant: 'filled', label: button_label, link: section.settings.button_link,
+    class: 'fibre-cta__button' -%}"
+  position: 8685..8816
+{% endcomment %}

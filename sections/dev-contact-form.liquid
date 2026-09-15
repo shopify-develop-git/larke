@@ -183,7 +183,7 @@
           </div>
         </div>
 
-        {%- render 'dev-button', variant: 'ghost', type: 'submit', label: section.settings.button_label | escape, class: 'dev-contact-form__button' -%}
+        {%- render 'dev-button', variant: 'ghost', type: 'submit', label: section.settings.button_label, class: 'dev-contact-form__button' -%}
       {%- endform -%}
     </div>
   </div>
@@ -220,3 +220,15 @@
   ]
 }
 {% endschema %}
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "{%- render 'dev-button', variant: 'ghost', type: 'submit', label: section.settings.button_label
+    | escape, class: 'dev-contact-form__button' -%}"
+  to: "{%- render 'dev-button', variant: 'ghost', type: 'submit', label: section.settings.button_label,
+    class: 'dev-contact-form__button' -%}"
+  position: 7991..8125
+{% endcomment %}

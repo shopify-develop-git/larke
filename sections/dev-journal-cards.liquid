@@ -142,24 +142,7 @@
 
             All lazy, no eager card: this strip is the last section on Our Story, far below the fold.
           {%- endcomment -%}
-          {%- render 'dev-journal-cards-card',
-            image: article.image,
-            image_alt: card_alt,
-            badge: card_badge,
-            meta: card_meta,
-            heading: article.title | escape,
-            url: article.url,
-            cta_label: section.settings.button_label,
-            tablet_max: 1151,
-            ratio_tablet: 0.9,
-            widths_tablet: '200, 260, 320, 400, 460, 540, 660, 780, 980',
-            ratio_desktop: 1.48,
-            widths_desktop: '330, 400, 480, 560, 620, 660, 700, 750, 800, 900, 1000, 1100, 1200',
-            sizes_desktop: 'calc((100vw - 176px) / 3)',
-            wide_min: 1440,
-            ratio_wide: 1.9,
-            widths_wide: '440, 520, 600, 680, 760, 850, 920, 960, 1050, 1170, 1300, 1450, 1600'
-          -%}
+          {%- render 'dev-journal-cards-card', image: article.image, image_alt: card_alt, badge: card_badge, meta: card_meta, heading: article.title, url: article.url, cta_label: section.settings.button_label, tablet_max: 1151, ratio_tablet: 0.9, widths_tablet: '200, 260, 320, 400, 460, 540, 660, 780, 980', ratio_desktop: 1.48, widths_desktop: '330, 400, 480, 560, 620, 660, 700, 750, 800, 900, 1000, 1100, 1200', sizes_desktop: 'calc((100vw - 176px) / 3)', wide_min: 1440, ratio_wide: 1.9, widths_wide: '440, 520, 600, 680, 760, 850, 920, 960, 1050, 1170, 1300, 1450, 1600' -%}
         {%- endfor -%}
       </ul>
 
@@ -324,3 +307,38 @@
   ]
 }
 {% endschema %}
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: |-
+    {%- render 'dev-journal-cards-card',
+                image: article.image,
+                image_alt: card_alt,
+                badge: card_badge,
+                meta: card_meta,
+                heading: article.title | escape,
+                url: article.url,
+                cta_label: section.settings.button_label,
+                tablet_max: 1151,
+                ratio_tablet: 0.9,
+                widths_tablet: '200, 260, 320, 400, 460, 540, 660, 780, 980',
+                ratio_desktop: 1.48,
+                widths_desktop: '330, 400, 480, 560, 620, 660, 700, 750, 800, 900, 1000, 1100, 1200',
+                sizes_desktop: 'calc((100vw - 176px) / 3)',
+                wide_min: 1440,
+                ratio_wide: 1.9,
+                widths_wide: '440, 520, 600, 680, 760, 850, 920, 960, 1050, 1170, 1300, 1450, 1600'
+              -%}
+  to: "{%- render 'dev-journal-cards-card', image: article.image, image_alt: card_alt,
+    badge: card_badge, meta: card_meta, heading: article.title, url: article.url,
+    cta_label: section.settings.button_label, tablet_max: 1151, ratio_tablet: 0.9,
+    widths_tablet: '200, 260, 320, 400, 460, 540, 660, 780, 980', ratio_desktop: 1.48,
+    widths_desktop: '330, 400, 480, 560, 620, 660, 700, 750, 800, 900, 1000, 1100,
+    1200', sizes_desktop: 'calc((100vw - 176px) / 3)', wide_min: 1440, ratio_wide:
+    1.9, widths_wide: '440, 520, 600, 680, 760, 850, 920, 960, 1050, 1170, 1300, 1450,
+    1600' -%}"
+  position: 8213..8783
+{% endcomment %}

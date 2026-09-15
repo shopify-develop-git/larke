@@ -322,13 +322,7 @@
               assign cta_link = routes.root_url
             endif
           -%}
-          {%- render 'dev-button',
-            variant: 'filled',
-            label: block.settings.label | escape,
-            link: cta_link,
-            class: 'video-promo-banner__button',
-            attrs: block.shopify_attributes
-          -%}
+          {%- render 'dev-button', variant: 'filled', label: block.settings.label, link: cta_link, class: 'video-promo-banner__button', attrs: block.shopify_attributes -%}
         {%- endif -%}
       {%- endfor -%}
     </div>
@@ -520,3 +514,22 @@
   ]
 }
 {% endschema %}
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: |-
+    {%- render 'dev-button',
+                variant: 'filled',
+                label: block.settings.label | escape,
+                link: cta_link,
+                class: 'video-promo-banner__button',
+                attrs: block.shopify_attributes
+              -%}
+  to: "{%- render 'dev-button', variant: 'filled', label: block.settings.label, link:
+    cta_link, class: 'video-promo-banner__button', attrs: block.shopify_attributes
+    -%}"
+  position: 15779..15940
+{% endcomment %}

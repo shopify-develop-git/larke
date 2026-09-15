@@ -94,27 +94,47 @@
       a lazy LCP image is a guaranteed Lighthouse finding. The rest stay lazy: a 9-card index
       would otherwise open with nine parallel image requests.
     {%- endcomment -%}
-    {%- render 'dev-journal-cards-card',
-      image: article.image,
-      image_alt: card_alt,
-      badge: card_badge,
-      meta: card_meta,
-      heading: article.title | escape,
-      heading_level: card_level,
-      url: article.url,
-      cta_label: cta_label,
-      eager: card_eager,
-      tablet_max: 1299,
-      ratio_tablet: 1.45,
-      widths_tablet: '320, 400, 480, 560, 650, 740, 820, 900, 1000, 1100, 1200, 1300, 1360',
-      sizes_tablet: '(min-width: 1152px) calc((100vw - 192px) / 3), (min-width: 800px) calc((100vw - 160px) / 2), calc(100vw - 128px)',
-      ratio_desktop: 1.68,
-      widths_desktop: '380, 460, 540, 620, 700, 750, 790, 840, 900, 960, 1060, 1160, 1300, 1450, 1600',
-      sizes_desktop: 'calc((100vw - 192px) / 3)',
-      wide_min: 1700,
-      ratio_wide: 2.28,
-      widths_wide: '500, 560, 620, 700, 780, 860, 950, 1020, 1100, 1160, 1250, 1350, 1500, 1600',
-      sizes_wide: 'calc((100vw - 192px) / 3)'
-    -%}
+    {%- render 'dev-journal-cards-card', image: article.image, image_alt: card_alt, badge: card_badge, meta: card_meta, heading: article.title, heading_level: card_level, url: article.url, cta_label: cta_label, eager: card_eager, tablet_max: 1299, ratio_tablet: 1.45, widths_tablet: '320, 400, 480, 560, 650, 740, 820, 900, 1000, 1100, 1200, 1300, 1360', sizes_tablet: '(min-width: 1152px) calc((100vw - 192px) / 3), (min-width: 800px) calc((100vw - 160px) / 2), calc(100vw - 128px)', ratio_desktop: 1.68, widths_desktop: '380, 460, 540, 620, 700, 750, 790, 840, 900, 960, 1060, 1160, 1300, 1450, 1600', sizes_desktop: 'calc((100vw - 192px) / 3)', wide_min: 1700, ratio_wide: 2.28, widths_wide: '500, 560, 620, 700, 780, 860, 950, 1020, 1100, 1160, 1250, 1350, 1500, 1600', sizes_wide: 'calc((100vw - 192px) / 3)' -%}
   {%- endfor -%}
 </ul>
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: |-
+    {%- render 'dev-journal-cards-card',
+          image: article.image,
+          image_alt: card_alt,
+          badge: card_badge,
+          meta: card_meta,
+          heading: article.title | escape,
+          heading_level: card_level,
+          url: article.url,
+          cta_label: cta_label,
+          eager: card_eager,
+          tablet_max: 1299,
+          ratio_tablet: 1.45,
+          widths_tablet: '320, 400, 480, 560, 650, 740, 820, 900, 1000, 1100, 1200, 1300, 1360',
+          sizes_tablet: '(min-width: 1152px) calc((100vw - 192px) / 3), (min-width: 800px) calc((100vw - 160px) / 2), calc(100vw - 128px)',
+          ratio_desktop: 1.68,
+          widths_desktop: '380, 460, 540, 620, 700, 750, 790, 840, 900, 960, 1060, 1160, 1300, 1450, 1600',
+          sizes_desktop: 'calc((100vw - 192px) / 3)',
+          wide_min: 1700,
+          ratio_wide: 2.28,
+          widths_wide: '500, 560, 620, 700, 780, 860, 950, 1020, 1100, 1160, 1250, 1350, 1500, 1600',
+          sizes_wide: 'calc((100vw - 192px) / 3)'
+        -%}
+  to: "{%- render 'dev-journal-cards-card', image: article.image, image_alt: card_alt,
+    badge: card_badge, meta: card_meta, heading: article.title, heading_level: card_level,
+    url: article.url, cta_label: cta_label, eager: card_eager, tablet_max: 1299, ratio_tablet:
+    1.45, widths_tablet: '320, 400, 480, 560, 650, 740, 820, 900, 1000, 1100, 1200,
+    1300, 1360', sizes_tablet: '(min-width: 1152px) calc((100vw - 192px) / 3), (min-width:
+    800px) calc((100vw - 160px) / 2), calc(100vw - 128px)', ratio_desktop: 1.68, widths_desktop:
+    '380, 460, 540, 620, 700, 750, 790, 840, 900, 960, 1060, 1160, 1300, 1450, 1600',
+    sizes_desktop: 'calc((100vw - 192px) / 3)', wide_min: 1700, ratio_wide: 2.28,
+    widths_wide: '500, 560, 620, 700, 780, 860, 950, 1020, 1100, 1160, 1250, 1350,
+    1500, 1600', sizes_wide: 'calc((100vw - 192px) / 3)' -%}"
+  position: 5531..6344
+{% endcomment %}

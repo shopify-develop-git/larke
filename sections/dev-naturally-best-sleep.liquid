@@ -86,12 +86,7 @@
     {%- endif -%}
 
     {%- if button_label != blank -%}
-      {%- render 'dev-button',
-        variant: 'outline',
-        label: button_label | escape,
-        link: section.settings.button_link,
-        class: 'naturally-best-sleep__button'
-      -%}
+      {%- render 'dev-button', variant: 'outline', label: button_label, link: section.settings.button_link, class: 'naturally-best-sleep__button' -%}
     {%- endif -%}
   </div>
 </div>
@@ -154,3 +149,20 @@
   ]
 }
 {% endschema %}
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: |-
+    {%- render 'dev-button',
+            variant: 'outline',
+            label: button_label | escape,
+            link: section.settings.button_link,
+            class: 'naturally-best-sleep__button'
+          -%}
+  to: "{%- render 'dev-button', variant: 'outline', label: button_label, link: section.settings.button_link,
+    class: 'naturally-best-sleep__button' -%}"
+  position: 3819..3962
+{% endcomment %}

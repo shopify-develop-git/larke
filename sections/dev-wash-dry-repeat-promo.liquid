@@ -112,20 +112,9 @@
 
         {%- if section.settings.cta_label != blank -%}
           {%- if section.settings.cta_link != blank -%}
-            {%- render 'dev-button',
-              variant: 'dark',
-              label: section.settings.cta_label | escape,
-              link: section.settings.cta_link,
-              class: 'wash-dry-repeat-promo__cta'
-            -%}
+            {%- render 'dev-button', variant: 'dark', label: section.settings.cta_label, link: section.settings.cta_link, class: 'wash-dry-repeat-promo__cta' -%}
           {%- else -%}
-            {%- render 'dev-button',
-              variant: 'dark',
-              label: section.settings.cta_label | escape,
-              link: '#',
-              class: 'wash-dry-repeat-promo__cta',
-              attrs: 'aria-disabled="true"'
-            -%}
+            {%- render 'dev-button', variant: 'dark', label: section.settings.cta_label, link: '#', class: 'wash-dry-repeat-promo__cta', attrs: 'aria-disabled="true"' -%}
           {%- endif -%}
         {%- endif -%}
       </div>
@@ -314,3 +303,32 @@
   "max_blocks": 2
 }
 {% endschema %}
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: |-
+    {%- render 'dev-button',
+                  variant: 'dark',
+                  label: section.settings.cta_label | escape,
+                  link: section.settings.cta_link,
+                  class: 'wash-dry-repeat-promo__cta'
+                -%}
+  to: "{%- render 'dev-button', variant: 'dark', label: section.settings.cta_label,
+    link: section.settings.cta_link, class: 'wash-dry-repeat-promo__cta' -%}"
+  position: 5647..5796
+- from: |-
+    {%- render 'dev-button',
+                  variant: 'dark',
+                  label: section.settings.cta_label | escape,
+                  link: '#',
+                  class: 'wash-dry-repeat-promo__cta',
+                  attrs: 'aria-disabled="true"'
+                -%}
+  to: '{%- render ''dev-button'', variant: ''dark'', label: section.settings.cta_label,
+    link: ''#'', class: ''wash-dry-repeat-promo__cta'', attrs: ''aria-disabled="true"''
+    -%}'
+  position: 5832..5990
+{% endcomment %}

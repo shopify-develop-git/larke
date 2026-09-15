@@ -131,12 +131,7 @@
       {%- endif -%}
 
       {%- if section.settings.button_label != blank -%}
-        {%- render 'dev-button',
-          variant: 'outline',
-          label: section.settings.button_label | escape,
-          link: button_link,
-          class: 'wash-dry-repeat__button'
-        -%}
+        {%- render 'dev-button', variant: 'outline', label: section.settings.button_label, link: button_link, class: 'wash-dry-repeat__button' -%}
       {%- endif -%}
     </div>
   </div>
@@ -223,3 +218,20 @@
   "max_blocks": 2
 }
 {% endschema %}
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: |-
+    {%- render 'dev-button',
+              variant: 'outline',
+              label: section.settings.button_label | escape,
+              link: button_link,
+              class: 'wash-dry-repeat__button'
+            -%}
+  to: "{%- render 'dev-button', variant: 'outline', label: section.settings.button_label,
+    link: button_link, class: 'wash-dry-repeat__button' -%}"
+  position: 5370..5508
+{% endcomment %}

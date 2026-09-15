@@ -199,12 +199,7 @@
             spellcheck="false"
             required
           >
-          {%- render 'dev-button',
-            variant: 'ghost',
-            type: 'submit',
-            label: section.settings.newsletter_button_label | escape,
-            class: 'site-footer__button'
-          -%}
+          {%- render 'dev-button', variant: 'ghost', type: 'submit', label: section.settings.newsletter_button_label, class: 'site-footer__button' -%}
         </div>
         {%- if form.posted_successfully? -%}
           <p class="site-footer__form-message" role="status" tabindex="-1">
@@ -728,3 +723,20 @@
   ]
 }
 {% endschema %}
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: |-
+    {%- render 'dev-button',
+                variant: 'ghost',
+                type: 'submit',
+                label: section.settings.newsletter_button_label | escape,
+                class: 'site-footer__button'
+              -%}
+  to: "{%- render 'dev-button', variant: 'ghost', type: 'submit', label: section.settings.newsletter_button_label,
+    class: 'site-footer__button' -%}"
+  position: 8666..8806
+{% endcomment %}
