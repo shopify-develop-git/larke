@@ -15,8 +15,8 @@
         "q_delivery_time": {
           "type": "question",
           "settings": {
-            "heading": "How are trees turned into duvets?",
-            "body": "<p>Wood is broken down into pulp, spun into soft fibres and then used to fill our duvets. </p>",
+            "heading": "I have allergies - is it suitable?",
+            "body": "<p>Cotton and tree-fibre are naturally hypoallergenic and safe for sensitive sleepers whilst also free from added synthetics.</p>",
             "open_by_default": true
           }
         },
