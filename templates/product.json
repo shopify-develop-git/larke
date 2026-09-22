@@ -106,8 +106,8 @@
         "pc": {
           "type": "price_comparison",
           "settings": {
-            "heading": "Sleep r<em>emarkable.</em>",
-            "subheading": "Without any compromises",
+            "heading": "Sleep r<em>emarkable</em>",
+            "subheading": "Without any compromises.",
             "row_1_icon": "care",
             "row_1_label": "Greater natural filling",
             "row_2_icon": "warranty",
