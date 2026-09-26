@@ -1,0 +1,182 @@
+/* dev-video-lightbox.css
+   The homepage video banner's lightbox (dev-video-promo-banner.css "modal"), restated under this
+   section's own names — see the Liquid header. Values are the banner's tokens. */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+/* The section itself takes no space: it is only a home for the <dialog>. */
+.dev-video-lightbox {
+  display: contents;
+}
+
+/* --- layout --- */
+
+/* The dim is the dialog's OWN background, not ::backdrop (which only recently inherits custom
+   properties); ::backdrop stays, transparent, to swallow clicks and inert the page. */
+.dev-video-lightbox__modal {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: var(--modal-px);
+  border: 0;
+  background-color: var(--modal-overlay);
+}
+
+.dev-video-lightbox__modal[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dev-video-lightbox__modal::backdrop {
+  background-color: transparent;
+}
+
+.dev-video-lightbox__modal[data-modal-state='opening'] {
+  animation: dev-video-lightbox-in var(--modal-in) var(--ease-out) both;
+}
+
+.dev-video-lightbox__modal[data-modal-state='closing'] {
+  animation: dev-video-lightbox-out var(--modal-out) var(--ease-in) both;
+}
+
+@keyframes dev-video-lightbox-in {
+  from {
+    background-color: transparent;
+  }
+}
+
+@keyframes dev-video-lightbox-out {
+  to {
+    background-color: transparent;
+  }
+}
+
+/* --- blocks / children --- */
+
+.dev-video-lightbox__modal[data-modal-state='opening'] .dev-video-lightbox__inner {
+  animation: dev-video-lightbox-player-in var(--modal-in) var(--ease-out) both;
+}
+
+.dev-video-lightbox__modal[data-modal-state='closing'] .dev-video-lightbox__inner {
+  animation: dev-video-lightbox-player-out var(--modal-out) var(--ease-in) both;
+}
+
+@keyframes dev-video-lightbox-player-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+}
+
+@keyframes dev-video-lightbox-player-out {
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+/* 16:9, capped so the close button above it never leaves a short window. */
+.dev-video-lightbox__inner {
+  position: relative;
+  width: 100%;
+  max-width: var(--modal-max-w);
+  max-height: calc(100dvh - (var(--modal-px) * 2) - var(--close-size) - var(--close-gap));
+  aspect-ratio: 16 / 9;
+}
+
+.dev-video-lightbox__video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* --- typography --- */
+
+/* --- buttons / links --- */
+
+.dev-video-lightbox__close {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--close-gap));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--close-size);
+  height: var(--close-size);
+  padding: 10px;
+  border: 0;
+  border-radius: var(--close-radius);
+  background-color: transparent;
+  color: var(--color);
+  cursor: pointer;
+  appearance: none;
+}
+
+.dev-video-lightbox__close-icon {
+  display: block;
+  width: var(--close-icon);
+  height: var(--close-icon);
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.dev-video-lightbox__close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.dev-video-lightbox__close:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.dev-video-lightbox__inner:focus {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-video-lightbox,
+  .dev-video-lightbox * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* showModal() inerts the page but does not stop it scrolling. On desktop Horizon scrolls
+   .page-wrapper, not the window, so both are locked. Prefixed: the class goes on <html>. */
+.dev-video-lightbox-scroll-lock,
+.dev-video-lightbox-scroll-lock .page-wrapper {
+  overflow: hidden;
+}

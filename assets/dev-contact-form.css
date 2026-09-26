@@ -53,6 +53,54 @@
   line-height: var(--font-body-lh);
 }
 
+/* --- phone line --- */
+
+/* margin-top tops the card's 16px flex gap up to the 24px the owner asked for. */
+.dev-contact-form__phone {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--phone-icon-gap);
+  margin-top: calc(var(--phone-gap) - var(--card-gap));
+}
+
+.dev-contact-form__phone-icon {
+  display: block;
+  flex: 0 0 auto;
+  width: var(--phone-icon);
+  height: var(--phone-icon);
+  color: var(--color);
+}
+
+.dev-contact-form__phone-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.dev-contact-form__phone-link {
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: 1px;
+}
+
+.dev-contact-form__phone-link:hover {
+  text-decoration-thickness: 2px;
+}
+
+.dev-contact-form__phone-link:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
+
+.dev-contact-form__phone-hours {
+  font-size: var(--font-hours-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+}
+
 .dev-contact-form__col {
   flex: 1 1 0;
   min-width: 0;
@@ -235,6 +283,23 @@
     background-color: var(--card-bg);
     font-size: var(--font-title-size-mobile);
     text-align: center;
+  }
+
+  /* The card is display:contents here, so the phone is its own row of the 24px stack — that gap
+     already IS the requested space; the desktop top-up margin would double it. */
+  .dev-contact-form__phone {
+    margin-top: 0;
+  }
+
+  /* 44px tap target: on a phone the number is a call button. */
+  /* The 44px is added as padding and taken straight back as negative margin: the tap area grows
+     to 44px, the layout does not move — the number stays level with its icon and the gaps above
+     and below it are unchanged. (A min-height grew the line box instead and pushed the number
+     10px below the icon — seen on the store preview, 2026-09-25.) */
+  .dev-contact-form__phone-link {
+    display: inline-block;
+    padding-block: 10px;
+    margin-block: -10px;
   }
 
   .dev-contact-form__row {
