@@ -2146,5 +2146,27 @@
         "info": "Stars fill to the exact value: 4.7 paints four solid stars and a nearly full fifth. The rating text beside them is written out from this number too."
       }
     ]
+  },
+  {
+    "name": "Contact details",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Shown in the footer (under the address) and on the contact form (under the intro). Change it here and both update."
+      },
+      {
+        "type": "text",
+        "id": "contact_phone",
+        "label": "Phone number",
+        "info": "Write it as people should read it, e.g. 020 1234 5678. The tap-to-call link is made from it automatically. Leave empty to hide it everywhere.",
+        "default": "020 1234 5678"
+      },
+      {
+        "type": "text",
+        "id": "contact_phone_hours",
+        "label": "Opening hours",
+        "default": "9am – 5pm, Monday – Friday"
+      }
+    ]
   }
 ]

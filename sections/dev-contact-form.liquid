@@ -20,6 +20,16 @@
     --card-pad-mobile: 24px;
     --card-gap: 16px;
 
+    {%- comment -%} Phone line (owner, 2026-09-25). 24px between the email line and the phone — the low end of
+       the requested 24–32px, and the same 24px the mobile stack already uses (--stack-gap-mobile),
+       so desktop and mobile show the same space. The card's own 16px gap is subtracted in the CSS.
+       Number in the site's brand green (the footer logo's #4EA448) and underlined, as the mockup
+       draws it; hours one step down at 16px. {%- endcomment -%}
+    --phone-gap: 24px;
+    --phone-icon: 24px;
+    --phone-icon-gap: 12px;
+    --font-hours-size: 16px;
+
     {%- comment -%} Fluid, not stepped. A single breakpoint at 1024 left 1025–1200 holding the full 533px card
        AND the full 136px gutter, so the form was squeezed to ~228px at 1025 — the worst point on
        the curve sat just ABOVE the breakpoint meant to fix it. The vw terms are the artboard ratios
@@ -96,6 +106,7 @@
     --field-border: {{ section.settings.field_border_color }};
     --field-border-hover: {{ section.settings.field_border_hover_color }};
     --field-placeholder: {{ section.settings.placeholder_color }};
+    --accent: {{ section.settings.phone_color }};
     --pt: {{ section.settings.padding_top }}px;
     --pb: {{ section.settings.padding_bottom }}px;
   "
@@ -115,6 +126,32 @@
 
       {%- if section.settings.body != blank -%}
         <div class="dev-contact-form__body">{{ section.settings.body }}</div>
+      {%- endif -%}
+
+      {%- comment -%}
+        Phone line under the email (owner, 2026-09-25): a clear 24–32px space above it, the number
+        as a tap-to-call link, the opening hours on the line below. Number and hours are THEME
+        settings (Theme settings -> Contact details), shared with the footer so the two can never
+        disagree; the tel: link comes from snippets/dev-phone-href.liquid.
+
+        Inside the card on desktop. On mobile the card is display:contents (see the header note),
+        so this becomes its own row under the intro copy — the 24px row gap there IS the space the
+        owner asked for, no extra margin needed.
+      {%- endcomment -%}
+      {%- if settings.contact_phone != blank and section.settings.show_phone -%}
+        <div class="dev-contact-form__phone">
+          <svg class="dev-contact-form__phone-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <path d="M3 5C3 3.89543 3.89543 3 5 3H8.27924C8.70967 3 9.09181 3.27543 9.22792 3.68377L10.7257 8.17721C10.8831 8.64932 10.6694 9.16531 10.2243 9.38787L7.96701 10.5165C9.06925 12.9612 11.0388 14.9308 13.4835 16.033L14.6121 13.7757C14.8347 13.3306 15.3507 13.1169 15.8228 13.2743L20.3162 14.7721C20.7246 14.9082 21 15.2903 21 15.7208V19C21 20.1046 20.1046 21 19 21H18C9.71573 21 3 14.2843 3 6V5Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="dev-contact-form__phone-text">
+            <a class="dev-contact-form__phone-link" href="{%- render 'dev-phone-href', number: settings.contact_phone -%}">
+              {{- settings.contact_phone | escape -}}
+            </a>
+            {%- if settings.contact_phone_hours != blank -%}
+              <span class="dev-contact-form__phone-hours">{{ settings.contact_phone_hours | escape }}</span>
+            {%- endif -%}
+          </div>
+        </div>
       {%- endif -%}
     </div>
 
@@ -202,6 +239,13 @@
     { "type": "text", "id": "message_placeholder", "label": "Message field label", "default": "Your message" },
     { "type": "text", "id": "button_label", "label": "Button label", "default": "Send message" },
     { "type": "text", "id": "success_text", "label": "Success message", "default": "Thanks — we’ll be in touch shortly." },
+    {
+      "type": "checkbox",
+      "id": "show_phone",
+      "label": "Show phone number",
+      "info": "The number and opening hours are set once for the whole site in Theme settings → Contact details.",
+      "default": true
+    },
 
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
@@ -210,6 +254,7 @@
     { "type": "color", "id": "field_border_color", "label": "Field border", "default": "#D8D1C0" },
     { "type": "color", "id": "field_border_hover_color", "label": "Field border (hover / focus)", "default": "#666666" },
     { "type": "color", "id": "placeholder_color", "label": "Placeholder text", "default": "#666666" },
+    { "type": "color", "id": "phone_color", "label": "Phone number", "default": "#4EA448" },
 
     { "type": "header", "content": "Spacing" },
     { "type": "range", "id": "padding_top", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding top", "default": 0 },

@@ -1,0 +1,106 @@
+{{ 'dev-video-lightbox.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'dev-video-lightbox.js' | asset_url }}" defer></script>
+
+{%- comment -%}
+  Section: "Video lightbox" (dev name `dev-video-lightbox`). INVISIBLE until used: it adds the
+  homepage's video pop-up to any page, and ANY link on that page pointing at `#video` (or at the
+  anchor set below) opens it — a link in an accordion answer, a rich-text block, a button.
+
+  Built for the product page's FAQ: "How do trees become duvets? … Discover how" used to send the
+  shopper off the product page to /pages/tree-fibre. The owner asked (2026-09-25) for it to open on
+  the same page and play the same film as the homepage — so this plays the homepage video in the
+  homepage's own player. The editor points the link at `#video`; nothing else to set up.
+
+  The player is dev-video-promo-banner's lightbox, reproduced rather than shared (the standard is
+  three files per section, and the banner's JS is bound to its own play button):
+    * native <dialog> + showModal(): focus trap, Escape, inert page behind — for free
+    * the same motion: 480ms in / 300ms out, the same two curves, dim fades while the player rises
+    * the same 960px 16:9 player, the same close button above it, the same sources snippet
+      (snippets/dev-video-sources: adaptive HLS first, so a slow connection starts light)
+    * preload="none", warmed the moment a pointer or keyboard reaches a trigger link
+  All values below are the banner's own tokens, verbatim.
+
+  Why a SECTION and not code inside dev-main-product: the next page that wants "watch the film"
+  (the FAQ page, a blog post) gets it by adding this section in the theme editor — no code.
+{%- endcomment -%}
+
+<style>
+  .dev-video-lightbox {
+    --modal-overlay: rgba(0, 0, 0, 0.85);
+    --modal-max-w: 960px;
+    --modal-px: 24px;
+    --modal-in: 480ms;
+    --modal-out: 300ms;
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+    --close-size: 44px;
+    --close-icon: 24px;
+    --close-gap: 16px;
+    --close-radius: 60px;
+  }
+</style>
+
+{%- liquid
+  assign hosted_video = section.settings.video
+  assign anchor = section.settings.anchor | default: 'video' | handleize
+-%}
+
+{%- if hosted_video != blank -%}
+  <div
+    class="dev-video-lightbox"
+    style="
+      --color: {{ section.settings.close_color }};
+      --accent: {{ section.settings.close_color }};
+    "
+    data-video-lightbox
+    data-anchor="{{ anchor }}"
+  >
+    <dialog class="dev-video-lightbox__modal" aria-label="{{ section.settings.label | escape }}" data-video-modal>
+      {%- comment -%}
+        tabindex="-1": the JS lands initial focus here on open instead of on the ×, which iOS Safari
+        would otherwise ring (same fix as the homepage banner).
+      {%- endcomment -%}
+      <div class="dev-video-lightbox__inner" tabindex="-1">
+        <button class="dev-video-lightbox__close" type="button" aria-label="{{ 'Close video' | escape }}" data-video-close>
+          <svg class="dev-video-lightbox__close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+            <line x1="5" y1="5" x2="19" y2="19"/>
+            <line x1="19" y1="5" x2="5" y2="19"/>
+          </svg>
+        </button>
+
+        {%- assign lightbox_poster = hosted_video.preview_image | image_url: width: 1280 -%}
+        <video class="dev-video-lightbox__video" poster="{{ lightbox_poster }}" playsinline controls preload="none">
+          {%- render 'dev-video-sources', video: hosted_video -%}
+          <img
+            src="{{ lightbox_poster }}"
+            alt=""
+            loading="lazy"
+            width="{{ hosted_video.preview_image.width }}"
+            height="{{ hosted_video.preview_image.height }}"
+          >
+        </video>
+      </div>
+    </dialog>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Video lightbox",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    {
+      "type": "paragraph",
+      "content": "Adds a pop-up video player to this page. Any link pointing to #video (e.g. in an accordion answer) opens it. Nothing shows on the page until a link is clicked."
+    },
+    { "type": "video", "id": "video", "label": "Video", "info": "Use the same file as the homepage video banner to show the same film." },
+    { "type": "text", "id": "anchor", "label": "Link anchor", "info": "Links to #video open this player. Change it only if a page needs two different videos.", "default": "video" },
+    { "type": "text", "id": "label", "label": "Player name (screen readers)", "default": "Larke video" },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "close_color", "label": "Close button", "default": "#FFFFFF" }
+  ],
+  "presets": [{ "name": "Video lightbox" }]
+}
+{% endschema %}

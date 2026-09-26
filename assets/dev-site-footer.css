@@ -232,6 +232,29 @@
   color: var(--color); /* stroke="currentColor" on the inlined Figma marker */
 }
 
+/* Address + phone, one unit (see the Liquid). 16px between the two rows — --spacing-md, the step
+   the brand column already uses inside its own blocks. */
+.site-footer__contact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* The phone row mirrors the address row: same 24px icon, same 8px icon gap. It aligns to the TOP
+   rather than the centre because it is two lines (number, then hours) and the icon belongs to the
+   number, as the owner's mockup draws it. */
+.site-footer__phone {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--gap-address);
+}
+
+.site-footer__phone-text {
+  display: flex;
+  flex-direction: column;
+}
+
 /* --- layout: bottom bar --- */
 
 .site-footer__bottom {
@@ -383,6 +406,30 @@
 
 .site-footer__address-text {
   font-size: var(--font-address-size);
+  font-weight: 500;
+  line-height: var(--font-body-lh);
+  color: var(--color);
+}
+
+/* The number is the one thing in the block a visitor ACTS on, so it steps up to the body size and
+   takes the brand green + underline of the owner's mockup (--accent is the logo's #4EA448). */
+.site-footer__phone-link {
+  font-size: var(--font-body-size);
+  font-weight: 500;
+  line-height: var(--font-body-lh);
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: 1px;
+}
+
+.site-footer__phone-link:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* Hours sit a step below the address, at the copyright size (14px), as the mockup draws them. */
+.site-footer__phone-hours {
+  font-size: var(--font-copyright-size);
   font-weight: 500;
   line-height: var(--font-body-lh);
   color: var(--color);
@@ -581,7 +628,7 @@
   .site-footer__divider--2 { order: 4; display: block; }
   .site-footer__identity { order: 5; }
   .site-footer__social { order: 6; }
-  .site-footer__address { order: 7; }
+  .site-footer__contact { order: 7; }
   .site-footer__payments { order: 8; }
   .site-footer__copyright { order: 9; }
   /* .site-footer__legal is display: contents above, so its two children stay direct flex children
@@ -593,7 +640,7 @@
   .site-footer__menu,
   .site-footer__identity,
   .site-footer__social,
-  .site-footer__address,
+  .site-footer__contact,
   .site-footer__payments {
     margin-top: var(--gap-section);
   }
@@ -699,6 +746,34 @@
     width: 100%;
   }
 
+  /* The contact block centres like everything else in the mobile column; the phone row stacks
+     icon-over-text exactly as the address above it does, so the two read as a pair. */
+  .site-footer__contact {
+    align-items: center;
+    width: 100%;
+  }
+
+  .site-footer__phone {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .site-footer__phone-text {
+    align-items: center;
+  }
+
+  /* 44px tap target (WCAG 2.5.5 enhanced): the number is a call button on a phone. */
+  /* The tap area is grown to 44px+ with padding (11px here: a 16px/1.4 line is 22.4px) and taken straight back as negative margin: the tap area grows
+     to 44px, the layout does not move — the number stays level with its icon and the gaps above
+     and below it are unchanged. (A min-height grew the line box instead and pushed the number
+     10px below the icon — seen on the store preview, 2026-09-25.) */
+  .site-footer__phone-link {
+    display: inline-block;
+    padding-block: 11px;
+    margin-block: -11px;
+  }
+
   /* Centred on one line the address runs nearly the full card width; capped at 150 it wraps into
      the short stacked block the mobile artboard draws. */
   .site-footer__address-text {
@@ -786,6 +861,11 @@
 /* =============================================
    ACCESSIBILITY
    ============================================= */
+
+.site-footer__phone-link:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
 
 .site-footer__link:focus-visible,
 .site-footer__logo:focus-visible,

@@ -1,0 +1,27 @@
+{%- comment -%}
+  The `tel:` link for a phone number as a person writes it. ONE place turns "020 1234 5678" into
+  "tel:+442012345678", so the footer and the contact form can never dial different numbers.
+
+    * spaces, brackets, dots and dashes are dropped
+    * a UK national number (leading 0, not 00) gains +44 and loses the 0 — a tel: link should be
+      international so it also dials correctly from a phone roaming abroad
+    * "00…" becomes "+…"; a number already in "+…" form is kept
+
+  Outputs nothing for a blank number.
+
+  @param {string} number - e.g. settings.contact_phone
+{%- endcomment -%}
+
+{%- liquid
+  assign digits = number | strip | remove: ' ' | remove: '(' | remove: ')' | remove: '-' | remove: '.'
+  if digits != blank
+    assign first_two = digits | slice: 0, 2
+    assign first_one = digits | slice: 0, 1
+    if first_two == '00'
+      assign digits = digits | remove_first: '00' | prepend: '+'
+    elsif first_one == '0'
+      assign digits = digits | remove_first: '0' | prepend: '+44'
+    endif
+    echo 'tel:' | append: digits
+  endif
+-%}
