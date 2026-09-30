@@ -1,0 +1,157 @@
+{%- comment -%}
+  The blog's icon set. One source of truth for every icon an editor can call by keyword — in the
+  article body (`[icon:wash-40]`, `[tip:leaf]`) and on the component library page.
+
+  NOT A FIGMA EXPORT. The blog has no artboard, and the client's reference shows care symbols the
+  theme did not carry. So these are drawn to the theme's own UI-icon house style rather than
+  invented freehand: 24x24 box, 1.4px stroke, round caps and joins, currentColor — the exact spec
+  of the arrow in dev-journal-cards' CTA and the chevron in dev-faq. Drawn in that style, they sit
+  next to those two without looking borrowed. If a designer supplies real vectors, replace a
+  `when` body wholesale — nothing else depends on the geometry.
+
+  The laundry symbols follow the ISO 3758 / GINETEX shapes (tub, triangle, square-and-circle,
+  iron) so a reader recognises them from a care label, which is the whole point of using them.
+
+  TWO SOURCES, in this order:
+    1. the built-in set below (drawn in the theme's own icon style)
+    2. the store's own uploads: Content -> Metaobjects -> "Article icon" (fields `name`, `icon`).
+       An editor uploads an SVG or a transparent PNG, names it, and `[icon:that-name]` works in
+       every post. A built-in name always wins, so an upload can never silently replace one.
+  Uploads are drawn as a CSS MASK, not an <img>: the file only supplies the SHAPE, and the colour
+  is currentColor like the built-ins, so a black, blue or brown upload still comes out in the
+  text colour and sits in the same row as the drawn icons. The one inline style in the blog is
+  here (--icon-src): the URL is content, per upload, and cannot live in a stylesheet.
+
+  Names are compared handleized ("Hand wash" == "hand-wash"), so an editor never has to guess
+  how to spell the name they typed into the admin.
+
+  Unknown name -> outputs NOTHING. A typo in an article must never render a broken glyph; the
+  body processor only swaps a shortcode whose name this file answers for, so `[icon:wsh-40]` is
+  left visibly as typed and the editor sees their mistake in the preview.
+
+  KEEP `icon_names` IN STEP WITH THE `case`. The body processor loops over that list; a name
+  drawn below but missing from the list is unreachable from an article.
+
+  Decorative: aria-hidden, no title. The label next to it carries the meaning.
+
+  @param {string} name - icon keyword, e.g. 'wash-40'
+  @param {boolean} list - true -> output the comma-separated list of names instead of an icon
+                          (built-ins first, then the uploads)
+{%- endcomment -%}
+
+{%- liquid
+  assign icon_names = 'wash-30,wash-40,wash-60,no-bleach,tumble-dry,tumble-dry-low,no-tumble-dry,dry-flat,iron-low,machine,leaf,sun,moon,thermometer,drop,wind,tree,shield,heart,check'
+  if list
+    assign custom_names = ''
+    for entry in shop.metaobjects.article_icon.values
+      assign entry_name = entry.name.value | handleize
+      if entry_name != blank and entry.icon.value != blank
+        assign probe = ',' | append: icon_names | append: ','
+        assign needle = ',' | append: entry_name | append: ','
+        unless probe contains needle
+          assign custom_names = custom_names | append: ',' | append: entry_name
+        endunless
+      endif
+    endfor
+    echo icon_names | append: custom_names
+  endif
+-%}
+
+{%- unless list -%}
+{%- capture paths -%}
+  {%- case name -%}
+    {%- when 'wash-30', 'wash-40', 'wash-60' -%}
+      {%- assign temp = name | remove: 'wash-' -%}
+      <path d="M3 6.5L5.2 19.5H18.8L21 6.5"/>
+      <path d="M3.6 10C5.1 11.2 6.6 11.2 8.1 10S11.1 8.8 12.6 10 15.6 11.2 17.1 10 19.7 8.8 20.4 9.6"/>
+      <text x="12" y="18" text-anchor="middle" font-size="7.6" font-weight="700" fill="currentColor" stroke="none">{{ temp }}</text>
+    {%- when 'no-bleach' -%}
+      <path d="M12 4L21 19H3Z"/>
+      <path d="M4.5 4.5L19.5 19.5M19.5 4.5L4.5 19.5"/>
+    {%- when 'tumble-dry' -%}
+      <rect x="3.5" y="3.5" width="17" height="17" rx="2"/>
+      <circle cx="12" cy="12" r="6"/>
+    {%- when 'tumble-dry-low' -%}
+      <rect x="3.5" y="3.5" width="17" height="17" rx="2"/>
+      <circle cx="12" cy="12" r="6"/>
+      <circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none"/>
+    {%- when 'no-tumble-dry' -%}
+      <rect x="3.5" y="3.5" width="17" height="17" rx="2"/>
+      <circle cx="12" cy="12" r="6"/>
+      <path d="M3.5 3.5L20.5 20.5M20.5 3.5L3.5 20.5"/>
+    {%- when 'dry-flat' -%}
+      <rect x="3.5" y="3.5" width="17" height="17" rx="2"/>
+      <path d="M7.5 12H16.5"/>
+    {%- when 'iron-low' -%}
+      <path d="M3 17.5H20.5L19.6 12.6A3.5 3.5 0 0 0 16.2 9.8H8"/>
+      <path d="M8 9.8V7.5H15"/>
+      <circle cx="12" cy="14.2" r="0.9" fill="currentColor" stroke="none"/>
+    {%- when 'machine' -%}
+      <rect x="4" y="2.5" width="16" height="19" rx="2"/>
+      <path d="M4 7H20"/>
+      <circle cx="12" cy="14" r="4.5"/>
+      <circle cx="7" cy="4.8" r="0.6" fill="currentColor" stroke="none"/>
+      <circle cx="9.2" cy="4.8" r="0.6" fill="currentColor" stroke="none"/>
+    {%- when 'leaf' -%}
+      <path d="M5 19C5 10.5 10.5 5 20 4C19.5 13 14 19 5 19Z"/>
+      <path d="M5 19L13.5 10.5"/>
+    {%- when 'sun' -%}
+      <circle cx="12" cy="12" r="4"/>
+      <path d="M12 2.5V4.5M12 19.5V21.5M2.5 12H4.5M19.5 12H21.5M5.3 5.3L6.7 6.7M17.3 17.3L18.7 18.7M5.3 18.7L6.7 17.3M17.3 6.7L18.7 5.3"/>
+    {%- when 'moon' -%}
+      <path d="M20 14.5A8 8 0 1 1 9.5 4A6.5 6.5 0 0 0 20 14.5Z"/>
+    {%- when 'thermometer' -%}
+      <path d="M10 14.3V5A2 2 0 1 1 14 5V14.3A4 4 0 1 1 10 14.3Z"/>
+      <path d="M12 9V17.5"/>
+    {%- when 'drop' -%}
+      <path d="M12 3S18 9.3 18 14A6 6 0 0 1 6 14C6 9.3 12 3 12 3Z"/>
+    {%- when 'wind' -%}
+      <path d="M3 8.5H13.5A2.8 2.8 0 1 0 10.7 5.7"/>
+      <path d="M3 12.5H17.5A2.8 2.8 0 1 1 14.7 15.3"/>
+      <path d="M3 16.5H9"/>
+    {%- when 'tree' -%}
+      <path d="M12 3L17.5 11H14.5L18.5 16.5H5.5L9.5 11H6.5Z"/>
+      <path d="M12 16.5V21"/>
+    {%- when 'shield' -%}
+      <path d="M12 3L19 6V11C19 15.8 16 19.3 12 21C8 19.3 5 15.8 5 11V6Z"/>
+      <path d="M9 12L11.2 14.2L15.2 10"/>
+    {%- when 'heart' -%}
+      <path d="M12 20S3.5 15 3.5 9A4.5 4.5 0 0 1 12 7A4.5 4.5 0 0 1 20.5 9C20.5 15 12 20 12 20Z"/>
+    {%- when 'check' -%}
+      <circle cx="12" cy="12" r="8.5"/>
+      <path d="M8.2 12.3L10.8 14.9L15.8 9.6"/>
+  {%- endcase -%}
+{%- endcapture -%}
+
+{%- if paths != blank -%}
+  <svg class="dev-article-icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    {{- paths -}}
+  </svg>
+{%- else -%}
+  {%- liquid
+    assign wanted = name | handleize
+    assign upload = nil
+    for entry in shop.metaobjects.article_icon.values
+      assign entry_name = entry.name.value | handleize
+      if entry_name == wanted and entry.icon.value != blank
+        assign upload = entry.icon.value
+        break
+      endif
+    endfor
+  -%}
+  {%- if upload != nil -%}
+    {%- comment -%}
+      An image upload goes through the CDN at 96px (48px tile at 2x). A plain file (an SVG that
+      Files stored as a generic file) has no image transforms, so its own URL is used.
+    {%- endcomment -%}
+    {%- liquid
+      if upload.media_type == 'image'
+        assign upload_src = upload | image_url: width: 96
+      else
+        assign upload_src = upload.url
+      endif
+    -%}
+    <span class="dev-article-icon dev-article-icon--upload" style="--icon-src: url('{{ upload_src }}');" aria-hidden="true"></span>
+  {%- endif -%}
+{%- endif -%}
+{%- endunless -%}

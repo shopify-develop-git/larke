@@ -1,0 +1,177 @@
+/* dev-article-newsletter.css
+   The in-article signup. Field styling is dev-site-footer's, restated (not shared) under this
+   section's own names — see the Liquid header. */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.dev-article-newsletter {
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+  padding: var(--pt) var(--section-px) var(--pb);
+}
+
+.dev-article-newsletter__inner {
+  max-width: var(--measure);
+  margin-inline: auto;
+}
+
+/* --- layout --- */
+
+.dev-article-newsletter__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--panel-pad);
+  border-radius: var(--radius-panel);
+  background-color: var(--panel-bg);
+}
+
+.dev-article-newsletter__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.dev-article-newsletter__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin: 0;
+}
+
+/* --- blocks / children --- */
+
+.dev-article-newsletter__input {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: var(--input-padding);
+  border: 0;
+  border-radius: var(--radius-input);
+  background-color: var(--input-bg);
+  color: var(--color);
+  font-family: var(--font-body);
+  font-size: var(--font-input-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+  appearance: none;
+}
+
+.dev-article-newsletter__input::placeholder {
+  color: var(--color);
+  opacity: 1;
+}
+
+/* The footer's hover/focus ring, verbatim: an inset 1px shadow, not a border, so the padding box
+   and the placeholder never move. Focus reuses hover (the footer's deliberate override). */
+.dev-article-newsletter__input:hover,
+.dev-article-newsletter__input:focus,
+.dev-article-newsletter__input:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--input-border-color);
+}
+
+/* --- typography --- */
+
+.dev-article-newsletter__heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+.dev-article-newsletter__subheading,
+.dev-article-newsletter__message {
+  margin: 0;
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+}
+
+.dev-article-newsletter__visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- buttons / links --- */
+
+/* All visual styling comes from .dev-btn / .dev-btn--dark / .dev-btn--full. */
+.dev-article-newsletter__button {
+  --dev-btn-focus: var(--accent);
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+/* The footer's own mobile step for the field and the button: 12px 18px, 16px text. */
+@media (max-width: 768px) {
+  .dev-article-newsletter {
+    padding-left: var(--section-px-m);
+    padding-right: var(--section-px-m);
+  }
+
+  .dev-article-newsletter__panel {
+    padding: var(--panel-pad-m);
+    gap: var(--spacing-sm);
+  }
+
+  .dev-article-newsletter__heading {
+    font-size: var(--font-heading-size-m);
+  }
+
+  .dev-article-newsletter__input {
+    padding: var(--input-padding-m);
+  }
+
+  .dev-article-newsletter__button {
+    padding: 12px 18px;
+    font-size: 16px;
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.dev-article-newsletter__message:focus {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-article-newsletter,
+  .dev-article-newsletter * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

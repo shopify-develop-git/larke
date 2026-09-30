@@ -28,6 +28,27 @@
     assign og_type = 'product'
   elsif request.page_type == 'article'
     assign og_type = 'article'
+
+    comment
+      Blog posts. Shopify's page_description for an article is, in order: the SEO description,
+      the excerpt, then the BODY — and the body fallback is raw: 320 characters cut mid-word
+      ("…With a feather aller") and carrying the editor's shortcodes ([tip], [icon:wash-40]).
+      So when neither the SEO description nor the excerpt is set, the description is rebuilt:
+        1. the post's Subtitle (custom.subtitle) — written by a person, the right length
+        2. otherwise the cleaned body, cut at a word boundary (snippets/dev-article-plain-text)
+      A description typed into "Search engine listing" or the excerpt still always wins.
+    endcomment
+    assign seo_description = article.metafields.global.description_tag.value | default: article.metafields.global.description_tag
+    if seo_description == blank and article.excerpt == blank
+      assign subtitle = article.metafields.custom.subtitle.value
+      if subtitle != blank
+        assign og_description = subtitle
+      else
+        capture og_description
+          render 'dev-article-plain-text', html: article.content, words: 26
+        endcapture
+      endif
+    endif
   elsif request.page_type == 'password'
     assign og_url = request.origin
   endif
@@ -70,6 +91,59 @@
   <meta
     property="og:image:height"
     content="{{ page_image.height }}"
+  >
+{%- endif -%}
+
+{%- if request.page_type == 'article' and article -%}
+  {%- comment -%}
+    Open Graph article properties: dates, author, section and tags on the share card. The author
+    is the same chain the page byline uses — the Author profile, then custom.author, then the
+    staff account — so a card never credits someone the article does not.
+  {%- endcomment -%}
+  {%- liquid
+    assign og_author = article.metafields.custom.author_profile.value.name.value
+    if og_author == blank
+      capture og_author
+        render 'dev-article-author', article: article
+      endcapture
+    endif
+  -%}
+  <meta
+    property="article:published_time"
+    content="{{ article.published_at | date: '%Y-%m-%dT%H:%M:%S%:z' }}"
+  >
+  <meta
+    property="article:modified_time"
+    content="{{ article.updated_at | date: '%Y-%m-%dT%H:%M:%S%:z' }}"
+  >
+  {%- if og_author != blank -%}
+    <meta
+      property="article:author"
+      content="{{ og_author | strip | escape }}"
+    >
+  {%- endif -%}
+  {%- if article.tags.size > 0 -%}
+    <meta
+      property="article:section"
+      content="{{ article.tags.first | escape }}"
+    >
+    {%- for tag in article.tags -%}
+      <meta
+        property="article:tag"
+        content="{{ tag | escape }}"
+      >
+    {%- endfor -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- comment -%}
+  The blog's component library (templates/page.article-components.json) is a tool for the team,
+  not content. Kept out of search here rather than trusting someone to set seo.hidden on the page.
+{%- endcomment -%}
+{%- if template.name == 'page' and template.suffix == 'article-components' -%}
+  <meta
+    name="robots"
+    content="noindex, follow"
   >
 {%- endif -%}
 

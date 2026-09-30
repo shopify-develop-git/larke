@@ -7,7 +7,13 @@
    NAMING: `dev-article`, prefixed. Horizon compiles every section's {% stylesheet %} into one sheet
    that loads on EVERY page, so an unprefixed name risks inheriting stock rules silently — that has
    already bitten .announcement-bar__link and .hero__*. `article` and `dev-article` were both clear,
-   but the body wrapper deliberately does NOT reuse Horizon's `.rte`, which is taken. */
+   but the body wrapper deliberately does NOT reuse Horizon's `.rte`, which is taken.
+
+   COMPONENT CLASSES (.larke-tip, .larke-icon, .larke-caption, .larke-plain) are NOT prefixed
+   `dev-article__`, deliberately: they are written INTO the article HTML by
+   snippets/dev-article-body.liquid, so they are content, not section chrome, and the component
+   library page (dev-article-components) renders the very same markup. They are only ever styled
+   through `.dev-article__body`, so the short names cannot leak onto a stock section. */
 
 /* =============================================
    BASE — desktop
@@ -40,6 +46,11 @@
 }
 
 /* Everything that is READ stays at the measure. Only the media is allowed the full container. */
+/* <article> wraps both rows (head + hero, then the reading band) so the post stays one element. */
+.dev-article__article {
+  display: block;
+}
+
 .dev-article__head,
 .dev-article__body,
 .dev-article__foot {
@@ -74,26 +85,10 @@
 .dev-article__head {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--spacing-sm);
   width: 100%;
-  text-align: center;
-}
-
-/* The tag pill. On the Journal card this sits on a photo and needs a 90% white scrim to stay
-   legible; here it sits on the page canvas, so it takes a solid cream instead of a scrim over
-   nothing. Same size and radius family, different ground. */
-.dev-article__badge {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-badge);
-  background-color: var(--badge-bg);
-
-  font-size: var(--font-badge-size);
-  font-weight: var(--font-body-weight);
-  line-height: 1.4;
-  color: var(--color);
+  text-align: left;
 }
 
 .dev-article__title {
@@ -109,6 +104,25 @@
   text-wrap: balance;
 }
 
+.dev-article__meta-sep {
+  margin-inline: 0.4em;
+  color: var(--color);
+  font-weight: var(--font-bold);
+}
+
+.dev-article__visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 .dev-article__meta {
   margin: 0;
   font-size: var(--font-meta-size);
@@ -117,7 +131,85 @@
   color: var(--muted);
 }
 
+/* --- breadcrumb --- */
+
+.dev-article__crumbs-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  font-size: var(--font-badge-size);
+  font-weight: var(--font-body-weight);
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.dev-article__crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* The separator is generated, with EMPTY alt text (`/ ""`), so a screen reader reads
+   "Journal, Practical guides" and not "Journal greater-than Practical guides". */
+.dev-article__crumb + .dev-article__crumb::before {
+  content: '›' / '';
+}
+
+.dev-article__crumb-link {
+  color: inherit;
+  text-decoration: none;
+  text-underline-offset: 0.15em;
+}
+
+.dev-article__crumb-link:hover {
+  text-decoration: underline;
+}
+
+/* --- deck + byline --- */
+
+.dev-article__deck {
+  margin: 0;
+  font-size: var(--font-deck-size);
+  font-weight: var(--font-body-weight);
+  line-height: 1.4;
+  color: var(--color);
+  text-wrap: pretty;
+}
+
+.dev-article__byline {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.dev-article__avatar {
+  display: block;
+  flex: 0 0 auto;
+  width: var(--avatar);
+  height: var(--avatar);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.dev-article__author {
+  margin: 0;
+  font-size: var(--font-meta-size);
+  font-weight: var(--font-bold);
+  line-height: 1.4;
+  color: var(--color);
+}
+
 /* --- hero media --- */
+
+.dev-article__figure {
+  width: 100%;
+  margin: 0;
+}
 
 /* The one element that breaks the measure — it simply fills the container, which IS the wider of
    the two widths (see __inner). No negative margins, nothing to overflow.
@@ -143,6 +235,30 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* One caption style for the hero and for [caption] in the body: 14px, muted, 8px under its photo. */
+.dev-article__caption,
+.dev-article__body .larke-caption {
+  margin: var(--spacing-xs) 0 0;
+  font-size: var(--font-badge-size);
+  font-weight: var(--font-body-weight);
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+/* --- reading band --- */
+
+/* Wider than __inner (see the Liquid): at >= 1280 the TOC rail sits beside the measure. Below
+   that it is a single column and the body centres itself at --measure like the head does. */
+.dev-article__layout {
+  max-width: var(--container-max);
+  margin: var(--spacing-lg) auto 0;
+}
+
+/* Hidden below 1280 — the inline accordion is the contents there. See WIDE below. */
+.dev-article__rail {
+  display: none;
 }
 
 /* --- body --- */
@@ -205,17 +321,43 @@
   margin-bottom: var(--spacing-xs);
 }
 
+/* --- the quote box ---
+   The editor's own "Quote" format and the [quote] shortcode both produce a <blockquote>, so there
+   is one quote style, not two. Panel, not a rule: the mockup boxes it, and a boxed quote reads as
+   a pull quote rather than a citation. The mark is a mask so its colour is the --accent token. */
 .dev-article__body blockquote {
-  margin: var(--spacing-lg) 0;
-  padding-left: var(--spacing-md);
-  border-left: 2px solid var(--rule);
+  position: relative;
+  margin: var(--spacing-xl) 0;
+  padding: var(--panel-pad);
+  padding-left: calc(var(--panel-pad) + var(--quote-mark) + var(--spacing-sm));
+  border-radius: var(--radius-inline);
+  background-color: var(--panel-bg);
 
   font-family: var(--font-heading);
-  font-size: var(--font-h3-size);
+  font-size: var(--font-quote-size);
+  font-style: var(--font-quote-style);
+  font-weight: var(--font-title-weight);
   line-height: var(--font-title-lh);
+  text-wrap: pretty;
 }
 
-.dev-article__body blockquote p:last-child {
+.dev-article__body blockquote::before {
+  content: '';
+  position: absolute;
+  top: var(--panel-pad);
+  left: var(--panel-pad);
+  width: var(--quote-mark);
+  height: calc(var(--quote-mark) * 0.8);
+  background-color: var(--accent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 32'%3E%3Cpath d='M16 2C8.5 3.8 2 9.6 2 18.5V30h14V16H9.2c.6-4.6 3.4-7.6 8-9zM37 2c-7.5 1.8-14 7.6-14 16.5V30h14V16h-6.8c.6-4.6 3.4-7.6 8-9z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 32'%3E%3Cpath d='M16 2C8.5 3.8 2 9.6 2 18.5V30h14V16H9.2c.6-4.6 3.4-7.6 8-9zM37 2c-7.5 1.8-14 7.6-14 16.5V30h14V16h-6.8c.6-4.6 3.4-7.6 8-9z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.dev-article__body blockquote p {
+  margin: 0 0 var(--spacing-sm);
+}
+
+.dev-article__body blockquote > :last-child {
   margin-bottom: 0;
 }
 
@@ -226,6 +368,15 @@
   height: auto;
   margin: var(--spacing-lg) 0;
   border-radius: var(--radius-inline);
+}
+
+/* CDN body images are cropped to the hero's 3:2 by snippets/dev-article-body.liquid and carry
+   width/height, so the box is reserved before the file arrives. The ratio is restated here so the
+   box holds even in the instant before the browser has parsed the attributes. */
+.dev-article__body img[data-crop='3:2'] {
+  aspect-ratio: var(--ratio-media);
+  object-fit: cover;
+  background-color: var(--panel-bg); /* the reserved box reads as a soft placeholder, not a hole */
 }
 
 .dev-article__body hr {
@@ -239,12 +390,353 @@
   font-weight: 700;
 }
 
+/* --- heading anchors + numbering ---
+   Every <h2> carries an id (snippets/dev-article-body.liquid). An anchor jump must clear the
+   sticky site header, which slides back in on scroll-up. */
+.dev-article__body h2 {
+  scroll-margin-top: calc(var(--header-clear, var(--anchor-offset)) + var(--spacing-md));
+}
+
+/* "1. 2. 3." — CSS counters, so the numbers are computed from the same headings the TOC lists and
+   can never drift from it. `[plain]` headings (.larke-plain) sit outside the count. Off when the
+   article's `number_headings` metafield is false (no --numbered class). */
+.dev-article--numbered .dev-article__body {
+  counter-reset: dev-article-h2;
+}
+
+.dev-article--numbered .dev-article__body h2:not(.larke-plain) {
+  counter-increment: dev-article-h2;
+}
+
+.dev-article--numbered .dev-article__body h2:not(.larke-plain)::before {
+  content: counter(dev-article-h2) '. ';
+}
+
+/* --- table of contents: the inline accordion (< 1280) --- */
+
+.dev-article__toc {
+  margin: var(--spacing-xl) 0;
+  padding: var(--panel-pad);
+  border-radius: var(--radius-inline);
+  background-color: var(--panel-bg);
+}
+
+.dev-article__toc-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  min-height: 44px; /* touch target — the whole row is the control */
+  cursor: pointer;
+  list-style: none;
+}
+
+/* Safari draws its own disclosure triangle through ::-webkit-details-marker and ignores
+   `list-style: none`. Both rules are needed (dev-faq carries the same pair). */
+.dev-article__toc-summary::-webkit-details-marker {
+  display: none;
+}
+
+.dev-article__toc-title {
+  font-family: var(--font-heading);
+  font-size: var(--font-panel-title-size);
+  font-weight: var(--font-title-weight);
+  line-height: var(--font-title-lh);
+}
+
+.dev-article__toc-chevron {
+  display: block;
+  flex: 0 0 auto;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  transition: transform var(--acc-dur) var(--acc-ease);
+}
+
+.dev-article__toc[open] .dev-article__toc-chevron {
+  transform: rotate(180deg);
+}
+
+/* A closing accordion keeps [open] until its height animation lands (see dev-article.js), so the
+   chevron is told to turn back NOW. Same specificity as above: wins on source order. */
+.dev-article__toc[data-toc-state='closing'] .dev-article__toc-chevron {
+  transform: none;
+}
+
+/* The list is shared by the accordion and the rail. Selectors are doubled up with a parent class
+   because the body's own `ol` / `li` / `a` rules above are (0,1,1) and must lose here. */
+.dev-article__toc .dev-article__toc-list,
+.dev-article__rail .dev-article__toc-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin: 0;
+  padding: var(--spacing-sm) 0 0;
+  list-style: none;
+
+  font-size: var(--font-panel-size);
+  line-height: var(--font-panel-lh);
+}
+
+.dev-article__toc .dev-article__toc-item,
+.dev-article__rail .dev-article__toc-item {
+  margin: 0;
+}
+
+/* No numbers in the contents list (owner, 2026-09-28: "Do not show 1, 2, 3"). The headings in the
+   body keep theirs; the list is a set of links, and the arrow below is what says "tap me".
+
+   In the dropdown (every width below 1280) each row ends in a small right arrow — the same vector
+   as dev-journal-cards' "Read Article" CTA, drawn as a mask so it takes the text colour. The rail
+   (>= 1280) has no arrows: it is a side index with its own active marker, and an arrow on every
+   line of a 256px column would be noise. */
+.dev-article__toc .dev-article__toc-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  padding-block: var(--spacing-xs);
+}
+
+.dev-article__toc .dev-article__toc-link::after {
+  content: '';
+  flex: 0 0 auto;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M17 8L21 12L17 16M21 12L3 12' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M17 8L21 12L17 16M21 12L3 12' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* The rows carry their own 8px padding now (a bigger tap target), so the list's gap closes up. */
+.dev-article__toc .dev-article__toc-list {
+  gap: 0;
+}
+
+.dev-article__toc .dev-article__toc-link,
+.dev-article__rail .dev-article__toc-link {
+  color: inherit;
+  text-decoration: none;
+  text-underline-offset: 0.15em;
+}
+
+.dev-article__toc .dev-article__toc-link:hover,
+.dev-article__rail .dev-article__toc-link:hover {
+  text-decoration: underline;
+}
+
+/* --- table of contents: the sticky rail (>= 1280, see WIDE) --- */
+
+.dev-article__rail-title {
+  margin: 0;
+  font-size: var(--font-meta-size);
+  font-weight: var(--font-bold);
+  line-height: 1.4;
+}
+
+.dev-article__rail .dev-article__toc-list {
+  font-size: var(--font-badge-size);
+  color: var(--muted);
+}
+
+.dev-article__rail .dev-article__toc-link {
+  display: block;
+  padding-left: var(--spacing-sm);
+  border-left: 2px solid transparent;
+  transition: color 0.2s ease-out, border-color 0.2s ease-out;
+}
+
+.dev-article__rail .dev-article__toc-link[aria-current='true'] {
+  color: var(--color);
+  border-left-color: var(--accent);
+}
+
+/* --- [tip] — the top tip box ---
+   Icon column + body. The FIRST child of the body is the tip's title, whatever the editor typed it
+   as (a plain line, a bold line): that is the whole authoring rule, and it is documented on the
+   component library page. */
+.dev-article__body .larke-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-xl) 0;
+  padding: var(--panel-pad);
+  border-radius: var(--radius-inline);
+  background-color: var(--panel-bg);
+
+  font-size: var(--font-panel-size);
+  line-height: var(--font-panel-lh);
+}
+
+.dev-article__body .larke-tip__icon {
+  display: flex;
+  flex: 0 0 auto;
+  width: var(--quote-mark);
+  height: var(--quote-mark);
+}
+
+.dev-article__body .larke-tip__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.dev-article__body .larke-tip__body {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.dev-article__body .larke-tip__body > * {
+  margin: 0 0 var(--spacing-xs);
+}
+
+.dev-article__body .larke-tip__body > :last-child {
+  margin-bottom: 0;
+}
+
+.dev-article__body .larke-tip__body > :first-child {
+  font-family: var(--font-heading);
+  font-size: var(--font-panel-title-size);
+  font-weight: var(--font-title-weight);
+  line-height: var(--font-title-lh);
+}
+
+/* A title the editor bolded must not jump to 700 in the heading face (Tiempos 700 is an unlicensed
+   trial cut — dev-brand-fonts). The title's weight is the token, whatever the markup says. */
+.dev-article__body .larke-tip__body > :first-child strong,
+.dev-article__body .larke-tip__body > :first-child b {
+  font-weight: inherit;
+}
+
+/* --- [icon:…] — inline icons, and the icon breakdown list ---
+   Inline (in a sentence) the icon sits on the text line at 1.25em. A bullet list containing icons
+   becomes the icon breakdown: a panel of rows, each icon on a round tile. No class on the <ul> —
+   the editor makes an ordinary bullet list, and :has() recognises it. */
+.dev-article__body .larke-icon {
+  display: inline-flex;
+  width: 1.25em;
+  height: 1.25em;
+  vertical-align: -0.25em;
+}
+
+.dev-article__body .larke-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.dev-article__body .dev-article-icon text {
+  font-family: var(--font-body);
+}
+
+/* Uploaded "Article icon" files (snippets/dev-article-icon.liquid). The upload supplies only the
+   SHAPE, via a mask; the colour is currentColor, exactly like the drawn icons, so any upload —
+   whatever colour it was saved in — reads as part of the same set. It fills whatever box it
+   sits in, the same way the drawn <svg> does in each rule above and below. */
+.dev-article-icon--upload {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: currentColor;
+  -webkit-mask: var(--icon-src) center / contain no-repeat;
+  mask: var(--icon-src) center / contain no-repeat;
+}
+
+.dev-article__body ul:has(.larke-icon) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-xl) 0;
+  padding: var(--panel-pad);
+  border-radius: var(--radius-inline);
+  background-color: var(--panel-bg);
+  list-style: none;
+
+  font-size: var(--font-panel-size);
+  line-height: var(--font-panel-lh);
+}
+
+.dev-article__body ul:has(.larke-icon) > li {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: 0;
+}
+
+.dev-article__body ul:has(.larke-icon) .larke-icon {
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-tile);
+  height: var(--icon-tile);
+  border-radius: 50%;
+  background-color: var(--tile-bg);
+}
+
+.dev-article__body ul:has(.larke-icon) .larke-icon svg,
+.dev-article__body ul:has(.larke-icon) .larke-icon .dev-article-icon--upload {
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+/* An image directly followed by [caption] pulls the caption up to 8px below it — the image's own
+   32px bottom margin would otherwise float the caption loose from its photo. */
+.dev-article__body .larke-caption {
+  margin-top: calc(var(--spacing-lg) * -1 + var(--spacing-xs));
+  margin-bottom: var(--spacing-md);
+}
+
 /* --- foot --- */
 
 .dev-article__foot {
   width: 100%;
+  margin-top: var(--spacing-xl);
   padding-top: var(--spacing-lg);
   border-top: 1px solid var(--rule);
+}
+
+/* =============================================
+   WIDE  >= 1280px — the TOC rail
+   =============================================
+   A min-width block, the one exception to this file's max-width breakpoints: the rail is the one
+   thing that only exists ABOVE a width. 1280 is where the band finally has room — see the Liquid
+   header for the arithmetic. The grid is 1fr | measure | 1fr, so the prose stays dead centre under
+   the hero exactly as below 1280, and the rail takes the left gutter without pushing it over. */
+
+@media (min-width: 1280px) {
+  .dev-article__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, var(--measure)) minmax(0, 1fr);
+    column-gap: var(--spacing-xl);
+    align-items: start;
+  }
+
+  .dev-article__rail {
+    display: flex;
+    flex-direction: column;
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: end;
+    width: 100%;
+    max-width: var(--rail-w);
+    position: sticky;
+    /* --header-clear is the site header's live bottom edge, written by dev-article.js; without JS
+       it falls back to the static --rail-top. `top` eases with the header's own 250ms slide. */
+    top: calc(var(--header-clear, 0px) + var(--rail-top));
+    transition: top 250ms ease;
+  }
+
+  .dev-article__rail .dev-article__toc-list {
+    padding-top: var(--spacing-sm);
+  }
+
+  .dev-article__body {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  /* The inline accordion's copy of the same list. display:none also drops it from the
+     accessibility tree, so the list is never announced twice. */
+  .dev-article__toc {
+    display: none;
+  }
 }
 
 /* =============================================
@@ -280,6 +772,37 @@
     font-size: var(--font-h3-size);
   }
 
+  .dev-article__deck {
+    font-size: var(--font-deck-size-m);
+  }
+
+  /* Panels drop to the tile padding and the smaller title step, as dev-pdp-guarantees does. */
+  .dev-article__toc,
+  .dev-article__body blockquote,
+  .dev-article__body .larke-tip,
+  .dev-article__body ul:has(.larke-icon) {
+    padding: var(--panel-pad-m);
+  }
+
+  .dev-article__body blockquote {
+    padding-left: calc(var(--panel-pad-m) + var(--quote-mark) + var(--spacing-sm));
+    font-size: var(--font-quote-size-m);
+  }
+
+  .dev-article__body blockquote::before {
+    top: var(--panel-pad-m);
+    left: var(--panel-pad-m);
+  }
+
+  .dev-article__toc-title,
+  .dev-article__body .larke-tip__body > :first-child {
+    font-size: var(--font-panel-title-size-m);
+  }
+
+  .dev-article__layout {
+    margin-top: var(--spacing-md);
+  }
+
   /* Nothing to reset for the media: both widths are max-widths, so below 720px the container, the
      measure and the image all collapse to the same fluid column on their own. */
 }
@@ -299,12 +822,18 @@
 
 /* The back link's focus is handled by the shared component (.dev-btn, focus colour
    pinned to --color via --dev-btn-focus above). Body richtext links keep their own. */
-.dev-article__body a:focus-visible {
+.dev-article__body a:focus-visible,
+.dev-article__crumb-link:focus-visible,
+.dev-article__rail .dev-article__toc-link:focus-visible,
+.dev-article__toc-summary:focus-visible {
   outline: 2px solid var(--color);
   outline-offset: 2px;
 }
 
-.dev-article__body a:focus:not(:focus-visible) {
+.dev-article__body a:focus:not(:focus-visible),
+.dev-article__crumb-link:focus:not(:focus-visible),
+.dev-article__rail .dev-article__toc-link:focus:not(:focus-visible),
+.dev-article__toc-summary:focus:not(:focus-visible) {
   outline: none;
 }
 

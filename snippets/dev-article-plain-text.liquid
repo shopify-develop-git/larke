@@ -1,0 +1,52 @@
+{%- comment -%}
+  An article's text for MACHINES — meta description, structured data, word count. The HTML is
+  stripped and the editor's shortcodes ([tip], [quote], [icon:…], [caption], [plain] — see
+  snippets/dev-article-body.liquid) are removed, so a search snippet never reads
+  "[tip] Top tip Add a couple…" and a word count never counts "[/quote]".
+
+  ONE source of truth for "what does this article say, as text": the meta description
+  (snippets/meta-tags.liquid) and the BlogPosting JSON-LD (sections/dev-article.liquid) both read
+  it, so Google's two views of the post can never disagree.
+
+  @param {string} html - article.content (raw, unprocessed)
+  @param {number} [words] - truncate to this many words (adds an ellipsis only when it cut)
+{%- endcomment -%}
+
+{%- liquid
+  assign text = html | replace: '</p>', '</p> ' | replace: '</li>', '</li> ' | replace: '</h2>', '</h2> ' | replace: '</h3>', '</h3> ' | strip_html
+  assign text = text | remove: '[tip]' | remove: '[/tip]' | remove: '[quote]' | remove: '[/quote]' | remove: '[caption]' | remove: '[plain]'
+
+  comment
+    [icon:name] and [tip:name] carry a variable name, so they are cut by splitting on the opener
+    and dropping everything up to the first `]` of each piece.
+  endcomment
+  for opener in (1..2)
+    if opener == 1
+      assign code = '[icon:'
+    else
+      assign code = '[tip:'
+    endif
+    if text contains code
+      assign pieces = text | split: code
+      assign rebuilt = ''
+      for piece in pieces
+        if forloop.first
+          assign rebuilt = piece
+          continue
+        endif
+        assign name = piece | split: ']' | first
+        assign rest = piece | remove_first: name | remove_first: ']'
+        assign rebuilt = rebuilt | append: rest
+      endfor
+      assign text = rebuilt
+    endif
+  endfor
+
+  assign text = text | strip_newlines | split: ' ' | join: ' ' | strip
+
+  if words
+    assign text = text | truncatewords: words, '…'
+  endif
+
+  echo text
+-%}

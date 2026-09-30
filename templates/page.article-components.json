@@ -1,0 +1,16 @@
+/*
+ * The editor's kit for the blog: every article component, with a live preview and a Copy button.
+ * Assign this template to a page (e.g. /pages/article-components) and set that page's
+ * `seo.hidden` metafield to 1 so it stays out of search. See sections/dev-article-components.liquid.
+ */
+{
+  "sections": {
+    "dev-article-components": {
+      "type": "dev-article-components",
+      "settings": {}
+    }
+  },
+  "order": [
+    "dev-article-components"
+  ]
+}

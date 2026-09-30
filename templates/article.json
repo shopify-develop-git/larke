@@ -9,7 +9,10 @@
     "dev-article": {
       "type": "dev-article",
       "settings": {
-        "back_label": "Back to Journal",
+        "show_breadcrumb": true,
+        "breadcrumb_label": "Breadcrumb",
+        "toc_label": "In this article",
+        "back_label": "",
         "read_time_label": "min read",
         "author_prefix": "By",
         "show_date": true,
@@ -18,12 +21,79 @@
         "meta_color": "#666666",
         "badge_color": "#FCF5E3",
         "rule_color": "#C4BCA9",
+        "panel_color": "#FCF5E3",
+        "tile_color": "#FFFCF4",
+        "accent_color": "#A8CF78",
         "padding_top": 48,
-        "padding_bottom": 80
+        "padding_bottom": 48,
+        "blog_crumb_label": "Snooze"
+      }
+    },
+    "dev-article-author": {
+      "type": "dev-article-author",
+      "settings": {
+        "label": "About the author",
+        "show_rule": true,
+        "background_color": "rgba(0,0,0,0)",
+        "text_color": "#333333",
+        "meta_color": "#666666",
+        "panel_color": "#FCF5E3",
+        "rule_color": "#C4BCA9",
+        "padding_top": 0,
+        "padding_bottom": 48
+      }
+    },
+    "dev-article-newsletter": {
+      "type": "dev-article-newsletter",
+      "settings": {
+        "heading": "Get thoughtful sleep tips",
+        "text": "Stories, guides and gentle advice. Straight to your inbox.",
+        "placeholder": "Your email",
+        "button_label": "Subscribe",
+        "customer_tag": "blog",
+        "background_color": "rgba(0,0,0,0)",
+        "text_color": "#333333",
+        "panel_color": "#FCF5E3",
+        "button_color": "#333333",
+        "padding_top": 0,
+        "padding_bottom": 64
+      }
+    },
+    "dev-article-related": {
+      "type": "dev-article-related",
+      "settings": {
+        "heading": "Related articles",
+        "limit": 3,
+        "card_label": "Read Article",
+        "read_time_label": "min read",
+        "author_prefix": "By",
+        "button_label": "All Articles",
+        "background_color": "rgba(0,0,0,0)",
+        "text_color": "#333333",
+        "padding_top": 0,
+        "padding_bottom": 64
+      }
+    },
+    "dev-article-cta": {
+      "type": "dev-article-cta",
+      "settings": {
+        "heading": "Meet the real thing.",
+        "text": "Made from trees.\nEverything you love, made remarkable.",
+        "button_label": "Our Duvet",
+        "button_link": "shopify://products/natural-duvet",
+        "background_color": "rgba(0,0,0,0)",
+        "text_color": "#333333",
+        "panel_color": "#FCF5E3",
+        "padding_top": 0,
+        "padding_bottom": 48
       }
     }
   },
   "order": [
-    "dev-article"
+    "dev-article",
+    "dev-article-cta",
+    "dev-article-author",
+    "dev-article-newsletter",
+    "dev-article-related"
   ]
 }

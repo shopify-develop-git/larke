@@ -1,0 +1,111 @@
+/* dev-article-outro.css — the closing sign-off panel under a blog post. */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.dev-article-outro {
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+  padding: var(--pt) var(--section-px) var(--pb);
+}
+
+.dev-article-outro__inner {
+  max-width: var(--measure);
+  margin-inline: auto;
+}
+
+/* --- layout --- */
+
+.dev-article-outro__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--panel-py) var(--panel-px);
+  border-radius: var(--radius-panel);
+  background-color: var(--panel-bg);
+  text-align: center;
+}
+
+/* --- blocks / children --- */
+
+.dev-article-outro__icon {
+  display: flex;
+  width: var(--icon);
+  height: var(--icon);
+  color: var(--accent);
+}
+
+.dev-article-outro__icon svg {
+  width: 100%;
+  height: 100%;
+  /* The set is drawn at 1.4px on a 24px box. At 48px that doubles to 2.8px and the leaf turns
+     heavy; 1 unit here lands it at 2px, the weight the mockup draws. */
+  stroke-width: 1;
+}
+
+/* --- typography --- */
+
+.dev-article-outro__heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  text-wrap: balance;
+}
+
+/* --- buttons / links --- */
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .dev-article-outro {
+    padding-left: var(--section-px-m);
+    padding-right: var(--section-px-m);
+  }
+
+  .dev-article-outro__panel {
+    padding: var(--panel-py-m) var(--panel-px-m);
+  }
+
+  .dev-article-outro__heading {
+    font-size: var(--font-heading-size-m);
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+/* Nothing focusable. The icon is aria-hidden (snippets/dev-article-icon.liquid). */
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-article-outro,
+  .dev-article-outro * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

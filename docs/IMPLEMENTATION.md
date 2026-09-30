@@ -42,8 +42,12 @@ design spec instead.
 
 | Section | Status | Figma (desktop / mobile) | Interactive | Max diff | Rounds | Updated |
 |---|---|---|---|---|---|---|
+| dev-article (+ author, newsletter, related, outro, components) | 🔄 built, awaiting store preview | none — structure from client mockups 2026-09-16 | yes — contents accordion + rail; copy buttons | n/a (no artboard) | n/a | 2026-09-22 |
 | dev-faq | ✅ shipped | none — no FAQ artboard exists; accordion follows `Accordions - Desktop` 45068:1975 | yes — accordion | n/a (no artboard to diff) | n/a | 2026-07-14 |
 
 **dev-faq** — `/pages/faq`. Full detail, including the accordion
 JS's intentional duplication from `dev-main-product.js` and the heading font's missing `?` glyph:
 `docs/sections/dev-faq.md`.
+
+**dev-article** — blog post template and editor kit. Authoring model, store setup and open
+verification items: `docs/sections/dev-article.md`.

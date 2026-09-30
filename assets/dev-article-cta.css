@@ -1,0 +1,115 @@
+/* dev-article-cta.css — the "Meet the real thing." product call-to-action under a blog post. */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.dev-article-cta {
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+  padding: var(--pt) var(--section-px) var(--pb);
+}
+
+.dev-article-cta__inner {
+  max-width: var(--measure);
+  margin-inline: auto;
+}
+
+/* --- layout --- */
+
+.dev-article-cta__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-text);
+  padding: var(--panel-pad);
+  border-radius: var(--radius-panel);
+  background-color: var(--panel-bg);
+}
+
+/* --- blocks / children --- */
+
+/* --- typography --- */
+
+.dev-article-cta__heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  text-wrap: balance;
+}
+
+.dev-article-cta__text {
+  margin: 0;
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+}
+
+/* --- buttons / links --- */
+
+/* Visual styling is dev-button's `dark` pill; only the spacing above it is local. */
+.dev-article-cta__button {
+  margin-top: calc(var(--gap-button) - var(--gap-text));
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .dev-article-cta {
+    padding-left: var(--section-px-m);
+    padding-right: var(--section-px-m);
+  }
+
+  .dev-article-cta__panel {
+    padding: var(--panel-pad-m);
+  }
+
+  .dev-article-cta__heading {
+    font-size: var(--font-heading-size-m);
+  }
+
+  .dev-article-cta__text {
+    font-size: var(--font-body-size-m);
+  }
+
+  .dev-article-cta__button {
+    margin-top: calc(var(--gap-button-m) - var(--gap-text));
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+/* The button's focus ring comes from dev-button.css. */
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-article-cta,
+  .dev-article-cta * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,158 @@
+{{ 'dev-article-newsletter.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Section: "Newsletter signup" (dev name `dev-article-newsletter`). The in-article "Get thoughtful
+  sleep tips" box from the client's blog mockup.
+
+  THE FORM IS THE FOOTER'S. Same native {% form 'customer' %} (no app, no API — the address lands
+  in Shopify's customer list with marketing consent), same field styling, same success and error
+  messages, with two deliberate differences:
+
+    * its OWN form id. Shopify builds the post-submit anchor from the form id, and the footer's
+      form already sits on this page; sharing an id would throw a reader who signs up here down to
+      the footer (or vice versa) instead of showing the confirmation where they typed. The footer's
+      header comment records exactly that bug on /pages/contact.
+    * an extra customer tag, `blog` by default, so the list can tell the two sources apart.
+
+  Values, all borrowed (no artboard — see dev-article's header):
+    * input: white, 8px radius, 18px 24px padding, 16px text, #666 hover/focus ring -> dev-site-footer
+    * button: the shared dark pill (.dev-btn--dark), full width                     -> dev-button.css
+    * panel, measure, type steps                                                    -> dev-article
+{%- endcomment -%}
+
+<style>
+  .dev-article-newsletter {
+    --section-px: 64px;
+    --section-px-m: 16px;
+    --measure: 720px;
+
+    --font-heading-size: 32px;
+    --font-heading-size-m: 24px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+    --font-body-size: 16px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+
+    --panel-pad: 32px;
+    --panel-pad-m: 16px;
+    --radius-panel: 16px;
+
+    --radius-input: 8px;
+    --input-padding: 18px 24px;
+    --input-padding-m: 12px 18px;
+    --font-input-size: 16px;
+    --input-bg: #ffffff;
+    --input-border-color: #666666;
+
+    --spacing-xs: 8px;
+    --spacing-sm: 16px;
+    --spacing-md: 24px;
+  }
+</style>
+
+{%- assign field_id = 'article-newsletter-email-' | append: section.id -%}
+{%- assign form_id = 'article_newsletter_' | append: section.id -%}
+
+<div
+  class="dev-article-newsletter"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --panel-bg: {{ section.settings.panel_color }};
+    --accent: {{ section.settings.button_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="dev-article-newsletter__inner">
+    <div class="dev-article-newsletter__panel">
+      {%- if section.settings.heading != blank or section.settings.text != blank -%}
+        <div class="dev-article-newsletter__text">
+          {%- if section.settings.heading != blank -%}
+            <h2 class="dev-article-newsletter__heading">{{ section.settings.heading }}</h2>
+          {%- endif -%}
+          {%- if section.settings.text != blank -%}
+            <p class="dev-article-newsletter__subheading">{{ section.settings.text | escape }}</p>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- form 'customer', id: form_id, class: 'dev-article-newsletter__form' -%}
+        {%- liquid
+          assign tags = 'newsletter'
+          if section.settings.customer_tag != blank
+            assign tags = tags | append: ',' | append: section.settings.customer_tag
+          endif
+        -%}
+        <input type="hidden" name="contact[tags]" value="{{ tags | escape }}">
+        <label class="dev-article-newsletter__visually-hidden" for="{{ field_id }}">
+          {{- section.settings.placeholder | escape -}}
+        </label>
+        <input
+          id="{{ field_id }}"
+          class="dev-article-newsletter__input"
+          type="email"
+          name="contact[email]"
+          value="{{ form.email }}"
+          placeholder="{{ section.settings.placeholder | escape }}"
+          autocomplete="email"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          required
+        >
+        {%- render 'dev-button', variant: 'dark', type: 'submit', full: true, label: section.settings.button_label, class: 'dev-article-newsletter__button' -%}
+
+        {%- if form.posted_successfully? -%}
+          <p class="dev-article-newsletter__message" role="status" tabindex="-1">
+            {{- 'blocks.email_signup.success' | t -}}
+          </p>
+        {%- endif -%}
+        {%- if form.errors -%}
+          <p class="dev-article-newsletter__message" role="alert" tabindex="-1">
+            {{- form.errors.translated_fields.email | capitalize }} {{ form.errors.messages.email -}}
+          </p>
+        {%- endif -%}
+      {%- endform -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Newsletter signup",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Get thoughtful sleep tips" },
+    { "type": "text", "id": "text", "label": "Text", "default": "Stories, guides and gentle advice. Straight to your inbox." },
+    { "type": "text", "id": "placeholder", "label": "Email placeholder", "default": "Your email" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Subscribe" },
+    {
+      "type": "text",
+      "id": "customer_tag",
+      "label": "Extra customer tag",
+      "info": "Added next to 'newsletter' so you can see which signups came from the blog.",
+      "default": "blog"
+    },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "rgba(0,0,0,0)" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "panel_color", "label": "Panel background", "default": "#FCF5E3" },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Focus outline",
+      "info": "The button itself is the site's dark pill and follows the text colour.",
+      "default": "#333333"
+    },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding top", "default": 0 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding bottom", "default": 64 }
+  ],
+  "presets": [{ "name": "Newsletter signup" }]
+}
+{% endschema %}

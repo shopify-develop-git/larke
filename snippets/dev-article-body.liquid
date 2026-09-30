@@ -1,0 +1,265 @@
+{%- comment -%}
+  The article-body processor. Takes the merchant's rich-text HTML and returns it with the blog's
+  components expanded. ONE source of truth: dev-article renders the post through it and the
+  component library page (dev-article-components) renders its live examples through it, so a
+  component can never look one way in the library and another in a post.
+
+  THE EDITOR'S INTERFACE IS SHORTCODES, typed as plain text in Shopify's visual editor — no HTML
+  view, no classes, nothing an editor can break by pasting from Google Docs:
+
+    [tip]  …paragraphs…  [/tip]      Top-tip box, sun icon. First paragraph inside = its title.
+    [tip:leaf] … [/tip]              Same box, any icon: a built-in name or an uploaded
+                                     "Article icon" (Content -> Metaobjects).
+    [quote] … [/quote]               Quote box. The editor's own "Quote" format does the same.
+    [icon:wash-40] Wash at 40°C      Inline icon. A bullet list whose items start with one
+                                     becomes the icon breakdown (CSS :has(), no class needed).
+    [caption] A fresher bed.         Caption under the image just above it.
+    <h2>[plain]The bottom line</h2>  Keeps a heading out of the "1. 2. 3." numbering.
+
+  Why shortcodes and not HTML snippets with classes: classes and data-* attributes only survive
+  if the editor switches to the HTML view and pastes precisely, and a round-trip through Google
+  Docs strips them. A bracketed word survives every editor, every paste and every copy-edit.
+
+  ORDER MATTERS below: components first, heading anchors last, so the anchors are built from the
+  final markup the table of contents (in dev-article) reads back.
+
+  @param {string} html - the raw article HTML (article.content, or example markup)
+{%- endcomment -%}
+
+{%- liquid
+  assign out = html
+
+  comment
+    Lazy-load body images. The first duplicate attribute wins, so an editor-set loading="eager"
+    still ends up lazy and a loading="lazy" is unchanged. See dev-article's note on the hero LCP.
+  endcomment
+  assign out = out | replace: '<img ', '<img loading="lazy" decoding="async" '
+
+  comment
+    Responsive, shift-free body images. The editor inserts ONE file at one size, with no width or
+    height. On the store preview (2026-09-22) that meant a 1440px photo on a 390px phone, and —
+    worse — each lazy photo took up NO height until it arrived, so its caption sat alone and the
+    text below jumped when it loaded (a layout shift, i.e. CLS).
+
+    Any image on the store's own CDN can be resized AND cropped by URL, so each one gets:
+      * a fixed 3:2 shape, cropped on the CDN — the hero's ratio (--ratio-media), so every photo in
+        a post is the same shape and the page reads as one design;
+      * width/height attributes (1440x960), so the browser reserves the box before a byte arrives;
+      * a srcset ladder + `sizes` stating the real box (720px measure, or the viewport less the
+        16px gutters), so a phone downloads ~780w, not 1440w.
+    ESCAPE HATCH: an image whose HTML already carries its own width and height keeps its real
+    shape — the browser can reserve that box itself — and only gains the srcset.
+    Images hosted anywhere else cannot be resized and are left exactly as written.
+  endcomment
+  if out contains '<img '
+    assign chunks = out | split: '<img '
+    assign rebuilt = ''
+    assign ladder = '360,540,720,900,1080,1440' | split: ','
+    for chunk in chunks
+      if forloop.first
+        assign rebuilt = chunk
+        continue
+      endif
+      assign piece = chunk
+      assign tag = chunk | split: '>' | first
+      assign extra = ''
+      unless tag contains 'srcset='
+        assign src = tag | split: 'src="' | last | split: '"' | first
+        assign on_cdn = false
+        if tag contains 'src="'
+          if src contains '/cdn/shop/' or src contains 'cdn.shopify.com'
+            assign on_cdn = true
+          endif
+        endif
+        if on_cdn
+          assign base = src | split: '?' | first
+          assign own_size = false
+          if tag contains ' width="' and tag contains ' height="'
+            assign own_size = true
+          endif
+          assign srcset = ''
+          for w in ladder
+            assign wn = w | plus: 0
+            if own_size
+              assign entry = base | append: '?width=' | append: wn
+            else
+              assign hn = wn | times: 2 | divided_by: 3
+              assign entry = base | append: '?width=' | append: wn | append: '&amp;height=' | append: hn | append: '&amp;crop=center'
+            endif
+            assign entry = entry | append: ' ' | append: wn | append: 'w'
+            if srcset == blank
+              assign srcset = entry
+            else
+              assign srcset = srcset | append: ', ' | append: entry
+            endif
+          endfor
+          assign extra = 'srcset="' | append: srcset | append: '" sizes="(min-width: 769px) 720px, calc(100vw - 32px)" '
+          unless own_size
+            assign new_src = base | append: '?width=1440&amp;height=960&amp;crop=center'
+            assign quoted_old = 'src="' | append: src | append: '"'
+            assign quoted_new = 'src="' | append: new_src | append: '"'
+            assign piece = piece | replace_first: quoted_old, quoted_new
+            assign extra = extra | append: 'width="1440" height="960" data-crop="3:2" '
+          endunless
+        endif
+      endunless
+      assign rebuilt = rebuilt | append: '<img ' | append: extra | append: piece
+    endfor
+    assign out = rebuilt
+  endif
+
+  comment
+    ---- [tip] / [/tip] ----
+    Only expanded when opens and closes BALANCE. An unclosed [tip] would otherwise open a <div>
+    that swallows the rest of the article into the box. Unbalanced, the shortcodes are left as
+    typed, so the editor sees the stray bracket in the preview instead of a broken page.
+    Counting by length difference: every occurrence of '[tip' is 4 characters removed.
+  endcomment
+  assign len = out | size
+  assign tip_opens = out | remove: '[tip' | size
+  assign tip_opens = len | minus: tip_opens | divided_by: 4
+  assign tip_closes = out | remove: '[/tip]' | size
+  assign tip_closes = len | minus: tip_closes | divided_by: 6
+
+  if tip_opens > 0 and tip_opens == tip_closes
+    comment
+      [tip:name] — split on the shortcode itself so ANY name is read, built-in or uploaded
+      (snippets/dev-article-icon.liquid resolves both). The editor's paragraph around the code,
+      `<p>[tip:leaf]</p>`, is unwrapped: the trailing `<p>` is cut off the text before it and the
+      `</p>` off the text after it, so the box never sits inside a paragraph.
+      An unknown name still opens the box, just without an icon: dropping the OPEN while its
+      [/tip] is still converted would leave a stray `</div></div>` closing the page's own markup.
+    endcomment
+    if out contains '[tip:'
+      assign chunks = out | split: '[tip:'
+      assign rebuilt = ''
+      for chunk in chunks
+        if forloop.first
+          assign rebuilt = chunk
+          continue
+        endif
+        assign tip_name = chunk | split: ']' | first
+        assign piece = chunk | remove_first: tip_name | remove_first: ']'
+        assign tail = rebuilt | slice: -3, 3
+        if tail == '<p>'
+          assign keep = rebuilt | size | minus: 3
+          assign rebuilt = rebuilt | slice: 0, keep
+          assign piece = piece | remove_first: '</p>'
+        endif
+        capture svg
+          render 'dev-article-icon', name: tip_name
+        endcapture
+        assign open_tag = '<div class="larke-tip"><span class="larke-tip__icon">' | append: svg | append: '</span><div class="larke-tip__body">'
+        assign rebuilt = rebuilt | append: open_tag | append: piece
+      endfor
+      assign out = rebuilt
+    endif
+
+    if out contains '[tip]'
+      capture svg
+        render 'dev-article-icon', name: 'sun'
+      endcapture
+      assign open_tag = '<div class="larke-tip"><span class="larke-tip__icon">' | append: svg | append: '</span><div class="larke-tip__body">'
+      assign out = out | replace: '<p>[tip]</p>', open_tag | replace: '[tip]', open_tag
+    endif
+
+    assign out = out | replace: '<p>[/tip]</p>', '</div></div>' | replace: '[/tip]', '</div></div>'
+  endif
+
+  comment ---- [quote] / [/quote] — same balance guard ----
+  endcomment
+  assign len = out | size
+  assign q_opens = out | remove: '[quote]' | size
+  assign q_opens = len | minus: q_opens | divided_by: 7
+  assign q_closes = out | remove: '[/quote]' | size
+  assign q_closes = len | minus: q_closes | divided_by: 8
+  if q_opens > 0 and q_opens == q_closes
+    assign out = out | replace: '<p>[quote]</p>', '<blockquote>' | replace: '[quote]', '<blockquote>'
+    assign out = out | replace: '<p>[/quote]</p>', '</blockquote>' | replace: '[/quote]', '</blockquote>'
+  endif
+
+  comment
+    ---- [icon:name] ----
+    Split on the shortcode so any name is read: built-in first, then the store's "Article icon"
+    uploads (both resolved by snippets/dev-article-icon.liquid). A name that resolves to nothing
+    is put back exactly as typed, so a typo shows in the preview instead of vanishing.
+  endcomment
+  if out contains '[icon:'
+    assign chunks = out | split: '[icon:'
+    assign rebuilt = ''
+    for chunk in chunks
+      if forloop.first
+        assign rebuilt = chunk
+        continue
+      endif
+      assign icon_name = chunk | split: ']' | first
+      assign piece = chunk | remove_first: icon_name | remove_first: ']'
+      capture svg
+        render 'dev-article-icon', name: icon_name
+      endcapture
+      if svg != blank
+        assign rebuilt = rebuilt | append: '<span class="larke-icon">' | append: svg | append: '</span>' | append: piece
+      else
+        assign rebuilt = rebuilt | append: '[icon:' | append: chunk
+      endif
+    endfor
+    assign out = rebuilt
+  endif
+
+  comment ---- [caption] ----
+  endcomment
+  if out contains '[caption]'
+    assign out = out | replace: '<p>[caption] ', '<p class="larke-caption">' | replace: '<p>[caption]', '<p class="larke-caption">'
+  endif
+
+  comment
+    ---- <h2> anchors ----
+    Every <h2> gets an id the table of contents links to, written as the FIRST attribute: when the
+    editor's HTML already carries an id or class, the first duplicate attribute wins, so ours
+    holds and the TOC (which reads `<h2 id="` back out of this output) can never miss one.
+    Duplicate headings get a numeric suffix so two "Top tip" sections do not share an anchor.
+  endcomment
+  if out contains '<h2'
+    assign chunks = out | split: '<h2'
+    assign used = ','
+    assign rebuilt = ''
+    for chunk in chunks
+      if forloop.first
+        assign rebuilt = chunk
+        continue
+      endif
+
+      comment
+        `piece`, never `chunk`: assigning to a for-loop variable does not stick — the loop's own
+        binding shadows the assign — so a stripped [plain] would reappear in the output.
+      endcomment
+      assign piece = chunk
+      assign head = piece | split: '</h2>' | first
+      assign attrs = head | split: '>' | first
+      assign inner = head | remove_first: attrs | remove_first: '>'
+      assign text = inner | strip_html | strip
+
+      assign plain_attr = ''
+      if text contains '[plain]'
+        assign plain_attr = ' class="larke-plain"'
+        assign text = text | remove: '[plain]' | strip
+        assign piece = piece | remove_first: '[plain]'
+      endif
+
+      assign slug = text | handleize
+      if slug == blank
+        assign slug = 'section-' | append: forloop.index0
+      endif
+      assign probe = ',' | append: slug | append: ','
+      if used contains probe
+        assign slug = slug | append: '-' | append: forloop.index0
+      endif
+      assign used = used | append: slug | append: ','
+
+      assign rebuilt = rebuilt | append: '<h2 id="' | append: slug | append: '"' | append: plain_attr | append: piece
+    endfor
+    assign out = rebuilt
+  endif
+
+  echo out
+-%}
