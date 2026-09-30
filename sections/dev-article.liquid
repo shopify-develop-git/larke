@@ -1,104 +1,295 @@
 {{ 'dev-article.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'dev-article.js' | asset_url }}" defer></script>
 
 {%- comment -%}
-  Section: "Article" (dev name `dev-article`). The blog post page.
+  Section: "Article" (dev name `dev-article`). The blog post page — the READING band: breadcrumb,
+  title, deck, byline, hero, table of contents and the body. Everything after the body (author card,
+  newsletter, related posts, closing panel) is its own section in templates/article.json, so the
+  owner can reorder or drop those in the theme editor without touching this one.
 
   NO FIGMA ARTBOARD EXISTS FOR THIS PAGE — read that before "correcting" any value here.
   Every other dev-* section in this theme is measured off a 1440/375 artboard and QA'd with a
-  pixel diff. This one cannot be, because the design does not cover it. So it is COMPOSED from the
-  system the artboards already establish, and every value below is borrowed from a section that
-  WAS measured, rather than invented:
+  pixel diff. This one cannot be, because the design does not cover it. The client's 2026-09-16
+  mockups (docs/sections/dev-article-blog-structure.md) fix the STRUCTURE and the component list;
+  they are concept renders and are never measured. So every value below is borrowed from a section
+  that WAS measured, rather than invented:
 
     * Tiempos Headline Medium 48/1.2 heading  -> dev-hero's --font-heading-size
     * Public Sans Medium 18/1.4 body          -> dev-journal-cards' card copy (Body/Lg)
-    * 16px meta, 14px badge                   -> dev-journal-cards' __meta / __badge
-    * 32px media radius, 16px inline radius   -> dev-journal-cards' --radius-media
+    * 16px meta, 14px badge / breadcrumb      -> dev-journal-cards' __meta / __badge
+    * 32px media radius, 16px inline radius   -> dev-journal-cards' --radius-media / --radius-card
     * 64px / 16px gutters, 80px top spacer    -> the shared section rhythm
     * the back arrow                          -> the SAME exported vector as journal-cards' CTA
+    * deck 20px                               -> dev-journal-cards' --card-heading-size step
+    * panels (TOC, tip, icon list): cream #FCF5E3 panel, #FFFCF4 tile, 24px / 16px padding
+                                              -> dev-pdp-guarantees' panel-and-tile pair
+    * panel title 22 / 20px                   -> dev-pdp-guarantees' heading, dev-faq's question
+    * chevron + 300ms cubic-bezier(.32,.72,0,1) accordion
+                                              -> dev-faq, verbatim (JS duplicated on purpose)
+    * quote 28 / 22px                         -> dev-proudest-moments' mobile heading step / --font-h3-size
 
-  The one thing that is genuinely new is the READING COLUMN (--measure, 720px). No section in the
-  design has long-form prose, so nothing to copy: 720px at 18px type is ~72 characters per line,
-  which is the middle of the 45–75 range typography treats as readable. Flagged as a judgement
-  call, not a measurement — if a Journal artboard ever lands, this is the first value to check.
+  Genuinely new, flagged as judgement calls rather than measurements:
+    * the READING COLUMN (--measure, 720px): ~72 characters per line at 18px, the middle of the
+      45–75 range typography treats as readable. No section in the design has long-form prose.
+    * the DESKTOP TOC RAIL (>= 1280px): the mockups are mobile-only. Below 1280 the TOC is the
+      accordion as drawn, sitting after the intro; at 1280 there is finally room beside the 720
+      measure for a sticky rail (1280 − 2×64 − 720 − 2×48 = 336, i.e. 168px a side), so it moves
+      there. Two renders of one list, one hidden per breakpoint — see the note at the markup.
+    * the avatar (48px): 2 × --icon-size. Nothing in the design draws a face.
+    * the header is LEFT-aligned now (it was centred). The mockup aligns it with the prose, and a
+      centred title over a left-aligned column reads as two different pages glued together.
+
+  Content comes from four places, each with a defined empty state (see docs/sections/dev-article.md):
+    article.title / .content / .image / .tags / .published_at     Shopify's own fields
+    custom.subtitle, custom.hero_caption                               one-line text metafields
+    custom.show_contents, custom.number_headings                       booleans — EMPTY MEANS ON
+    custom.author_profile -> `author` metaobject (name, avatar)     falls back to custom.author text
+  A post with nothing but a title, a body and a featured image must still render correctly.
 
   Reading time is NOT computed here. It comes from snippets/dev-article-read-time.liquid, shared
   with dev-journal-cards, so the "4 min read" on the card and on the post it links to are the same
-  number by construction.
+  number by construction. The byline comes from snippets/dev-article-author.liquid, same reason.
+
+  The body goes through snippets/dev-article-body.liquid, which expands the editor's shortcodes
+  ([tip], [quote], [icon:…], [caption], [plain]) and gives every <h2> an anchor. The table of
+  contents is then read back out of THAT output, so a TOC link can never point at a heading id
+  the body does not carry.
 {%- endcomment -%}
 
-{%- comment -%} Fixed design tokens — borrowed from the measured sections, see above {%- endcomment -%}
-<style>
-  .dev-article {
-
-    --section-px: 64px;
-    --section-px-m: 16px;
-
-    {%- comment -%} Two widths. --measure is the reading column: 720px at 18px type is ~72 characters per line,
-       the middle of the 45–75 range that is comfortable to read. --media-w is the wider container
-       the hero image fills, so the photo has presence without the prose inheriting a 960px line.
-       Both are judgement calls — no artboard covers this page. See the header comment. {%- endcomment -%}
-    --measure: 720px;
-    --media-w: 960px;
-
-    --font-title-size: 48px;
-    --font-title-size-m: 32px;
-    --font-title-weight: 500;
-    --font-title-lh: 1.2;
-
-    {%- comment -%} Body copy and the headings INSIDE the article body. The body h2/h3 step down from the
-       title rather than repeating it, so the page has one obvious top. {%- endcomment -%}
-    --font-body-size: 18px;
-    --font-body-size-m: 16px;
-    --font-body-weight: 500;
-    --font-body-lh: 1.6; {%- comment -%} looser than the 1.4 the cards use: those are 2-line captions, this is prose {%- endcomment -%}
-    --font-h2-size: 32px;
-    --font-h3-size: 22px;
-
-    --font-meta-size: 16px;
-    --font-badge-size: 14px;
-
-    --spacing-xs: 8px;
-    --spacing-sm: 16px;
-    --spacing-md: 24px;
-    --spacing-lg: 32px;
-    --spacing-xl: 48px;
-    --spacing-2xl: 64px;
-
-    {%- comment -%} Hero crop. 3:2 is the shape a camera hands you, so it is the least violent thing to impose
-       on photography a merchant did not shoot for this slot — and unlike `height: auto` it is the
-       SAME shape for every article, portrait uploads included. At the 960px container that is
-       960x640, comfortably inside one screen, with the first paragraph visible under it.
-
-       One value for both breakpoints, which is this theme's habit (story-slider and
-       values-we-cherish do the same): the ratio is the design, not a per-device measurement. {%- endcomment -%}
-    --ratio-media: 3 / 2;
-
-    --radius-media: 32px;
-    --radius-inline: 16px;
-    --radius-badge: 60px;
-
-    --icon-size: 24px;
-  }
-</style>
+{%- comment -%} Fixed design tokens — borrowed from the measured sections, see above. Shared with the
+   component library page, hence a snippet. {%- endcomment -%}
+{%- render 'dev-article-tokens', scope: '.dev-article' -%}
 
 {%- liquid
   assign article_tag = article.tags | first
+
+  comment
+    Breadcrumb (owner, 2026-09-28): News and Guest Review become Snooze and Humble Home.
+      * First crumb: the blog, labelled by the section setting. The blog is called News in the
+        admin but is branded Larke Snooze on the index. Blank falls back to the blog's own title.
+      * Second crumb: the post's custom.breadcrumb_tag when set, a tag the editor picks to name
+        the post's series (Humble Home), otherwise its first tag as before. It is a TAG, not free
+        text, so the crumb always links to a real tagged page listing that series.
+    The first tag still drives the card badge and articleSection; only the crumb changes.
+  endcomment
+  assign crumb_blog = section.settings.blog_crumb_label | default: blog.title
+  assign crumb_tag = article.metafields.custom.breadcrumb_tag.value | default: article_tag | strip
+  assign crumb_handle = crumb_tag | handle
   assign blog_url = blog.url | default: routes.root_url
+
+  assign deck = article.metafields.custom.subtitle.value
+  assign hero_caption = article.metafields.custom.hero_caption.value
+  assign author_profile = article.metafields.custom.author_profile.value
+
+  comment
+    Booleans where EMPTY MEANS ON. An article nobody has touched gets the TOC and the numbering the
+    mockup shows; only an explicit `false` turns either off. `!= false` is the whole trick — an
+    unset metafield's value is nil, and nil is not false.
+  endcomment
+  assign toc_enabled = true
+  if article.metafields.custom.show_contents.value == false
+    assign toc_enabled = false
+  endif
+  assign numbered = true
+  if article.metafields.custom.number_headings.value == false
+    assign numbered = false
+  endif
+
+  assign avatar = author_profile.avatar.value
 -%}
 
+{%- capture article_body -%}{%- render 'dev-article-body', html: article.content -%}{%- endcapture -%}
+
+{%- comment -%}
+  The table of contents, read back out of the processed body. Every h2 heading there opens with
+  its id attribute FIRST (the body snippet writes it that way precisely so this split can rely on
+  it). No angle brackets in this comment: theme-check 4.x parses them as real tags even inside a
+  comment and then reports false syntax errors on the markup below.
+
+  The contents list itself is unnumbered (owner, 2026-09-28); the body headings keep their numbers,
+  and a `[plain]` heading (class="larke-plain") stays out of that count.
+
+  Fewer than three headings and there is nothing to navigate: a two-item contents list is noise
+  above a short post, so it is simply not drawn.
+{%- endcomment -%}
+{%- liquid
+  assign toc_items = ''
+  assign toc_count = 0
+  assign h2_open = '<h2 id="'
+  if toc_enabled and article_body contains h2_open
+    assign heads = article_body | split: h2_open
+    for chunk in heads
+      if forloop.first
+        continue
+      endif
+      assign slug = chunk | split: '"' | first
+      assign head = chunk | split: '</h2>' | first
+      assign attrs = head | split: '>' | first
+      assign label = head | remove_first: attrs | remove_first: '>' | strip_html | strip
+      assign item_class = 'dev-article__toc-item'
+      if attrs contains 'larke-plain'
+        assign item_class = item_class | append: ' dev-article__toc-item--plain'
+      endif
+      capture item
+        echo '<li class="' | append: item_class | append: '"><a class="dev-article__toc-link" href="#' | append: slug | append: '" data-toc-link>' | append: label | append: '</a></li>'
+      endcapture
+      assign toc_items = toc_items | append: item
+      assign toc_count = toc_count | plus: 1
+    endfor
+  endif
+  assign show_toc = false
+  if toc_count >= 3
+    assign show_toc = true
+  endif
+-%}
+
+{%- comment -%}
+  TWO RENDERS OF ONE LIST. Below 1280px the contents is the accordion the mockup draws, dropped into
+  the body just before the first heading, i.e. after the intro — where the mockup puts it. At 1280
+  and up it is a sticky rail beside the prose. One element cannot sit inside the flow AND in a
+  side column, and re-parenting it with JS on resize is a layout shift waiting to happen. So the
+  list renders twice and CSS shows exactly one: the hidden copy is display:none, which also takes
+  it out of the accessibility tree, so a screen reader never meets it twice.
+{%- endcomment -%}
+{%- if show_toc -%}
+  {%- capture toc_inline -%}
+    <details class="dev-article__toc" data-toc>
+      <summary class="dev-article__toc-summary">
+        <span class="dev-article__toc-title">{{ section.settings.toc_label | escape }}</span>
+        <svg class="dev-article__toc-chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path d="M19 9L12 16L5 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </summary>
+      <ol class="dev-article__toc-list" role="list">{{ toc_items }}</ol>
+    </details>
+  {%- endcapture -%}
+  {%- assign toc_marker = toc_inline | append: h2_open -%}
+  {%- assign article_body = article_body | replace_first: h2_open, toc_marker -%}
+{%- endif -%}
+
+{%- comment -%}
+  STRUCTURED DATA — BlogPosting + BreadcrumbList, written here rather than with Shopify's
+  `article | structured_data`. Checked on the store preview 2026-09-22, the built-in one:
+    * credited the STAFF ACCOUNT ("Misha Gavura") while the page says "By The Humble Home" — Google
+      reads the author for E-E-A-T, and a byline that disagrees with its markup is a trust signal
+      pointing the wrong way;
+    * put the raw body in articleBody, shortcodes and all ("[tip] Top tip …");
+    * had no publisher logo, section, keywords, word count or language.
+  The author follows the page byline exactly (Author profile -> custom.author -> staff account),
+  and every text field comes from snippets/dev-article-plain-text.liquid, the same cleaned text
+  the meta description uses.
+{%- endcomment -%}
+{%- liquid
+  assign ld_url = canonical_url | default: article.url
+  capture ld_description
+    render 'dev-article-plain-text', html: article.content, words: 40
+  endcapture
+  if deck != blank
+    assign ld_description = deck
+  endif
+  if article.excerpt != blank
+    assign ld_description = article.excerpt | strip_html | strip
+  endif
+  capture ld_text
+    render 'dev-article-plain-text', html: article.content
+  endcapture
+  assign ld_words = ld_text | split: ' ' | size
+
+  assign ld_author_name = author_profile.name.value
+  if ld_author_name == blank
+    capture ld_author_name
+      render 'dev-article-author', article: article
+    endcapture
+    assign ld_author_name = ld_author_name | strip
+  endif
+  assign ld_author_url = author_profile.link.value
+  assign ld_author_role = author_profile.role.value
+
+  assign ld_logo = settings.logo | default: shop.brand.logo
+-%}
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "@id": {{ ld_url | append: '#article' | json }},
+    "mainEntityOfPage": { "@type": "WebPage", "@id": {{ ld_url | json }} },
+    "url": {{ ld_url | json }},
+    "headline": {{ article.title | strip_html | truncate: 110, '' | json }},
+    "description": {{ ld_description | json }},
+    {%- if article.image -%}
+      "image": [
+        {
+          "@type": "ImageObject",
+          "url": {{ article.image | image_url: width: 1920 | prepend: 'https:' | json }},
+          "width": {{ article.image.width | at_most: 1920 | json }},
+          "height": {{ article.image.height | times: 1920 | divided_by: article.image.width | at_most: article.image.height | json }}
+        }
+      ],
+    {%- endif -%}
+    "datePublished": {{ article.published_at | date: '%Y-%m-%dT%H:%M:%S%:z' | json }},
+    "dateModified": {{ article.updated_at | date: '%Y-%m-%dT%H:%M:%S%:z' | json }},
+    {%- if ld_author_name != blank -%}
+      "author": [
+        {
+          "@type": "Person",
+          "name": {{ ld_author_name | json }}
+          {%- if ld_author_url != blank -%}, "url": {{ ld_author_url | json }}{%- endif -%}
+          {%- if ld_author_role != blank -%}, "jobTitle": {{ ld_author_role | json }}{%- endif -%}
+          {%- if avatar != blank -%}, "image": {{ avatar | image_url: width: 256 | prepend: 'https:' | json }}{%- endif -%}
+        }
+      ],
+    {%- endif -%}
+    "publisher": {
+      "@type": "Organization",
+      "name": {{ shop.name | json }},
+      "url": {{ request.origin | append: routes.root_url | json }}
+      {%- if ld_logo != blank -%},
+        "logo": { "@type": "ImageObject", "url": {{ ld_logo | image_url: width: 600 | prepend: 'https:' | json }} }
+      {%- endif -%}
+    },
+    "isPartOf": { "@type": "Blog", "@id": {{ request.origin | append: blog.url | json }}, "name": {{ blog.title | json }} },
+    {%- if article_tag != blank -%}
+      "articleSection": {{ article_tag | json }},
+      "keywords": {{ article.tags | join: ', ' | json }},
+    {%- endif -%}
+    "wordCount": {{ ld_words | json }},
+    "inLanguage": {{ request.locale.iso_code | json }}
+  }
+</script>
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": {{ crumb_blog | json }}, "item": {{ request.origin | append: blog.url | json }} }
+      {%- if crumb_tag != blank -%}
+        ,{ "@type": "ListItem", "position": 2, "name": {{ crumb_tag | json }}, "item": {{ request.origin | append: blog.url | append: '/tagged/' | append: crumb_handle | json }} }
+        ,{ "@type": "ListItem", "position": 3, "name": {{ article.title | json }} }
+      {%- else -%}
+        ,{ "@type": "ListItem", "position": 2, "name": {{ article.title | json }} }
+      {%- endif -%}
+    ]
+  }
+</script>
+
 <div
-  class="dev-article"
+  class="dev-article{% if numbered %} dev-article--numbered{% endif %}"
   style="
     --bg: {{ section.settings.background_color }};
     --color: {{ section.settings.text_color }};
     --muted: {{ section.settings.meta_color }};
     --badge-bg: {{ section.settings.badge_color }};
     --rule: {{ section.settings.rule_color }};
+    --panel-bg: {{ section.settings.panel_color }};
+    --tile-bg: {{ section.settings.tile_color }};
+    --accent: {{ section.settings.accent_color }};
     --pt: {{ section.settings.padding_top }}px;
     --pb: {{ section.settings.padding_bottom }}px;
   "
+  data-article
 >
-  <article class="dev-article__inner">
+  <article class="dev-article__article">
+  <div class="dev-article__inner">
     {%- if section.settings.back_label != blank -%}
       <a class="dev-article__back dev-btn dev-btn--text dev-btn--icon-left" href="{{ blog_url }}">
         {%- comment -%} Same vector as dev-journal-cards' CTA, mirrored to point back. {%- endcomment -%}
@@ -110,31 +301,69 @@
     {%- endif -%}
 
     <header class="dev-article__head">
-      {%- if article_tag != blank -%}
-        <span class="dev-article__badge">{{ article_tag | escape }}</span>
+      {%- if section.settings.show_breadcrumb -%}
+        <nav class="dev-article__crumbs" aria-label="{{ section.settings.breadcrumb_label | escape }}">
+          <ol class="dev-article__crumbs-list" role="list">
+            <li class="dev-article__crumb"><a class="dev-article__crumb-link" href="{{ blog_url }}">{{ crumb_blog | escape }}</a></li>
+            {%- if crumb_tag != blank -%}
+              <li class="dev-article__crumb">
+                <a class="dev-article__crumb-link" href="{{ blog_url }}/tagged/{{ crumb_handle }}">{{ crumb_tag | escape }}</a>
+              </li>
+            {%- endif -%}
+          </ol>
+        </nav>
       {%- endif -%}
 
       <h1 class="dev-article__title">{{ article.title | escape }}</h1>
 
+      {%- if deck != blank -%}
+        <p class="dev-article__deck">{{ deck | escape }}</p>
+      {%- endif -%}
+
       {%- comment -%}
-        The meta line is built from the parts that actually exist. An article with no author must
-        not render a dangling "ㆍBy" — hence the per-part guards rather than one fixed string.
+        The byline row: avatar (only when the author metaobject has one) + "By <name>". The name
+        prefers the metaobject, then the existing custom.author / article.author chain, so posts
+        written before the metaobject existed keep exactly the byline they had.
       {%- endcomment -%}
-      {%- capture read_minutes -%}{%- render 'dev-article-read-time', article: article -%}{%- endcapture -%}
-      {%- capture article_byline -%}{%- render 'dev-article-author', article: article -%}{%- endcapture -%}
       {%- liquid
-        assign meta = read_minutes | append: ' ' | append: section.settings.read_time_label
-
-        if article_byline != blank
-          assign meta = meta | append: ' ㆍ' | append: section.settings.author_prefix | append: ' ' | append: article_byline
-        endif
-
-        if section.settings.show_date
-          assign published = article.published_at | date: format: 'date'
-          assign meta = meta | append: ' ㆍ' | append: published
+        assign byline = author_profile.name.value
+        if byline == blank
+          capture byline
+            render 'dev-article-author', article: article
+          endcapture
         endif
       -%}
-      <p class="dev-article__meta">{{ meta | escape }}</p>
+      {%- if byline != blank -%}
+        <div class="dev-article__byline">
+          {%- if avatar != blank -%}
+            {{
+              avatar
+              | image_url: width: 96, height: 96, crop: 'center'
+              | image_tag: loading: 'eager', width: 48, height: 48, alt: '', class: 'dev-article__avatar'
+            }}
+          {%- endif -%}
+          <p class="dev-article__author">
+            {%- if section.settings.author_prefix != blank -%}{{ section.settings.author_prefix | escape }} {% endif -%}
+            {{- byline | strip | escape -}}
+          </p>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%}
+        The meta line is built from the parts that actually exist — no dangling separators.
+        The dot is its own element (owner, 2026-09-28: "make the separator dot darker for better
+        contrast"): the words stay in the muted meta colour, the dot takes the full text colour.
+        It is aria-hidden — a screen reader hears "5 min read, September 22, 2026", not "dot".
+      {%- endcomment -%}
+      {%- capture read_minutes -%}{%- render 'dev-article-read-time', article: article -%}{%- endcapture -%}
+      <p class="dev-article__meta">
+        <span>{{ read_minutes | strip }} {{ section.settings.read_time_label | escape }}</span>
+        {%- if section.settings.show_date -%}
+          <span class="dev-article__meta-sep" aria-hidden="true">·</span>
+          <span class="dev-article__visually-hidden">, </span>
+          <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: format: 'date' }}</time>
+        {%- endif -%}
+      </p>
     </header>
 
     {%- if article.image != blank -%}
@@ -190,6 +419,7 @@
           assign hero_src = article.image | image_url: width: 1920, height: 1280, crop: 'center', quality: 75
         endif
       -%}
+      <figure class="dev-article__figure">
       <div class="dev-article__media">
         {{
           hero_src
@@ -202,42 +432,47 @@
             class: 'dev-article__image'
         }}
       </div>
+      {%- if hero_caption != blank -%}
+        <figcaption class="dev-article__caption">{{ hero_caption | escape }}</figcaption>
+      {%- endif -%}
+      </figure>
+    {%- endif -%}
+  </div>
+
+  {%- comment -%}
+    The reading band. Its own row, wider than __inner, because the >= 1280 rail sits BESIDE the
+    measure and 960 cannot hold 256 + 48 + 720. Below 1280 it is a single centred column and the
+    rail is not drawn.
+  {%- endcomment -%}
+  <div class="dev-article__layout">
+    {%- if show_toc -%}
+      <nav class="dev-article__rail" aria-label="{{ section.settings.toc_label | escape }}" data-toc-rail>
+        <p class="dev-article__rail-title">{{ section.settings.toc_label | escape }}</p>
+        <ol class="dev-article__toc-list dev-article__toc-list--rail" role="list">{{ toc_items }}</ol>
+      </nav>
     {%- endif -%}
 
     {%- comment -%}
-      article.content is merchant HTML from the Shopify editor — already safe, never escape it.
-      Every tag it can emit is styled in the CSS; the class is `dev-article__body`, deliberately
-      NOT Horizon's `.rte`, which is a stock class and would drag stock rules in with it.
+      article.content is merchant HTML from the Shopify editor — already safe, never escaped. It
+      arrives here already processed by snippets/dev-article-body.liquid (shortcodes, lazy images,
+      heading anchors). The class is `dev-article__body`, deliberately NOT Horizon's `.rte`, which
+      is a stock class and would drag stock rules in with it.
     {%- endcomment -%}
-    {%- comment -%}
-      Images the merchant drops into the post body come out of the rich-text editor as bare
-      `<img src="…cdn…">`: no loading attribute, so every one of them is eager by default and
-      competes with the hero above for the connection that decides LCP. There is no markup here to
-      fix — the HTML is the merchant's — so the attribute is injected into the string.
-
-      Prepending is deliberate. Duplicate attributes are legal and the FIRST one wins, so a post
-      whose editor already emitted `loading="eager"` still ends up lazy, and one that emitted
-      `loading="lazy"` is unchanged. `<img ` with the trailing space cannot match `<image` or any
-      other tag that starts the same way.
-
-      srcset is NOT injectable this way and is not attempted: the editor's URL is whatever width it
-      pasted, and rewriting merchant HTML with `replace` past a single attribute is how you corrupt
-      a post. The CSS below already caps them at the measure.
-    {%- endcomment -%}
-    <div class="dev-article__body">
-      {{ article.content | replace: '<img ', '<img loading="lazy" decoding="async" ' }}
+    <div class="dev-article__body" data-article-body>
+      {{ article_body }}
     </div>
+  </div>
 
-    {%- if section.settings.back_label != blank -%}
-      <div class="dev-article__foot">
-        <a class="dev-article__back dev-btn dev-btn--text dev-btn--icon-left" href="{{ blog_url }}">
-          <svg class="dev-article__back-icon dev-btn__icon" width="24" height="24" viewBox="99 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-            <path d="M106 16L102 12L106 8M102 12L120 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="dev-btn__label">{{ section.settings.back_label | escape }}</span>
-        </a>
-      </div>
-    {%- endif -%}
+  {%- if section.settings.back_label != blank -%}
+    <div class="dev-article__foot">
+      <a class="dev-article__back dev-btn dev-btn--text dev-btn--icon-left" href="{{ blog_url }}">
+        <svg class="dev-article__back-icon dev-btn__icon" width="24" height="24" viewBox="99 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+          <path d="M106 16L102 12L106 8M102 12L120 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="dev-btn__label">{{ section.settings.back_label | escape }}</span>
+      </a>
+    </div>
+  {%- endif -%}
   </article>
 </div>
 
@@ -247,7 +482,27 @@
   "tag": "section",
   "settings": [
     { "type": "header", "content": "Content" },
-    { "type": "text", "id": "back_label", "label": "Back link label", "default": "Back to Journal" },
+    {
+      "type": "paragraph",
+      "content": "Per-article fields (subtitle, hero caption, author card, contents on/off) live on the article itself, under Metafields. Components inside the body are typed as shortcodes — see the Article components page."
+    },
+    { "type": "checkbox", "id": "show_breadcrumb", "label": "Show breadcrumb", "default": true },
+    { "type": "text", "id": "breadcrumb_label", "label": "Breadcrumb label (screen readers)", "default": "Breadcrumb" },
+    {
+      "type": "text",
+      "id": "blog_crumb_label",
+      "label": "Blog name in breadcrumb",
+      "info": "Leave empty to use the blog's own title. The second level is the post's 'Breadcrumb tag' field, or its first tag.",
+      "default": "Snooze"
+    },
+    { "type": "text", "id": "toc_label", "label": "Contents heading", "default": "In this article" },
+    {
+      "type": "text",
+      "id": "back_label",
+      "label": "Back link label",
+      "info": "Leave empty to hide the back links. The breadcrumb and the related-articles section already lead back to the blog.",
+      "default": "Back to Journal"
+    },
     {
       "type": "text",
       "id": "read_time_label",
@@ -270,6 +525,27 @@
     { "type": "color", "id": "meta_color", "label": "Meta text", "default": "#666666" },
     { "type": "color", "id": "badge_color", "label": "Tag badge background", "default": "#FCF5E3" },
     { "type": "color", "id": "rule_color", "label": "Rules and borders", "default": "#C4BCA9" },
+    {
+      "type": "color",
+      "id": "panel_color",
+      "label": "Panel background",
+      "info": "Contents, quote, top tip and icon boxes. Same cream as the product page's guarantees panel.",
+      "default": "#FCF5E3"
+    },
+    {
+      "type": "color",
+      "id": "tile_color",
+      "label": "Tile background",
+      "info": "The lighter circle behind each icon.",
+      "default": "#FFFCF4"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "info": "The quote mark and the active contents link.",
+      "default": "#A8CF78"
+    },
 
     { "type": "header", "content": "Spacing" },
     { "type": "range", "id": "padding_top", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding top", "default": 48 },

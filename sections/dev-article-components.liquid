@@ -1,0 +1,258 @@
+{{ 'dev-article.css' | asset_url | stylesheet_tag }}
+{{ 'dev-article-components.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'dev-article-components.js' | asset_url }}" defer></script>
+
+{%- comment -%}
+  Section: "Article components" (dev name `dev-article-components`). The EDITOR'S KIT for the blog:
+  a page (templates/page.article-components.json) listing every component a post can use, each with
+  a live preview and a Copy button for exactly what to type.
+
+  THE PREVIEWS ARE THE REAL THING. Each example's HTML goes through snippets/dev-article-body.liquid
+  — the processor the article page uses — inside a `.dev-article__body`, styled by the article's own
+  dev-article.css, with the article's own tokens (snippets/dev-article-tokens.liquid). So what an
+  editor sees here is, by construction, what their post will show. Nothing here restyles a component.
+
+  What the Copy button copies is the TYPED form (the shortcode text), not HTML: editors paste it into
+  Shopify's normal visual editor and change the words. Each preview's `html` is what that editor
+  produces from the typed text (one <p> per line), so the round trip is the honest one.
+
+  Hide this page from search: in the page's admin, set the `seo.hidden` metafield to 1. It is a tool
+  for the team, not content.
+{%- endcomment -%}
+
+{%- render 'dev-article-tokens', scope: '.dev-article-components' -%}
+
+{%- liquid
+  assign icon_names = ''
+  capture icon_names
+    render 'dev-article-icon', list: true
+  endcapture
+  assign icon_list = icon_names | split: ','
+-%}
+
+{%- comment -%} ---------- the examples: typed form + the HTML the editor turns it into ---------- {%- endcomment -%}
+
+{%- capture quote_typed -%}
+[quote]
+The good news? Caring for a natural duvet is simpler than many people think.
+[/quote]
+{%- endcapture -%}
+{%- capture quote_html -%}<p>[quote]</p><p>The good news? Caring for a natural duvet is simpler than many people think.</p><p>[/quote]</p>{%- endcapture -%}
+
+{%- capture tip_typed -%}
+[tip]
+Top tip
+Add a couple of clean tennis balls to the dryer to help keep the filling light and evenly distributed.
+[/tip]
+{%- endcapture -%}
+{%- capture tip_html -%}<p>[tip]</p><p>Top tip</p><p>Add a couple of clean tennis balls to the dryer to help keep the filling light and evenly distributed.</p><p>[/tip]</p>{%- endcapture -%}
+
+{%- capture tip2_typed -%}
+[tip:leaf]
+Good to know
+Tree fibre is naturally breathable, so it keeps you cool in summer and cosy in winter.
+[/tip]
+{%- endcapture -%}
+{%- capture tip2_html -%}<p>[tip:leaf]</p><p>Good to know</p><p>Tree fibre is naturally breathable, so it keeps you cool in summer and cosy in winter.</p><p>[/tip]</p>{%- endcapture -%}
+
+{%- capture icons_typed -%}
+[icon:wash-40] Wash at 40°C
+[icon:leaf] Use a gentle, non-biological detergent
+[icon:no-bleach] Do not use bleach
+[icon:machine] Follow machine capacity guidelines
+{%- endcapture -%}
+{%- capture icons_html -%}<ul><li>[icon:wash-40] Wash at 40°C</li><li>[icon:leaf] Use a gentle, non-biological detergent</li><li>[icon:no-bleach] Do not use bleach</li><li>[icon:machine] Follow machine capacity guidelines</li></ul>{%- endcapture -%}
+
+{%- capture caption_typed -%}
+[caption] A clean duvet, ready for many more nights.
+{%- endcapture -%}
+
+{%- capture heading_typed -%}
+[plain]The bottom line
+{%- endcapture -%}
+{%- capture heading_html -%}<h2>Everyday life isn’t spotless</h2><p>Numbered automatically…</p><h2>Simple washing instructions</h2><p>…and so is this one.</p><h2>[plain]The bottom line</h2><p>This one is left out of the count.</p>{%- endcapture -%}
+
+<div
+  class="dev-article-components"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --muted: {{ section.settings.meta_color }};
+    --rule: {{ section.settings.rule_color }};
+    --panel-bg: {{ section.settings.panel_color }};
+    --tile-bg: {{ section.settings.tile_color }};
+    --accent: {{ section.settings.accent_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+  data-components
+>
+  <div class="dev-article-components__inner">
+    <header class="dev-article-components__head">
+      <h1 class="dev-article-components__title">{{ page.title | default: section.settings.heading | escape }}</h1>
+      {%- if section.settings.intro != blank -%}
+        <div class="dev-article-components__intro">{{ section.settings.intro }}</div>
+      {%- endif -%}
+    </header>
+
+    {%- comment -%} 1. The automatic parts — nothing to type. {%- endcomment -%}
+    <section class="dev-article-components__item" aria-labelledby="c-auto">
+      <h2 class="dev-article-components__name" id="c-auto">Automatic — nothing to type</h2>
+      <ul class="dev-article-components__notes" role="list">
+        <li><strong>“In this article”</strong> builds itself from your <strong>Heading 2</strong> lines once a post has three or more. It appears just before the first heading on phones, and as a sticky list beside the text on large screens.</li>
+        <li><strong>Heading numbers</strong> (1. 2. 3.) are added to every Heading 2. Don’t type numbers yourself. To switch numbering off for a post, set its <em>Number headings</em> field to false.</li>
+        <li><strong>Reading time</strong> is worked out from the word count. Set <em>Reading time</em> on the post to override it.</li>
+        <li><strong>Quote</strong>: the editor’s own <em>Quote</em> format gives exactly the quote box below — the shortcode is just an alternative.</li>
+      </ul>
+    </section>
+
+    {%- liquid
+      assign examples = 'heading,quote,tip,tip2,icons,caption' | split: ','
+    -%}
+    {%- for key in examples -%}
+      {%- liquid
+        case key
+          when 'heading'
+            assign name = 'Heading left out of the numbering'
+            assign how = 'Type [plain] at the very start of a Heading 2. Use it for a closing section like “The bottom line”.'
+            assign typed = heading_typed
+            assign html = heading_html
+          when 'quote'
+            assign name = 'Quote box'
+            assign how = 'Three lines: [quote], the quote itself, [/quote]. Or select the text and choose Quote in the editor.'
+            assign typed = quote_typed
+            assign html = quote_html
+          when 'tip'
+            assign name = 'Top tip'
+            assign how = 'The first line inside is the title. Every line after it is the tip.'
+            assign typed = tip_typed
+            assign html = tip_html
+          when 'tip2'
+            assign name = 'Tip with a different icon'
+            assign how = 'Write the icon name after a colon: [tip:leaf]. Any icon from the library at the bottom of this page works.'
+            assign typed = tip2_typed
+            assign html = tip2_html
+          when 'icons'
+            assign name = 'Icon breakdown'
+            assign how = 'Make an ordinary bullet list and start each point with an icon. The list turns into the box on its own.'
+            assign typed = icons_typed
+            assign html = icons_html
+          when 'caption'
+            assign name = 'Image caption'
+            assign how = 'Insert the image, then on the very next line type [caption] followed by the caption.'
+            assign typed = caption_typed
+            assign html = ''
+        endcase
+        assign typed_id = 'c-' | append: key | append: '-typed'
+      -%}
+      <section class="dev-article-components__item" aria-labelledby="c-{{ key }}">
+        <h2 class="dev-article-components__name" id="c-{{ key }}">{{ name }}</h2>
+        <p class="dev-article-components__how">{{ how | escape }}</p>
+
+        <div class="dev-article-components__pair">
+          <div class="dev-article-components__typed">
+            <div class="dev-article-components__typed-head">
+              <span class="dev-article-components__label">Type this</span>
+              <button class="dev-article-components__copy" type="button" data-copy="{{ typed_id }}">
+                <span data-copy-label>Copy</span>
+              </button>
+            </div>
+            <pre class="dev-article-components__code" id="{{ typed_id }}">{{ typed | strip | escape }}</pre>
+          </div>
+
+          <div class="dev-article-components__preview">
+            <span class="dev-article-components__label">Looks like</span>
+            {%- if html != blank -%}
+              <div class="dev-article-components__frame dev-article--numbered">
+                <div class="dev-article__body">
+                  {%- render 'dev-article-body', html: html -%}
+                </div>
+              </div>
+            {%- else -%}
+              <div class="dev-article-components__frame">
+                <div class="dev-article__body">
+                  <div class="dev-article-components__placeholder" aria-hidden="true"></div>
+                  <p class="larke-caption">A clean duvet, ready for many more nights.</p>
+                </div>
+              </div>
+            {%- endif -%}
+          </div>
+        </div>
+      </section>
+    {%- endfor -%}
+
+    {%- comment -%} The icon library: every name the processor answers to, each a copy button. {%- endcomment -%}
+    <section class="dev-article-components__item" aria-labelledby="c-icons-all">
+      <h2 class="dev-article-components__name" id="c-icons-all">Icon library</h2>
+      <p class="dev-article-components__how">Click an icon to copy its shortcode. Use it at the start of a bullet point, inside a sentence, or after [tip:…]. Need one that isn’t here? Upload it in Content → Metaobjects → Article icon (an SVG or a transparent PNG), give it a name, and it appears in this list — type [icon:that-name] to use it.</p>
+      <ul class="dev-article-components__icons" role="list">
+        {%- for icon_name in icon_list -%}
+          {%- assign code = '[icon:' | append: icon_name | append: ']' -%}
+          <li>
+            <button class="dev-article-components__icon" type="button" data-copy-text="{{ code }}" aria-label="Copy {{ code }}">
+              <span class="dev-article-components__glyph">{%- render 'dev-article-icon', name: icon_name -%}</span>
+              <span class="dev-article-components__icon-name" data-copy-label>{{ icon_name }}</span>
+            </button>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </section>
+
+    {%- comment -%} Per-article fields, so the whole authoring model is on one page. {%- endcomment -%}
+    <section class="dev-article-components__item" aria-labelledby="c-fields">
+      <h2 class="dev-article-components__name" id="c-fields">Fields on each post</h2>
+      <p class="dev-article-components__how">In the article admin, scroll to <strong>Metafields</strong>. All are optional — leave one empty and the page simply goes without it.</p>
+      <div class="dev-article-components__table-wrap">
+        <table class="dev-article-components__table">
+          <thead>
+            <tr><th scope="col">Field</th><th scope="col">What it does</th><th scope="col">If empty</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Subtitle</td><td>The line under the title</td><td>Not shown</td></tr>
+            <tr><td>Hero caption</td><td>Caption under the main photo</td><td>Not shown</td></tr>
+            <tr><td>Author profile</td><td>Picks a writer: photo in the byline + the “About the author” card</td><td>Byline uses the Author text; no card</td></tr>
+            <tr><td>Author</td><td>Byline text for a one-off writer</td><td>The staff account’s name</td></tr>
+            <tr><td>Reading time</td><td>Minutes, overriding the estimate</td><td>Worked out from the words</td></tr>
+            <tr><td>Show contents</td><td>False hides “In this article”</td><td>Shown (with 3+ headings)</td></tr>
+            <tr><td>Number headings</td><td>False removes the 1. 2. 3.</td><td>Numbered</td></tr>
+            <tr><td>Related articles</td><td>Choose the posts shown at the end</td><td>Posts sharing a tag, then newest</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="dev-article-components__how">The <strong>first tag</strong> on a post is its category: it appears in the breadcrumb and on its card.</p>
+    </section>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Article components",
+  "tag": "section",
+  "enabled_on": { "templates": ["page"] },
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "text", "id": "heading", "label": "Heading", "info": "Used only when the page has no title.", "default": "Article components" },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "Intro",
+      "default": "<p>Everything a Larke blog post can contain. Copy what you need, paste it into the article editor, and change the words. The page preview shows the result as you type.</p>"
+    },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "paragraph", "content": "Keep these the same as the Article section so the previews match real posts." },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "rgba(0,0,0,0)" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "meta_color", "label": "Meta text", "default": "#666666" },
+    { "type": "color", "id": "rule_color", "label": "Rules and borders", "default": "#C4BCA9" },
+    { "type": "color", "id": "panel_color", "label": "Panel background", "default": "#FCF5E3" },
+    { "type": "color", "id": "tile_color", "label": "Tile background", "default": "#FFFCF4" },
+    { "type": "color", "id": "accent_color", "label": "Accent", "default": "#A8CF78" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding top", "default": 48 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding bottom", "default": 80 }
+  ],
+  "presets": [{ "name": "Article components" }]
+}
+{% endschema %}

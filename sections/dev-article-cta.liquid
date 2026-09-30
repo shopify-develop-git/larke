@@ -1,0 +1,99 @@
+{{ 'dev-article-cta.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Section: "Product call-to-action" (dev name `dev-article-cta`). The owner's "Option 1"
+  (2026-09-28): "Meet the real thing. / Made from trees. Everything you love, made remarkable. /
+  [Our Duvet →]" — a cream panel that turns a reader into a shopper at the end of a post.
+
+  Placement is the theme editor's call. It ships straight after the article body (the moment the
+  reader has finished the story), before "About the author"; drag it anywhere on the post template.
+
+  Values, all borrowed (no artboard):
+    * cream panel, 16px radius, the 720px reading measure -> dev-article's panels / author card
+    * heading 48 / 32px Tiempos Medium                     -> dev-article's title step
+    * text 20 / 18px                                       -> dev-article's deck step
+    * dark pill + arrow                                    -> dev-button's `dark` variant, the same
+                                                              arrow vector as the journal CTA
+    * padding 48 / 24px                                    -> --spacing-xl / --spacing-md
+{%- endcomment -%}
+
+<style>
+  .dev-article-cta {
+    --section-px: 64px;
+    --section-px-m: 16px;
+    --measure: 720px;
+
+    --font-heading-size: 48px;
+    --font-heading-size-m: 32px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.1;
+    --font-body-size: 20px;
+    --font-body-size-m: 18px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+
+    --panel-pad: 48px;
+    --panel-pad-m: 24px;
+    --radius-panel: 16px;
+    --gap-text: 16px;
+    --gap-button: 32px;
+    --gap-button-m: 24px;
+  }
+</style>
+
+{%- if section.settings.heading != blank or section.settings.button_label != blank -%}
+  <div
+    class="dev-article-cta"
+    style="
+      --bg: {{ section.settings.background_color }};
+      --color: {{ section.settings.text_color }};
+      --panel-bg: {{ section.settings.panel_color }};
+      --accent: {{ section.settings.text_color }};
+      --pt: {{ section.settings.padding_top }}px;
+      --pb: {{ section.settings.padding_bottom }}px;
+    "
+  >
+    <div class="dev-article-cta__inner">
+      <div class="dev-article-cta__panel">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="dev-article-cta__heading">{{ section.settings.heading }}</h2>
+        {%- endif -%}
+        {%- if section.settings.text != blank -%}
+          <p class="dev-article-cta__text">{{ section.settings.text | escape | newline_to_br }}</p>
+        {%- endif -%}
+        {%- if section.settings.button_label != blank and section.settings.button_link != blank -%}
+          {%- capture cta_arrow -%}
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+              <path d="M17 8L21 12L17 16M21 12L3 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          {%- endcapture -%}
+          {%- render 'dev-button', variant: 'dark', link: section.settings.button_link, label: section.settings.button_label, icon: cta_arrow, class: 'dev-article-cta__button' -%}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Product call-to-action",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Meet the real thing." },
+    { "type": "textarea", "id": "text", "label": "Text", "default": "Made from trees.\nEverything you love, made remarkable." },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Our Duvet" },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "rgba(0,0,0,0)" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "panel_color", "label": "Panel background", "default": "#FCF5E3" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding top", "default": 0 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding bottom", "default": 48 }
+  ],
+  "presets": [{ "name": "Product call-to-action" }]
+}
+{% endschema %}

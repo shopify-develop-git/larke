@@ -1,0 +1,315 @@
+/* dev-article-components.css
+   The frame of the component library page ONLY. The components inside each preview are styled by
+   dev-article.css — this file must never restyle a .larke-* class or a .dev-article__body rule, or
+   the library stops showing what a real post looks like. */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.dev-article-components {
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+  padding: var(--pt) var(--section-px) var(--pb);
+}
+
+.dev-article-components__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xl);
+  max-width: var(--media-w);
+  margin-inline: auto;
+}
+
+/* --- layout --- */
+
+.dev-article-components__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  max-width: var(--measure);
+}
+
+.dev-article-components__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--rule);
+}
+
+/* Typed form beside its result: the editor reads left to right, "type this -> get that". */
+.dev-article-components__pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-md);
+  align-items: start;
+}
+
+.dev-article-components__typed,
+.dev-article-components__preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+.dev-article-components__typed-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+/* --- blocks / children --- */
+
+.dev-article-components__code {
+  margin: 0;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-inline);
+  background-color: var(--tile-bg);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--font-badge-size);
+  line-height: var(--font-panel-lh);
+}
+
+/* The preview is a slice of a real article body: the body's own margins are kept, only the first
+   and last are trimmed so the example sits flush in its frame. */
+.dev-article-components__frame {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px dashed var(--rule);
+  border-radius: var(--radius-inline);
+}
+
+.dev-article-components__frame .dev-article__body > :first-child {
+  margin-top: 0;
+}
+
+.dev-article-components__frame .dev-article__body > :last-child {
+  margin-bottom: 0;
+}
+
+/* Stand-in for the photo above the caption example (no merchant image to show). */
+.dev-article-components__placeholder {
+  aspect-ratio: 3 / 2;
+  margin-bottom: var(--spacing-lg);
+  border-radius: var(--radius-inline);
+  background-color: var(--panel-bg);
+}
+
+.dev-article-components__notes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin: 0;
+  padding-left: var(--spacing-md);
+  font-size: var(--font-panel-size);
+  line-height: var(--font-panel-lh);
+}
+
+.dev-article-components__icons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--spacing-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dev-article-components__glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-tile);
+  height: var(--icon-tile);
+  border-radius: 50%;
+  background-color: var(--tile-bg);
+}
+
+.dev-article-components__glyph .dev-article-icon--upload {
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+.dev-article-components__table-wrap {
+  overflow-x: auto;
+}
+
+.dev-article-components__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-panel-size);
+  line-height: var(--font-panel-lh);
+}
+
+.dev-article-components__table th,
+.dev-article-components__table td {
+  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+}
+
+/* --- typography --- */
+
+.dev-article-components__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-title-size);
+  font-weight: var(--font-title-weight);
+  line-height: var(--font-title-lh);
+}
+
+.dev-article-components__intro,
+.dev-article-components__how {
+  margin: 0;
+  font-size: var(--font-panel-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-panel-lh);
+  color: var(--muted);
+}
+
+.dev-article-components__intro p {
+  margin: 0;
+}
+
+.dev-article-components__name {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-panel-title-size);
+  font-weight: var(--font-title-weight);
+  line-height: var(--font-title-lh);
+}
+
+.dev-article-components__label {
+  font-size: var(--font-badge-size);
+  font-weight: var(--font-bold);
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+/* --- buttons / links --- */
+
+.dev-article-components__copy {
+  min-height: 32px;
+  padding: 0 var(--spacing-sm);
+  border: 1px solid var(--color);
+  border-radius: var(--radius-badge);
+  background: transparent;
+  color: var(--color);
+  font-family: var(--font-body);
+  font-size: var(--font-badge-size);
+  font-weight: var(--font-bold);
+  cursor: pointer;
+  transition: background-color 0.3s ease-out, color 0.3s ease-out;
+}
+
+.dev-article-components__copy:hover,
+.dev-article-components__copy[data-copied] {
+  background-color: var(--color);
+  color: var(--tile-bg);
+}
+
+.dev-article-components__icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-xs);
+  border: 1px solid transparent;
+  border-radius: var(--radius-inline);
+  background: transparent;
+  color: var(--color);
+  font-family: var(--font-body);
+  font-size: var(--font-badge-size);
+  line-height: 1.4;
+  cursor: pointer;
+  transition: border-color 0.2s ease-out;
+}
+
+.dev-article-components__icon:hover,
+.dev-article-components__icon[data-copied] {
+  border-color: var(--rule);
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .dev-article-components {
+    padding-left: var(--section-px-m);
+    padding-right: var(--section-px-m);
+  }
+
+  .dev-article-components__inner {
+    gap: var(--spacing-xl);
+  }
+
+  .dev-article-components__pair {
+    grid-template-columns: 1fr;
+  }
+
+  .dev-article-components__title {
+    font-size: var(--font-title-size-m);
+  }
+
+  .dev-article-components__name {
+    font-size: var(--font-panel-title-size-m);
+  }
+
+  .dev-article-components__copy {
+    min-height: 44px;
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+  .dev-article-components__frame {
+    padding: var(--spacing-xs);
+  }
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.dev-article-components__copy:focus-visible,
+.dev-article-components__icon:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
+
+.dev-article-components__copy:focus:not(:focus-visible),
+.dev-article-components__icon:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-article-components,
+  .dev-article-components * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

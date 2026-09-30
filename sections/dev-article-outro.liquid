@@ -1,0 +1,97 @@
+{{ 'dev-article-outro.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Section: "Closing panel" (dev name `dev-article-outro`). The "A calmer planet sleeps brighter."
+  sign-off from the client's blog mockup: one icon, one line, in the article's cream panel.
+
+  Checked before building: no existing section does this (grep for the copy and for a centred
+  icon-plus-heading panel returns nothing), so it is new — but small, and made only of values the
+  article already uses:
+    * cream panel, 16px radius, measure width  -> dev-article's panels
+    * heading 32 / 24px Tiempos Medium          -> dev-article-related / the journal strip heading
+    * icon: snippets/dev-article-icon.liquid, the blog's own set, drawn at 48px (--icon-tile)
+    * padding 48 / 32px                         -> --spacing-xl / --spacing-lg
+
+  The icon is the blog set's, not dev-blog's hand-drawn laurel: that sprig is a heading ornament
+  with a cropped, non-square viewBox, and pulling it in here would mean a copy to keep in sync.
+{%- endcomment -%}
+
+<style>
+  .dev-article-outro {
+    --section-px: 64px;
+    --section-px-m: 16px;
+    --measure: 720px;
+
+    --font-heading-size: 32px;
+    --font-heading-size-m: 24px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+
+    --panel-py: 48px;
+    --panel-py-m: 32px;
+    --panel-px: 24px;
+    --panel-px-m: 16px;
+    --radius-panel: 16px;
+    --icon: 48px;
+    --spacing-sm: 16px;
+  }
+</style>
+
+{%- if section.settings.heading != blank -%}
+  <div
+    class="dev-article-outro"
+    style="
+      --bg: {{ section.settings.background_color }};
+      --color: {{ section.settings.text_color }};
+      --panel-bg: {{ section.settings.panel_color }};
+      --accent: {{ section.settings.icon_color }};
+      --pt: {{ section.settings.padding_top }}px;
+      --pb: {{ section.settings.padding_bottom }}px;
+    "
+  >
+    <div class="dev-article-outro__inner">
+      <div class="dev-article-outro__panel">
+        {%- if section.settings.icon != 'none' -%}
+          <span class="dev-article-outro__icon">{%- render 'dev-article-icon', name: section.settings.icon -%}</span>
+        {%- endif -%}
+        <p class="dev-article-outro__heading">{{ section.settings.heading }}</p>
+      </div>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Closing panel",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "inline_richtext", "id": "heading", "label": "Text", "default": "A calmer planet sleeps brighter." },
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "Icon",
+      "default": "leaf",
+      "options": [
+        { "value": "leaf", "label": "Leaf" },
+        { "value": "tree", "label": "Tree" },
+        { "value": "moon", "label": "Moon" },
+        { "value": "sun", "label": "Sun" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "none", "label": "None" }
+      ]
+    },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "rgba(0,0,0,0)" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "panel_color", "label": "Panel background", "default": "#FCF5E3" },
+    { "type": "color", "id": "icon_color", "label": "Icon color", "default": "#333333" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding top", "default": 0 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding bottom", "default": 80 }
+  ],
+  "presets": [{ "name": "Closing panel" }]
+}
+{% endschema %}

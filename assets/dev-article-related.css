@@ -1,0 +1,95 @@
+/* dev-article-related.css
+   Only the section frame lives here. The grid is dev-blog.css's .dev-blog__grid and the card is
+   dev-journal-cards.css's — see the Liquid header for why neither is restyled. */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.dev-article-related {
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+  padding: var(--pt) var(--section-px) var(--pb);
+}
+
+.dev-article-related__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-head);
+  max-width: var(--container-max);
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* --- layout --- */
+/* --- blocks / children --- */
+
+.dev-article-related__cta {
+  display: flex;
+  justify-content: center;
+}
+
+/* --- typography --- */
+
+/* The journal strip's section heading: 32 / 24px (dev-journal-card-tokens). */
+.dev-article-related__heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-heading-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+/* --- buttons / links --- */
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .dev-article-related {
+    padding-left: var(--section-px-m);
+    padding-right: var(--section-px-m);
+  }
+
+  .dev-article-related__inner {
+    gap: var(--gap-head-m);
+  }
+
+  .dev-article-related__heading {
+    font-size: var(--font-heading-size-m);
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+/* Card and button focus rings come from their own components. */
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-article-related,
+  .dev-article-related * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

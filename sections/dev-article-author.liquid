@@ -1,0 +1,155 @@
+{{ 'dev-article-author.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Section: "About the author" (dev name `dev-article-author`). Sits under the article body.
+
+  Reads the article's `custom.author_profile` metafield — a reference to an `author` metaobject
+  (name, role, bio, avatar, link, link_label) — so one writer's card is written ONCE and every post by them
+  shows the same face and bio. No metaobject on the article -> the section renders nothing at all
+  (not an empty box): the byline at the top of the post already names the writer.
+
+  No artboard (see dev-article's header). Values are dev-article's own tokens — same panel, same
+  measure, same type steps — so the card reads as the end of the article, not a new section:
+    * cream panel, 24 / 16px padding, 16px radius  -> dev-article's panels (dev-pdp-guarantees)
+    * name 22 / 20px heading                        -> dev-article's panel title
+    * bio 16px                                      -> dev-article's panel body
+    * 64px avatar                                   -> --spacing-2xl; a face at 48 (the byline) is
+                                                       an icon, at 64 it is a portrait. Judgement call.
+    * the short rule above                          -> the mockup's end-of-article divider, in --rule
+{%- endcomment -%}
+
+<style>
+  .dev-article-author {
+    --section-px: 64px;
+    --section-px-m: 16px;
+    --measure: 720px;
+
+    --font-label-size: 16px;
+    --font-name-size: 22px;
+    --font-name-size-m: 20px;
+    --font-name-weight: 500;
+    --font-name-lh: 1.2;
+    --font-body-size: 16px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+    --font-bold: 700;
+
+    --panel-pad: 24px;
+    --panel-pad-m: 16px;
+    --radius-panel: 16px;
+    --avatar: 64px;
+    --rule-w: 64px;
+
+    --spacing-xs: 8px;
+    --icon-size: 24px; {%- comment -%} the arrow, as on dev-journal-cards' CTA {%- endcomment -%}
+    --spacing-sm: 16px;
+    --spacing-lg: 32px;
+  }
+</style>
+
+{%- liquid
+  assign author = article.metafields.custom.author_profile.value
+  assign author_name = author.name.value
+-%}
+
+{%- if author != blank and author_name != blank -%}
+  {%- liquid
+    assign author_role = author.role.value
+    assign author_bio = author.bio.value
+    assign author_avatar = author.avatar.value
+    assign author_link = author.link.value
+    assign author_link_label = author.link_label.value | default: section.settings.link_label
+  -%}
+  <div
+    class="dev-article-author"
+    style="
+      --bg: {{ section.settings.background_color }};
+      --color: {{ section.settings.text_color }};
+      --muted: {{ section.settings.meta_color }};
+      --panel-bg: {{ section.settings.panel_color }};
+      --rule: {{ section.settings.rule_color }};
+      --pt: {{ section.settings.padding_top }}px;
+      --pb: {{ section.settings.padding_bottom }}px;
+    "
+  >
+    <div class="dev-article-author__inner">
+      {%- if section.settings.show_rule -%}
+        <hr class="dev-article-author__rule">
+      {%- endif -%}
+
+      <aside class="dev-article-author__card" aria-labelledby="{{ section.id }}-label">
+        {%- if author_avatar != blank -%}
+          {{
+            author_avatar
+            | image_url: width: 128, height: 128, crop: 'center'
+            | image_tag: loading: 'lazy', width: 64, height: 64, alt: '', class: 'dev-article-author__avatar'
+          }}
+        {%- endif -%}
+
+        <div class="dev-article-author__text">
+          <h2 class="dev-article-author__label" id="{{ section.id }}-label">{{ section.settings.label | escape }}</h2>
+          <p class="dev-article-author__name">{{ author_name | escape }}</p>
+          {%- if author_role != blank -%}
+            <p class="dev-article-author__role">{{ author_role | escape }}</p>
+          {%- endif -%}
+          {%- if author_bio != blank -%}
+            <p class="dev-article-author__bio">{{ author_bio | escape | newline_to_br }}</p>
+          {%- endif -%}
+
+          {%- comment -%}
+            "Visit her here →" (owner, 2026-09-28). The words come from the author entry
+            (`link_label`) because they belong to the person — "her", "them", "the blog" — with this
+            section's setting as the fallback for an author who has a link but no label. Underlined
+            at every width in the text colour, like the site's other text CTAs, with the same arrow
+            vector as the journal cards' "Read Article". An external site, so it opens in a new
+            tab; `noopener` keeps that tab from reaching back into this one.
+          {%- endcomment -%}
+          {%- if author_link != blank and author_link_label != blank -%}
+            <a class="dev-article-author__cta" href="{{ author_link }}" target="_blank" rel="noopener">
+              <span>{{ author_link_label | escape }}</span>
+              <svg class="dev-article-author__cta-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                <path d="M17 8L21 12L17 16M21 12L3 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          {%- endif -%}
+        </div>
+      </aside>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "About the author",
+  "tag": "section",
+  "enabled_on": { "templates": ["article"] },
+  "settings": [
+    { "type": "header", "content": "Content" },
+    {
+      "type": "paragraph",
+      "content": "Shows the author picked in the article's 'Author profile' metafield. Articles without one show nothing here."
+    },
+    { "type": "text", "id": "label", "label": "Label", "default": "About the author" },
+    { "type": "checkbox", "id": "show_rule", "label": "Show divider above", "default": true },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Author link text (fallback)",
+      "info": "Used when an author has a link but no 'Link label' of their own.",
+      "default": "Visit their website"
+    },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "rgba(0,0,0,0)" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "meta_color", "label": "Secondary text", "default": "#666666" },
+    { "type": "color", "id": "panel_color", "label": "Panel background", "default": "#FCF5E3" },
+    { "type": "color", "id": "rule_color", "label": "Divider", "default": "#C4BCA9" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding top", "default": 0 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding bottom", "default": 48 }
+  ],
+  "presets": [{ "name": "About the author" }]
+}
+{% endschema %}

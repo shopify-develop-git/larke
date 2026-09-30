@@ -1,0 +1,103 @@
+{%- comment -%}
+  The design tokens of the blog post. Shared, because the post's COMPONENTS are shared:
+  sections/dev-article.liquid renders the real post, and sections/dev-article-components.liquid
+  renders the component library page (live examples through the same snippets/dev-article-body.liquid
+  and the same assets/dev-article.css). If the library page kept its own copy of these values, the
+  examples an editor copies from would drift from the post they paste into — the first time anyone
+  touched either file.
+
+  Every value's provenance is recorded in the header comment of sections/dev-article.liquid.
+  Same pattern as snippets/dev-journal-card-tokens.liquid.
+
+  @param {string} scope - CSS selector of the calling section's root, e.g. '.dev-article'
+{%- endcomment -%}
+
+<style>
+  {{ scope }} {
+
+    --section-px: 64px;
+    --section-px-m: 16px;
+
+    {%- comment -%} Three widths. --measure is the reading column. --media-w is the wider container
+       the hero image fills, so the photo has presence without the prose inheriting a 960px line.
+       --container-max is the page container every measured section shares (1440 − 2×64); only the
+       >= 1280 TOC rail ever reaches it. See the header comment. {%- endcomment -%}
+    --measure: 720px;
+    --media-w: 960px;
+    --container-max: 1312px;
+    --rail-w: 256px;
+
+    --font-title-size: 48px;
+    --font-title-size-m: 32px;
+    --font-title-weight: 500;
+    --font-title-lh: 1.2;
+
+    --font-deck-size: 20px;
+    --font-deck-size-m: 18px;
+
+    {%- comment -%} Body copy and the headings INSIDE the article body. The body h2/h3 step down from the
+       title rather than repeating it, so the page has one obvious top. {%- endcomment -%}
+    --font-body-size: 18px;
+    --font-body-size-m: 16px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.6; {%- comment -%} looser than the 1.4 the cards use: those are 2-line captions, this is prose {%- endcomment -%}
+    --font-h2-size: 32px;
+    --font-h3-size: 22px;
+
+    --font-meta-size: 16px;
+    --font-badge-size: 14px;
+    --font-bold: 700;
+
+    {%- comment -%} Panels: TOC, top tip, icon breakdown. dev-pdp-guarantees' panel-and-tile pair. {%- endcomment -%}
+    --font-panel-title-size: 22px;
+    --font-panel-title-size-m: 20px;
+    --font-panel-size: 16px;
+    --font-panel-lh: 1.4;
+    --panel-pad: 24px;
+    --panel-pad-m: 16px;
+    --icon-tile: 48px;
+
+    {%- comment -%} The quote box. UPRIGHT, not italic, on purpose: Tiempos Medium Italic is still the
+       67-glyph TRIAL cut (snippets/dev-brand-fonts.liquid) with no ’ “ ” – £ é — and a pull quote
+       is exactly where curly punctuation lives. In italic, "Caring for a duvet isn’t hard" swaps
+       font mid-word at the apostrophe. When the licensed Medium Italic lands, change this ONE token
+       to `italic` and nothing else moves (the retail cuts are metric-compatible). {%- endcomment -%}
+    --font-quote-size: 28px;
+    --font-quote-size-m: 22px;
+    --font-quote-style: normal;
+    --quote-mark: 40px;
+
+    --spacing-xs: 8px;
+    --spacing-sm: 16px;
+    --spacing-md: 24px;
+    --spacing-lg: 32px;
+    --spacing-xl: 48px;
+    --spacing-2xl: 64px;
+
+    {%- comment -%} Hero crop. 3:2 is the shape a camera hands you, so it is the least violent thing to impose
+       on photography a merchant did not shoot for this slot — and unlike `height: auto` it is the
+       SAME shape for every article, portrait uploads included. At the 960px container that is
+       960x640, comfortably inside one screen, with the first paragraph visible under it.
+
+       One value for both breakpoints, which is this theme's habit (story-slider and
+       values-we-cherish do the same): the ratio is the design, not a per-device measurement. {%- endcomment -%}
+    --ratio-media: 3 / 2;
+
+    --radius-media: 32px;
+    --radius-inline: 16px;
+    --radius-badge: 60px;
+
+    --icon-size: 24px;
+    --avatar: 48px;
+
+    {%- comment -%} dev-faq's accordion timing, verbatim. dev-article.js reads --acc-dur back out (in ms). {%- endcomment -%}
+    --acc-dur: 300ms;
+    --acc-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+    {%- comment -%} Where the sticky rail parks, and where an anchor jump lands. The site header is sticky and
+       slides back in on scroll-up, so a heading jumped to must clear it: 96px is the header bar
+       (~72) plus the --spacing-md breathing room. {%- endcomment -%}
+    --rail-top: 48px;
+    --anchor-offset: 96px;
+  }
+</style>

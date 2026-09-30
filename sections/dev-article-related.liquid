@@ -1,0 +1,168 @@
+{{ 'dev-journal-cards.css' | asset_url | stylesheet_tag }}
+{{ 'dev-blog.css' | asset_url | stylesheet_tag }}
+{{ 'dev-article-related.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Section: "Related articles" (dev name `dev-article-related`). Under a blog post.
+
+  THE CARD IS NOT REBUILT HERE, and neither is the grid. Both are the blog index's: the card is
+  snippets/dev-journal-cards-card.liquid (tokens from snippets/dev-journal-card-tokens.liquid,
+  styles from dev-journal-cards.css) and the grid is .dev-blog__grid from dev-blog.css, with the
+  same `sizes`/`widths` tables snippets/dev-blog-cards.liquid derives — the column arithmetic is a
+  property of the grid, and the grid is identical here (same 64px gutters, same 32px gaps).
+  A reader moving index -> post -> related -> post never sees the card change.
+
+  Why not the mockup's compact thumbnail rows on mobile: that is a SECOND card, and the moment it
+  exists the two drift. It would also fetch the card's mobile source (sized for a full-width
+  card) into a ~96px thumbnail. Consistency and bytes both argue for the one card.
+
+  WHICH ARTICLES, in order, stopping at the limit:
+    1. the post's `custom.related_articles` metafield (an editor chose them — always wins)
+    2. newer-first posts from the same blog sharing at least one tag with this one
+    3. the newest posts from the same blog
+  The current post is never shown, and no post is shown twice.
+{%- endcomment -%}
+
+{%- render 'dev-journal-card-tokens', scope: '.dev-article-related' -%}
+<style>
+  .dev-article-related {
+    {%- comment -%} dev-blog's grid tokens, verbatim — .dev-blog__grid reads them. {%- endcomment -%}
+    --gap-grid: 32px;
+    --gap-grid-m: 24px;
+    --grid-min: 320px;
+
+    --gap-head: 32px;
+    --gap-head-m: 24px;
+  }
+</style>
+
+{%- liquid
+  assign limit = section.settings.limit
+  assign picked = '' | split: ','
+  assign seen = ',' | append: article.id | append: ','
+
+  assign manual = article.metafields.custom.related_articles.value
+  for candidate in manual
+    if picked.size >= limit
+      break
+    endif
+    assign probe = ',' | append: candidate.id | append: ','
+    if seen contains probe
+      continue
+    endif
+    assign one = manual | where: 'id', candidate.id
+    assign picked = picked | concat: one
+    assign seen = seen | append: candidate.id | append: ','
+  endfor
+
+  if picked.size < limit and article.tags.size > 0
+    for candidate in blog.articles
+      if picked.size >= limit
+        break
+      endif
+      assign probe = ',' | append: candidate.id | append: ','
+      if seen contains probe
+        continue
+      endif
+      assign shares_tag = false
+      for tag in article.tags
+        if candidate.tags contains tag
+          assign shares_tag = true
+          break
+        endif
+      endfor
+      if shares_tag
+        assign one = blog.articles | where: 'id', candidate.id
+        assign picked = picked | concat: one
+        assign seen = seen | append: candidate.id | append: ','
+      endif
+    endfor
+  endif
+
+  if picked.size < limit
+    for candidate in blog.articles
+      if picked.size >= limit
+        break
+      endif
+      assign probe = ',' | append: candidate.id | append: ','
+      if seen contains probe
+        continue
+      endif
+      assign one = blog.articles | where: 'id', candidate.id
+      assign picked = picked | concat: one
+      assign seen = seen | append: candidate.id | append: ','
+    endfor
+  endif
+-%}
+
+{%- if picked.size > 0 -%}
+  <div
+    class="dev-article-related"
+    style="
+      --bg: {{ section.settings.background_color }};
+      --color: {{ section.settings.text_color }};
+      --accent: {{ section.settings.text_color }};
+      --pt: {{ section.settings.padding_top }}px;
+      --pb: {{ section.settings.padding_bottom }}px;
+    "
+  >
+    <div class="dev-article-related__inner">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="dev-article-related__heading">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+
+      <ul class="dev-blog__grid journal-cards__list" role="list">
+        {%- for card_article in picked -%}
+          {%- capture read_minutes -%}{%- render 'dev-article-read-time', article: card_article -%}{%- endcapture -%}
+          {%- capture article_byline -%}{%- render 'dev-article-author', article: card_article -%}{%- endcapture -%}
+          {%- liquid
+            assign card_meta = read_minutes | append: ' ' | append: section.settings.read_time_label
+            if article_byline != blank
+              assign card_meta = card_meta | append: ' ㆍ' | append: section.settings.author_prefix | append: ' ' | append: article_byline
+            endif
+            assign card_badge = card_article.tags | first
+            assign card_alt = card_article.image.alt | default: card_article.title | escape
+          -%}
+          {%- comment -%} Identical image budget to snippets/dev-blog-cards.liquid — same grid, same numbers. {%- endcomment -%}
+          {%- render 'dev-journal-cards-card', image: card_article.image, image_alt: card_alt, badge: card_badge, meta: card_meta, heading: card_article.title, heading_level: 3, url: card_article.url, cta_label: section.settings.card_label, eager: false, tablet_max: 1299, ratio_tablet: 1.45, widths_tablet: '320, 400, 480, 560, 650, 740, 820, 900, 1000, 1100, 1200, 1300, 1360', sizes_tablet: '(min-width: 1152px) calc((100vw - 192px) / 3), (min-width: 800px) calc((100vw - 160px) / 2), calc(100vw - 128px)', ratio_desktop: 1.68, widths_desktop: '380, 460, 540, 620, 700, 750, 790, 840, 900, 960, 1060, 1160, 1300, 1450, 1600', sizes_desktop: 'calc((100vw - 192px) / 3)', wide_min: 1700, ratio_wide: 2.28, widths_wide: '500, 560, 620, 700, 780, 860, 950, 1020, 1100, 1160, 1250, 1350, 1500, 1600', sizes_wide: 'calc((100vw - 192px) / 3)' -%}
+        {%- endfor -%}
+      </ul>
+
+      {%- if section.settings.button_label != blank -%}
+        <div class="dev-article-related__cta">
+          {%- render 'dev-button', variant: 'outline', link: blog.url, label: section.settings.button_label -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Related articles",
+  "tag": "section",
+  "enabled_on": { "templates": ["article"] },
+  "settings": [
+    { "type": "header", "content": "Content" },
+    {
+      "type": "paragraph",
+      "content": "Uses the article's 'Related articles' metafield when set; otherwise posts sharing a tag, then the newest."
+    },
+    { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Related articles" },
+    { "type": "range", "id": "limit", "min": 2, "max": 6, "step": 1, "label": "Number of articles", "default": 3 },
+    { "type": "text", "id": "card_label", "label": "Card link label", "default": "Read Article" },
+    { "type": "text", "id": "read_time_label", "label": "Reading time label", "default": "min read" },
+    { "type": "text", "id": "author_prefix", "label": "Author prefix", "default": "By" },
+    { "type": "text", "id": "button_label", "label": "Button label", "info": "Links to the blog. Leave empty to hide.", "default": "View all articles" },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "rgba(0,0,0,0)" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding top", "default": 32 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 120, "step": 4, "unit": "px", "label": "Padding bottom", "default": 80 }
+  ],
+  "presets": [{ "name": "Related articles" }]
+}
+{% endschema %}
