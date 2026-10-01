@@ -1,12 +1,17 @@
 /* dev-article.js
-   Two jobs, both progressive — the page works fully with scripting off:
+   The "In this article" dropdown — the same at every width (owner, 2026-10-01). Progressive: it is a
+   <details>, so it opens and its links jump with scripting off. This file adds:
 
-   1. The "In this article" accordion (< 1280px). A <details>, so it opens natively with no JS; this
-      only adds the animated height. The animation is dev-faq.js's, duplicated on purpose (the
-      standard is three files per section; see dev-faq.liquid) and trimmed to a single row.
-
-   2. The contents rail (>= 1280px). Marks the heading currently being read with aria-current, so
-      the rail shows where you are. Anchor links already jump natively; nothing to do there. */
+   1. the animated open/close (dev-faq.js's height animation, duplicated on purpose — see dev-faq.liquid)
+   2. tapping a row scrolls smoothly to that heading and leaves the box OPEN (owner, 2026-10-01).
+      Earlier builds closed it — first ~300ms after the jump, then before it — and either way the box
+      collapsed while the page was moving, which on iPhone Safari read as the page "buffering" or
+      jumping. Nothing changes size during the scroll now. The landing spot is computed here rather
+      than left to scroll-margin, because the sticky header slides away as the page scrolls down:
+      an offset taken at the moment of the tap (header showing) would leave a gap at the end.
+   3. auto-close once the whole box has been scrolled off-screen (owner, 2026-09-28), with the reading
+      position pinned so nothing visible moves.
+   4. --header-clear: the sticky site header's live bottom edge, so a heading lands below the header. */
 (function () {
   const running = new WeakMap();
 
@@ -17,19 +22,14 @@
   function init(root) {
     root.querySelectorAll('[data-toc]').forEach((details) => initAccordion(details));
 
-    const rail = root.querySelector('[data-toc-rail]');
-    const body = root.querySelector('[data-article-body]');
-    if (rail && body) initRail(rail, body);
-
     trackHeader(root);
   }
 
   /* ---------- header clearance ----------
      The site header (#header-group, dev-site-header) is sticky and slides away on scroll-down and
-     back in on scroll-up. A fixed `top` for the rail cannot be right in both states: 48px sat
-     UNDER the returning header (verified on the store preview, 2026-09-22). So the header's
-     visible bottom edge is measured every frame it can change and written to --header-clear on
-     the section root; the CSS reads it for the rail's `top` and every heading's scroll-margin.
+     back in on scroll-up, so no fixed offset is right in both states. Its visible bottom edge is
+     measured every frame it can change and written to --header-clear on the section root; every
+     heading's scroll-margin reads it, so a contents jump lands just below the header.
      getBoundingClientRect includes the slide transform, so a hidden header reads as <= 0. */
   function trackHeader(root) {
     const header = document.getElementById('header-group');
@@ -64,6 +64,18 @@
 
     autoClose(details);
 
+    // Tapping a row: keep the box open, glide to the heading, write the hash without a second jump.
+    details.addEventListener('click', (event) => {
+      const link = event.target.closest('[data-toc-link]');
+      if (!link) return;
+      const id = decodeURIComponent(link.getAttribute('href').slice(1));
+      const target = document.getElementById(id);
+      if (!target) return;
+      event.preventDefault();
+      scrollToHeading(details, target);
+      if (history.replaceState) history.replaceState(null, '', '#' + id);
+    });
+
     summary.addEventListener('click', (event) => {
       // The browser's own toggle is instant. Take it over: we open and close.
       event.preventDefault();
@@ -73,6 +85,49 @@
         expand(details);
       }
     });
+  }
+
+  /* ---------- scrolling to a heading ----------
+     Every contents row points DOWN the page (the box sits before the first heading), and the site
+     header hides on any downward scroll (dev-site-header.js). So the heading lands --spacing-md below
+     the top of the screen with no header allowance. `navigating` holds the auto-close off until the
+     scroll has come to rest, so the box can never collapse mid-glide. */
+  const navigating = new WeakSet();
+
+  function scrollToHeading(details, target) {
+    const scroller = scrollerOf(details);
+    const gap = parseFloat(window.getComputedStyle(details).getPropertyValue('--spacing-md')) || 24;
+    const current = scroller === window ? window.scrollY : scroller.scrollTop;
+    const top = Math.max(0, Math.round(current + target.getBoundingClientRect().top - gap));
+    const behavior = prefersReducedMotion() ? 'auto' : 'smooth';
+
+    navigating.add(details);
+    settle(scroller, () => navigating.delete(details));
+    scroller.scrollTo({ top, behavior });
+  }
+
+  // Calls done() once the scroller has stopped moving: `scrollend` where the browser has it, and a
+  // quiet-period check as the fallback (older Safari has no scrollend). Never longer than 2s.
+  function settle(scroller, done) {
+    let finished = false;
+    let quiet = null;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      scroller.removeEventListener('scroll', onScroll);
+      scroller.removeEventListener('scrollend', finish);
+      window.clearTimeout(quiet);
+      window.clearTimeout(cap);
+      done();
+    };
+    const onScroll = () => {
+      window.clearTimeout(quiet);
+      quiet = window.setTimeout(finish, 180);
+    };
+    scroller.addEventListener('scroll', onScroll, { passive: true });
+    scroller.addEventListener('scrollend', finish);
+    const cap = window.setTimeout(finish, 2000);
+    onScroll();
   }
 
   /* ---------- auto-close once scrolled out of view ----------
@@ -103,11 +158,11 @@
         timer = null;
         return;
       }
-      if (!isOpen(details)) return;
+      if (!isOpen(details) || navigating.has(details)) return;
       window.clearTimeout(timer);
       timer = window.setTimeout(() => {
         timer = null;
-        if (isOpen(details) && !onScreen(details)) closeInPlace(details);
+        if (isOpen(details) && !navigating.has(details) && !onScreen(details)) closeInPlace(details);
       }, CLOSE_DELAY);
     });
 
@@ -120,8 +175,21 @@
   }
 
   function closeInPlace(details) {
+    const scroller = scrollerOf(details);
     const anchor = readingAnchor(details);
     const before = anchor ? anchor.getBoundingClientRect().top : 0;
+
+    // One correction, the same in every browser: the browser's own scroll anchoring (Chrome,
+    // Firefox) is switched off for this one layout change and the shift is put back by hand — Safari
+    // has no anchoring at all, and letting some browsers anchor while others are corrected here
+    // is how a correction ends up applied twice, or not at all.
+    // The theme also sets `scroll-behavior: smooth` on html and .page-wrapper (base.css), which would
+    // turn the correction into a visible glide. It is switched to `auto` for the same moment.
+    const anchored = [document.documentElement, document.querySelector('.page-wrapper')].filter(Boolean);
+    anchored.forEach((el) => {
+      el.style.setProperty('overflow-anchor', 'none');
+      el.style.setProperty('scroll-behavior', 'auto');
+    });
 
     stop(details);
     details.open = false;
@@ -129,18 +197,33 @@
     details.style.overflow = '';
     details.style.height = '';
 
-    if (!anchor) return;
-    const shift = anchor.getBoundingClientRect().top - before;
-    if (Math.abs(shift) > 0.5) scrollerOf(details).scrollBy(0, shift);
+    if (anchor) {
+      const shift = anchor.getBoundingClientRect().top - before;
+      if (Math.abs(shift) > 0.5) {
+        scroller.scrollBy({ top: shift, behavior: 'instant' });
+        window.dispatchEvent(new CustomEvent('dev:scroll-adjusted', { detail: { shift } }));
+      }
+    }
+
+    window.requestAnimationFrame(() => anchored.forEach((el) => {
+      el.style.removeProperty('overflow-anchor');
+      el.style.removeProperty('scroll-behavior');
+    }));
   }
 
-  // The element on the reader's line — a third of the way down the screen, clear of the sticky header.
+  // The reference for "did the page move": the first block of the article body still on screen.
+  // It has to be real page content. An earlier version took whatever sat at a fixed point on the
+  // screen, and on iPhone Safari that can be a fixed overlay (chat button, banner) that never moves,
+  // so a 641px lurch measured as 0 and went uncorrected (WebKit test, 2026-10-01). Chrome hid the bug
+  // by anchoring the scroll itself.
   function readingAnchor(details) {
-    const x = Math.round(window.innerWidth / 2);
-    const y = Math.round(window.innerHeight / 3);
-    const el = document.elementFromPoint(x, y);
-    if (!el || details.contains(el)) return null;
-    return el;
+    const body = details.closest('[data-article-body]');
+    const blocks = body ? body.children : [];
+    for (const el of blocks) {
+      if (el === details || el.contains(details)) continue;
+      if (el.getBoundingClientRect().bottom > 0) return el;
+    }
+    return details.nextElementSibling;
   }
 
   // Horizon scrolls .page-wrapper on desktop and the window below 990px: find whichever it is.
@@ -228,47 +311,4 @@
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
 
-  /* ---------- 2. rail ---------- */
-
-  function initRail(rail, body) {
-    const links = Array.from(rail.querySelectorAll('[data-toc-link]'));
-    if (links.length === 0 || !('IntersectionObserver' in window)) return;
-
-    const byId = new Map();
-    links.forEach((link) => {
-      const id = decodeURIComponent(link.getAttribute('href').slice(1));
-      const heading = document.getElementById(id);
-      if (heading && body.contains(heading)) byId.set(heading, link);
-    });
-    if (byId.size === 0) return;
-
-    const headings = Array.from(byId.keys());
-    const visible = new Set();
-
-    // "Current" = the last heading that has scrolled past the top third of the viewport. A heading
-    // counts as passed once it is above the observer's band; the band is the top 30% of the screen.
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) visible.add(entry.target);
-          else visible.delete(entry.target);
-        });
-        update();
-      },
-      { rootMargin: '0px 0px -70% 0px' }
-    );
-
-    function update() {
-      let current = null;
-      for (const heading of headings) {
-        if (heading.getBoundingClientRect().top < window.innerHeight * 0.3) current = heading;
-      }
-      if (!current && visible.size) current = headings.find((h) => visible.has(h));
-      links.forEach((link) => link.removeAttribute('aria-current'));
-      if (current) byId.get(current).setAttribute('aria-current', 'true');
-    }
-
-    headings.forEach((heading) => observer.observe(heading));
-    update();
-  }
 })();

@@ -232,25 +232,37 @@
   color: var(--color); /* stroke="currentColor" on the inlined Figma marker */
 }
 
-/* Address + phone, one unit (see the Liquid). 16px between the two rows — --spacing-md, the step
-   the brand column already uses inside its own blocks. */
+/* Address, then phone + hours, one unit (see the Liquid). */
 .site-footer__contact {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
 }
 
-/* The phone row mirrors the address row: same 24px icon, same 8px icon gap. It aligns to the TOP
-   rather than the centre because it is two lines (number, then hours) and the icon belongs to the
-   number, as the owner's mockup draws it. */
-.site-footer__phone {
+/* Phone | hours: two equal columns split by a thin rule (owner, 2026-10-01). Each column stacks
+   its icon over its text — the same 24px Heroicons stroke as the address pin — so the pair reads
+   as one row of two facts rather than two lines of a list. The rule is the footer's own --divider
+   colour, drawn as the second column's left border so it is exactly as tall as the row. */
+.site-footer__reach {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.site-footer__reach-item {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: flex-start;
   gap: var(--gap-address);
+  padding-inline: 0 var(--spacing-lg);
 }
 
-.site-footer__phone-text {
+.site-footer__reach-item + .site-footer__reach-item {
+  padding-inline: var(--spacing-lg) 0;
+  border-left: var(--border-width) solid var(--divider);
+}
+
+.site-footer__reach-text {
   display: flex;
   flex-direction: column;
 }
@@ -427,9 +439,11 @@
   text-decoration-thickness: 2px;
 }
 
-/* Hours sit a step below the address, at the copyright size (14px), as the mockup draws them. */
-.site-footer__phone-hours {
-  font-size: var(--font-copyright-size);
+/* "Give us a call" and the hours: the address size, so the whole contact block is one type step
+   with only the number (the thing to act on) stepping up. */
+.site-footer__reach-note,
+.site-footer__reach-hours {
+  font-size: var(--font-address-size);
   font-weight: 500;
   line-height: var(--font-body-lh);
   color: var(--color);
@@ -746,20 +760,32 @@
     width: 100%;
   }
 
-  /* The contact block centres like everything else in the mobile column; the phone row stacks
-     icon-over-text exactly as the address above it does, so the two read as a pair. */
+  /* Mobile spacing (owner, 2026-10-01): Instagram sits close under the tagline; the address gets
+     a little more air above it (48 vs 40) and phone | hours sits 32px below it, a full section gap
+     above the rule. Measured against the owner's mockup; all from the footer's own spacing steps. */
+  .site-footer__social {
+    margin-top: var(--spacing-md);
+  }
+
   .site-footer__contact {
+    margin-top: calc(var(--gap-section) + var(--spacing-sm));
+    gap: calc(var(--spacing-lg) + var(--spacing-sm));
     align-items: center;
     width: 100%;
   }
 
-  .site-footer__phone {
-    flex-direction: column;
+  .site-footer__reach {
+    width: 100%;
+  }
+
+  .site-footer__reach-item,
+  .site-footer__reach-item + .site-footer__reach-item {
     align-items: center;
+    padding-inline: var(--spacing-md);
     text-align: center;
   }
 
-  .site-footer__phone-text {
+  .site-footer__reach-text {
     align-items: center;
   }
 

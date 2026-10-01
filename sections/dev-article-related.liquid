@@ -130,7 +130,8 @@
 
       {%- if section.settings.button_label != blank -%}
         <div class="dev-article-related__cta">
-          {%- render 'dev-button', variant: 'outline', link: blog.url, label: section.settings.button_label -%}
+          {%- assign all_link = section.settings.button_link | default: blog.url -%}
+          {%- render 'dev-button', variant: 'outline', link: all_link, label: section.settings.button_label -%}
         </div>
       {%- endif -%}
     </div>
@@ -153,7 +154,8 @@
     { "type": "text", "id": "card_label", "label": "Card link label", "default": "Read Article" },
     { "type": "text", "id": "read_time_label", "label": "Reading time label", "default": "min read" },
     { "type": "text", "id": "author_prefix", "label": "Author prefix", "default": "By" },
-    { "type": "text", "id": "button_label", "label": "Button label", "info": "Links to the blog. Leave empty to hide.", "default": "View all articles" },
+    { "type": "text", "id": "button_label", "label": "Button label", "info": "Leave empty to hide.", "default": "All Articles" },
+    { "type": "url", "id": "button_link", "label": "Button link", "info": "Empty = the blog. Larke sends it to the blog list on Our Story: /pages/our-story#journal" },
 
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "background_color", "label": "Background", "default": "rgba(0,0,0,0)" },

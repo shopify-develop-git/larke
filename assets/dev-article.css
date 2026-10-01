@@ -249,16 +249,10 @@
 
 /* --- reading band --- */
 
-/* Wider than __inner (see the Liquid): at >= 1280 the TOC rail sits beside the measure. Below
-   that it is a single column and the body centres itself at --measure like the head does. */
+/* The reading band: the body is centred at --measure like the head. */
 .dev-article__layout {
   max-width: var(--container-max);
   margin: var(--spacing-lg) auto 0;
-}
-
-/* Hidden below 1280 — the inline accordion is the contents there. See WIDE below. */
-.dev-article__rail {
-  display: none;
 }
 
 /* --- body --- */
@@ -412,7 +406,7 @@
   content: counter(dev-article-h2) '. ';
 }
 
-/* --- table of contents: the inline accordion (< 1280) --- */
+/* --- table of contents: the dropdown (every width) --- */
 
 .dev-article__toc {
   margin: var(--spacing-xl) 0;
@@ -462,10 +456,9 @@
   transform: none;
 }
 
-/* The list is shared by the accordion and the rail. Selectors are doubled up with a parent class
+/* Selectors carry the parent class
    because the body's own `ol` / `li` / `a` rules above are (0,1,1) and must lose here. */
-.dev-article__toc .dev-article__toc-list,
-.dev-article__rail .dev-article__toc-list {
+.dev-article__toc .dev-article__toc-list {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
@@ -477,18 +470,15 @@
   line-height: var(--font-panel-lh);
 }
 
-.dev-article__toc .dev-article__toc-item,
-.dev-article__rail .dev-article__toc-item {
+.dev-article__toc .dev-article__toc-item {
   margin: 0;
 }
 
 /* No numbers in the contents list (owner, 2026-09-28: "Do not show 1, 2, 3"). The headings in the
    body keep theirs; the list is a set of links, and the arrow below is what says "tap me".
 
-   In the dropdown (every width below 1280) each row ends in a small right arrow — the same vector
-   as dev-journal-cards' "Read Article" CTA, drawn as a mask so it takes the text colour. The rail
-   (>= 1280) has no arrows: it is a side index with its own active marker, and an arrow on every
-   line of a 256px column would be noise. */
+   Each row ends in a small right arrow — the same vector as dev-journal-cards' "Read Article"
+   CTA, drawn as a mask so it takes the text colour — at every width. */
 .dev-article__toc .dev-article__toc-link {
   display: flex;
   align-items: center;
@@ -512,42 +502,14 @@
   gap: 0;
 }
 
-.dev-article__toc .dev-article__toc-link,
-.dev-article__rail .dev-article__toc-link {
+.dev-article__toc .dev-article__toc-link {
   color: inherit;
   text-decoration: none;
   text-underline-offset: 0.15em;
 }
 
-.dev-article__toc .dev-article__toc-link:hover,
-.dev-article__rail .dev-article__toc-link:hover {
+.dev-article__toc .dev-article__toc-link:hover {
   text-decoration: underline;
-}
-
-/* --- table of contents: the sticky rail (>= 1280, see WIDE) --- */
-
-.dev-article__rail-title {
-  margin: 0;
-  font-size: var(--font-meta-size);
-  font-weight: var(--font-bold);
-  line-height: 1.4;
-}
-
-.dev-article__rail .dev-article__toc-list {
-  font-size: var(--font-badge-size);
-  color: var(--muted);
-}
-
-.dev-article__rail .dev-article__toc-link {
-  display: block;
-  padding-left: var(--spacing-sm);
-  border-left: 2px solid transparent;
-  transition: color 0.2s ease-out, border-color 0.2s ease-out;
-}
-
-.dev-article__rail .dev-article__toc-link[aria-current='true'] {
-  color: var(--color);
-  border-left-color: var(--accent);
 }
 
 /* --- [tip] — the top tip box ---
@@ -693,53 +655,6 @@
 }
 
 /* =============================================
-   WIDE  >= 1280px — the TOC rail
-   =============================================
-   A min-width block, the one exception to this file's max-width breakpoints: the rail is the one
-   thing that only exists ABOVE a width. 1280 is where the band finally has room — see the Liquid
-   header for the arithmetic. The grid is 1fr | measure | 1fr, so the prose stays dead centre under
-   the hero exactly as below 1280, and the rail takes the left gutter without pushing it over. */
-
-@media (min-width: 1280px) {
-  .dev-article__layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, var(--measure)) minmax(0, 1fr);
-    column-gap: var(--spacing-xl);
-    align-items: start;
-  }
-
-  .dev-article__rail {
-    display: flex;
-    flex-direction: column;
-    grid-column: 1;
-    grid-row: 1;
-    justify-self: end;
-    width: 100%;
-    max-width: var(--rail-w);
-    position: sticky;
-    /* --header-clear is the site header's live bottom edge, written by dev-article.js; without JS
-       it falls back to the static --rail-top. `top` eases with the header's own 250ms slide. */
-    top: calc(var(--header-clear, 0px) + var(--rail-top));
-    transition: top 250ms ease;
-  }
-
-  .dev-article__rail .dev-article__toc-list {
-    padding-top: var(--spacing-sm);
-  }
-
-  .dev-article__body {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
-  /* The inline accordion's copy of the same list. display:none also drops it from the
-     accessibility tree, so the list is never announced twice. */
-  .dev-article__toc {
-    display: none;
-  }
-}
-
-/* =============================================
    TABLET  ≤ 1024px
    ============================================= */
 
@@ -824,7 +739,6 @@
    pinned to --color via --dev-btn-focus above). Body richtext links keep their own. */
 .dev-article__body a:focus-visible,
 .dev-article__crumb-link:focus-visible,
-.dev-article__rail .dev-article__toc-link:focus-visible,
 .dev-article__toc-summary:focus-visible {
   outline: 2px solid var(--color);
   outline-offset: 2px;
@@ -832,7 +746,6 @@
 
 .dev-article__body a:focus:not(:focus-visible),
 .dev-article__crumb-link:focus:not(:focus-visible),
-.dev-article__rail .dev-article__toc-link:focus:not(:focus-visible),
 .dev-article__toc-summary:focus:not(:focus-visible) {
   outline: none;
 }

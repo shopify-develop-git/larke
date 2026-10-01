@@ -33,6 +33,12 @@
   margin: 0 auto;
 }
 
+/* Landing spot for /pages/our-story#journal: a little air above the heading. The sticky site
+   header slides away on the way down to it, so no header offset is needed. */
+.dev-blog[id] {
+  scroll-margin-top: var(--gap-head);
+}
+
 /* --- head --- */
 
 .dev-blog__head {

@@ -153,7 +153,12 @@
   endif
 -%}
 
+{%- comment -%}
+  Optional anchor (owner, 2026-10-01): the blog's own index is retired, and "All Articles" and the
+  "Snooze" breadcrumb now land on THIS section on Our Story — /pages/our-story#journal.
+{%- endcomment -%}
 <div
+  {% if section.settings.anchor_id != blank %}id="{{ section.settings.anchor_id | handleize }}"{% endif %}
   class="dev-blog{% if section.settings.centre_head %} dev-blog--centred{% endif %}"
   style="
     --leaf: {{ section.settings.leaf_color }};
@@ -403,6 +408,7 @@
   "settings": [
     { "type": "header", "content": "Content" },
     { "type": "inline_richtext", "id": "heading", "label": "Heading", "info": "Leave empty to use the blog's own title." },
+    { "type": "text", "id": "anchor_id", "label": "Anchor", "info": "Lets other pages link straight to this list, e.g. journal → /pages/our-story#journal." },
     {
       "type": "select",
       "id": "stack_heading",

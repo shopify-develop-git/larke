@@ -71,7 +71,7 @@ Namespace `custom` for all (two already exist):
 | Hero caption | `custom.hero_caption` | Single line text |
 | Author profile | `custom.author_profile` | Metaobject → Author |
 | Show contents | `custom.show_contents` | True or false |
-| Number headings | `custom.number_headings` | True or false |
+| Number headings | `custom.number_headings` | True or false (empty = no numbers) |
 | Related articles | `custom.related_articles` | List of blog posts *(article references)* |
 
 Empty always means "the sensible default": both booleans are **on unless set to false**.
@@ -146,3 +146,26 @@ Store data (admin, not code): example post's Top tip + wash-care list moved afte
 **theme-check 4.x note.** Shopify CLI 4.8 parses angle brackets inside `{% comment %}` blocks as real
 tags. A comment above the TOC code that mentioned an h2 tag produced a false "closing `details` before
 it was opened" error. Keep literal tag names out of comments in these files.
+
+## Changes 2026-10-01
+
+- **One contents dropdown at every width** — the ≥1280 side rail is gone ("mobile and desktop must match").
+- **Tapping a row keeps the dropdown open** and glides to the heading; the landing spot is computed
+  (heading 24px below the top — the header hides on downward scroll), and auto-close is held off until
+  the scroll has stopped. Measured in WebKit (iPhone) + Chromium (Android, desktop): 0px layout shift
+  during the scroll, 0px movement after landing.
+- **Scroll-away auto-close fixed for iPhone Safari.** The old correction measured an element at a fixed
+  screen point, which in Safari can be a fixed overlay — a 641px lurch went uncorrected. It now measures
+  the article's own content, disables the browser's own anchoring and the theme's `scroll-behavior:
+  smooth` for that one instant, and tells the header (`dev:scroll-adjusted`) so it doesn't slide in.
+- **Order:** article → About the author → Meet the real thing → Related. Newsletter removed.
+- **Blog index retired:** `templates/blog.json` renders `dev-redirect` → `/pages/our-story#journal`;
+  "All Articles" and the "Snooze" crumb link there; the second crumb is plain text.
+
+## Changes 2026-10-01 (later) — heading numbers off by default
+
+Ruben asked on the 2026-10-01 call for the "1. 2. 3." before body headings to go, on desktop and mobile.
+`custom.number_headings` is now an **opt-in**: empty or `false` = no numbers, `true` = numbered (and
+`[plain]` still leaves a heading out of the count). `custom.show_contents` is unchanged (empty = shown).
+The editor kit (`dev-article-components`) no longer numbers its previews, and the `[plain]` example
+moved into the Number headings note.

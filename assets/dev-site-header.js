@@ -155,6 +155,15 @@
     // reading taken from the other scroller.
     desktop.addEventListener('change', () => { lastY = scrollTop(); });
 
+    // A scroll the PAGE made to keep the reader's place — not the reader scrolling. The blog's
+    // contents box (dev-article.js) closes itself off-screen and moves the page back by exactly the
+    // height it lost; without this, that correction read as "scrolled up" and slid the header in
+    // mid-read. The shift is folded into lastY, so it never counts as a direction, while any real
+    // scrolling the reader does in the same frame still does.
+    window.addEventListener('dev:scroll-adjusted', (event) => {
+      lastY += (event.detail && event.detail.shift) || 0;
+    });
+
     show();
     lastY = scrollTop();
   }

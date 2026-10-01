@@ -31,10 +31,8 @@
   Genuinely new, flagged as judgement calls rather than measurements:
     * the READING COLUMN (--measure, 720px): ~72 characters per line at 18px, the middle of the
       45–75 range typography treats as readable. No section in the design has long-form prose.
-    * the DESKTOP TOC RAIL (>= 1280px): the mockups are mobile-only. Below 1280 the TOC is the
-      accordion as drawn, sitting after the intro; at 1280 there is finally room beside the 720
-      measure for a sticky rail (1280 − 2×64 − 720 − 2×48 = 336, i.e. 168px a side), so it moves
-      there. Two renders of one list, one hidden per breakpoint — see the note at the markup.
+    * ONE contents dropdown at every width (owner, 2026-10-01: "make sure mobile and desktop match").
+      The 2026-09 build moved it into a sticky side rail from 1280px; that rail is gone.
     * the avatar (48px): 2 × --icon-size. Nothing in the design draws a face.
     * the header is LEFT-aligned now (it was centred). The mockup aligns it with the prose, and a
       centred title over a left-aligned column reads as two different pages glued together.
@@ -42,7 +40,7 @@
   Content comes from four places, each with a defined empty state (see docs/sections/dev-article.md):
     article.title / .content / .image / .tags / .published_at     Shopify's own fields
     custom.subtitle, custom.hero_caption                               one-line text metafields
-    custom.show_contents, custom.number_headings                       booleans — EMPTY MEANS ON
+    custom.show_contents (empty = on), custom.number_headings (empty = off)     booleans
     custom.author_profile -> `author` metaobject (name, avatar)     falls back to custom.author text
   A post with nothing but a title, a body and a featured image must still render correctly.
 
@@ -62,6 +60,7 @@
 
 {%- liquid
   assign article_tag = article.tags | first
+  assign blog_url = blog.url | default: routes.root_url
 
   comment
     Breadcrumb (owner, 2026-09-28): News and Guest Review become Snooze and Humble Home.
@@ -69,30 +68,36 @@
         admin but is branded Larke Snooze on the index. Blank falls back to the blog's own title.
       * Second crumb: the post's custom.breadcrumb_tag when set, a tag the editor picks to name
         the post's series (Humble Home), otherwise its first tag as before. It is a TAG, not free
-        text, so the crumb always links to a real tagged page listing that series.
+        text, so it always names a real series of posts.
     The first tag still drives the card badge and articleSection; only the crumb changes.
   endcomment
   assign crumb_blog = section.settings.blog_crumb_label | default: blog.title
+  comment
+    2026-10-01: the blog index is retired (it redirects to the blog list on Our Story), so the first
+    crumb links to the section setting's URL — /pages/our-story#journal — and the second crumb is
+    plain text: its tagged page would only redirect to the same list.
+  endcomment
+  assign crumb_blog_url = section.settings.blog_crumb_link | default: blog_url
   assign crumb_tag = article.metafields.custom.breadcrumb_tag.value | default: article_tag | strip
-  assign crumb_handle = crumb_tag | handle
-  assign blog_url = blog.url | default: routes.root_url
 
   assign deck = article.metafields.custom.subtitle.value
   assign hero_caption = article.metafields.custom.hero_caption.value
   assign author_profile = article.metafields.custom.author_profile.value
 
   comment
-    Booleans where EMPTY MEANS ON. An article nobody has touched gets the TOC and the numbering the
-    mockup shows; only an explicit `false` turns either off. `!= false` is the whole trick — an
-    unset metafield's value is nil, and nil is not false.
+    Show contents: EMPTY MEANS ON — only an explicit `false` hides the dropdown (an unset metafield's
+    value is nil, and nil is not false).
+    Number headings: EMPTY MEANS OFF since 2026-10-01 — Ruben asked on the 2026-10-01 call for the
+    "1. 2. 3." before body headings to go, on desktop and mobile. The field stays as an opt-in:
+    only an explicit `true` numbers a post's headings.
   endcomment
   assign toc_enabled = true
   if article.metafields.custom.show_contents.value == false
     assign toc_enabled = false
   endif
-  assign numbered = true
-  if article.metafields.custom.number_headings.value == false
-    assign numbered = false
+  assign numbered = false
+  if article.metafields.custom.number_headings.value == true
+    assign numbered = true
   endif
 
   assign avatar = author_profile.avatar.value
@@ -106,8 +111,9 @@
   it). No angle brackets in this comment: theme-check 4.x parses them as real tags even inside a
   comment and then reports false syntax errors on the markup below.
 
-  The contents list itself is unnumbered (owner, 2026-09-28); the body headings keep their numbers,
-  and a `[plain]` heading (class="larke-plain") stays out of that count.
+  The contents list is unnumbered (owner, 2026-09-28) and body headings are unnumbered by default
+  (2026-10-01). A post that opts in via Number headings gets them, and a `[plain]` heading
+  (class="larke-plain") stays out of that count.
 
   Fewer than three headings and there is nothing to navigate: a two-item contents list is noise
   above a short post, so it is simply not drawn.
@@ -144,12 +150,8 @@
 -%}
 
 {%- comment -%}
-  TWO RENDERS OF ONE LIST. Below 1280px the contents is the accordion the mockup draws, dropped into
-  the body just before the first heading, i.e. after the intro — where the mockup puts it. At 1280
-  and up it is a sticky rail beside the prose. One element cannot sit inside the flow AND in a
-  side column, and re-parenting it with JS on resize is a layout shift waiting to happen. So the
-  list renders twice and CSS shows exactly one: the hidden copy is display:none, which also takes
-  it out of the accessibility tree, so a screen reader never meets it twice.
+  The contents dropdown, dropped into the body just before the first heading, i.e. after the
+  intro, where the mockup puts it. The same dropdown at every width.
 {%- endcomment -%}
 {%- if show_toc -%}
   {%- capture toc_inline -%}
@@ -261,13 +263,8 @@
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": {{ crumb_blog | json }}, "item": {{ request.origin | append: blog.url | json }} }
-      {%- if crumb_tag != blank -%}
-        ,{ "@type": "ListItem", "position": 2, "name": {{ crumb_tag | json }}, "item": {{ request.origin | append: blog.url | append: '/tagged/' | append: crumb_handle | json }} }
-        ,{ "@type": "ListItem", "position": 3, "name": {{ article.title | json }} }
-      {%- else -%}
-        ,{ "@type": "ListItem", "position": 2, "name": {{ article.title | json }} }
-      {%- endif -%}
+      { "@type": "ListItem", "position": 1, "name": {{ crumb_blog | json }}, "item": {{ request.origin | append: crumb_blog_url | json }} },
+      { "@type": "ListItem", "position": 2, "name": {{ article.title | json }} }
     ]
   }
 </script>
@@ -304,11 +301,9 @@
       {%- if section.settings.show_breadcrumb -%}
         <nav class="dev-article__crumbs" aria-label="{{ section.settings.breadcrumb_label | escape }}">
           <ol class="dev-article__crumbs-list" role="list">
-            <li class="dev-article__crumb"><a class="dev-article__crumb-link" href="{{ blog_url }}">{{ crumb_blog | escape }}</a></li>
+            <li class="dev-article__crumb"><a class="dev-article__crumb-link" href="{{ crumb_blog_url }}">{{ crumb_blog | escape }}</a></li>
             {%- if crumb_tag != blank -%}
-              <li class="dev-article__crumb">
-                <a class="dev-article__crumb-link" href="{{ blog_url }}/tagged/{{ crumb_handle }}">{{ crumb_tag | escape }}</a>
-              </li>
+              <li class="dev-article__crumb"><span class="dev-article__crumb-text">{{ crumb_tag | escape }}</span></li>
             {%- endif -%}
           </ol>
         </nav>
@@ -439,19 +434,8 @@
     {%- endif -%}
   </div>
 
-  {%- comment -%}
-    The reading band. Its own row, wider than __inner, because the >= 1280 rail sits BESIDE the
-    measure and 960 cannot hold 256 + 48 + 720. Below 1280 it is a single centred column and the
-    rail is not drawn.
-  {%- endcomment -%}
+  {%- comment -%} The reading band: the body at the 720px measure, centred under the hero. {%- endcomment -%}
   <div class="dev-article__layout">
-    {%- if show_toc -%}
-      <nav class="dev-article__rail" aria-label="{{ section.settings.toc_label | escape }}" data-toc-rail>
-        <p class="dev-article__rail-title">{{ section.settings.toc_label | escape }}</p>
-        <ol class="dev-article__toc-list dev-article__toc-list--rail" role="list">{{ toc_items }}</ol>
-      </nav>
-    {%- endif -%}
-
     {%- comment -%}
       article.content is merchant HTML from the Shopify editor — already safe, never escaped. It
       arrives here already processed by snippets/dev-article-body.liquid (shortcodes, lazy images,
@@ -494,6 +478,12 @@
       "label": "Blog name in breadcrumb",
       "info": "Leave empty to use the blog's own title. The second level is the post's 'Breadcrumb tag' field, or its first tag.",
       "default": "Snooze"
+    },
+    {
+      "type": "url",
+      "id": "blog_crumb_link",
+      "label": "Breadcrumb link",
+      "info": "Where the first breadcrumb goes. Empty = the blog. Larke: /pages/our-story#journal"
     },
     { "type": "text", "id": "toc_label", "label": "Contents heading", "default": "In this article" },
     {

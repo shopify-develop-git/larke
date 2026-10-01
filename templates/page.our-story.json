@@ -203,7 +203,8 @@
         "rule_color": "#c4bca9",
         "leaf_color": "#c5a17a",
         "padding_top": 80,
-        "padding_bottom": 0
+        "padding_bottom": 0,
+        "anchor_id": "journal"
       }
     }
   },
