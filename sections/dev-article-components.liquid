@@ -99,15 +99,15 @@ Tree fibre is naturally breathable, so it keeps you cool in summer and cosy in w
     <section class="dev-article-components__item" aria-labelledby="c-auto">
       <h2 class="dev-article-components__name" id="c-auto">Automatic — nothing to type</h2>
       <ul class="dev-article-components__notes" role="list">
-        <li><strong>“In this article”</strong> builds itself from your <strong>Heading 2</strong> lines once a post has three or more. It appears just before the first heading on phones, and as a sticky list beside the text on large screens.</li>
-        <li><strong>Heading numbers</strong> (1. 2. 3.) are added to every Heading 2. Don’t type numbers yourself. To switch numbering off for a post, set its <em>Number headings</em> field to false.</li>
+        <li><strong>“In this article”</strong> builds itself from your <strong>Heading 2</strong> lines once a post has three or more. It appears as a dropdown just before the first heading, on phones and computers alike.</li>
+        <li><strong>Heading numbers</strong> (1. 2. 3.) are off by default. To number a post’s headings, set its <em>Number headings</em> field to true — don’t type numbers yourself. On a numbered post, typing [plain] at the start of a Heading 2 leaves that one heading out of the count.</li>
         <li><strong>Reading time</strong> is worked out from the word count. Set <em>Reading time</em> on the post to override it.</li>
         <li><strong>Quote</strong>: the editor’s own <em>Quote</em> format gives exactly the quote box below — the shortcode is just an alternative.</li>
       </ul>
     </section>
 
     {%- liquid
-      assign examples = 'heading,quote,tip,tip2,icons,caption' | split: ','
+      assign examples = 'quote,tip,tip2,icons,caption' | split: ','
     -%}
     {%- for key in examples -%}
       {%- liquid
@@ -163,7 +163,7 @@ Tree fibre is naturally breathable, so it keeps you cool in summer and cosy in w
           <div class="dev-article-components__preview">
             <span class="dev-article-components__label">Looks like</span>
             {%- if html != blank -%}
-              <div class="dev-article-components__frame dev-article--numbered">
+              <div class="dev-article-components__frame">
                 <div class="dev-article__body">
                   {%- render 'dev-article-body', html: html -%}
                 </div>
@@ -214,7 +214,7 @@ Tree fibre is naturally breathable, so it keeps you cool in summer and cosy in w
             <tr><td>Author</td><td>Byline text for a one-off writer</td><td>The staff account’s name</td></tr>
             <tr><td>Reading time</td><td>Minutes, overriding the estimate</td><td>Worked out from the words</td></tr>
             <tr><td>Show contents</td><td>False hides “In this article”</td><td>Shown (with 3+ headings)</td></tr>
-            <tr><td>Number headings</td><td>False removes the 1. 2. 3.</td><td>Numbered</td></tr>
+            <tr><td>Number headings</td><td>True adds 1. 2. 3. before the headings</td><td>No numbers</td></tr>
             <tr><td>Related articles</td><td>Choose the posts shown at the end</td><td>Posts sharing a tag, then newest</td></tr>
           </tbody>
         </table>

@@ -40,7 +40,7 @@
   Content comes from four places, each with a defined empty state (see docs/sections/dev-article.md):
     article.title / .content / .image / .tags / .published_at     Shopify's own fields
     custom.subtitle, custom.hero_caption                               one-line text metafields
-    custom.show_contents, custom.number_headings                       booleans — EMPTY MEANS ON
+    custom.show_contents (empty = on), custom.number_headings (empty = off)     booleans
     custom.author_profile -> `author` metaobject (name, avatar)     falls back to custom.author text
   A post with nothing but a title, a body and a featured image must still render correctly.
 
@@ -85,17 +85,19 @@
   assign author_profile = article.metafields.custom.author_profile.value
 
   comment
-    Booleans where EMPTY MEANS ON. An article nobody has touched gets the TOC and the numbering the
-    mockup shows; only an explicit `false` turns either off. `!= false` is the whole trick — an
-    unset metafield's value is nil, and nil is not false.
+    Show contents: EMPTY MEANS ON — only an explicit `false` hides the dropdown (an unset metafield's
+    value is nil, and nil is not false).
+    Number headings: EMPTY MEANS OFF since 2026-10-01 — Ruben asked on the 2026-10-01 call for the
+    "1. 2. 3." before body headings to go, on desktop and mobile. The field stays as an opt-in:
+    only an explicit `true` numbers a post's headings.
   endcomment
   assign toc_enabled = true
   if article.metafields.custom.show_contents.value == false
     assign toc_enabled = false
   endif
-  assign numbered = true
-  if article.metafields.custom.number_headings.value == false
-    assign numbered = false
+  assign numbered = false
+  if article.metafields.custom.number_headings.value == true
+    assign numbered = true
   endif
 
   assign avatar = author_profile.avatar.value
@@ -109,8 +111,9 @@
   it). No angle brackets in this comment: theme-check 4.x parses them as real tags even inside a
   comment and then reports false syntax errors on the markup below.
 
-  The contents list itself is unnumbered (owner, 2026-09-28); the body headings keep their numbers,
-  and a `[plain]` heading (class="larke-plain") stays out of that count.
+  The contents list is unnumbered (owner, 2026-09-28) and body headings are unnumbered by default
+  (2026-10-01). A post that opts in via Number headings gets them, and a `[plain]` heading
+  (class="larke-plain") stays out of that count.
 
   Fewer than three headings and there is nothing to navigate: a two-item contents list is noise
   above a short post, so it is simply not drawn.
