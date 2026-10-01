@@ -1,47 +1,19 @@
 /*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
+ * 2026-10-01: the blog index ("Larke Snooze", /blogs/news and its /tagged/ pages) is retired at the
+ * owner's request. It redirects to the blog list on Our Story. The previous dev-blog configuration
+ * is in this file's git history; the dev-blog section itself still powers the Our Story list.
  */
 {
   "sections": {
-    "dev-blog": {
-      "type": "dev-blog",
+    "redirect": {
+      "type": "dev-redirect",
       "settings": {
-        "heading": "Larke Snooze",
-        "stack_heading": "none",
-        "centre_head": true,
-        "show_leaf": false,
-        "intro": "Inspiring writers. Curious topics. Honest reviews.",
-        "empty_text": "Nothing here yet — check back soon.",
-        "articles_per_page": 9,
-        "button_label": "Read Article",
-        "read_time_label": "min read",
-        "author_prefix": "By",
-        "show_tag_filter": true,
-        "all_label": "All",
-        "filter_label": "Filter articles by topic",
-        "pagination_label": "Pagination",
-        "previous_label": "Previous page",
-        "next_label": "Next page",
-        "background_color": "rgba(0,0,0,0)",
-        "text_color": "#333333",
-        "meta_color": "#666666",
-        "filter_color": "#FCF5E3",
-        "filter_active_color": "#333333",
-        "filter_active_text_color": "#FFFFFF",
-        "rule_color": "#C4BCA9",
-        "leaf_color": "#C5A17A",
-        "padding_top": 48,
-        "padding_bottom": 80
+        "target": "/pages/our-story#journal",
+        "fallback_text": "Continue to our journal"
       }
     }
   },
   "order": [
-    "dev-blog"
+    "redirect"
   ]
 }

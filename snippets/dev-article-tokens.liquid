@@ -20,12 +20,10 @@
 
     {%- comment -%} Three widths. --measure is the reading column. --media-w is the wider container
        the hero image fills, so the photo has presence without the prose inheriting a 960px line.
-       --container-max is the page container every measured section shares (1440 − 2×64); only the
-       >= 1280 TOC rail ever reaches it. See the header comment. {%- endcomment -%}
+       --container-max is the page container every measured section shares (1440 − 2×64). {%- endcomment -%}
     --measure: 720px;
     --media-w: 960px;
     --container-max: 1312px;
-    --rail-w: 256px;
 
     --font-title-size: 48px;
     --font-title-size-m: 32px;
@@ -94,10 +92,8 @@
     --acc-dur: 300ms;
     --acc-ease: cubic-bezier(0.32, 0.72, 0, 1);
 
-    {%- comment -%} Where the sticky rail parks, and where an anchor jump lands. The site header is sticky and
-       slides back in on scroll-up, so a heading jumped to must clear it: 96px is the header bar
-       (~72) plus the --spacing-md breathing room. {%- endcomment -%}
-    --rail-top: 48px;
+    {%- comment -%} Where a contents jump lands: clear of the sticky site header, which slides back in on
+       scroll-up. dev-article.js replaces this with the header's live bottom edge (--header-clear). {%- endcomment -%}
     --anchor-offset: 96px;
   }
 </style>

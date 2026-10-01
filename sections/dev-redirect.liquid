@@ -1,0 +1,49 @@
+{%- comment -%}
+  Section: "Redirect" (dev name `dev-redirect`). Sends the visitor to another page.
+
+  Why it exists (owner, 2026-10-01: "delete the Snooze home page"; "All Articles takes you simply to
+  the page on Our Story that shows the blog"): Shopify cannot delete a blog's own index page
+  (/blogs/news, and its /tagged/ pages) while the blog has posts, and its URL-redirect tool only
+  acts on paths that would otherwise 404. So templates/blog.json renders THIS instead of a page:
+  an instant redirect to the blog list on Our Story.
+
+    * meta refresh 0  — works with scripting off; Google treats an instant meta refresh as a
+                        permanent redirect, so the index drops out of search in favour of the target
+    * location.replace — the same, without leaving the dead URL in the back-button history
+    * a visible link  — for anything that honours neither
+
+  NOT in the theme editor: there it shows a note instead, otherwise the editor itself would be
+  thrown off the template the moment it was opened.
+
+  No CSS or JS files: its only styling is the padding on two fallback lines (inline, below), and its
+  one line of script is inline
+  because it must run before anything else on the page does.
+{%- endcomment -%}
+
+{%- liquid
+  assign target = section.settings.target | default: routes.root_url
+-%}
+
+{%- if request.design_mode -%}
+  <div style="padding: 48px 16px; text-align: center; font-family: var(--font-body);">
+    <p><strong>This page redirects</strong> visitors to <a href="{{ target }}">{{ target }}</a>.</p>
+    <p>Change the destination in this section's settings, or remove the section to show the page again.</p>
+  </div>
+{%- else -%}
+  <meta http-equiv="refresh" content="0; url={{ target | escape }}">
+  <script>window.location.replace({{ target | json }});</script>
+  <p style="padding: 48px 16px; text-align: center;"><a href="{{ target }}">{{ section.settings.fallback_text | escape }}</a></p>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Redirect",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "url", "id": "target", "label": "Send visitors to" },
+    { "type": "text", "id": "fallback_text", "label": "Link text (if the redirect is blocked)", "default": "Continue to our journal" }
+  ],
+  "presets": [{ "name": "Redirect" }]
+}
+{% endschema %}

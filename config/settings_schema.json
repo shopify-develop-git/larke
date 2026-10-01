@@ -2159,7 +2159,14 @@
         "id": "contact_phone",
         "label": "Phone number",
         "info": "Write it as people should read it, e.g. 020 1234 5678. The tap-to-call link is made from it automatically. Leave empty to hide it everywhere.",
-        "default": "020 1234 5678"
+        "default": "020 3355 2906"
+      },
+      {
+        "type": "text",
+        "id": "contact_phone_label",
+        "label": "Text under the number",
+        "info": "Shown in the footer under the phone number.",
+        "default": "Give us a call"
       },
       {
         "type": "text",

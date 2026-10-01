@@ -26,7 +26,8 @@
         "accent_color": "#A8CF78",
         "padding_top": 48,
         "padding_bottom": 48,
-        "blog_crumb_label": "Snooze"
+        "blog_crumb_label": "Snooze",
+        "blog_crumb_link": "/pages/our-story#journal"
       }
     },
     "dev-article-author": {
@@ -43,22 +44,6 @@
         "padding_bottom": 48
       }
     },
-    "dev-article-newsletter": {
-      "type": "dev-article-newsletter",
-      "settings": {
-        "heading": "Get thoughtful sleep tips",
-        "text": "Stories, guides and gentle advice. Straight to your inbox.",
-        "placeholder": "Your email",
-        "button_label": "Subscribe",
-        "customer_tag": "blog",
-        "background_color": "rgba(0,0,0,0)",
-        "text_color": "#333333",
-        "panel_color": "#FCF5E3",
-        "button_color": "#333333",
-        "padding_top": 0,
-        "padding_bottom": 64
-      }
-    },
     "dev-article-related": {
       "type": "dev-article-related",
       "settings": {
@@ -71,7 +56,8 @@
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#333333",
         "padding_top": 0,
-        "padding_bottom": 64
+        "padding_bottom": 64,
+        "button_link": "/pages/our-story#journal"
       }
     },
     "dev-article-cta": {
@@ -91,9 +77,8 @@
   },
   "order": [
     "dev-article",
-    "dev-article-cta",
     "dev-article-author",
-    "dev-article-newsletter",
+    "dev-article-cta",
     "dev-article-related"
   ]
 }
