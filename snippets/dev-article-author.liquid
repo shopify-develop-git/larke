@@ -3,8 +3,12 @@
   page all render through this, so the name can never disagree between them.
 
   Order of precedence:
-    1. the `custom.author` metafield on the article  (an editor said so — always wins)
-    2. otherwise article.author, Shopify's own field
+    1. the `custom.author_profile` metaobject's name  (the Author profile picked on the article)
+    2. the `custom.author` metafield on the article  (a one-off byline typed by an editor)
+    3. otherwise article.author, Shopify's own field
+
+  Step 1 was missing until 2026-10-01: the article page checked the profile itself, the cards did
+  not, so a post with an Author profile showed the staff name on the Larke Snooze cards.
 
   The metafield exists because Shopify's native author is a STAFF ACCOUNT name — the list of
   store users, not a byline. A guest writer or a pen name cannot be made a staff account, so
@@ -18,6 +22,9 @@
 {%- endcomment -%}
 
 {%- liquid
-  assign byline = article.metafields.custom.author.value | default: article.author
+  assign byline = article.metafields.custom.author_profile.value.name.value
+  if byline == blank
+    assign byline = article.metafields.custom.author.value | default: article.author
+  endif
   echo byline
 -%}
