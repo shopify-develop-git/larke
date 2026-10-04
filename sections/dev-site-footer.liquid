@@ -1,8 +1,9 @@
 {{ 'dev-site-footer.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'dev-site-footer.js' | asset_url }}" defer></script>
 {%- comment -%}
-  No dev-site-footer.js: the Design Brief records Interactivity = None. The only dynamic
-  element is the newsletter signup, which is a native Shopify {% form 'customer' %} submit,
-  not a JS state machine. Do not add a script tag for this section.
+  dev-site-footer.js does ONE thing: removes a second "Cookie preferences" link injected into the
+  footer in the browser for consent-region visitors (owner, 2026-10-04). Everything else here is
+  static — the newsletter is a native {% form 'customer' %} submit.
 {%- endcomment -%}
 
 {%- comment -%}
@@ -538,7 +539,7 @@
             {%- assign cookie_probe = '|' | append: cookie_key | append: '|' -%}
             {%- unless footer_url_keys contains cookie_probe -%}
               {%- assign footer_url_keys = footer_url_keys | append: cookie_key | append: '|' -%}
-              <li><a class="site-footer__link site-footer__legal-link" href="{{ cookie_page.url }}">{{ cookie_page.title | escape }}</a></li>
+              <li><a class="site-footer__link site-footer__legal-link" href="{{ cookie_page.url }}" data-footer-cookie-link>{{ cookie_page.title | escape }}</a></li>
             {%- endunless -%}
           {%- endif -%}
         {%- endcapture -%}
