@@ -104,6 +104,9 @@
     "variant_button_radius": 14,
     "variant_button_width": "equal-width-buttons",
     "store_rating": 4.7,
+    "contact_phone": "020 3355 2906",
+    "contact_phone_label": "Give us a call",
+    "contact_phone_hours": "9am – 5pm\nMonday – Friday",
     "content_for_index": [],
     "blocks": {
       "14060646107696862457": {
@@ -122,8 +125,6 @@
           "font_color": "#000000",
           "agent_invert_activator_colors": false,
           "button_color": "#000000",
-          "secondary_color": "#ffffff",
-          "ternary_color": "#6a6a6a",
           "button_icon": "question_mark",
           "button_text": "live_chat",
           "button_horizontal_position": "bottom_right",
@@ -144,10 +145,7 @@
       "foreground": "#000000",
       "color1": "#333333",
       "color2": "#DFDFDF"
-    },
-    "contact_phone": "020 3355 2906",
-    "contact_phone_hours": "9am – 5pm\nMonday – Friday",
-    "contact_phone_label": "Give us a call"
+    }
   },
   "presets": {
     "Horizon": {
