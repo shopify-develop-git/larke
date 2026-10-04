@@ -400,19 +400,23 @@ body[data-cart-drawer-open='true'] {
 
 /* --- checkout button --- */
 
-/* Full-width translucent checkout from the shared component (.dev-btn--ghost.dev-btn--full).
-   Composite bits kept: the 60px floor, the icon row (display:flex), the 16/24 padding, and the
-   drawer's own fill/stroke/text tokens mapped onto the ghost variant. The unified hover
-   (ghost solidifies) and focus come from .dev-btn. */
+/* Solid black pill, white text (owner, 2026-10-04) — the shared .dev-btn--dark ("Primary - Black",
+   hover #666). Was the translucent ghost. The fill and text still come from the drawer's checkout
+   colour settings, so admin keeps control. The empty-basket Continue shopping button uses the
+   same tokens so the two always match. */
+.cart-drawer .cart-drawer__checkout,
+.cart-drawer .cart-drawer__continue {
+  --dev-btn-bg: var(--accent);
+  --dev-btn-on-dark: var(--cta-color);
+}
+
 .cart-drawer__checkout {
   display: flex;
+  --dev-btn-focus: var(--cta-color);
   min-height: 60px;
   --dev-btn-gap: var(--spacing-sm);
   --dev-btn-py: var(--spacing-md);
   --dev-btn-px: var(--spacing-lg);
-  --dev-btn-ghost-bg: var(--accent);
-  --dev-btn-on-dark: var(--cta-color);
-  --dev-btn-focus: var(--cta-color);
 }
 
 .cart-drawer__checkout .cart-drawer__icon {

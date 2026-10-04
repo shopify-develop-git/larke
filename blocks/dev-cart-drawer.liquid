@@ -316,7 +316,7 @@
 
           {%- if block.settings.continue_label != blank -%}
             {%- render 'dev-button',
-              variant: 'filled',
+              variant: 'dark',
               label: block.settings.continue_label,
               link: continue_url,
               full: true,
@@ -334,7 +334,7 @@
         pointing at a checkout with nothing to buy.
       {%- endcomment -%}
       {%- if cart.item_count > 0 and block.settings.checkout_label != blank -%}
-        <a class="cart-drawer__checkout dev-btn dev-btn--ghost dev-btn--full" href="{{ checkout_url }}">
+        <a class="cart-drawer__checkout dev-btn dev-btn--dark dev-btn--full" href="{{ checkout_url }}">
           <span class="cart-drawer__checkout-label dev-btn__label">{{ block.settings.checkout_label | escape }}</span>
           <svg class="cart-drawer__icon dev-btn__icon" viewBox="329.5 18.5 24 24" width="24" height="24" fill="none" aria-hidden="true" focusable="false">
 <path d="M341.5 33.5V35.5M335.5 39.5H347.5C348.605 39.5 349.5 38.6046 349.5 37.5V31.5C349.5 30.3954 348.605 29.5 347.5 29.5H335.5C334.395 29.5 333.5 30.3954 333.5 31.5V37.5C333.5 38.6046 334.395 39.5 335.5 39.5ZM345.5 29.5V25.5C345.5 23.2909 343.709 21.5 341.5 21.5C339.291 21.5 337.5 23.2909 337.5 25.5V29.5H345.5Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -512,8 +512,8 @@
     { "type": "color", "id": "header_divider_color", "label": "Header divider", "default": "#D8D1C0" },
     { "type": "color", "id": "header_divider_color_mobile", "label": "Header divider (mobile)", "default": "#C4BCA9", "info": "The mobile artboard uses a darker divider than desktop." },
     { "type": "color", "id": "footer_divider_color", "label": "Footer divider", "default": "#D8D1C0" },
-    { "type": "color", "id": "cta_color", "label": "Checkout button fill", "default": "#343434" },
-    { "type": "range", "id": "cta_opacity", "min": 0, "max": 100, "step": 1, "unit": "%", "label": "Checkout button fill opacity", "default": 66, "info": "The Figma fill is a translucent dark neutral, not a solid accent." },
+    { "type": "color", "id": "cta_color", "label": "Checkout button fill", "default": "#333333" },
+    { "type": "range", "id": "cta_opacity", "min": 0, "max": 100, "step": 1, "unit": "%", "label": "Checkout button fill opacity", "default": 100, "info": "Also used by the empty-basket Continue shopping button." },
     { "type": "color", "id": "cta_text_color", "label": "Checkout button text & border", "default": "#FFFFFF" },
     { "type": "color", "id": "backdrop_color", "label": "Backdrop color", "default": "#333333" },
     { "type": "range", "id": "backdrop_opacity", "min": 0, "max": 100, "step": 5, "unit": "%", "label": "Backdrop opacity", "default": 40, "info": "No scrim was authored in Figma — set to taste." },
