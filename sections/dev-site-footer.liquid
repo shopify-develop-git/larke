@@ -284,7 +284,7 @@
             {%- comment -%}
               Phone + opening hours, SIDE BY SIDE (owner, 2026-10-01): two equal columns split by a thin
               rule — phone icon, the number, "Give us a call" on the left; clock icon and the hours on
-              the right. The hours break after the comma ("9am – 5pm," / "Monday – Friday") as drawn.
+              the right. The hours break wherever the merchant pressed Enter in the setting (a textarea).
               Number, call label and hours are THEME settings (Theme settings -> Contact details),
               shared with the contact form.
             {%- endcomment -%}
@@ -314,7 +314,7 @@
                       <path d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     <div class="site-footer__reach-text">
-                      <span class="site-footer__reach-hours">{{ settings.contact_phone_hours | escape | replace: ', ', ',<br>' }}</span>
+                      <span class="site-footer__reach-hours">{{ settings.contact_phone_hours | escape | newline_to_br }}</span>
                     </div>
                   </div>
                 {%- endif -%}

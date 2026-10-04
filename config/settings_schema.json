@@ -2169,10 +2169,11 @@
         "default": "Give us a call"
       },
       {
-        "type": "text",
+        "type": "textarea",
         "id": "contact_phone_hours",
         "label": "Opening hours",
-        "default": "9am – 5pm, Monday – Friday"
+        "info": "Press Enter to start a new line — it breaks in the same place on the site.",
+        "default": "9am – 5pm\nMonday – Friday"
       }
     ]
   }

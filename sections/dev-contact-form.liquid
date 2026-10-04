@@ -148,7 +148,7 @@
               {{- settings.contact_phone | escape -}}
             </a>
             {%- if settings.contact_phone_hours != blank -%}
-              <span class="dev-contact-form__phone-hours">{{ settings.contact_phone_hours | escape }}</span>
+              <span class="dev-contact-form__phone-hours">{{ settings.contact_phone_hours | escape | newline_to_br }}</span>
             {%- endif -%}
           </div>
         </div>
