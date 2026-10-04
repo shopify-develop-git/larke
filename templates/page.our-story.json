@@ -31,7 +31,7 @@
         "slide-founder": {
           "type": "slide",
           "settings": {
-            "image": "shopify://shop_images/story-slider-tile-1.png",
+            "image": "shopify://shop_images/Larke_lifestyle_photo_Shopify.jpg",
             "image_alt": "Larke founder Reuven Sherman sitting on a bed in cream loungewear",
             "text": "<p><strong>Our story began in 2024,</strong><br/>with our founder Reuven Sherman setting out to find the very best in natural sleep.</p>",
             "crop": "short"
@@ -177,6 +177,7 @@
       "type": "dev-blog",
       "settings": {
         "heading": "Larke Snooze",
+        "anchor_id": "journal",
         "stack_heading": "none",
         "centre_head": true,
         "show_leaf": false,
@@ -203,8 +204,7 @@
         "rule_color": "#c4bca9",
         "leaf_color": "#c5a17a",
         "padding_top": 80,
-        "padding_bottom": 0,
-        "anchor_id": "journal"
+        "padding_bottom": 0
       }
     }
   },
