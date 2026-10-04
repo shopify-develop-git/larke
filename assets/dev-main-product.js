@@ -1376,25 +1376,20 @@
           // The browser's own toggle is instant and unstoppable. Take it over: we open and close.
           event.preventDefault();
 
-          // EACH ROW IS INDEPENDENT. Opening one no longer closes the others — owner's call,
-          // 2026-08-07 ("please can we remove that specific feature").
+          // ONE ROW AT A TIME — owner, 2026-10-04 ("only one open at a time"). This reverses the
+          // 2026-08-07 call that made rows independent; the jump that call was made to avoid is
+          // handled by hold() below rather than by giving up exclusivity.
           //
-          // What used to sit here was an exclusivity pass: `items.forEach(other => collapse(other))`.
-          // It is gone, and the scroll-anchoring compensation went with it, because that existed
-          // only to serve it: closing a row ABOVE the reader's position shortened the document above
-          // the viewport and slid the page up by that height — filmed on the client's mobile
-          // recording at 12.0s and 18.6s. Only exclusivity could close a row above the one being
-          // tapped. A row now only ever grows or shrinks BELOW its own summary, so the tapped row
-          // cannot move and there is nothing left to compensate for. Keeping it would have meant a
-          // rAF loop on every click measuring a drift that is always zero, while suppressing the
-          // header's scroll-up reveal for 420ms for no reason.
-          //
-          // This does NOT fix the mobile width jitter on its own — closing the one long row still
-          // changes the widest line in the column. The definite width in dev-main-product.css is
-          // what holds that; the two are independent.
-          //
-          // `items` is still read above for the length guard and to bind the handlers; it just no
-          // longer decides anything at click time.
+          // Pin the tapped row on screen BEFORE anything changes height. Closing a row ABOVE it
+          // (usually FAQs, the tallest panel) shortens the document above the viewport, and the page
+          // would slide up and carry the tapped row off the top — filmed on the client's mobile
+          // recording at 12.0s and 18.6s. WebKit has no scroll anchoring, so we do it ourselves.
+          hold(summary, duration(details));
+
+          items.forEach((other) => {
+            if (other !== details && isOpen(other)) collapse(other);
+          });
+
           if (isOpen(details)) {
             collapse(details);
             return;
@@ -1411,6 +1406,36 @@
   // and the row would never come back. What the user sees is what counts: a closing row is closed.
   function isOpen(details) {
     return details.open && details.dataset.accState !== 'closing';
+  }
+
+  // Keep `el` where it is ON SCREEN while rows above it change height: every frame for the length of
+  // the animation, give the scroll offset back whatever the reflow above took away. A no-op when
+  // nothing above the row moves.
+  let holdFrame = 0;
+
+  function hold(el, ms) {
+    const target = scroller();
+    const top = el.getBoundingClientRect().top;
+    const until = performance.now() + ms + 100;
+
+    // Rapid taps would otherwise start rival loops, each chasing its own captured position.
+    if (holdFrame) cancelAnimationFrame(holdFrame);
+
+    const frame = (now) => {
+      const drift = el.getBoundingClientRect().top - top;
+      if (Math.abs(drift) >= 1) target.scrollBy({ top: drift, left: 0, behavior: 'instant' });
+      holdFrame = now < until ? requestAnimationFrame(frame) : 0;
+    };
+
+    holdFrame = requestAnimationFrame(frame);
+  }
+
+  // At >=990px the page scrolls inside .page-wrapper (base.css locks html/body); below it, the window.
+  // `instant` matters: scroll-behavior: smooth is set on both, and a smoothed correction would lag
+  // and fight the height animation.
+  function scroller() {
+    const wrapper = document.querySelector('.page-wrapper');
+    return window.matchMedia('(min-width: 990px)').matches && wrapper ? wrapper : window;
   }
 
   function expand(details) {
