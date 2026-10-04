@@ -1,8 +1,11 @@
 /*
- * Horizon's stock `main-blog-post` is replaced by our own dev-article section. The stock one
- * renders a system-font heading on a white page with a square full-bleed image and matches
- * nothing else in the theme. Project rule: custom dev-* sections only — stock sections are
- * never used or edited. Original stock config: git history of this file.
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
  */
 {
   "sections": {
@@ -11,6 +14,8 @@
       "settings": {
         "show_breadcrumb": true,
         "breadcrumb_label": "Breadcrumb",
+        "blog_crumb_label": "Snooze",
+        "blog_crumb_link": "/pages/our-story#journal",
         "toc_label": "In this article",
         "back_label": "",
         "read_time_label": "min read",
@@ -19,15 +24,13 @@
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#333333",
         "meta_color": "#666666",
-        "badge_color": "#FCF5E3",
-        "rule_color": "#C4BCA9",
-        "panel_color": "#FCF5E3",
-        "tile_color": "#FFFCF4",
-        "accent_color": "#A8CF78",
+        "badge_color": "#fcf5e3",
+        "rule_color": "#c4bca9",
+        "panel_color": "#fcf5e3",
+        "tile_color": "#fffcf4",
+        "accent_color": "#a8cf78",
         "padding_top": 48,
-        "padding_bottom": 48,
-        "blog_crumb_label": "Snooze",
-        "blog_crumb_link": "/pages/our-story#journal"
+        "padding_bottom": 48
       }
     },
     "dev-article-author": {
@@ -35,11 +38,26 @@
       "settings": {
         "label": "About the author",
         "show_rule": true,
+        "link_label": "Visit their website",
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#333333",
         "meta_color": "#666666",
-        "panel_color": "#FCF5E3",
-        "rule_color": "#C4BCA9",
+        "panel_color": "#fcf5e3",
+        "rule_color": "#c4bca9",
+        "padding_top": 0,
+        "padding_bottom": 48
+      }
+    },
+    "dev-article-cta": {
+      "type": "dev-article-cta",
+      "settings": {
+        "heading": "Meet the real thing",
+        "text": "Made from trees\nEverything you love, made remarkable",
+        "button_label": "Our Duvet",
+        "button_link": "shopify://products/natural-duvet",
+        "background_color": "rgba(0,0,0,0)",
+        "text_color": "#333333",
+        "panel_color": "#fcf5e3",
         "padding_top": 0,
         "padding_bottom": 48
       }
@@ -53,25 +71,11 @@
         "read_time_label": "min read",
         "author_prefix": "By",
         "button_label": "All Articles",
+        "button_link": "/pages/our-story#journal",
         "background_color": "rgba(0,0,0,0)",
         "text_color": "#333333",
         "padding_top": 0,
-        "padding_bottom": 64,
-        "button_link": "/pages/our-story#journal"
-      }
-    },
-    "dev-article-cta": {
-      "type": "dev-article-cta",
-      "settings": {
-        "heading": "Meet the real thing.",
-        "text": "Made from trees.\nEverything you love, made remarkable.",
-        "button_label": "Our Duvet",
-        "button_link": "shopify://products/natural-duvet",
-        "background_color": "rgba(0,0,0,0)",
-        "text_color": "#333333",
-        "panel_color": "#FCF5E3",
-        "padding_top": 0,
-        "padding_bottom": 48
+        "padding_bottom": 64
       }
     }
   },
