@@ -1409,22 +1409,46 @@
   }
 
   // Keep `el` where it is ON SCREEN while rows above it change height: every frame for the length of
-  // the animation, give the scroll offset back whatever the reflow above took away. A no-op when
-  // nothing above the row moves.
+  // the animation, give the scroll offset back whatever the reflow above took away.
+  //
+  // Same contract as the blog contents box (dev-article.js): for the duration, the browser's own
+  // scroll anchoring and the theme's smooth scrolling are switched OFF on html and .page-wrapper.
+  // Left on, Chrome anchors to some other node while this corrects too (double shift), and smooth
+  // scrolling turns each correction into a lagging glide — the page visibly drifts. Each shift is
+  // reported as dev:scroll-adjusted so the header doesn't read it as "scrolled up" and slide in.
   let holdFrame = 0;
 
   function hold(el, ms) {
     const target = scroller();
     const top = el.getBoundingClientRect().top;
     const until = performance.now() + ms + 100;
+    const anchored = [document.documentElement, document.querySelector('.page-wrapper')].filter(Boolean);
 
     // Rapid taps would otherwise start rival loops, each chasing its own captured position.
     if (holdFrame) cancelAnimationFrame(holdFrame);
 
+    anchored.forEach((node) => {
+      node.style.setProperty('overflow-anchor', 'none');
+      node.style.setProperty('scroll-behavior', 'auto');
+    });
+
     const frame = (now) => {
       const drift = el.getBoundingClientRect().top - top;
-      if (Math.abs(drift) >= 1) target.scrollBy({ top: drift, left: 0, behavior: 'instant' });
-      holdFrame = now < until ? requestAnimationFrame(frame) : 0;
+      if (Math.abs(drift) > 0.5) {
+        target.scrollBy({ top: drift, left: 0, behavior: 'instant' });
+        window.dispatchEvent(new CustomEvent('dev:scroll-adjusted', { detail: { shift: drift } }));
+      }
+
+      if (now < until) {
+        holdFrame = requestAnimationFrame(frame);
+        return;
+      }
+
+      holdFrame = 0;
+      anchored.forEach((node) => {
+        node.style.removeProperty('overflow-anchor');
+        node.style.removeProperty('scroll-behavior');
+      });
     };
 
     holdFrame = requestAnimationFrame(frame);
