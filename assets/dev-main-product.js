@@ -1456,11 +1456,15 @@
     holdFrame = requestAnimationFrame(frame);
   }
 
-  // The highest the tapped row may sit: under the header when it is showing, else a small margin.
+  // The highest the tapped row may sit. Not flush with the top edge: the owner's 2026-10-04 phone
+  // recording had "Care" ride right up under the status bar after FAQs closed, which read as lost.
+  // Keep ~15% of the screen (at least 96px) of breathing room — enough to show the row above it —
+  // measured from under the header when the header is showing.
   function minTop() {
     const group = document.getElementById('header-group');
     const visible = group && group.getAttribute('data-header-hidden') !== 'true';
-    return Math.max(16, visible ? group.getBoundingClientRect().bottom + 16 : 16);
+    const base = visible ? Math.max(0, group.getBoundingClientRect().bottom) : 0;
+    return base + Math.max(96, window.innerHeight * 0.15);
   }
 
   // At >=990px the page scrolls inside .page-wrapper (base.css locks html/body); below it, the window.
