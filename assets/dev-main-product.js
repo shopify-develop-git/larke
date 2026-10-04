@@ -1408,8 +1408,11 @@
     return details.open && details.dataset.accState !== 'closing';
   }
 
-  // Keep `el` where it is ON SCREEN while rows above it change height: every frame for the length of
-  // the animation, give the scroll offset back whatever the reflow above took away.
+  // Keep the tapped row ON SCREEN while a row above it closes — but only that. The page itself does
+  // not move: the tapped row rides up as the row above shrinks, which is what the owner expects
+  // (2026-10-04 recording: pinning the row in place scrolled the whole page up and read as a jump).
+  // A scroll happens ONLY when the row would otherwise go above the top of the screen / under the
+  // header — the mobile case from 2026-08 where FAQs closing above carried "Care" out of view.
   //
   // Same contract as the blog contents box (dev-article.js): for the duration, the browser's own
   // scroll anchoring and the theme's smooth scrolling are switched OFF on html and .page-wrapper.
@@ -1420,7 +1423,6 @@
 
   function hold(el, ms) {
     const target = scroller();
-    const top = el.getBoundingClientRect().top;
     const until = performance.now() + ms + 100;
     const anchored = [document.documentElement, document.querySelector('.page-wrapper')].filter(Boolean);
 
@@ -1433,8 +1435,8 @@
     });
 
     const frame = (now) => {
-      const drift = el.getBoundingClientRect().top - top;
-      if (Math.abs(drift) > 0.5) {
+      const drift = el.getBoundingClientRect().top - minTop();
+      if (drift < -0.5) {
         target.scrollBy({ top: drift, left: 0, behavior: 'instant' });
         window.dispatchEvent(new CustomEvent('dev:scroll-adjusted', { detail: { shift: drift } }));
       }
@@ -1452,6 +1454,13 @@
     };
 
     holdFrame = requestAnimationFrame(frame);
+  }
+
+  // The highest the tapped row may sit: under the header when it is showing, else a small margin.
+  function minTop() {
+    const group = document.getElementById('header-group');
+    const visible = group && group.getAttribute('data-header-hidden') !== 'true';
+    return Math.max(16, visible ? group.getBoundingClientRect().bottom + 16 : 16);
   }
 
   // At >=990px the page scrolls inside .page-wrapper (base.css locks html/body); below it, the window.
