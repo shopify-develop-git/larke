@@ -1,0 +1,245 @@
+/* dev-not-found.css — Larke 404. Tokens borrowed from dev-policy / dev-fibre-benefits (see the
+   section's <style> block). */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.dev-not-found {
+  padding: var(--pt) var(--section-px) var(--pb);
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+}
+
+.dev-not-found__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--block-gap);
+  max-width: var(--container-max);
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* --- layout --- */
+
+.dev-not-found__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--card-gap);
+  width: 100%;
+  max-width: var(--card-max);
+  box-sizing: border-box;
+  padding: var(--card-pad);
+  border-radius: var(--card-radius);
+  background-color: var(--card-bg);
+  text-align: center;
+}
+
+.dev-not-found__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--tile-gap);
+  margin-top: 8px;
+}
+
+.dev-not-found__more {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+  width: 100%;
+}
+
+.dev-not-found__tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--tile-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* --- blocks / children --- */
+
+.dev-not-found__tile-item {
+  display: flex;
+  margin: 0;
+}
+
+.dev-not-found__tile {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--tile-gap);
+  padding: var(--tile-pad);
+  border-radius: var(--tile-radius);
+  background-color: var(--tile-bg);
+  color: inherit;
+  text-decoration: none;
+  transition: border-radius 0.3s ease-out;
+}
+
+.dev-not-found__tile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.dev-not-found__tile-arrow {
+  flex-shrink: 0;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  transition: transform 0.3s ease-out;
+}
+
+/* --- typography --- */
+
+.dev-not-found__eyebrow {
+  margin: 0;
+  font-size: var(--font-small-size);
+  font-weight: 600;
+  line-height: var(--font-body-lh);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.dev-not-found__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-title-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  text-wrap: balance;
+}
+
+.dev-not-found__text,
+.dev-not-found__text p {
+  margin: 0;
+  max-width: 520px;
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+}
+
+.dev-not-found__more-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-tile-title-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+  text-align: center;
+}
+
+.dev-not-found__tile-title {
+  font-family: var(--font-heading);
+  font-size: var(--font-tile-title-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+.dev-not-found__tile-body {
+  font-size: var(--font-small-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+}
+
+/* --- buttons / links --- */
+
+@media (hover: hover) {
+  .dev-not-found__tile:hover .dev-not-found__tile-arrow {
+    transform: translateX(4px);
+  }
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+  .dev-not-found__tiles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .dev-not-found {
+    padding-inline: var(--section-px-mobile);
+  }
+
+  .dev-not-found__inner {
+    gap: var(--block-gap-mobile);
+  }
+
+  .dev-not-found__card {
+    padding: var(--card-pad-mobile) 24px;
+  }
+
+  .dev-not-found__title {
+    font-size: var(--font-title-size-mobile);
+  }
+
+  .dev-not-found__text,
+  .dev-not-found__text p {
+    font-size: var(--font-body-size-mobile);
+  }
+
+  .dev-not-found__tile-title,
+  .dev-not-found__more-title {
+    font-size: var(--font-tile-title-size-mobile);
+  }
+
+  .dev-not-found__actions {
+    flex-direction: column;
+    align-self: stretch;
+  }
+
+  .dev-not-found__actions .dev-btn {
+    width: 100%;
+    min-height: 44px;
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+  .dev-not-found__tiles {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.dev-not-found__tile:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 2px;
+}
+
+.dev-not-found__tile:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-not-found,
+  .dev-not-found * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
