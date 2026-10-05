@@ -100,6 +100,13 @@
     assign numbered = true
   endif
 
+  # Number contents (owner, 2026-10-05: "option to have numbers in In this Snooze"). Its own
+  # opt-in, separate from Number headings — empty means off, like Number headings.
+  assign toc_numbered = false
+  if article.metafields.custom.number_contents.value == true
+    assign toc_numbered = true
+  endif
+
   assign avatar = author_profile.avatar.value
 -%}
 
@@ -162,7 +169,7 @@
           <path d="M19 9L12 16L5 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </summary>
-      <ol class="dev-article__toc-list" role="list">{{ toc_items }}</ol>
+      <ol class="dev-article__toc-list{% if toc_numbered %} dev-article__toc-list--numbered{% endif %}" role="list">{{ toc_items }}</ol>
     </details>
   {%- endcapture -%}
   {%- assign toc_marker = toc_inline | append: h2_open -%}
