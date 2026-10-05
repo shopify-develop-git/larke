@@ -184,6 +184,12 @@
   text-align: center;
 }
 
+/* Balanced lines: the browser splits the headline into even lines instead of leaving one word
+   hanging on its own ("Larke, for every / kind of sleeper", not "… kind of / sleeper"). */
+.dev-student-discount__title {
+  text-wrap: balance;
+}
+
 /* richtext emits its own <p>; reset so it takes no UA margins. */
 .dev-student-discount__intro,
 .dev-student-discount__intro p,
@@ -252,7 +258,10 @@
     padding: var(--card-pad-mobile);
   }
 
-  .dev-student-discount__title,
+  .dev-student-discount__title {
+    font-size: var(--font-hero-title-size-mobile);
+  }
+
   .dev-student-discount__faq-title {
     font-size: var(--font-title-size-mobile);
   }
