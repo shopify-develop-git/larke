@@ -116,14 +116,27 @@
       group.setAttribute('data-header-hidden', 'true');
     };
 
+    // The furthest the page can scroll. iOS rubber-banding reports positions past both ends (y < 0
+    // at the top, y > max at the bottom) as the page bounces back — those are not the reader
+    // scrolling, and reading them as direction made the header flicker in and out at the top of a
+    // post (owner's phone recording, 2026-10-05).
+    const maxScroll = () =>
+      desktop.matches && pageWrapper
+        ? pageWrapper.scrollHeight - pageWrapper.clientHeight
+        : document.documentElement.scrollHeight - window.innerHeight;
+
     const update = () => {
       ticking = false;
       const y = scrollTop();
 
-      // Guaranteed shown only at the very top; below that it hides on the
-      // first downward scroll (no group-height threshold — design call
-      // 2026-07-15: hide immediately, the old threshold felt like too much).
-      if (y <= SCROLL_TOLERANCE) {
+      // Bounce past either end: ignore it entirely, and don't let it poison lastY.
+      if (y < 0 || y > maxScroll()) return;
+
+      // Stays shown until the page has scrolled past the header's own height. The group is
+      // position: sticky, so it keeps its slot at the top of the page; hiding it any earlier slid
+      // it away from an EMPTY slot and left a blank band above the content (2026-10-05 recording).
+      // This replaces the 2026-07-15 "hide immediately" call, which is what allowed that gap.
+      if (y <= Math.max(SCROLL_TOLERANCE, group.offsetHeight)) {
         show();
         lastY = y;
         return;
