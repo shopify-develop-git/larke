@@ -190,6 +190,11 @@
   text-wrap: balance;
 }
 
+/* The forced mobile break is hidden on wider screens. */
+.dev-student-discount__mobile-br {
+  display: none;
+}
+
 /* richtext emits its own <p>; reset so it takes no UA margins. */
 .dev-student-discount__intro,
 .dev-student-discount__intro p,
@@ -262,6 +267,15 @@
     font-size: var(--font-hero-title-size-mobile);
   }
 
+  .dev-student-discount__mobile-br {
+    display: inline;
+  }
+
+  /* With a manual break the merchant has chosen the split; don't let balancing move it. */
+  .dev-student-discount__title--manual-break {
+    text-wrap: wrap;
+  }
+
   .dev-student-discount__faq-title {
     font-size: var(--font-title-size-mobile);
   }
@@ -293,6 +307,11 @@
    ============================================= */
 
 @media (max-width: 480px) {
+  /* "Larke, for every kind" measures ~282px in Tiempos Medium at 30px. With 24px card padding a
+     360px phone leaves 280px and the forced first line would wrap; 16px side padding leaves 296. */
+  .dev-student-discount__card {
+    padding-inline: 16px;
+  }
 }
 
 /* =============================================
