@@ -198,6 +198,15 @@
         render 'dev-article-icon', name: icon_name
       endcapture
       if svg != blank
+        # An icon that opens a bullet point: wrap the rest of that point in .larke-icon-text, so a
+        # bold first line + line break renders as title over description (owner, 2026-10-05) —
+        # the <li> is a flex row, and without the wrapper the title and text would sit side by side.
+        assign li_tail = rebuilt | strip | slice: -4, 4
+        if li_tail == '<li>' and piece contains '</li>'
+          assign li_text = piece | split: '</li>' | first
+          assign li_rest = piece | remove_first: li_text
+          assign piece = '<span class="larke-icon-text">' | append: li_text | append: '</span>' | append: li_rest
+        endif
         assign rebuilt = rebuilt | append: '<span class="larke-icon">' | append: svg | append: '</span>' | append: piece
       else
         assign rebuilt = rebuilt | append: '[icon:' | append: chunk
