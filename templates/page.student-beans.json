@@ -44,7 +44,8 @@
         "border_color": "#c4bca9",
         "padding_top": 64,
         "padding_bottom": 80,
-        "layout": "stacked"
+        "layout": "stacked",
+        "mobile_break_after": "kind"
       }
     }
   },
