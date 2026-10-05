@@ -401,30 +401,56 @@
                   would freeze an animated source's first frame.
                 {%- endcomment -%}
                 {%- liquid
+                  # Sharper slides (owner, 2026-10-05: "quality of the images is not really good").
+                  # The stage crops with object-fit: cover, so a LANDSCAPE photo is drawn wider than
+                  # the box: 640 tall x 1.5 = 960 CSS px on desktop, needing ~1920 device px on retina,
+                  # while the old ladder stopped at 1400 and `sizes` claimed 668px, so the browser
+                  # upscaled ~1.4x. Now `sizes` is the width the photo is actually DRAWN at, the
+                  # ladder runs to 2800 (never past the upload's own width), and quality is 85.
                   assign slide_ext = media.preview_image | image_url: width: 1 | split: '?' | first | split: '.' | last | downcase
-                  if slide_ext == 'gif'
-                    assign s668 = media | image_url: width: 668
-                    assign s1000 = media | image_url: width: 1000
-                    assign s1336 = media | image_url: width: 1336
-                    assign s1400 = media | image_url: width: 1400
-                  elsif slide_ext == 'png'
-                    assign s668 = media | image_url: width: 668, format: 'webp', quality: 80
-                    assign s1000 = media | image_url: width: 1000, format: 'webp', quality: 80
-                    assign s1336 = media | image_url: width: 1336, format: 'webp', quality: 80
-                    assign s1400 = media | image_url: width: 1400, format: 'webp', quality: 80
-                  else
-                    assign s668 = media | image_url: width: 668, quality: 80
-                    assign s1000 = media | image_url: width: 1000, quality: 80
-                    assign s1336 = media | image_url: width: 1336, quality: 80
-                    assign s1400 = media | image_url: width: 1400, quality: 80
+                  assign slide_aspect = media.preview_image.aspect_ratio | default: 1
+                  assign drawn_desktop = slide_aspect | times: 640 | ceil
+                  if drawn_desktop < 668
+                    assign drawn_desktop = 668
                   endif
-                  assign slide_srcset = s668 | append: ' 668w, ' | append: s1000 | append: ' 1000w, ' | append: s1336 | append: ' 1336w, ' | append: s1400 | append: ' 1400w'
+                  assign drawn_mobile = slide_aspect | times: 365 | ceil
+                  if drawn_mobile > 430
+                    assign slide_sizes_mobile = drawn_mobile | append: 'px'
+                  else
+                    assign slide_sizes_mobile = '100vw'
+                  endif
+                  assign slide_sizes = '(max-width: 768px) ' | append: slide_sizes_mobile | append: ', ' | append: drawn_desktop | append: 'px'
+
+                  assign upload_w = media.preview_image.width | default: 2800
+                  assign slide_srcset = ''
+                  assign s1400 = ''
+                  assign ladder = '668,1000,1336,1600,2000,2400,2800' | split: ','
+                  for rung in ladder
+                    assign rw = rung | plus: 0
+                    if rw > upload_w and forloop.first == false
+                      break
+                    endif
+                    if slide_ext == 'gif'
+                      assign rung_url = media | image_url: width: rw
+                    elsif slide_ext == 'png'
+                      assign rung_url = media | image_url: width: rw, format: 'webp', quality: 85
+                    else
+                      assign rung_url = media | image_url: width: rw, quality: 85
+                    endif
+                    if rw <= 1400
+                      assign s1400 = rung_url
+                    endif
+                    if slide_srcset != blank
+                      assign slide_srcset = slide_srcset | append: ', '
+                    endif
+                    assign slide_srcset = slide_srcset | append: rung_url | append: ' ' | append: rw | append: 'w'
+                  endfor
                 -%}
                 {%- if forloop.first -%}
                   <img
                     src="{{ s1400 }}"
                     srcset="{{ slide_srcset }}"
-                    sizes="(max-width: 768px) 100vw, 668px"
+                    sizes="{{ slide_sizes }}"
                     loading="eager"
                     fetchpriority="high"
                     width="{{ media.preview_image.width }}"
@@ -445,7 +471,7 @@
                   <img
                     data-defer-src="{{ s1400 }}"
                     data-defer-srcset="{{ slide_srcset }}"
-                    data-defer-sizes="(max-width: 768px) 100vw, 668px"
+                    data-defer-sizes="{{ slide_sizes }}"
                     loading="lazy"
                     decoding="async"
                     width="{{ media.preview_image.width }}"
