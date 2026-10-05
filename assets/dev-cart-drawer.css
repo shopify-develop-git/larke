@@ -320,6 +320,17 @@ body[data-cart-drawer-open='true'] {
   white-space: nowrap;
 }
 
+/* The two prices are one unit: no column gap between them, only the usual gap above Remove. */
+.cart-drawer__item-prices {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.cart-drawer__item-price--was {
+  line-height: 1.2;
+}
+
 /* Discounted line: the original price struck through, in a softer weight and colour, above the
    price now. */
 .cart-drawer__item-price--was {
