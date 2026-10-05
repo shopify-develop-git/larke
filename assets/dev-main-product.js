@@ -1701,3 +1701,28 @@
     el.hidden = true;
   }
 })();
+
+/* ---- Desktop-only new tab for accordion buttons -----------------------------
+   Rows with "Open button link in a new tab" render [data-new-tab-desktop] as a plain link. Above
+   768px it gets target=_blank (owner, 2026-10-05: How to wash → washing post); on phones it stays a
+   same-tab link. Re-applied when the window crosses the breakpoint. */
+(() => {
+  const desktop = window.matchMedia('(min-width: 769px)');
+  const apply = () => {
+    document.querySelectorAll('a[data-new-tab-desktop]').forEach((link) => {
+      if (desktop.matches) {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener');
+      } else {
+        link.removeAttribute('target');
+        link.removeAttribute('rel');
+      }
+    });
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', apply);
+  } else {
+    apply();
+  }
+  desktop.addEventListener('change', apply);
+})();
