@@ -200,6 +200,12 @@
         <ul class="cart-drawer__items">
           {%- for item in cart.items -%}
             {%- liquid
+              assign item_discount = 0
+              for allocation in item.discount_allocations
+                assign item_discount = item_discount | plus: allocation.amount
+              endfor
+            -%}
+            {%- liquid
               assign item_alt = item.title | escape
               assign item_src = item.image | image_url: width: 240
             -%}
@@ -238,11 +244,37 @@
                       <span class="cart-drawer__item-qty-label">{{ block.settings.quantity_label | escape }}:</span>
                       <span class="cart-drawer__item-qty-value">{{ item.quantity }}</span>
                     </p>
+                    {%- if item_discount > 0 and block.settings.discount_label != blank -%}
+                      <p class="cart-drawer__item-discount">
+                        <svg class="cart-drawer__item-discount-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                          <path d="M7 7H7.01M7 3H12C12.5119 2.99999 13.0237 3.19525 13.4142 3.58579L20.4142 10.5858C21.1953 11.3668 21.1953 12.6332 20.4142 13.4142L13.4142 20.4142C12.6332 21.1953 11.3668 21.1953 10.5858 20.4142L3.58579 13.4142C3.19526 13.0237 3 12.5118 3 12V7C3 4.79086 4.79086 3 7 3Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>{{ block.settings.discount_label | escape }}</span>
+                      </p>
+                    {%- endif -%}
                   </div>
                 </div>
 
                 <div class="cart-drawer__item-actions">
-                  <p class="cart-drawer__item-price">{{ item.line_price | money }}</p>
+                  {%- comment -%}
+                    Discounted line (owner, 2026-10-05: Student Beans code): the original price
+                    struck through above the price now. Built from the line's own discount
+                    allocations, which cover BOTH line-level and order-level discounts — item.line_price
+                    alone includes only line-level ones, so an order-wide code could otherwise leave
+                    the drawer showing the full price.
+                  {%- endcomment -%}
+                  {%- if item_discount > 0 -%}
+                    <p class="cart-drawer__item-price cart-drawer__item-price--was">
+                      <span class="visually-hidden">Original price</span>
+                      <s>{{ item.original_line_price | money }}</s>
+                    </p>
+                    <p class="cart-drawer__item-price cart-drawer__item-price--now">
+                      <span class="visually-hidden">Price now</span>
+                      {{ item.original_line_price | minus: item_discount | money }}
+                    </p>
+                  {%- else -%}
+                    <p class="cart-drawer__item-price">{{ item.line_price | money }}</p>
+                  {%- endif -%}
                   {%- comment -%}
                     Still a real link to /cart/change, so removing a line works with JS off — it
                     just costs a page load and lands on /cart, which is the browser doing exactly
@@ -483,6 +515,7 @@
     { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "Your Order" },
     { "type": "text", "id": "close_label", "label": "Close button label (screen readers only)", "default": "Close basket" },
     { "type": "text", "id": "remove_label", "label": "Remove link label", "default": "Remove" },
+    { "type": "text", "id": "discount_label", "label": "Discount note", "default": "Student discount applied", "info": "Shown under a product when a discount code is applied to it, next to the struck-through original price. Leave empty to show only the prices." },
     { "type": "text", "id": "quantity_label", "label": "Quantity label", "default": "Qty" },
     { "type": "text", "id": "empty_text", "label": "Empty basket message", "default": "Your basket is empty." },
     { "type": "text", "id": "continue_label", "label": "Empty basket button label", "default": "Continue shopping", "info": "Leave empty to show no button." },
