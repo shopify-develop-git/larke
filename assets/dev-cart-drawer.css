@@ -321,12 +321,10 @@ body[data-cart-drawer-open='true'] {
 }
 
 /* The struck price and the price now sit 2px apart (owner, 2026-10-05); Remove keeps the column's
-   8px below them. */
-.cart-drawer__item-prices {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
+   8px below them. No wrapper: the price now is pulled up by the column gap less 2px, so this holds
+   for any markup where the two prices are siblings in the actions column. */
+.cart-drawer__item-price--was + .cart-drawer__item-price--now {
+  margin-top: calc(2px - var(--spacing-sm));
 }
 
 .cart-drawer__item-price--was {
