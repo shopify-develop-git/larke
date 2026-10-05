@@ -362,8 +362,12 @@ body[data-cart-drawer-open='true'] {
   height: 16px;
 }
 
+/* margin-top:auto drops Remove to the row's bottom edge, level with Qty. The 3px lift is optical:
+   measured on larke/main at 400px wide (2026-10-05) the two text boxes already ended within 0.5px,
+   but Remove's underline (2px offset) hangs below Qty and made it read low. */
 .cart-drawer__item-remove {
   margin-top: auto;
+  margin-bottom: 3px;
   font-size: var(--font-size-remove);
   font-weight: var(--weight-medium);
   line-height: var(--font-body-lh);
