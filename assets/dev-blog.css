@@ -347,3 +347,11 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Square card images on the blog listing (owner, 2026-10-05: "make these images squared"). The
+   shared card is a fixed-height box (--card-image-h) everywhere else; here it follows its width.
+   The CDN crops are 1:1 too (dev-blog-cards passes ratio 1 for every band). */
+.dev-blog .journal-cards__image {
+  height: auto;
+  aspect-ratio: 1 / 1;
+}

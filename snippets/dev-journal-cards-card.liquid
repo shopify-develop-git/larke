@@ -84,7 +84,7 @@
         assign sizes_d = sizes_desktop | default: 'calc((100vw - 192px) / 3)'
 
         assign widths_m = '300, 380, 460, 560, 660, 780, 900, 1040, 1200, 1472' | split: ', '
-        assign ratio_m = 1.92
+        assign ratio_m = ratio_mobile | default: 1.92
 
         comment
           UP TO THREE DESKTOP BANDS, all optional, all driven by the caller. This exists because the
