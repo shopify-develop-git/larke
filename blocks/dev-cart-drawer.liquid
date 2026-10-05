@@ -264,7 +264,6 @@
                     the drawer showing the full price.
                   {%- endcomment -%}
                   {%- if item_discount > 0 -%}
-                    <div class="cart-drawer__item-prices">
                     <p class="cart-drawer__item-price cart-drawer__item-price--was">
                       <span class="visually-hidden">Original price</span>
                       <s>{{ item.original_line_price | money }}</s>
@@ -273,7 +272,6 @@
                       <span class="visually-hidden">Price now</span>
                       {{ item.original_line_price | minus: item_discount | money }}
                     </p>
-                    </div>
                   {%- else -%}
                     <p class="cart-drawer__item-price">{{ item.line_price | money }}</p>
                   {%- endif -%}
