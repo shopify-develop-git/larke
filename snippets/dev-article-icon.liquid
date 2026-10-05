@@ -40,7 +40,7 @@
 {%- endcomment -%}
 
 {%- liquid
-  assign icon_names = 'wash-30,wash-40,wash-60,no-bleach,tumble-dry,tumble-dry-low,no-tumble-dry,dry-flat,iron-low,machine,leaf,sun,moon,thermometer,drop,wind,tree,shield,heart,check'
+  assign icon_names = 'wash-30,wash-40,wash-60,no-bleach,tumble-dry,tumble-dry-low,no-tumble-dry,dry-flat,iron-low,machine,leaf,sun,moon,thermometer,drop,wind,tree,shield,heart,check,cloud,waves'
   if list
     assign custom_names = ''
     for entry in shop.metaobjects.article_icon.values
@@ -120,6 +120,12 @@
     {%- when 'check' -%}
       <circle cx="12" cy="12" r="8.5"/>
       <path d="M8.2 12.3L10.8 14.9L15.8 9.6"/>
+    {%- when 'cloud' -%}
+      <path d="M7 18.5H17A4 4 0 0 0 17.6 10.55A5.5 5.5 0 0 0 7 9.5A4.5 4.5 0 0 0 7 18.5Z"/>
+    {%- when 'waves' -%}
+      <path d="M3 8C5 6.5 7 6.5 9 8S13 9.5 15 8S19 6.5 21 8"/>
+      <path d="M3 12C5 10.5 7 10.5 9 12S13 13.5 15 12S19 10.5 21 12"/>
+      <path d="M3 16C5 14.5 7 14.5 9 16S13 17.5 15 16S19 14.5 21 16"/>
   {%- endcase -%}
 {%- endcapture -%}
 

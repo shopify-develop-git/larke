@@ -658,6 +658,27 @@
   background-color: var(--tile-bg);
 }
 
+/* A point with a bold first line reads as title over description: "Cosy weight" / "A comforting
+   weight that stays fresh and cuddly." (Shift+Enter between them in the editor). A point that is
+   one plain line looks exactly as before. */
+.dev-article__body ul:has(.larke-icon) .larke-icon-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.dev-article__body ul:has(.larke-icon) .larke-icon-text > strong:first-child,
+.dev-article__body ul:has(.larke-icon) .larke-icon-text > b:first-child {
+  font-family: var(--font-heading);
+  font-size: var(--font-panel-title-size-m);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.dev-article__body ul:has(.larke-icon) .larke-icon-text br {
+  display: none;
+}
+
 .dev-article__body ul:has(.larke-icon) .larke-icon svg,
 .dev-article__body ul:has(.larke-icon) .larke-icon .dev-article-icon--upload {
   width: var(--icon-size);

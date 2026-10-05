@@ -31,13 +31,14 @@ Everything is typed in Shopify's **normal visual editor**. No HTML view.
 | A heading outside the numbering | `[plain]The bottom line` as the Heading 2 text |
 | Quote box | The editor's **Quote** format, or three lines: `[quote]` / the quote / `[/quote]` |
 | Top tip | `[tip]` / title line / the tip / `[/tip]`. Other icon: `[tip:leaf]` |
-| Icon breakdown | A bullet list whose points start with `[icon:wash-40]`, `[icon:no-bleach]` … |
+| Icon breakdown | A bullet list whose points start with `[icon:wash-40]`, `[icon:no-bleach]` … For a title + description point: `[icon:cloud]` **Cosy weight** (bold), Shift+Enter, then the description. |
 | Image caption | Insert the image; next line: `[caption] A fresher, happier bed.` |
 
 Icons come from two places, checked in this order:
 
 1. **Built-in** (drawn into the theme): `wash-30 wash-40 wash-60 no-bleach tumble-dry tumble-dry-low
-   no-tumble-dry dry-flat iron-low machine leaf sun moon thermometer drop wind tree shield heart check`.
+   no-tumble-dry dry-flat iron-low machine leaf sun moon thermometer drop wind tree shield heart check
+   cloud waves`.
 2. **Uploaded** — Content → Metaobjects → **Article icon**: a `name` and an `icon` file (SVG or
    transparent PNG). `[icon:that-name]` and `[tip:that-name]` then work in every post. Only the
    file's shape is used (CSS mask): it is shown in the text colour at the built-ins' size, so an
