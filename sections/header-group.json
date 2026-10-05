@@ -178,6 +178,7 @@
             "heading": "Your Order",
             "close_label": "Close basket",
             "remove_label": "Remove",
+            "discount_label": "",
             "quantity_label": "Qty",
             "empty_text": "Your basket is empty.",
             "continue_label": "Continue shopping",
