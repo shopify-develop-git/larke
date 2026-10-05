@@ -80,6 +80,10 @@
        One value for both breakpoints, which is this theme's habit (story-slider and
        values-we-cherish do the same): the ratio is the design, not a per-device measurement. {%- endcomment -%}
     --ratio-media: 3 / 2;
+    {%- comment -%} Phones: square, taller than 3:2 (owner, 2026-10-05: "make the images taller"). The CDN
+       still serves the 3:2 crop; object-fit: cover trims the sides — 1280px of height is plenty for
+       a square at any phone width and DPR. {%- endcomment -%}
+    --ratio-media-mobile: 1 / 1;
 
     --radius-media: 32px;
     --radius-inline: 16px;
