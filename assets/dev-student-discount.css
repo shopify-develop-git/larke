@@ -25,10 +25,10 @@
 
 /* --- layout --- */
 
-/* Card left, Student Beans card right, centred against each other. */
+/* Card left, Student Beans card right, top edges level (owner, 2026-10-05). */
 .dev-student-discount__hero {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--col-gap);
 }
 
@@ -236,13 +236,26 @@
    ============================================= */
 
 @media (max-width: 1024px) {
+  /* Below desktop, side by side collapses to the same centred stack as the Stacked layout:
+     headline card on top, Student Beans card under it. */
   .dev-student-discount__hero {
     flex-direction: column;
-    align-items: stretch;
+    align-items: center;
+    gap: var(--card-gap);
+  }
+
+  .dev-student-discount__card {
+    flex: none;
+    width: 100%;
+    max-width: var(--stacked-max);
+    box-sizing: border-box;
+    align-items: center;
+    text-align: center;
   }
 
   .dev-student-discount__widget {
     flex: none;
+    width: 100%;
   }
 }
 
