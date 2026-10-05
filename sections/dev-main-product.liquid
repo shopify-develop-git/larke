@@ -878,9 +878,13 @@
                   {%- endif -%}
 
                   {%- if row.settings.button_label != blank -%}
-                    {%- comment -%} Optional new tab (owner, 2026-10-05: Care > How to wash opens the washing post in a new tab). {%- endcomment -%}
+                    {%- comment -%}
+                      Optional new tab, DESKTOP ONLY (owner, 2026-10-05). HTML has no per-breakpoint
+                      target, so the link renders as a normal same-tab link and dev-main-product.js
+                      adds target=_blank above 768px. Phones — and no-JS — stay in the same tab.
+                    {%- endcomment -%}
                     {%- if row.settings.button_new_tab -%}
-                      {%- render 'dev-button', variant: 'outline', label: row.settings.button_label, link: row.settings.button_link, default: '#', class: 'dev-main-product__acc-button', target: '_blank', rel: 'noopener' -%}
+                      {%- render 'dev-button', variant: 'outline', label: row.settings.button_label, link: row.settings.button_link, default: '#', class: 'dev-main-product__acc-button', attrs: 'data-new-tab-desktop' -%}
                     {%- else -%}
                       {%- render 'dev-button', variant: 'outline', label: row.settings.button_label, link: row.settings.button_link, default: '#', class: 'dev-main-product__acc-button' -%}
                     {%- endif -%}
@@ -1502,7 +1506,7 @@
         { "type": "checkbox", "id": "open_by_default", "label": "Open by default", "default": false },
         { "type": "text", "id": "button_label", "label": "Button label", "info": "Optional — the Care row carries one." },
         { "type": "url", "id": "button_link", "label": "Button link" },
-        { "type": "checkbox", "id": "button_new_tab", "label": "Open button link in a new tab", "default": false },
+        { "type": "checkbox", "id": "button_new_tab", "label": "Open button link in a new tab (desktop only)", "default": false },
 
         { "type": "header", "content": "Certification rows" },
         { "type": "paragraph", "content": "Only the Certifications row uses these. A mark plus a line of copy — richtext cannot hold an image." },
