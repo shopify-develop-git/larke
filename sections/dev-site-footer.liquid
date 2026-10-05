@@ -510,6 +510,19 @@
           {%- assign cookie_page = pages['cookie-policy'] -%}
         {%- endif -%}
 
+        {%- comment -%}
+          Extra legal-row link (owner, 2026-10-05: Student Beans page, placed right after Shipping
+          policy). Label and link are both section settings so the merchant can change or remove it
+          in admin. It goes after the shipping policy when that policy is shown; otherwise it is
+          appended at the end of the row so it never silently disappears.
+        {%- endcomment -%}
+        {%- capture extra_link -%}
+          {%- if section.settings.extra_link_label != blank and section.settings.extra_link_url != blank -%}
+            <li><a class="site-footer__link site-footer__legal-link" href="{{ section.settings.extra_link_url }}">{{ section.settings.extra_link_label | escape }}</a></li>
+          {%- endif -%}
+        {%- endcapture -%}
+        {%- assign extra_link_done = false -%}
+
         {%- capture legal_links -%}
           {%- if section.settings.show_policy_links -%}
             {%- for policy in shop.policies -%}
@@ -519,6 +532,10 @@
                 {%- unless footer_url_keys contains policy_probe -%}
                   {%- assign footer_url_keys = footer_url_keys | append: policy_key | append: '|' -%}
                   <li><a class="site-footer__link site-footer__legal-link" href="{{ policy.url }}">{{ policy.title | escape }}</a></li>
+                  {%- if policy_key == 'shipping-policy' and extra_link_done == false -%}
+                    {{- extra_link -}}
+                    {%- assign extra_link_done = true -%}
+                  {%- endif -%}
                 {%- endunless -%}
               {%- endif -%}
             {%- endfor -%}
@@ -542,6 +559,7 @@
               <li><a class="site-footer__link site-footer__legal-link" href="{{ cookie_page.url }}" data-footer-cookie-link>{{ cookie_page.title | capitalize | escape }}</a></li>
             {%- endunless -%}
           {%- endif -%}
+          {%- unless extra_link_done -%}{{- extra_link -}}{%- endunless -%}
         {%- endcapture -%}
         {%- if legal_links != blank -%}
           <nav class="site-footer__legal-nav" aria-label="Legal">
@@ -704,6 +722,8 @@
 
     { "type": "header", "content": "Legal links" },
     { "type": "checkbox", "id": "show_policy_links", "label": "Show store policy links", "default": true, "info": "Lists the store policies you have written in Settings > Policies (privacy, shipping, refund, terms) in a row below the copyright. Titles and links come from Shopify, so editing a policy in admin updates this row. An empty policy is skipped." },
+    { "type": "text", "id": "extra_link_label", "label": "Extra link label", "default": "Student discount", "info": "An extra link in the policy row, placed right after Shipping policy. Leave the label or link empty to hide it." },
+    { "type": "url", "id": "extra_link_url", "label": "Extra link" },
     { "type": "page", "id": "cookie_policy_page", "label": "Cookie preferences page", "info": "Adds your cookie page to the end of the same row. Shopify has no cookie slot in Settings > Policies, so create it as a normal page (Content > Pages) and select it here. The link shows the page's own title in sentence case (Cookie preferences), matching the policy links, and disappears if the page is deleted or unpublished. Leave empty and a published page with the handle cookie-preferences — or the older cookie-policy — is picked up automatically." },
 
     { "type": "header", "content": "Payment icons" },
