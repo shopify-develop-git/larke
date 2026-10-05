@@ -42,9 +42,9 @@
     text below jumped when it loaded (a layout shift, i.e. CLS).
 
     Any image on the store's own CDN can be resized AND cropped by URL, so each one gets:
-      * a fixed 4:3 shape (3:2 until 2026-10-05), cropped on the CDN — the hero's ratio (--ratio-media), so every photo in
+      * a fixed 3:2 shape, cropped on the CDN — the hero's ratio (--ratio-media), so every photo in
         a post is the same shape and the page reads as one design;
-      * width/height attributes (1440x1080), so the browser reserves the box before a byte arrives;
+      * width/height attributes (1440x960), so the browser reserves the box before a byte arrives;
       * a srcset ladder + `sizes` stating the real box (720px measure, or the viewport less the
         16px gutters), so a phone downloads ~780w, not 1440w.
     ESCAPE HATCH: an image whose HTML already carries its own width and height keeps its real
@@ -83,7 +83,7 @@
             if own_size
               assign entry = base | append: '?width=' | append: wn
             else
-              assign hn = wn | times: 3 | divided_by: 4
+              assign hn = wn | times: 2 | divided_by: 3
               assign entry = base | append: '?width=' | append: wn | append: '&amp;height=' | append: hn | append: '&amp;crop=center'
             endif
             assign entry = entry | append: ' ' | append: wn | append: 'w'
@@ -95,11 +95,11 @@
           endfor
           assign extra = 'srcset="' | append: srcset | append: '" sizes="(min-width: 769px) 720px, calc(100vw - 32px)" '
           unless own_size
-            assign new_src = base | append: '?width=1440&amp;height=1080&amp;crop=center'
+            assign new_src = base | append: '?width=1440&amp;height=960&amp;crop=center'
             assign quoted_old = 'src="' | append: src | append: '"'
             assign quoted_new = 'src="' | append: new_src | append: '"'
             assign piece = piece | replace_first: quoted_old, quoted_new
-            assign extra = extra | append: 'width="1440" height="1080" data-crop="4:3" '
+            assign extra = extra | append: 'width="1440" height="960" data-crop="3:2" '
           endunless
         endif
       endunless

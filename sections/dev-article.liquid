@@ -409,17 +409,16 @@
         assign hero_ext = article.image | image_url: width: 1 | split: '?' | first | split: '.' | last | downcase
 
         comment
-          1920x1440 is --ratio-media (4/3 since 2026-10-05, was 3/2) at the widest the box ever gets:
-          960 CSS at DPR 2.
+          1920x1280 is --ratio-media (3/2) at the widest the box ever gets: 960 CSS at DPR 2.
           `image_tag`'s `widths:` scales the height with each rung, so every srcset entry keeps the
           ratio and the browser is handed the box rather than a portrait to trim.
         endcomment
         if hero_ext == 'gif'
-          assign hero_src = article.image | image_url: width: 1920, height: 1440, crop: 'center'
+          assign hero_src = article.image | image_url: width: 1920, height: 1280, crop: 'center'
         elsif hero_ext == 'png'
-          assign hero_src = article.image | image_url: width: 1920, height: 1440, crop: 'center', format: 'webp', quality: 75
+          assign hero_src = article.image | image_url: width: 1920, height: 1280, crop: 'center', format: 'webp', quality: 75
         else
-          assign hero_src = article.image | image_url: width: 1920, height: 1440, crop: 'center', quality: 75
+          assign hero_src = article.image | image_url: width: 1920, height: 1280, crop: 'center', quality: 75
         endif
       -%}
       <figure class="dev-article__figure">
