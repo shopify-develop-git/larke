@@ -608,11 +608,18 @@ body[data-cart-drawer-open='true'] {
     margin: -10px;
   }
 
-  /* 44px tap target, text on the box's bottom edge so it still lines up with Qty. */
+  /* 44px tap target WITHOUT a 44px layout box. A min-height here made the price column taller than
+     the text beside it (95.6 vs 84.4px, owner's inspector, 2026-10-05), which pushed Remove ~11px
+     below Qty. The enlarged hit area is an invisible ::after instead, so Remove keeps its text
+     height and lands level with Qty. */
   .cart-drawer__item-remove {
-    display: inline-flex;
-    align-items: flex-end;
-    min-height: 44px;
+    position: relative;
+  }
+
+  .cart-drawer__item-remove::after {
+    content: '';
+    position: absolute;
+    inset: -12px -8px;
   }
 }
 
