@@ -696,6 +696,12 @@
    ============================================= */
 
 @media (max-width: 768px) {
+  /* Taller images on phones: hero and in-body photos go square (token: --ratio-media-mobile). */
+  .dev-article__media,
+  .dev-article__body img[data-crop='3:2'] {
+    aspect-ratio: var(--ratio-media-mobile);
+  }
+
   .dev-article {
     padding-left: var(--section-px-m);
     padding-right: var(--section-px-m);
