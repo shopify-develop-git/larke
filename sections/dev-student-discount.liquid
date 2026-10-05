@@ -1,0 +1,211 @@
+{{ 'dev-student-discount.css' | asset_url | stylesheet_tag }}
+{%- comment -%}
+  No JS. The FAQ rows are <details>/<summary> sharing one `name`, so the browser keeps one open at
+  a time natively; nothing else on the page is interactive.
+{%- endcomment -%}
+
+{%- comment -%}
+  Fixed design tokens — not merchant-controlled. There is no Figma artboard for this page (owner,
+  2026-10-05: "make it all Larke styled"), so every value is borrowed from a section that IS in the
+  file, to keep it one family with the rest of the site:
+    title 32/24, card 32px radius + 32px pad, body 18/16  — dev-policy (Delivery & Returns card)
+    question 22/20, 24px chevron                         — dev-faq / dev-policy questions
+    1312 container, fluid 64px gutter                     — every 1440 artboard
+{%- endcomment -%}
+<style>
+  .dev-student-discount {
+    --font-title-size: 32px;
+    --font-title-size-mobile: 24px;
+    --font-question-size: 22px;
+    --font-question-size-mobile: 20px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+    --font-body-size: 18px;
+    --font-body-size-mobile: 16px;
+    --font-small-size: 14px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+    --container-max: 1312px;
+    --section-px: clamp(24px, 4.4444vw, 64px);
+    --section-px-mobile: 16px;
+    --col-gap: clamp(32px, 5.5556vw, 80px);
+    --card-radius: 32px;
+    --card-pad: 40px;
+    --card-pad-mobile: 24px;
+    --card-gap: 24px;
+    --point-gap: 12px;
+    --icon-size: 24px;
+    --faq-max: 944px;
+    --faq-gap: 24px;
+    --block-gap: 80px;
+    --block-gap-mobile: 48px;
+  }
+</style>
+
+{%- liquid
+  assign points = section.blocks | where: 'type', 'point'
+  assign faqs = section.blocks | where: 'type', 'faq'
+-%}
+
+<div
+  class="dev-student-discount"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --card-bg: {{ section.settings.card_color }};
+    --border-color: {{ section.settings.border_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="dev-student-discount__inner">
+    <div class="dev-student-discount__hero">
+      <div class="dev-student-discount__card">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="dev-student-discount__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+        {%- endif -%}
+
+        {%- comment -%}
+          <h2>, not <h1>. The Student Beans page body ships a <style> that sets `body h1 { display: none }`
+          (it was written to hide the old theme's page title), so an <h1> here would never be seen.
+        {%- endcomment -%}
+        {%- if section.settings.heading != blank -%}
+          <h2 class="dev-student-discount__title">{{ section.settings.heading }}</h2>
+        {%- endif -%}
+
+        {%- assign intro_text = section.settings.intro | strip_html | replace: '&nbsp;', '' | strip -%}
+        {%- if intro_text != blank -%}
+          <div class="dev-student-discount__intro">{{ section.settings.intro }}</div>
+        {%- endif -%}
+
+        {%- if points.size > 0 -%}
+          <ul class="dev-student-discount__points" role="list">
+            {%- for block in points -%}
+              {%- if block.settings.text != blank -%}
+                <li class="dev-student-discount__point" {{ block.shopify_attributes }}>
+                  <svg class="dev-student-discount__point-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                    <path d="M5 13L9 17L19 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>{{ block.settings.text | escape }}</span>
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+
+        {%- if section.settings.button_label != blank and section.settings.button_link != blank -%}
+          <div class="dev-student-discount__actions">
+            {%- render 'dev-button',
+              variant: 'dark',
+              label: section.settings.button_label,
+              link: section.settings.button_link,
+              class: 'dev-student-discount__button'
+            -%}
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%}
+        The Student Beans card. It is NOT theme markup: the page's own body (Content > Pages >
+        Student Beans) holds `<div id="beans-id-root">`, and the Beans ID app embed mounts its React
+        card into that div inside a shadow root — which is why the theme cannot restyle the card
+        itself, only frame it. Rendering page.content here keeps that mount point; drop it and the
+        card disappears. The column is only drawn when the page actually has content.
+      {%- endcomment -%}
+      {%- if page.content != blank -%}
+        <div class="dev-student-discount__widget">
+          {{ page.content }}
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- if faqs.size > 0 -%}
+      <div class="dev-student-discount__faq">
+        {%- if section.settings.faq_heading != blank -%}
+          <h2 class="dev-student-discount__faq-title">{{ section.settings.faq_heading | escape }}</h2>
+        {%- endif -%}
+
+        <div class="dev-student-discount__faq-list">
+          {%- for block in faqs -%}
+            {%- if block.settings.question != blank -%}
+              <details
+                class="dev-student-discount__faq-item"
+                name="student-discount-faq-{{ section.id }}"
+                {{ block.shopify_attributes }}
+              >
+                <summary class="dev-student-discount__faq-summary">
+                  <h3 class="dev-student-discount__faq-question">{{ block.settings.question | escape }}</h3>
+                  <svg class="dev-student-discount__faq-chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                    <path d="M19 9L12 16L5 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </summary>
+                {%- if block.settings.answer != blank -%}
+                  <div class="dev-student-discount__faq-answer">{{ block.settings.answer }}</div>
+                {%- endif -%}
+              </details>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Student discount",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Student discount" },
+    { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "15% off for students" },
+    { "type": "richtext", "id": "intro", "label": "Intro", "default": "<p>Better sleep shouldn't cost your student loan. Verify with Student Beans for free and take 15% off your Larke order.</p>" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop the duvet", "info": "Leave empty to hide the button." },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+    { "type": "paragraph", "content": "The Student Beans card on the right comes from the page's own content and the Beans ID app — its look is set in the app, not here." },
+    { "type": "text", "id": "faq_heading", "label": "Questions heading", "default": "Good to know" },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
+    { "type": "color", "id": "card_color", "label": "Card background", "default": "#FCF5E3" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "accent_color", "label": "Tick color", "default": "#4EA448" },
+    { "type": "color", "id": "border_color", "label": "Dividers", "default": "#C4BCA9" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 200, "step": 4, "unit": "px", "label": "Padding top", "default": 64 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 200, "step": 4, "unit": "px", "label": "Padding bottom", "default": 80 }
+  ],
+  "blocks": [
+    {
+      "type": "point",
+      "name": "Key point",
+      "limit": 5,
+      "settings": [
+        { "type": "text", "id": "text", "label": "Text", "default": "15% off everything" }
+      ]
+    },
+    {
+      "type": "faq",
+      "name": "Question",
+      "limit": 10,
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question", "default": "Who can get the student discount?" },
+        { "type": "richtext", "id": "answer", "label": "Answer", "default": "<p>Anyone in UK further or higher education with a free, verified Student Beans account.</p>" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Student discount",
+      "blocks": [
+        { "type": "point" },
+        { "type": "point", "settings": { "text": "Free UK delivery" } },
+        { "type": "point", "settings": { "text": "60 nights to try it at home" } },
+        { "type": "faq" }
+      ]
+    }
+  ]
+}
+{% endschema %}

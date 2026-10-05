@@ -1,0 +1,290 @@
+/* dev-student-discount.css
+   Student Beans landing page. No artboard — built from dev-policy / dev-faq tokens (see the
+   section's <style> block). The Student Beans card itself lives in a shadow root and is only
+   framed here, never styled. */
+
+/* =============================================
+   BASE — desktop
+   ============================================= */
+
+.dev-student-discount {
+  padding: var(--pt) var(--section-px) var(--pb);
+  background-color: var(--bg);
+  color: var(--color);
+  font-family: var(--font-body);
+}
+
+.dev-student-discount__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--block-gap);
+  max-width: var(--container-max);
+  width: 100%;
+  margin-inline: auto;
+}
+
+/* --- layout --- */
+
+/* Card left, Student Beans card right, centred against each other. */
+.dev-student-discount__hero {
+  display: flex;
+  align-items: center;
+  gap: var(--col-gap);
+}
+
+.dev-student-discount__card {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: var(--card-gap);
+  min-width: 0;
+  padding: var(--card-pad);
+  border-radius: var(--card-radius);
+  background-color: var(--card-bg);
+}
+
+/* The app's card is ~400px wide with its own shadow; give it room and centre it in its column. */
+.dev-student-discount__widget {
+  display: flex;
+  flex: 1 1 0;
+  justify-content: center;
+  min-width: 0;
+}
+
+/* The page body ships the app's mount div plus a <style> tag; the style needs no box. */
+.dev-student-discount__widget > style {
+  display: none;
+}
+
+.dev-student-discount__widget #beans-id-root {
+  width: 100%;
+  max-width: 480px;
+}
+
+/* --- blocks / children --- */
+
+.dev-student-discount__points {
+  display: flex;
+  flex-direction: column;
+  gap: var(--point-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dev-student-discount__point {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--point-gap);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+}
+
+.dev-student-discount__point-icon {
+  flex-shrink: 0;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  color: var(--accent);
+}
+
+.dev-student-discount__faq {
+  display: flex;
+  flex-direction: column;
+  gap: var(--faq-gap);
+  width: 100%;
+  max-width: var(--faq-max);
+  margin-inline: auto;
+}
+
+.dev-student-discount__faq-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.dev-student-discount__faq-item {
+  padding-block: var(--faq-gap);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dev-student-discount__faq-item:first-child {
+  border-top: 1px solid var(--border-color);
+}
+
+/* `padding: 0` overrides Horizon's bare `summary { padding }` in base.css. */
+.dev-student-discount__faq-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+/* Safari's own disclosure triangle ignores list-style. */
+.dev-student-discount__faq-summary::-webkit-details-marker {
+  display: none;
+}
+
+.dev-student-discount__faq-chevron {
+  flex-shrink: 0;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  transition: transform 0.3s ease-out;
+}
+
+.dev-student-discount__faq-item[open] .dev-student-discount__faq-chevron {
+  transform: rotate(180deg);
+}
+
+/* --- typography --- */
+
+.dev-student-discount__eyebrow {
+  margin: 0;
+  font-size: var(--font-small-size);
+  font-weight: 600;
+  line-height: var(--font-body-lh);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dev-student-discount__title,
+.dev-student-discount__faq-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-title-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+.dev-student-discount__faq-title {
+  text-align: center;
+}
+
+/* richtext emits its own <p>; reset so it takes no UA margins. */
+.dev-student-discount__intro,
+.dev-student-discount__intro p,
+.dev-student-discount__faq-answer,
+.dev-student-discount__faq-answer p {
+  margin: 0;
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-lh);
+}
+
+.dev-student-discount__faq-question {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-question-size);
+  font-weight: var(--font-heading-weight);
+  line-height: var(--font-heading-lh);
+}
+
+.dev-student-discount__faq-answer {
+  padding-top: 16px;
+}
+
+.dev-student-discount__faq-answer a,
+.dev-student-discount__intro a {
+  color: inherit;
+}
+
+/* --- buttons / links --- */
+
+.dev-student-discount__actions {
+  display: flex;
+}
+
+/* =============================================
+   TABLET  ≤ 1024px
+   ============================================= */
+
+@media (max-width: 1024px) {
+  .dev-student-discount__hero {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dev-student-discount__widget {
+    flex: none;
+  }
+}
+
+/* =============================================
+   MOBILE  ≤ 768px
+   ============================================= */
+
+@media (max-width: 768px) {
+  .dev-student-discount {
+    padding-inline: var(--section-px-mobile);
+  }
+
+  .dev-student-discount__inner {
+    gap: var(--block-gap-mobile);
+  }
+
+  .dev-student-discount__card {
+    padding: var(--card-pad-mobile);
+  }
+
+  .dev-student-discount__title,
+  .dev-student-discount__faq-title {
+    font-size: var(--font-title-size-mobile);
+  }
+
+  .dev-student-discount__faq-question {
+    font-size: var(--font-question-size-mobile);
+  }
+
+  .dev-student-discount__point,
+  .dev-student-discount__intro,
+  .dev-student-discount__intro p,
+  .dev-student-discount__faq-answer,
+  .dev-student-discount__faq-answer p {
+    font-size: var(--font-body-size-mobile);
+  }
+
+  .dev-student-discount__actions .dev-btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .dev-student-discount__faq-summary {
+    min-height: 44px;
+  }
+}
+
+/* =============================================
+   SMALL MOBILE  ≤ 480px
+   ============================================= */
+
+@media (max-width: 480px) {
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+
+.dev-student-discount__faq-summary:focus-visible {
+  outline: 2px solid var(--color);
+  outline-offset: 4px;
+}
+
+.dev-student-discount__faq-summary:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* =============================================
+   REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-student-discount,
+  .dev-student-discount * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
