@@ -320,7 +320,12 @@ body[data-cart-drawer-open='true'] {
   white-space: nowrap;
 }
 
-/* The two prices are one unit: no column gap between them, only the usual gap above Remove. */
+/* The two prices are one unit: no column gap between them. On a discounted line Remove sits 2px
+   under them instead of the column's 8px (owner, 2026-10-05). */
+.cart-drawer__item-actions:has(.cart-drawer__item-prices) {
+  gap: 2px;
+}
+
 .cart-drawer__item-prices {
   display: flex;
   flex-direction: column;
