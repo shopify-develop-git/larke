@@ -1,0 +1,268 @@
+{{ 'dev-cart-page.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Larke /cart page (owner, 2026-10-05: "make the /cart page Larke looking, but don't use it — just in
+  case"). The cart DRAWER stays the real basket; this page is the fallback a shopper lands on when the
+  drawer's JS is unavailable, or when someone opens /cart directly. So it works with NO JavaScript:
+  one native Shopify cart form — quantities post as updates[], "Checkout" is the form's
+  name="checkout" submit, Remove is the line's url_to_remove link.
+
+  Visual language is the drawer's (blocks/dev-cart-drawer.liquid): cream line cards, the product's
+  own Cart badges (larke.cart_badges metafield, same icon snippet), struck-through original price on
+  a discounted line, a black Primary pill for checkout. No Figma artboard exists for this page.
+{%- endcomment -%}
+<style>
+  .dev-cart-page {
+    --font-title-size: 40px;
+    --font-title-size-mobile: 30px;
+    --font-item-title-size: 20px;
+    --font-item-title-size-mobile: 18px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.2;
+    --font-body-size: 16px;
+    --font-small-size: 14px;
+    --font-total-size: 22px;
+    --font-body-lh: 1.4;
+    --weight-medium: 500;
+    --weight-bold: 700;
+    --container-max: 1312px;
+    --section-px: clamp(24px, 4.4444vw, 64px);
+    --section-px-mobile: 16px;
+    --col-gap: 48px;
+    --summary-w: 420px;
+    --card-radius: 24px;
+    --card-pad: 24px;
+    --card-pad-mobile: 16px;
+    --gap-lg: 24px;
+    --gap-md: 16px;
+    --gap-sm: 8px;
+    --thumb: 96px;
+    --thumb-mobile: 72px;
+    --thumb-radius: 16px;
+    --qty-w: 72px;
+  }
+</style>
+
+{%- liquid
+  assign continue_url = section.settings.continue_url | default: routes.all_products_collection_url
+-%}
+
+<div
+  class="dev-cart-page"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --card-bg: {{ section.settings.card_color }};
+    --badge-bg: {{ section.settings.badge_color }};
+    --border-color: {{ section.settings.border_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="dev-cart-page__inner">
+    {%- if section.settings.heading != blank -%}
+      <h1 class="dev-cart-page__title">{{ section.settings.heading | escape }}</h1>
+    {%- endif -%}
+
+    {%- if cart.item_count > 0 -%}
+      <form action="{{ routes.cart_url }}" method="post" class="dev-cart-page__form" novalidate>
+        <div class="dev-cart-page__layout">
+          <div class="dev-cart-page__main">
+            <ul class="dev-cart-page__items" role="list">
+              {%- for item in cart.items -%}
+                {%- liquid
+                  assign item_discount = 0
+                  for allocation in item.discount_allocations
+                    assign item_discount = item_discount | plus: allocation.amount
+                  endfor
+                -%}
+                <li class="dev-cart-page__item">
+                  <div class="dev-cart-page__item-row">
+                    <a class="dev-cart-page__thumb" href="{{ item.url }}" tabindex="-1" aria-hidden="true">
+                      {%- if item.image != blank -%}
+                        {{
+                          item.image
+                          | image_url: width: 288, height: 288, crop: 'center'
+                          | image_tag:
+                            loading: 'lazy',
+                            widths: '96, 144, 192, 288',
+                            sizes: '(max-width: 768px) 72px, 96px',
+                            alt: '',
+                            class: 'dev-cart-page__thumb-image'
+                        }}
+                      {%- endif -%}
+                    </a>
+
+                    <div class="dev-cart-page__info">
+                      <a class="dev-cart-page__item-title" href="{{ item.url }}">{{ item.product.title | escape }}</a>
+
+                      {%- unless item.product.has_only_default_variant -%}
+                        <ul class="dev-cart-page__options" role="list">
+                          {%- for option in item.options_with_values -%}
+                            <li class="dev-cart-page__option">
+                              <span class="dev-cart-page__option-name">{{ option.name | escape }}:</span>
+                              <span class="dev-cart-page__option-value">{{ option.value | escape }}</span>
+                            </li>
+                          {%- endfor -%}
+                        </ul>
+                      {%- endunless -%}
+
+                      <div class="dev-cart-page__qty">
+                        <label class="dev-cart-page__qty-label" for="CartPageQty-{{ forloop.index }}">{{ section.settings.quantity_label | escape }}</label>
+                        <input
+                          class="dev-cart-page__qty-input"
+                          type="number"
+                          id="CartPageQty-{{ forloop.index }}"
+                          name="updates[]"
+                          value="{{ item.quantity }}"
+                          min="0"
+                          inputmode="numeric"
+                        >
+                        <a class="dev-cart-page__remove" href="{{ item.url_to_remove }}">{{ section.settings.remove_label | escape }}</a>
+                      </div>
+                    </div>
+
+                    <div class="dev-cart-page__prices">
+                      {%- if item_discount > 0 -%}
+                        <p class="dev-cart-page__price dev-cart-page__price--was">
+                          <span class="visually-hidden">Original price</span>
+                          <s>{{ item.original_line_price | money }}</s>
+                        </p>
+                        <p class="dev-cart-page__price">
+                          <span class="visually-hidden">Price now</span>
+                          {{ item.original_line_price | minus: item_discount | money }}
+                        </p>
+                      {%- else -%}
+                        <p class="dev-cart-page__price">{{ item.line_price | money }}</p>
+                      {%- endif -%}
+                    </div>
+                  </div>
+
+                  {%- assign badges = item.product.metafields.larke.cart_badges.value -%}
+                  {%- if badges.size > 0 -%}
+                    <ul class="dev-cart-page__badges" role="list">
+                      {%- for badge in badges -%}
+                        {%- if badge.label.value != blank -%}
+                          <li class="dev-cart-page__badge">
+                            {%- if badge.image.value != blank -%}
+                              <img class="dev-cart-page__badge-image" src="{{ badge.image.value | image_url: width: 72 }}" alt="" width="24" height="24" loading="lazy" aria-hidden="true">
+                            {%- else -%}
+                              {%- render 'dev-cart-drawer-badge-icon', icon: badge.icon.value -%}
+                            {%- endif -%}
+                            <span>{{ badge.label.value | escape }}</span>
+                          </li>
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </ul>
+                  {%- endif -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+
+            <div class="dev-cart-page__update">
+              {%- comment -%} No JS on this page, so changed quantities apply on this submit. {%- endcomment -%}
+              <button type="submit" name="update" class="dev-btn dev-btn--outline dev-cart-page__update-button">
+                <span class="dev-btn__label">{{ section.settings.update_label | escape }}</span>
+              </button>
+              <a class="dev-cart-page__continue-link" href="{{ continue_url }}">{{ section.settings.continue_label | escape }}</a>
+            </div>
+          </div>
+
+          <aside class="dev-cart-page__summary" aria-label="Order summary">
+            {%- if section.settings.summary_heading != blank -%}
+              <h2 class="dev-cart-page__summary-title">{{ section.settings.summary_heading | escape }}</h2>
+            {%- endif -%}
+
+            <dl class="dev-cart-page__totals">
+              <div class="dev-cart-page__total-row">
+                <dt>Subtotal</dt>
+                <dd>{{ cart.items_subtotal_price | money }}</dd>
+              </div>
+              {%- for discount in cart.cart_level_discount_applications -%}
+                <div class="dev-cart-page__total-row dev-cart-page__total-row--discount">
+                  <dt>{{ discount.title | escape }}</dt>
+                  <dd>-{{ discount.total_allocated_amount | money }}</dd>
+                </div>
+              {%- endfor -%}
+              <div class="dev-cart-page__total-row dev-cart-page__total-row--total">
+                <dt>Total</dt>
+                <dd>{{ cart.total_price | money_with_currency }}</dd>
+              </div>
+            </dl>
+
+            {%- if section.settings.summary_note != blank -%}
+              <p class="dev-cart-page__note">{{ section.settings.summary_note | escape }}</p>
+            {%- endif -%}
+
+            <button type="submit" name="checkout" class="dev-btn dev-btn--dark dev-btn--full dev-cart-page__checkout">
+              <span class="dev-btn__label">{{ section.settings.checkout_label | escape }}</span>
+              <svg class="dev-btn__icon dev-cart-page__lock" viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden="true" focusable="false">
+                <path d="M12 15V17M6 21H18C19.1 21 20 20.1 20 19V13C20 11.9 19.1 11 18 11H6C4.9 11 4 11.9 4 13V19C4 20.1 4.9 21 6 21ZM16 11V7C16 4.8 14.2 3 12 3C9.8 3 8 4.8 8 7V11H16Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+
+            {%- if section.settings.trust_text != blank -%}
+              <p class="dev-cart-page__trust">{{ section.settings.trust_text | escape }}</p>
+            {%- endif -%}
+
+            {%- if shop.enabled_payment_types.size > 0 -%}
+              <ul class="dev-cart-page__payments" role="list" aria-label="Accepted payment methods">
+                {%- for type in shop.enabled_payment_types -%}
+                  <li>{{ type | payment_type_svg_tag: class: 'dev-cart-page__payment-icon' }}</li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+          </aside>
+        </div>
+      </form>
+    {%- else -%}
+      <div class="dev-cart-page__empty">
+        <p class="dev-cart-page__empty-text">{{ section.settings.empty_text | escape }}</p>
+        {%- if section.settings.empty_button_label != blank -%}
+          {%- render 'dev-button',
+            variant: 'dark',
+            label: section.settings.empty_button_label,
+            link: continue_url
+          -%}
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Cart page",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "paragraph", "content": "The cart drawer is the main basket. This page is the fallback for /cart and works without JavaScript." },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Your Order" },
+    { "type": "text", "id": "quantity_label", "label": "Quantity label", "default": "Qty" },
+    { "type": "text", "id": "remove_label", "label": "Remove link label", "default": "Remove" },
+    { "type": "text", "id": "update_label", "label": "Update button label", "default": "Update basket" },
+    { "type": "text", "id": "continue_label", "label": "Continue shopping label", "default": "Continue shopping" },
+    { "type": "url", "id": "continue_url", "label": "Continue shopping link", "info": "Leave empty to use the all-products collection." },
+    { "type": "text", "id": "summary_heading", "label": "Summary heading", "default": "Order summary" },
+    { "type": "text", "id": "summary_note", "label": "Summary note", "default": "Shipping & taxes calculated at checkout." },
+    { "type": "text", "id": "checkout_label", "label": "Checkout button label", "default": "Checkout Securely" },
+    { "type": "text", "id": "trust_text", "label": "Trust line", "default": "Safe 60-night trial · Free UK delivery" },
+    { "type": "text", "id": "empty_text", "label": "Empty basket message", "default": "Your basket is empty." },
+    { "type": "text", "id": "empty_button_label", "label": "Empty basket button label", "default": "Continue shopping" },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
+    { "type": "color", "id": "card_color", "label": "Card background", "default": "#FCF5E3" },
+    { "type": "color", "id": "badge_color", "label": "Feature badge background", "default": "#FFFCF4" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "accent_color", "label": "Accent (discounts)", "default": "#4EA448" },
+    { "type": "color", "id": "border_color", "label": "Dividers", "default": "#D8D1C0" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 200, "step": 4, "unit": "px", "label": "Padding top", "default": 48 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 200, "step": 4, "unit": "px", "label": "Padding bottom", "default": 96 }
+  ],
+  "presets": [{ "name": "Cart page" }]
+}
+{% endschema %}
