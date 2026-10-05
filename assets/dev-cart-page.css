@@ -198,6 +198,7 @@
 }
 
 .dev-cart-page__total-row dd {
+  /* "-£18.00" on one line (#58). */
   white-space: nowrap;
 }
 
