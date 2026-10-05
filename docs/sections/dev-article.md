@@ -72,6 +72,7 @@ Namespace `custom` for all (two already exist):
 | Author profile | `custom.author_profile` | Metaobject → Author |
 | Show contents | `custom.show_contents` | True or false |
 | Number headings | `custom.number_headings` | True or false (empty = no numbers) |
+| Number contents | `custom.number_contents` | True or false (empty = no numbers) — numbers the "In this Snooze" list |
 | Related articles | `custom.related_articles` | List of blog posts *(article references)* |
 
 Empty always means "the sensible default": both booleans are **on unless set to false**.

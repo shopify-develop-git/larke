@@ -512,6 +512,32 @@
   text-decoration: underline;
 }
 
+/* Numbered contents — opt-in per article via `custom.number_contents` (owner, 2026-10-05). Same
+   count as the body numbering: `[plain]` rows sit outside it. The number is a ::before on the link,
+   so the row becomes [number][label] ... [arrow]: the arrow takes the leftover space instead of
+   space-between spreading three items. */
+.dev-article__toc .dev-article__toc-list--numbered {
+  counter-reset: dev-article-toc;
+}
+
+.dev-article__toc .dev-article__toc-list--numbered .dev-article__toc-item:not(.dev-article__toc-item--plain) {
+  counter-increment: dev-article-toc;
+}
+
+.dev-article__toc .dev-article__toc-list--numbered .dev-article__toc-link {
+  justify-content: flex-start;
+}
+
+.dev-article__toc .dev-article__toc-list--numbered .dev-article__toc-item:not(.dev-article__toc-item--plain) .dev-article__toc-link::before {
+  content: counter(dev-article-toc) '.';
+  flex: 0 0 auto;
+  min-width: 1.25em;
+}
+
+.dev-article__toc .dev-article__toc-list--numbered .dev-article__toc-link::after {
+  margin-left: auto;
+}
+
 /* --- [tip] — the top tip box ---
    Icon column + body. The FIRST child of the body is the tip's title, whatever the editor typed it
    as (a plain line, a bold line): that is the whole authoring rule, and it is documented on the
