@@ -138,6 +138,49 @@
         "type": "shopify://apps/instafeed/blocks/head-block/c447db20-095d-4a10-9725-b5977662c9d5",
         "disabled": true,
         "settings": {}
+      },
+      "15820462083712392141": {
+        "type": "shopify://apps/beans-id-verification/blocks/discount-redeem/5c736972-c385-431c-8cbb-05726b7a1739",
+        "disabled": false,
+        "settings": {}
+      },
+      "15549472988515247997": {
+        "type": "shopify://apps/beans-id-verification/blocks/banner/5c736972-c385-431c-8cbb-05726b7a1739",
+        "disabled": false,
+        "settings": {}
+      },
+      "18121446316682264196": {
+        "type": "shopify://apps/beans-id-verification/blocks/fab-embed/5c736972-c385-431c-8cbb-05726b7a1739",
+        "disabled": false,
+        "settings": {}
+      },
+      "14305174654594977286": {
+        "type": "shopify://apps/beans-id-verification/blocks/discount-hub/5c736972-c385-431c-8cbb-05726b7a1739",
+        "disabled": false,
+        "settings": {
+          "header_toggle": true,
+          "page_title": "Unlock exclusive discounts",
+          "sub_heading_text": "We’ve teamed up with Beans iD to offer exclusive discounts. Click through to verify and receive your discount for free!",
+          "background_color": "#F6F6F7",
+          "text_color": "#202223",
+          "heading_text_size_desktop": 42,
+          "heading_text_size_mobile": 32,
+          "body_text_size_desktop": 16,
+          "body_text_size_mobile": 12,
+          "cta_background_colour": "#FFFFFF",
+          "cta_text_colour": "#000000",
+          "card_title_text_size_desktop": 26,
+          "card_title_text_size_mobile": 21,
+          "card_conditions_text_size": 14
+        }
+      },
+      "449199394124024797": {
+        "type": "shopify://apps/beans-id-verification/blocks/modern-discount-hub/5c736972-c385-431c-8cbb-05726b7a1739",
+        "disabled": false,
+        "settings": {
+          "page_title": "Unlock exclusive discounts",
+          "sub_heading_text": "We’ve teamed up with Beans ID to offer exclusive discounts. Click through to verify and receive your discount for free!"
+        }
       }
     },
     "color_palette": {
