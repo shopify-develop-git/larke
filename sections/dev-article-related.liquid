@@ -20,7 +20,9 @@
     1. the post's `custom.related_articles` metafield (an editor chose them — always wins)
     2. newer-first posts from the same blog sharing at least one tag with this one
     3. the newest posts from the same blog
-  The current post is never shown, and no post is shown twice.
+  The current post is never shown, and no post is shown twice. Hidden and scheduled posts are never
+  shown either (owner, 2026-10-05): a metafield reference keeps pointing at a post after it is
+  hidden, so every candidate needs a published_at (a hidden post has none) that is not in the future.
 {%- endcomment -%}
 
 {%- render 'dev-journal-card-tokens', scope: '.dev-article-related' -%}
@@ -41,6 +43,7 @@
   assign picked = '' | split: ','
   assign seen = ',' | append: article.id | append: ','
 
+  assign now_s = 'now' | date: '%s' | plus: 0
   assign manual = article.metafields.custom.related_articles.value
   for candidate in manual
     if picked.size >= limit
@@ -48,6 +51,13 @@
     endif
     assign probe = ',' | append: candidate.id | append: ','
     if seen contains probe
+      continue
+    endif
+    if candidate.published_at == blank
+      continue
+    endif
+    assign pub_s = candidate.published_at | date: '%s' | plus: 0
+    if pub_s > now_s
       continue
     endif
     assign one = manual | where: 'id', candidate.id
@@ -62,6 +72,13 @@
       endif
       assign probe = ',' | append: candidate.id | append: ','
       if seen contains probe
+        continue
+      endif
+      if candidate.published_at == blank
+        continue
+      endif
+      assign pub_s = candidate.published_at | date: '%s' | plus: 0
+      if pub_s > now_s
         continue
       endif
       assign shares_tag = false
@@ -86,6 +103,13 @@
       endif
       assign probe = ',' | append: candidate.id | append: ','
       if seen contains probe
+        continue
+      endif
+      if candidate.published_at == blank
+        continue
+      endif
+      assign pub_s = candidate.published_at | date: '%s' | plus: 0
+      if pub_s > now_s
         continue
       endif
       assign one = blog.articles | where: 'id', candidate.id
