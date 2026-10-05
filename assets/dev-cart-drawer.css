@@ -252,8 +252,7 @@ body[data-cart-drawer-open='true'] {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  /* 2px between the price and Remove (owner, 2026-10-05) — was --spacing-sm (8px). */
-  gap: 2px;
+  gap: var(--spacing-sm);
   flex-shrink: 0;
 }
 
@@ -321,11 +320,13 @@ body[data-cart-drawer-open='true'] {
   white-space: nowrap;
 }
 
-/* The two prices are one unit: no gap between them. */
+/* The struck price and the price now sit 2px apart (owner, 2026-10-05); Remove keeps the column's
+   8px below them. */
 .cart-drawer__item-prices {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  gap: 2px;
 }
 
 .cart-drawer__item-price--was {
