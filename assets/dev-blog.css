@@ -355,3 +355,10 @@
   height: auto;
   aspect-ratio: 1 / 1;
 }
+
+/* Phones: a full-width square was nearly a screen per card — 4:3 instead (CDN crop matches). */
+@media (max-width: 768px) {
+  .dev-blog .journal-cards__image {
+    aspect-ratio: 4 / 3;
+  }
+}
