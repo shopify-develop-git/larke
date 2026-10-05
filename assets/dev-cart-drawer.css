@@ -320,6 +320,34 @@ body[data-cart-drawer-open='true'] {
   white-space: nowrap;
 }
 
+/* Discounted line: the original price struck through, in a softer weight and colour, above the
+   price now. */
+.cart-drawer__item-price--was {
+  font-weight: var(--weight-medium);
+  opacity: 0.6;
+}
+
+.cart-drawer__item-price--was s {
+  text-decoration-thickness: 1px;
+}
+
+.cart-drawer__item-discount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: var(--spacing-xs, 4px) 0 0;
+  font-size: var(--font-size-remove);
+  font-weight: var(--weight-bold);
+  line-height: var(--font-body-lh);
+  color: var(--discount-color, #4ea448);
+}
+
+.cart-drawer__item-discount-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
 .cart-drawer__item-remove {
   font-size: var(--font-size-remove);
   font-weight: var(--weight-medium);
