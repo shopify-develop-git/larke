@@ -206,9 +206,12 @@ body[data-cart-drawer-open='true'] {
 /* Top-aligned, not centred: the price belongs to the line as a whole, so it reads against the
    title. Centring hung it level with the middle option, which made it look like that option's
    price rather than the line's. */
+/* stretch, not flex-start: the actions column runs the full row height so Remove can sit on the
+   row's bottom edge, level with the Qty line (owner, 2026-10-05). The media side pins itself to the
+   top on its own (see below), so stretching changes nothing there. */
 .cart-drawer__item-detail {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: space-between;
   gap: var(--spacing-md);
 }
@@ -360,6 +363,7 @@ body[data-cart-drawer-open='true'] {
 }
 
 .cart-drawer__item-remove {
+  margin-top: auto;
   font-size: var(--font-size-remove);
   font-weight: var(--weight-medium);
   line-height: var(--font-body-lh);
@@ -604,9 +608,10 @@ body[data-cart-drawer-open='true'] {
     margin: -10px;
   }
 
+  /* 44px tap target, text on the box's bottom edge so it still lines up with Qty. */
   .cart-drawer__item-remove {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-end;
     min-height: 44px;
   }
 }
