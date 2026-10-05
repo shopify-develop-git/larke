@@ -364,10 +364,10 @@
   border-radius: var(--radius-inline);
 }
 
-/* CDN body images are cropped to the hero's 3:2 by snippets/dev-article-body.liquid and carry
+/* CDN body images are cropped to the hero's square (1:1) by snippets/dev-article-body.liquid and carry
    width/height, so the box is reserved before the file arrives. The ratio is restated here so the
    box holds even in the instant before the browser has parsed the attributes. */
-.dev-article__body img[data-crop='3:2'] {
+.dev-article__body img[data-crop='1:1'] {
   aspect-ratio: var(--ratio-media);
   object-fit: cover;
   background-color: var(--panel-bg); /* the reserved box reads as a soft placeholder, not a hole */
@@ -719,7 +719,7 @@
 @media (max-width: 768px) {
   /* Taller images on phones: hero and in-body photos go square (token: --ratio-media-mobile). */
   .dev-article__media,
-  .dev-article__body img[data-crop='3:2'] {
+  .dev-article__body img[data-crop='1:1'] {
     aspect-ratio: var(--ratio-media-mobile);
   }
 
