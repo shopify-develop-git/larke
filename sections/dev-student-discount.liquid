@@ -1,7 +1,8 @@
 {{ 'dev-student-discount.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'dev-student-discount.js' | asset_url }}" defer></script>
 {%- comment -%}
-  No JS. The FAQ rows are <details>/<summary> sharing one `name`, so the browser keeps one open at
-  a time natively; nothing else on the page is interactive.
+  The JS only re-skins the Student Beans card (it lives in the app's shadow root, out of reach of
+  this CSS). The FAQ rows need none: <details> sharing one `name` keep one open at a time natively.
 {%- endcomment -%}
 
 {%- comment -%}
@@ -55,6 +56,7 @@
     --accent: {{ section.settings.accent_color }};
     --card-bg: {{ section.settings.card_color }};
     --border-color: {{ section.settings.border_color }};
+    --widget-bg: {{ section.settings.background_color }};
     --pt: {{ section.settings.padding_top }}px;
     --pb: {{ section.settings.padding_bottom }}px;
   "
@@ -163,7 +165,7 @@
     { "type": "richtext", "id": "intro", "label": "Intro", "default": "<p>Better sleep shouldn't cost your student loan. Verify with Student Beans for free and take 15% off your Larke order.</p>" },
     { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop the duvet", "info": "Leave empty to hide the button." },
     { "type": "url", "id": "button_link", "label": "Button link" },
-    { "type": "paragraph", "content": "The Student Beans card on the right comes from the page's own content and the Beans ID app — its look is set in the app, not here." },
+    { "type": "paragraph", "content": "The Student Beans card on the right comes from the page's own content and the Beans ID app. The theme restyles it to match (fonts, colours, button) using the colours below." },
     { "type": "text", "id": "faq_heading", "label": "Questions heading", "default": "Good to know" },
 
     { "type": "header", "content": "Colors" },
