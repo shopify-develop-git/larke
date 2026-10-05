@@ -12,7 +12,7 @@
     "dev-our-story-hero": {
       "type": "dev-tree-fibre-hero",
       "settings": {
-        "heading": "We believe every sleep should feel extraordinary, <em>starting</em> with <em>duvets.</em>",
+        "heading": "We believe every sleep should feel extraordinary, <em>starting</em> with <em>duvets</em>",
         "emphasis_weight": "700",
         "show_underline": true,
         "background_image": "shopify://shop_images/LARKE-SELECTS-094.jpg",
