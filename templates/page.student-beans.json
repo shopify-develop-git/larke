@@ -3,9 +3,24 @@
     "student-discount": {
       "type": "dev-student-discount",
       "blocks": {
-        "point-1": { "type": "point", "settings": { "text": "15% off everything" } },
-        "point-2": { "type": "point", "settings": { "text": "Free UK delivery" } },
-        "point-3": { "type": "point", "settings": { "text": "60 nights to try it at home" } },
+        "point-1": {
+          "type": "point",
+          "settings": {
+            "text": "15% off everything"
+          }
+        },
+        "point-2": {
+          "type": "point",
+          "settings": {
+            "text": "Free UK delivery"
+          }
+        },
+        "point-3": {
+          "type": "point",
+          "settings": {
+            "text": "60 nights to try it at home"
+          }
+        },
         "faq-1": {
           "type": "faq",
           "settings": {
@@ -28,11 +43,18 @@
           }
         }
       },
-      "block_order": ["point-1", "point-2", "point-3", "faq-1", "faq-2", "faq-3"],
+      "block_order": [
+        "point-1",
+        "point-2",
+        "point-3",
+        "faq-1",
+        "faq-2",
+        "faq-3"
+      ],
       "settings": {
         "eyebrow": "Student discount",
-        "heading": "15% off for students",
-        "intro": "<p>Better sleep shouldn't cost your student loan. Verify with Student Beans for free and take 15% off your Larke order.</p>",
+        "heading": "Sleep natural with Larke",
+        "intro": "<p>We believe everyone should feel remarkable in their sleep. We've partnered with Student Beans to offer students a discount, making better sleep that little bit easier to enjoy.</p>",
         "button_label": "Shop the duvet",
         "button_link": "shopify://products/natural-duvet",
         "faq_heading": "Good to know",
@@ -46,5 +68,7 @@
       }
     }
   },
-  "order": ["student-discount"]
+  "order": [
+    "student-discount"
+  ]
 }
