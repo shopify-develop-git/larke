@@ -65,6 +65,8 @@
         "social_instagram_url": "https://www.instagram.com/wearelarke/",
         "copyright_text": "<p>Copyright © 2026 <a href=\"https://wearelarke.com/\">Larke</a></p>",
         "show_policy_links": true,
+        "extra_link_label": "Student discount",
+        "extra_link_url": "shopify://pages/student-beans",
         "cookie_policy_page": "",
         "show_payment_icons": true,
         "payment_icons_source": "dynamic",
