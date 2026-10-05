@@ -182,7 +182,7 @@
               {%- for discount in cart.cart_level_discount_applications -%}
                 <div class="dev-cart-page__total-row dev-cart-page__total-row--discount">
                   {%- comment -%} The title of a code discount IS the code — for Student Beans a long one-off string
-                     (7E1E2D7E-…), which is noise in a summary. A plain label instead. {%- endcomment -%}
+                     (7E1E2D7E-…), which is noise in a summary. A plain label instead (#58). {%- endcomment -%}
                   <dt>{{ section.settings.discount_label | default: 'Discount' | escape }}</dt>
                   <dd>-{{ discount.total_allocated_amount | money }}</dd>
                 </div>

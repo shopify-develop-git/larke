@@ -878,7 +878,12 @@
                   {%- endif -%}
 
                   {%- if row.settings.button_label != blank -%}
-                    {%- render 'dev-button', variant: 'outline', label: row.settings.button_label, link: row.settings.button_link, default: '#', class: 'dev-main-product__acc-button' -%}
+                    {%- comment -%} Optional new tab (owner, 2026-10-05: Care > How to wash opens the washing post in a new tab). {%- endcomment -%}
+                    {%- if row.settings.button_new_tab -%}
+                      {%- render 'dev-button', variant: 'outline', label: row.settings.button_label, link: row.settings.button_link, default: '#', class: 'dev-main-product__acc-button', target: '_blank', rel: 'noopener' -%}
+                    {%- else -%}
+                      {%- render 'dev-button', variant: 'outline', label: row.settings.button_label, link: row.settings.button_link, default: '#', class: 'dev-main-product__acc-button' -%}
+                    {%- endif -%}
                   {%- endif -%}
                 </details>
               {%- endfor -%}
@@ -1497,6 +1502,7 @@
         { "type": "checkbox", "id": "open_by_default", "label": "Open by default", "default": false },
         { "type": "text", "id": "button_label", "label": "Button label", "info": "Optional — the Care row carries one." },
         { "type": "url", "id": "button_link", "label": "Button link" },
+        { "type": "checkbox", "id": "button_new_tab", "label": "Open button link in a new tab", "default": false },
 
         { "type": "header", "content": "Certification rows" },
         { "type": "paragraph", "content": "Only the Certifications row uses these. A mark plus a line of copy — richtext cannot hold an image." },
