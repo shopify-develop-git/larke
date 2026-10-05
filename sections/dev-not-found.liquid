@@ -1,0 +1,173 @@
+{{ 'dev-not-found.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Larke 404 (owner, 2026-10-05: "good looking 404 page in Larke style"). No Figma artboard, so every
+  value is borrowed from a section that IS in the file: the cream card, 32px radius and Title-3 type
+  from dev-policy (Delivery & Returns), the link tiles from dev-fibre-benefits / dev-pdp-guarantees,
+  buttons from the shared dev-button component. Static — no JS.
+{%- endcomment -%}
+<style>
+  .dev-not-found {
+    --font-title-size: 48px;
+    --font-title-size-mobile: 32px;
+    --font-tile-title-size: 22px;
+    --font-tile-title-size-mobile: 20px;
+    --font-heading-weight: 500;
+    --font-heading-lh: 1.15;
+    --font-body-size: 18px;
+    --font-body-size-mobile: 16px;
+    --font-small-size: 14px;
+    --font-body-weight: 500;
+    --font-body-lh: 1.4;
+    --container-max: 1312px;
+    --card-max: 760px;
+    --section-px: clamp(24px, 4.4444vw, 64px);
+    --section-px-mobile: 16px;
+    --card-radius: 32px;
+    --tile-radius: 16px;
+    --card-pad: 64px;
+    --card-pad-mobile: 32px;
+    --card-gap: 24px;
+    --tile-pad: 24px;
+    --tile-gap: 16px;
+    --block-gap: 64px;
+    --block-gap-mobile: 40px;
+    --icon-size: 24px;
+  }
+</style>
+
+{%- assign tiles = section.blocks | where: 'type', 'link' -%}
+
+<div
+  class="dev-not-found"
+  style="
+    --bg: {{ section.settings.background_color }};
+    --color: {{ section.settings.text_color }};
+    --accent: {{ section.settings.accent_color }};
+    --card-bg: {{ section.settings.card_color }};
+    --tile-bg: {{ section.settings.tile_color }};
+    --pt: {{ section.settings.padding_top }}px;
+    --pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="dev-not-found__inner">
+    <div class="dev-not-found__card">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="dev-not-found__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+
+      {%- comment -%} <h1>: on a 404 this card IS the page's main content and nothing else renders a title. {%- endcomment -%}
+      {%- if section.settings.heading != blank -%}
+        <h1 class="dev-not-found__title">{{ section.settings.heading }}</h1>
+      {%- endif -%}
+
+      {%- if section.settings.text != blank -%}
+        <div class="dev-not-found__text">{{ section.settings.text }}</div>
+      {%- endif -%}
+
+      {%- assign has_primary = false -%}
+      {%- if section.settings.primary_label != blank and section.settings.primary_link != blank -%}
+        {%- assign has_primary = true -%}
+      {%- endif -%}
+      {%- assign has_secondary = false -%}
+      {%- if section.settings.secondary_label != blank and section.settings.secondary_link != blank -%}
+        {%- assign has_secondary = true -%}
+      {%- endif -%}
+
+      {%- if has_primary or has_secondary -%}
+        <div class="dev-not-found__actions">
+          {%- if has_primary -%}
+            {%- render 'dev-button',
+              variant: 'dark',
+              label: section.settings.primary_label,
+              link: section.settings.primary_link,
+              class: 'dev-not-found__button'
+            -%}
+          {%- endif -%}
+          {%- if has_secondary -%}
+            {%- render 'dev-button',
+              variant: 'outline',
+              label: section.settings.secondary_label,
+              link: section.settings.secondary_link,
+              class: 'dev-not-found__button'
+            -%}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- if tiles.size > 0 -%}
+      <nav class="dev-not-found__more" aria-label="{{ section.settings.links_heading | default: 'Where to next?' | escape }}">
+        {%- if section.settings.links_heading != blank -%}
+          <h2 class="dev-not-found__more-title">{{ section.settings.links_heading | escape }}</h2>
+        {%- endif -%}
+        <ul class="dev-not-found__tiles" role="list">
+          {%- for block in tiles -%}
+            {%- if block.settings.title != blank and block.settings.link != blank -%}
+              <li class="dev-not-found__tile-item" {{ block.shopify_attributes }}>
+                <a class="dev-not-found__tile" href="{{ block.settings.link }}">
+                  <span class="dev-not-found__tile-text">
+                    <span class="dev-not-found__tile-title">{{ block.settings.title | escape }}</span>
+                    {%- if block.settings.text != blank -%}
+                      <span class="dev-not-found__tile-body">{{ block.settings.text | escape }}</span>
+                    {%- endif -%}
+                  </span>
+                  <svg class="dev-not-found__tile-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                    <path d="M17 8L21 12L17 16M21 12L3 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </nav>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Page not found",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Content" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "404" },
+    { "type": "inline_richtext", "id": "heading", "label": "Heading", "default": "This page has drifted off to sleep" },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>The link may be broken, or the page has moved. Let's get you somewhere more comfortable.</p>" },
+    { "type": "text", "id": "primary_label", "label": "Main button label", "default": "Shop the duvet" },
+    { "type": "url", "id": "primary_link", "label": "Main button link" },
+    { "type": "text", "id": "secondary_label", "label": "Second button label", "default": "Back to home" },
+    { "type": "url", "id": "secondary_link", "label": "Second button link" },
+    { "type": "text", "id": "links_heading", "label": "Links heading", "default": "Where to next?" },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "background_color", "label": "Background", "default": "#FFFCF4" },
+    { "type": "color", "id": "card_color", "label": "Card background", "default": "#FCF5E3" },
+    { "type": "color", "id": "tile_color", "label": "Link tile background", "default": "#FCF5E3" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#333333" },
+    { "type": "color", "id": "accent_color", "label": "Accent", "default": "#4EA448" },
+
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 200, "step": 4, "unit": "px", "label": "Padding top", "default": 64 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 200, "step": 4, "unit": "px", "label": "Padding bottom", "default": 96 }
+  ],
+  "blocks": [
+    {
+      "type": "link",
+      "name": "Link tile",
+      "limit": 4,
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Shop Our Duvet" },
+        { "type": "text", "id": "text", "label": "Text", "default": "Natural sleep, made from trees." },
+        { "type": "url", "id": "link", "label": "Link" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Page not found",
+      "blocks": [{ "type": "link" }, { "type": "link" }, { "type": "link" }, { "type": "link" }]
+    }
+  ]
+}
+{% endschema %}
