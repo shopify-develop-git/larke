@@ -181,7 +181,9 @@
               </div>
               {%- for discount in cart.cart_level_discount_applications -%}
                 <div class="dev-cart-page__total-row dev-cart-page__total-row--discount">
-                  <dt>{{ discount.title | escape }}</dt>
+                  {%- comment -%} The title of a code discount IS the code — for Student Beans a long one-off string
+                     (7E1E2D7E-…), which is noise in a summary. A plain label instead. {%- endcomment -%}
+                  <dt>{{ section.settings.discount_label | default: 'Discount' | escape }}</dt>
                   <dd>-{{ discount.total_allocated_amount | money }}</dd>
                 </div>
               {%- endfor -%}
@@ -246,6 +248,7 @@
     { "type": "url", "id": "continue_url", "label": "Continue shopping link", "info": "Leave empty to use the all-products collection." },
     { "type": "text", "id": "summary_heading", "label": "Summary heading", "default": "Order summary" },
     { "type": "text", "id": "summary_note", "label": "Summary note", "default": "Shipping & taxes calculated at checkout." },
+    { "type": "text", "id": "discount_label", "label": "Discount row label", "default": "Discount" },
     { "type": "text", "id": "checkout_label", "label": "Checkout button label", "default": "Checkout Securely" },
     { "type": "text", "id": "trust_text", "label": "Trust line", "default": "Safe 60-night trial · Free UK delivery" },
     { "type": "text", "id": "empty_text", "label": "Empty basket message", "default": "Your basket is empty." },
