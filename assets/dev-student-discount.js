@@ -64,18 +64,77 @@
       background: var(--border-color, #c4bca9) !important;
     }
 
-    /* Step numbers and the line joining them. */
+    /* Steps. Each <li> is [number column][text]. The number column stretches to the row's full
+       height so the connector line runs unbroken down to the next number, and each number sits
+       level with the FIRST line of its text — also when the text wraps (step 3 on narrow cards). */
+    [class*="max-w-[400px]"] ol {
+      display: flex !important;
+      flex-direction: column !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      list-style: none !important;
+    }
+
+    [class*="max-w-[400px]"] ol > li {
+      display: flex !important;
+      align-items: stretch !important;
+      margin: 0 !important;
+    }
+
+    [class*="max-w-[400px]"] ol > li > div:first-child {
+      display: flex !important;
+      flex: 0 0 24px !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      align-self: stretch !important;
+    }
+
     [class*="max-w-[400px]"] .rounded-full.bg-grey-500 {
+      display: flex !important;
+      flex: 0 0 24px !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 24px !important;
+      height: 24px !important;
+      padding: 0 !important;
       background: var(--color, #333333) !important;
       color: var(--widget-bg, #fffcf4) !important;
       font-family: var(--font-body) !important;
       font-size: 12px !important;
       font-weight: 700 !important;
-      line-height: 20px !important;
+      line-height: 1 !important;
     }
 
     [class*="max-w-[400px]"] [class*="w-[2px]"].bg-grey-500 {
+      flex: 1 1 auto !important;
+      width: 1px !important;
+      height: auto !important;
+      min-height: 8px;
+      margin: 4px 0 !important;
+      padding: 0 !important;
       background: var(--border-color, #c4bca9) !important;
+    }
+
+    /* Text column: 12px from the number, 16px clear of the next step, first line centred on the
+       24px number (min-height + justify-center does that for one line; longer text starts level). */
+    [class*="max-w-[400px]"] ol > li > div:last-child {
+      padding: 0 0 16px 12px !important;
+    }
+
+    [class*="max-w-[400px]"] ol > li:last-child > div:last-child {
+      padding-bottom: 0 !important;
+    }
+
+    [class*="max-w-[400px]"] ol > li > div:last-child > div {
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      min-height: 24px;
+      margin: 0 !important;
+    }
+
+    [class*="max-w-[400px]"] ol p {
+      margin: 0 !important;
     }
 
     /* Get Code — Larke "Primary - Black" pill (dev-button.css .dev-btn--dark). */
