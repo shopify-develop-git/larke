@@ -38,7 +38,7 @@ Icons come from two places, checked in this order:
 
 1. **Built-in** (drawn into the theme): `wash-30 wash-40 wash-60 no-bleach tumble-dry tumble-dry-low
    no-tumble-dry dry-flat iron-low machine leaf sun moon thermometer drop wind tree shield heart check
-   cloud waves`.
+   cloud waves layers`.
 2. **Uploaded** — Content → Metaobjects → **Article icon**: a `name` and an `icon` file (SVG or
    transparent PNG). `[icon:that-name]` and `[tip:that-name]` then work in every post. Only the
    file's shape is used (CSS mask): it is shown in the text colour at the built-ins' size, so an
