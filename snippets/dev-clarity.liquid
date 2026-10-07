@@ -1,0 +1,53 @@
+{%- comment -%}
+  Microsoft Clarity (owner, 2026-10-07: "they used to have MS Clarity on their other store — install
+  it here as well"). The old Motto theme loaded project s8ohvmxkny unconditionally; this is the same
+  project, so recordings and heatmaps carry on.
+
+  Unlike Motto, it follows the visitor's cookie choice (UK GDPR / PECR). Clarity's Consent API v2
+  takes analytics_Storage / ad_Storage: we pass Shopify's own consent state from the customer
+  privacy banner, and update it the moment the visitor answers the banner. Without analytics
+  consent Clarity runs cookieless (no _clck/_clsk cookies). Where no banner is required, Shopify
+  reports analyticsProcessingAllowed() = true and Clarity behaves normally.
+
+  Off when Theme settings → Analytics → Clarity project ID is empty. Not loaded in the theme editor
+  (design_mode), so editing the theme never creates recordings.
+{%- endcomment -%}
+{%- assign clarity_id = settings.clarity_project_id | strip -%}
+{%- if clarity_id != blank and request.design_mode == false -%}
+  <script>
+    (function (c, l, a, r, i, t, y) {
+      c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+      t = l.createElement(r); t.async = 1; t.src = 'https://www.clarity.ms/tag/' + i;
+      y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+    })(window, document, 'clarity', 'script', {{ clarity_id | json }});
+
+    (function () {
+      function sendConsent() {
+        var privacy = window.Shopify && window.Shopify.customerPrivacy;
+        if (!privacy || typeof privacy.analyticsProcessingAllowed !== 'function') return;
+        var analytics = privacy.analyticsProcessingAllowed() ? 'granted' : 'denied';
+        var ads = typeof privacy.marketingAllowed === 'function' && privacy.marketingAllowed() ? 'granted' : 'denied';
+        window.clarity('consentv2', { analytics_Storage: analytics, ad_Storage: ads });
+      }
+
+      function withPrivacyApi() {
+        if (window.Shopify && window.Shopify.customerPrivacy) {
+          sendConsent();
+          return;
+        }
+        if (window.Shopify && typeof window.Shopify.loadFeatures === 'function') {
+          window.Shopify.loadFeatures([{ name: 'consent-tracking-api', version: '0.1' }], function (error) {
+            if (!error) sendConsent();
+          });
+        }
+      }
+
+      document.addEventListener('visitorConsentCollected', sendConsent);
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', withPrivacyApi);
+      } else {
+        withPrivacyApi();
+      }
+    })();
+  </script>
+{%- endif -%}
