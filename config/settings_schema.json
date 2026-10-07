@@ -2176,5 +2176,17 @@
         "default": "9am – 5pm\nMonday – Friday"
       }
     ]
+  },
+  {
+    "name": "Analytics",
+    "settings": [
+      {
+        "type": "text",
+        "id": "clarity_project_id",
+        "label": "Microsoft Clarity project ID",
+        "default": "",
+        "info": "The code after clarity.ms/tag/ in your Clarity install snippet (Settings → Overview in Clarity). Leave empty to switch Clarity off. It follows the cookie banner: without analytics consent it records without cookies."
+      }
+    ]
   }
 ]
